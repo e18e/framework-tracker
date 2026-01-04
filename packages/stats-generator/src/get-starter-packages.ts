@@ -1,8 +1,5 @@
-import { readdir } from 'fs/promises'
-import { fileURLToPath } from 'url'
+import { readdir } from 'node:fs/promises'
 import { packagesDir } from './constants'
-
-const __filename = fileURLToPath(import.meta.url)
 
 export async function getStarterPackages() {
   const packageDirs = await readdir(packagesDir)

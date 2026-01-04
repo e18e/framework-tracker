@@ -1,8 +1,9 @@
-import { readFile } from 'fs/promises'
-import { join } from 'path'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { getStarterPackages } from './get-starter-packages'
 import { packagesDir } from './constants'
 import { saveStats } from './save-stats'
+import type { FrameworkStats, PackageJson } from './types'
 
 async function createStats() {
   const starterPackages = await getStarterPackages()
@@ -12,10 +13,7 @@ async function createStats() {
 
     try {
       const packageJsonContent = await readFile(packageJsonPath, 'utf-8')
-      const packageJson = JSON.parse(packageJsonContent) as Record<
-        string,
-        unknown
-      >
+      const packageJson = JSON.parse(packageJsonContent) as PackageJson
 
       const dependencies = packageJson.dependencies || {}
       const devDependencies = packageJson.devDependencies || {}
@@ -28,7 +26,7 @@ async function createStats() {
         devDependencies: devCount,
       }
 
-      saveStats(pkgDir, stats)
+      await saveStats(pkgDir, stats)
 
       console.log(`✓ Processed ${pkgDir}`)
     } catch (error) {

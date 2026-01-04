@@ -11,11 +11,18 @@
     "dev:docs": "pnpm --filter @framework-tracker/docs dev",
     "build:docs": "pnpm --filter @framework-tracker/docs build",
     "preview:docs": "pnpm --filter @framework-tracker/docs preview",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "type-check": "pnpm --filter @framework-tracker/docs type-check"
+    "dev:next": "pnpm --filter starter-next-js dev",
+    "build:next": "pnpm --filter starter-next-js build",
+    "dev:react-router": "pnpm --filter starter-react-router dev",
+    "build:react-router": "pnpm --filter starter-react-router build",
+    "dev:tanstack": "pnpm --filter starter-tanstack-start-react dev",
+    "build:tanstack": "pnpm --filter starter-tanstack-start-react build",
+    "generate:stats": "pnpm --filter @framework-tracker/stats-generator generate",
+    "lint": "pnpm -r --parallel lint",
+    "lint:fix": "pnpm -r --parallel lint:fix",
+    "format": "pnpm -r --parallel format",
+    "format:check": "pnpm -r --parallel format:check",
+    "type-check": "pnpm -r --parallel type-check"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

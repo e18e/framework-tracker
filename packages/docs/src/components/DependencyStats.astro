@@ -1,0 +1,264 @@
+---
+import { getCollection } from 'astro:content'
+import background from '../assets/background.svg'
+
+const statsEntries = await getCollection('stats')
+const stats = statsEntries.map((entry) => entry.data)
+---
+
+<div id="container">
+  <img id="background" src={background.src} alt="" fetchpriority="high" />
+  <main>
+    <section id="hero">
+      <h1>Framework Tracker</h1>
+      <p class="description">
+        For a full list of what we plan to track see{' '}
+        <a
+          href="https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="roadmap-link"
+        >
+          roadmap
+        </a>.
+      </p>
+
+      <h2>Dev Time Performance</h2>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Framework</th>
+              <th>Prod Deps</th>
+              <th>Dev Deps</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              stats.map((framework) => (
+                <tr>
+                  <td class="framework-name">{framework.name}</td>
+                  <td>{framework.prodDependencies}</td>
+                  <td>{framework.devDependencies}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="details-section">
+        <h3>Details</h3>
+        <ul class="framework-links">
+          {
+            stats.map((framework) => (
+              <li>
+                <strong>{framework.name}</strong>
+                {framework.npmGraphUrl && (
+                  <span>
+                    {' '}
+                    -{' '}
+                    <a
+                      href={framework.npmGraphUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="graph-link"
+                    >
+                      View Dependency Graph
+                    </a>
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <h2>Runtime Performance</h2>
+      <p class="coming-soon">Coming soon...</p>
+    </section>
+  </main>
+</div>
+
+<style>
+  #background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    filter: blur(100px);
+  }
+
+  #container {
+    font-family:
+      Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial,
+      sans-serif;
+    min-height: 100vh;
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+
+  #hero {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  h3 {
+    font-size: 16px;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .description {
+    font-size: 16px;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 2em;
+    max-width: 700px;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 2em;
+  }
+
+  .details-section {
+    margin-bottom: 2em;
+  }
+
+  .framework-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .framework-links li {
+    padding: 8px 0;
+    color: #111827;
+  }
+
+  .coming-soon {
+    color: #6b7280;
+    font-style: italic;
+    font-size: 15px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid white;
+  }
+
+  thead {
+    background: linear-gradient(83.21deg, #3245ff 0%, #bc52ee 100%);
+    color: white;
+  }
+
+  th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  th:not(:first-child) {
+    text-align: center;
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 15px;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: #f9fafb;
+  }
+
+  .framework-name {
+    font-weight: 500;
+    color: #111827;
+  }
+
+  td:not(.framework-name) {
+    text-align: center;
+    color: #6b7280;
+  }
+
+  .graph-link,
+  .roadmap-link {
+    color: #3245ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+
+  .graph-link:hover,
+  .roadmap-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+  }
+
+  @media screen and (max-width: 768px) {
+    main {
+      padding: 20px 16px;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    h2 {
+      font-size: 18px;
+    }
+
+    .description {
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      padding: 12px 8px;
+      font-size: 13px;
+    }
+
+    th {
+      font-size: 12px;
+    }
+  }
+</style>

@@ -38,20 +38,38 @@ jobs:
         run: pnpm --filter @framework-tracker/docs format
 
       - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v8
-        with:
-          commit-message: Update stats after starter changes
-          branch: automated-stats-update
-          delete-branch: true
-          title: 'Update stats after starter changes'
-          body: |
-            Automated stats update triggered by changes to starter packages.
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            This PR was automatically created and will auto-merge if all checks pass.
+          # Check if there are changes
+          if [[ -z $(git status -s) ]]; then
+            echo "No changes to commit"
+            exit 0
+          fi
 
-      - name: Enable auto-merge
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
+          # Create or switch to branch
+          git checkout -B automated-stats-update
+
+          # Commit and push changes
+          git add .
+          git commit -m "Update stats after starter changes"
+          git push --force-with-lease origin automated-stats-update
+
+          # Create PR if it doesn't exist
+          if ! gh pr view automated-stats-update &>/dev/null; then
+            gh pr create \
+              --title "Update stats after starter changes" \
+              --body "Automated stats update triggered by changes to starter packages.
+
+          This PR was automatically created and will auto-merge if all checks pass." \
+              --base main \
+              --head automated-stats-update
+          else
+            echo "PR already exists, updated with new commits"
+          fi
+
+          # Enable auto-merge
+          gh pr merge automated-stats-update --auto --squash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

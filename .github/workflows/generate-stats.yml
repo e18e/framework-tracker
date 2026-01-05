@@ -1,0 +1,57 @@
+name: Generate Stats
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/starter-*/**'
+      - 'package.json'
+
+jobs:
+  generate-stats:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate stats
+        run: pnpm generate:stats
+
+      - name: Format docs
+        run: pnpm --filter @framework-tracker/docs format
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: Update stats after starter changes
+          branch: automated-stats-update
+          delete-branch: true
+          title: 'Update stats after starter changes'
+          body: |
+            Automated stats update triggered by changes to starter packages.
+
+            This PR was automatically created and will auto-merge if all checks pass.
+
+      - name: Enable auto-merge
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

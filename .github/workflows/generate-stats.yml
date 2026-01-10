@@ -1,0 +1,75 @@
+name: Generate Stats
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/starter-*/**'
+      - 'package.json'
+
+jobs:
+  generate-stats:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate stats
+        run: pnpm generate:stats
+
+      - name: Format docs
+        run: pnpm --filter @framework-tracker/docs format
+
+      - name: Create Pull Request
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check if there are changes
+          if [[ -z $(git status -s) ]]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          # Create or switch to branch
+          git checkout -B automated-stats-update
+
+          # Commit and push changes
+          git add .
+          git commit -m "Update stats after starter changes"
+          git push --force-with-lease origin automated-stats-update
+
+          # Create PR if it doesn't exist
+          if ! gh pr view automated-stats-update &>/dev/null; then
+            gh pr create \
+              --title "Update stats after starter changes" \
+              --body "Automated stats update triggered by changes to starter packages.
+
+          This PR was automatically created and will auto-merge if all checks pass." \
+              --base main \
+              --head automated-stats-update
+          else
+            echo "PR already exists, updated with new commits"
+          fi
+
+          # Enable auto-merge
+          gh pr merge automated-stats-update --auto --squash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

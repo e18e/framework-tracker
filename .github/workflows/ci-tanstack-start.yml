@@ -54,6 +54,8 @@ jobs:
 
   measure:
     needs: test
+    permissions:
+      contents: write
     uses: ./.github/workflows/measure-build-times.yml
     with:
       package-name: starter-tanstack-start-react

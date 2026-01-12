@@ -21,7 +21,7 @@ on:
       - 'prettier.config.js'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -51,3 +51,11 @@ jobs:
 
       - name: Build
         run: pnpm build:react-router
+
+  measure:
+    needs: test
+    uses: ./.github/workflows/measure-build-times.yml
+    with:
+      package-name: starter-react-router
+      package-path: packages/starter-react-router
+      build-command: pnpm build:react-router

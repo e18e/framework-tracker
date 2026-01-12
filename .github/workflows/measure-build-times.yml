@@ -1,0 +1,100 @@
+name: Measure Build Times
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+        description: 'Package name (e.g., starter-next-js)'
+      package-path:
+        required: true
+        type: string
+        description: 'Package path (e.g., packages/starter-next-js)'
+      build-command:
+        required: true
+        type: string
+        description: 'Build command (e.g., pnpm build:next)'
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          # No cache - we want clean measurements
+
+      - name: Measure install time
+        id: install
+        run: |
+          START=$(date +%s%N)
+          pnpm install --frozen-lockfile
+          END=$(date +%s%N)
+          ELAPSED=$((($END - $START) / 1000000))
+          echo "time=$ELAPSED" >> $GITHUB_OUTPUT
+          echo "Install time: ${ELAPSED}ms"
+
+      - name: Measure cold build time
+        id: cold_build
+        run: |
+          START=$(date +%s%N)
+          ${{ inputs.build-command }}
+          END=$(date +%s%N)
+          ELAPSED=$((($END - $START) / 1000000))
+          echo "time=$ELAPSED" >> $GITHUB_OUTPUT
+          echo "Cold build time: ${ELAPSED}ms"
+
+      - name: Measure warm build time
+        id: warm_build
+        run: |
+          START=$(date +%s%N)
+          ${{ inputs.build-command }}
+          END=$(date +%s%N)
+          ELAPSED=$((($END - $START) / 1000000))
+          echo "time=$ELAPSED" >> $GITHUB_OUTPUT
+          echo "Warm build time: ${ELAPSED}ms"
+
+      - name: Save CI stats
+        run: |
+          mkdir -p ${{ inputs.package-path }}
+          echo '{
+            "installTimeMs": ${{ steps.install.outputs.time }},
+            "coldBuildTimeMs": ${{ steps.cold_build.outputs.time }},
+            "warmBuildTimeMs": ${{ steps.warm_build.outputs.time }},
+            "timingMeasuredAt": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+            "runner": "ubuntu-latest"
+          }' > ${{ inputs.package-path }}/.ci-stats.json
+
+      - name: Commit CI stats
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ${{ inputs.package-path }}/.ci-stats.json
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update CI stats for ${{ inputs.package-name }} [skip ci]"
+
+          # Push to the PR branch or main
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            git push
+          fi

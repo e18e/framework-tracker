@@ -28,35 +28,8 @@ jobs:
           node-version: '24'
           # No cache - we want clean measurements
 
-      - name: Detect changed packages
-        id: detect
-        run: |
-          # Check which packages changed in the last commit
-          PACKAGES=""
-          if git diff --name-only HEAD~1 HEAD | grep -q "packages/starter-next-js/"; then
-            PACKAGES="$PACKAGES next"
-          fi
-          if git diff --name-only HEAD~1 HEAD | grep -q "packages/starter-react-router/"; then
-            PACKAGES="$PACKAGES react-router"
-          fi
-          if git diff --name-only HEAD~1 HEAD | grep -q "packages/starter-tanstack-start-react/"; then
-            PACKAGES="$PACKAGES tanstack"
-          fi
-          if git diff --name-only HEAD~1 HEAD | grep -q "packages/starter-nuxt/"; then
-            PACKAGES="$PACKAGES nuxt"
-          fi
-
-          # If no packages changed but package.json changed, measure all
-          if [ -z "$PACKAGES" ] && git diff --name-only HEAD~1 HEAD | grep -q "package.json"; then
-            PACKAGES="next react-router tanstack nuxt"
-          fi
-
-          echo "packages=$PACKAGES" >> $GITHUB_OUTPUT
-          echo "Changed packages: $PACKAGES"
-
       - name: Measure install time (clean, no cache)
         id: install
-        if: steps.detect.outputs.packages != ''
         run: |
           START=$(date +%s%N)
           pnpm install --frozen-lockfile
@@ -66,7 +39,6 @@ jobs:
           echo "Install time: ${ELAPSED}ms"
 
       - name: Measure Next.js builds
-        if: contains(steps.detect.outputs.packages, 'next')
         id: next
         run: |
           # Cold build
@@ -86,7 +58,6 @@ jobs:
           echo "Next.js - Cold: ${COLD}ms, Warm: ${WARM}ms"
 
       - name: Measure React Router builds
-        if: contains(steps.detect.outputs.packages, 'react-router')
         id: react_router
         run: |
           # Cold build
@@ -106,7 +77,6 @@ jobs:
           echo "React Router - Cold: ${COLD}ms, Warm: ${WARM}ms"
 
       - name: Measure TanStack Start builds
-        if: contains(steps.detect.outputs.packages, 'tanstack')
         id: tanstack
         run: |
           # Cold build
@@ -126,7 +96,6 @@ jobs:
           echo "TanStack Start - Cold: ${COLD}ms, Warm: ${WARM}ms"
 
       - name: Measure Nuxt builds
-        if: contains(steps.detect.outputs.packages, 'nuxt')
         id: nuxt
         run: |
           # Cold build
@@ -146,61 +115,48 @@ jobs:
           echo "Nuxt - Cold: ${COLD}ms, Warm: ${WARM}ms"
 
       - name: Save all CI stats
-        if: steps.detect.outputs.packages != ''
         run: |
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
           # Save Next.js stats
-          if [[ "${{ steps.detect.outputs.packages }}" == *"next"* ]]; then
-            mkdir -p packages/starter-next-js
-            echo '{
-              "installTimeMs": ${{ steps.install.outputs.time }},
-              "coldBuildTimeMs": ${{ steps.next.outputs.cold }},
-              "warmBuildTimeMs": ${{ steps.next.outputs.warm }},
-              "timingMeasuredAt": "'$TIMESTAMP'",
-              "runner": "ubuntu-latest"
-            }' > packages/starter-next-js/.ci-stats.json
-          fi
+          mkdir -p packages/starter-next-js
+          echo '{
+            "installTimeMs": ${{ steps.install.outputs.time }},
+            "coldBuildTimeMs": ${{ steps.next.outputs.cold }},
+            "warmBuildTimeMs": ${{ steps.next.outputs.warm }},
+            "timingMeasuredAt": "'$TIMESTAMP'",
+            "runner": "ubuntu-latest"
+          }' > packages/starter-next-js/.ci-stats.json
 
           # Save React Router stats
-          if [[ "${{ steps.detect.outputs.packages }}" == *"react-router"* ]]; then
-            mkdir -p packages/starter-react-router
-            echo '{
-              "installTimeMs": ${{ steps.install.outputs.time }},
-              "coldBuildTimeMs": ${{ steps.react_router.outputs.cold }},
-              "warmBuildTimeMs": ${{ steps.react_router.outputs.warm }},
-              "timingMeasuredAt": "'$TIMESTAMP'",
-              "runner": "ubuntu-latest"
-            }' > packages/starter-react-router/.ci-stats.json
-          fi
+          mkdir -p packages/starter-react-router
+          echo '{
+            "installTimeMs": ${{ steps.install.outputs.time }},
+            "coldBuildTimeMs": ${{ steps.react_router.outputs.cold }},
+            "warmBuildTimeMs": ${{ steps.react_router.outputs.warm }},
+            "timingMeasuredAt": "'$TIMESTAMP'",
+            "runner": "ubuntu-latest"
+          }' > packages/starter-react-router/.ci-stats.json
 
           # Save TanStack Start stats
-          if [[ "${{ steps.detect.outputs.packages }}" == *"tanstack"* ]]; then
-            mkdir -p packages/starter-tanstack-start-react
-            echo '{
-              "installTimeMs": ${{ steps.install.outputs.time }},
-              "coldBuildTimeMs": ${{ steps.tanstack.outputs.cold }},
-              "warmBuildTimeMs": ${{ steps.tanstack.outputs.warm }},
-              "timingMeasuredAt": "'$TIMESTAMP'",
-              "runner": "ubuntu-latest"
-            }' > packages/starter-tanstack-start-react/.ci-stats.json
-          fi
+          mkdir -p packages/starter-tanstack-start-react
+          echo '{
+            "installTimeMs": ${{ steps.install.outputs.time }},
+            "coldBuildTimeMs": ${{ steps.tanstack.outputs.cold }},
+            "warmBuildTimeMs": ${{ steps.tanstack.outputs.warm }},
+            "timingMeasuredAt": "'$TIMESTAMP'",
+            "runner": "ubuntu-latest"
+          }' > packages/starter-tanstack-start-react/.ci-stats.json
 
           # Save Nuxt stats
-          if [[ "${{ steps.detect.outputs.packages }}" == *"nuxt"* ]]; then
-            mkdir -p packages/starter-nuxt
-            echo '{
-              "installTimeMs": ${{ steps.install.outputs.time }},
-              "coldBuildTimeMs": ${{ steps.nuxt.outputs.cold }},
-              "warmBuildTimeMs": ${{ steps.nuxt.outputs.warm }},
-              "timingMeasuredAt": "'$TIMESTAMP'",
-              "runner": "ubuntu-latest"
-            }' > packages/starter-nuxt/.ci-stats.json
-          fi
-
-      - name: Install dependencies (if not already installed)
-        if: steps.detect.outputs.packages == ''
-        run: pnpm install --frozen-lockfile
+          mkdir -p packages/starter-nuxt
+          echo '{
+            "installTimeMs": ${{ steps.install.outputs.time }},
+            "coldBuildTimeMs": ${{ steps.nuxt.outputs.cold }},
+            "warmBuildTimeMs": ${{ steps.nuxt.outputs.warm }},
+            "timingMeasuredAt": "'$TIMESTAMP'",
+            "runner": "ubuntu-latest"
+          }' > packages/starter-nuxt/.ci-stats.json
 
       - name: Generate stats
         run: pnpm generate:stats

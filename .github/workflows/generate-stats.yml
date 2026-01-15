@@ -123,10 +123,38 @@ jobs:
           echo "time=$ELAPSED" >> $GITHUB_OUTPUT
           echo "Nuxt install time: ${ELAPSED}ms"
 
+  sveltekit-install:
+    runs-on: ubuntu-latest
+    outputs:
+      time: ${{ steps.measure.outputs.time }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Measure SvelteKit install time
+        id: measure
+        run: |
+          cp -r packages/starter-sveltekit /tmp/sveltekit-test
+          cd /tmp/sveltekit-test
+          START=$(date +%s%N)
+          pnpm install
+          END=$(date +%s%N)
+          ELAPSED=$((($END - $START) / 1000000))
+          echo "time=$ELAPSED" >> $GITHUB_OUTPUT
+          echo "SvelteKit install time: ${ELAPSED}ms"
+
   # Main job that measures builds and generates stats
   generate-stats:
     runs-on: ubuntu-latest
-    needs: [next-install, react-router-install, tanstack-install, nuxt-install]
+    needs: [next-install, react-router-install, tanstack-install, nuxt-install, sveltekit-install]
 
     permissions:
       contents: write
@@ -223,6 +251,25 @@ jobs:
           echo "warm=$WARM" >> $GITHUB_OUTPUT
           echo "Nuxt - Cold: ${COLD}ms, Warm: ${WARM}ms"
 
+      - name: Measure SvelteKit builds
+        id: sveltekit
+        run: |
+          # Cold build
+          START=$(date +%s%N)
+          pnpm build:sveltekit
+          END=$(date +%s%N)
+          COLD=$((($END - $START) / 1000000))
+
+          # Warm build
+          START=$(date +%s%N)
+          pnpm build:sveltekit
+          END=$(date +%s%N)
+          WARM=$((($END - $START) / 1000000))
+
+          echo "cold=$COLD" >> $GITHUB_OUTPUT
+          echo "warm=$WARM" >> $GITHUB_OUTPUT
+          echo "SvelteKit - Cold: ${COLD}ms, Warm: ${WARM}ms"
+
       - name: Save all CI stats
         run: |
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -266,6 +313,16 @@ jobs:
             "timingMeasuredAt": "'$TIMESTAMP'",
             "runner": "ubuntu-latest"
           }' > packages/starter-nuxt/.ci-stats.json
+
+          # Save SvelteKit stats
+          mkdir -p packages/starter-sveltekit
+          echo '{
+            "installTimeMs": ${{ needs.sveltekit-install.outputs.time }},
+            "coldBuildTimeMs": ${{ steps.sveltekit.outputs.cold }},
+            "warmBuildTimeMs": ${{ steps.sveltekit.outputs.warm }},
+            "timingMeasuredAt": "'$TIMESTAMP'",
+            "runner": "ubuntu-latest"
+          }' > packages/starter-sveltekit/.ci-stats.json
 
       - name: Generate stats
         run: pnpm generate:stats

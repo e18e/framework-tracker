@@ -292,8 +292,8 @@ jobs:
           git commit -m "Update CI stats and generated stats after starter changes"
           git push --force-with-lease origin automated-stats-update
 
-          # Create PR if it doesn't exist
-          if ! gh pr view automated-stats-update &>/dev/null; then
+          # Create PR if no open PR exists for this branch
+          if ! gh pr list --head automated-stats-update --state open | grep -q .; then
             gh pr create \
               --title "Update CI stats and generated stats after starter changes" \
               --body "Automated stats update triggered by changes to starter packages.
@@ -309,7 +309,7 @@ jobs:
             echo "PR already exists, updated with new commits"
           fi
 
-          # Enable auto-merge
-          gh pr merge automated-stats-update --auto --squash
+          # Enable auto-merge and delete branch after merge
+          gh pr merge automated-stats-update --auto --squash --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

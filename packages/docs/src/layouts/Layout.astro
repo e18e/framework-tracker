@@ -1,9 +1,13 @@
+---
+import Navbar from '../components/Navbar.astro'
+---
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
       content="Track and compare framework performance metrics across popular meta-frameworks"
@@ -17,8 +21,20 @@
     />
     <meta name="generator" content={Astro.generator} />
     <title>Framework Tracker</title>
+    <script is:inline>
+      ;(function () {
+        const storedTheme = localStorage.getItem('theme')
+        const systemDark = window.matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches
+        if (storedTheme === 'dark' || (!storedTheme && systemDark)) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
   </head>
   <body>
+    <Navbar />
     <slot />
   </body>
 </html>
@@ -30,5 +46,10 @@
     width: 100%;
     height: 100%;
     background-color: #ffffff;
+  }
+
+  html.dark,
+  html.dark body {
+    background-color: #1a1a1a;
   }
 </style>

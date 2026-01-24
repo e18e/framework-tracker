@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - 'packages/starter-*/**'
+      - '!packages/starter-*/.ci-stats.json'
       - 'packages/app-*/**'
+      - '!packages/app-*/.ci-stats.json'
       - 'packages/stats-generator/**'
       - '.github/workflows/generate-stats.yml'
       - '.github/frameworks.json'
@@ -172,7 +174,7 @@ jobs:
           fi
 
           git checkout -B automated-stats-update
-          git add .
+          git add packages/
           git commit -m "Update CI stats and generated stats after starter changes"
           git push --force-with-lease origin automated-stats-update
 
@@ -191,7 +193,5 @@ jobs:
           else
             echo "PR already exists, updated with new commits"
           fi
-
-          gh pr merge automated-stats-update --auto --squash --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

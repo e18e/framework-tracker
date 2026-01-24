@@ -164,10 +164,8 @@
     return getStoredTheme() || getSystemTheme()
   }
 
-  // Initialize theme - use stored preference or fall back to system
   applyTheme(getEffectiveTheme())
 
-  // Toggle theme on button click - only store when user explicitly toggles
   themeToggle?.addEventListener('click', () => {
     const currentTheme = document.documentElement.classList.contains('dark')
       ? 'dark'
@@ -177,7 +175,7 @@
     applyTheme(newTheme)
   })
 
-  // Listen for system theme changes - apply if no user preference stored
+
   window
     .matchMedia('(prefers-color-scheme: dark)')
     .addEventListener('change', (e) => {

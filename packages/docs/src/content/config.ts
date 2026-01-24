@@ -7,7 +7,7 @@ const statsCollection = defineCollection({
     type: z.string(),
     prodDependencies: z.number(),
     devDependencies: z.number(),
-    npmGraphUrl: z.string().url().optional(),
+    package: z.string(),
     installTimeMs: z.number(),
     coldBuildTimeMs: z.number(),
     warmBuildTimeMs: z.number(),

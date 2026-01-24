@@ -26,7 +26,13 @@ async function processFramework(framework: FrameworkConfig) {
 
   const ciStats = (await getCIStats(pkgDir)) ?? {}
 
-  const stats: FrameworkStats = { ...dependencyStats, ...ciStats }
+  const stats: FrameworkStats = {
+    name: displayName,
+    package: pkgDir,
+    type: 'starter-kit',
+    ...dependencyStats,
+    ...ciStats,
+  }
 
   await saveStats(pkgDir, stats)
   console.log(`✓ Processed ${displayName} (${pkgDir})`)

@@ -35,6 +35,7 @@ const stats = statsEntries.map((entry) => entry.data)
               <th scope="col">Framework</th>
               <th scope="col">Prod Deps</th>
               <th scope="col">Dev Deps</th>
+              <th scope="col">Graph</th>
             </tr>
           </thead>
           <tbody>
@@ -44,37 +45,21 @@ const stats = statsEntries.map((entry) => entry.data)
                   <td class="framework-name">{framework.name}</td>
                   <td>{framework.prodDependencies}</td>
                   <td>{framework.devDependencies}</td>
+                  <td>
+                    <a
+                      href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="graph-link"
+                    >
+                      View
+                    </a>
+                  </td>
                 </tr>
               ))
             }
           </tbody>
         </table>
-      </div>
-      <div class="details-section">
-        <h3>Details</h3>
-        <ul class="framework-links">
-          {
-            stats.map((framework) => (
-              <li>
-                <strong>{framework.name}</strong>
-                {framework.npmGraphUrl && (
-                  <span>
-                    {' '}
-                    -{' '}
-                    <a
-                      href={framework.npmGraphUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="graph-link"
-                    >
-                      View Dependency Graph
-                    </a>
-                  </span>
-                )}
-              </li>
-            ))
-          }
-        </ul>
       </div>
 
       <div class="table-wrapper">
@@ -179,21 +164,6 @@ const stats = statsEntries.map((entry) => entry.data)
     width: 100%;
     margin-top: 16px;
     margin-bottom: 2em;
-  }
-
-  .details-section {
-    margin-bottom: 2em;
-  }
-
-  .framework-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .framework-links li {
-    padding: 8px 0;
-    color: #213547;
   }
 
   .coming-soon {

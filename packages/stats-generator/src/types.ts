@@ -19,6 +19,9 @@ export interface CIStats {
 }
 
 export interface FrameworkStats extends CIStats {
+  name?: string
+  package?: string
+  type?: string
   prodDependencies?: number
   devDependencies?: number
 }

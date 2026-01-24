@@ -24,11 +24,12 @@ export async function saveStats(packageName: string, stats: FrameworkStats) {
     mergedStats = { ...existingStats, ...stats }
   } catch (error) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
-      throw new Error(`Initial stats file does not exist: ${filePath}`)
+      // File doesn't exist yet, will create it with the new stats
+    } else {
+      throw new Error(
+        `Failed to read/parse stats for ${packageName}: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
-    throw new Error(
-      `Failed to read/parse stats for ${packageName}: ${error instanceof Error ? error.message : String(error)}`,
-    )
   }
 
   await writeFile(filePath, JSON.stringify(mergedStats, null, 2), 'utf-8')

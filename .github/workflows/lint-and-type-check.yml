@@ -1,4 +1,4 @@
-name: CI - Docs
+name: Lint and Type Check
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,13 +27,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Format check
-        run: pnpm --filter @framework-tracker/docs format:check
+        run: pnpm format:check
 
       - name: Lint
-        run: pnpm --filter @framework-tracker/docs lint
+        run: pnpm lint
 
       - name: Type check
-        run: pnpm --filter @framework-tracker/docs type-check
-
-      - name: Build
-        run: pnpm build:docs
+        run: pnpm type-check

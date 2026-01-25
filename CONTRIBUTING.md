@@ -39,11 +39,11 @@ All frameworks are configured in `.github/frameworks.json`. Each entry specifies
 
 **Available measurements:**
 
-| Measurement | Description | Required fields |
-|-------------|-------------|-----------------|
-| `install` | Measures clean install time (runs in parallel on fresh runners) | - |
-| `build` | Measures cold and warm build times | `buildScript` |
-| `dependencies` | Counts prod/dev dependencies from package.json | - |
+| Measurement    | Description                                                     | Required fields |
+| -------------- | --------------------------------------------------------------- | --------------- |
+| `install`      | Measures clean install time (runs in parallel on fresh runners) | -               |
+| `build`        | Measures cold and warm build times                              | `buildScript`   |
+| `dependencies` | Counts prod/dev dependencies from package.json                  | -               |
 
 ### Adding a New Framework
 
@@ -65,4 +65,3 @@ To add a new framework to the tracker:
 ```
 
 The CI will automatically pick up the new framework and run only the configured measurements.
-

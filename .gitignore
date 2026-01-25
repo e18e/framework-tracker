@@ -1,46 +1,70 @@
-# build output
-dist/
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# generated types
+# Build outputs
+dist/
+build/
+out/
+.output/
+dist-ssr/
+
+# Framework-specific generated files
 .astro/
 .svelte-kit/
+.next/
+.nuxt/
+.nitro/
+.react-router/
+.tanstack/
+.vinxi/
+.data/
+.cache/
+.vercel/
+.wrangler/
 
-# dependencies
-node_modules/
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
 
-# logs
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# environment variables
+# Environment variables
 .env
-.env.production
+.env.*
+!.env.example
 
-# macOS-specific files
+# OS files
 .DS_Store
+Thumbs.db
 
-# jetbrains setting folder
+# Editor directories
 .idea/
-
-# VSCode
+.fleet/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-
-# OS files
-Thumbs.db
-
 # Testing
 coverage/
 .nyc_output/
 
-# Temporary files
+# Misc
 *.tmp
 *.temp
-
-/packages/*/build
+*.pem
+*.local

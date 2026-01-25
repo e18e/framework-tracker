@@ -36,6 +36,10 @@ function formatBytesToMB(bytes: number): string {
 
       <h2>Dev Time Performance</h2>
 
+      <p class="methodology">
+        Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24).
+      </p>
+
       <div class="table-wrapper">
         <table aria-label="Dependency counts by framework">
           <thead>
@@ -172,6 +176,12 @@ function formatBytesToMB(bytes: number): string {
     max-width: 700px;
   }
 
+  .methodology {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 0.5em;
+  }
+
   .table-wrapper {
     width: 100%;
     margin-top: 16px;
@@ -290,6 +300,10 @@ function formatBytesToMB(bytes: number): string {
 
   :global(html.dark) .framework-links li {
     color: #ffffffde;
+  }
+
+  :global(html.dark) .methodology {
+    color: #ffffffa6;
   }
 
   :global(html.dark) .coming-soon {

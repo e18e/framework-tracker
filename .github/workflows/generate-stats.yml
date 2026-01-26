@@ -120,8 +120,11 @@ jobs:
           END=$(date +%s%N)
           WARM=$((($END - $START) / 1000000))
 
-          echo "${{ matrix.framework.displayName }} - Cold: ${COLD}ms, Warm: ${WARM}ms"
-          echo "{\"cold\": $COLD, \"warm\": $WARM}" > build-time.json
+          # Calculate build output size
+          BUILD_OUTPUT_SIZE=$(du -sb ${{ matrix.framework.buildOutputDir }} | cut -f1)
+
+          echo "${{ matrix.framework.displayName }} - Cold: ${COLD}ms, Warm: ${WARM}ms, Build Output: ${BUILD_OUTPUT_SIZE} bytes"
+          echo "{\"cold\": $COLD, \"warm\": $WARM, \"buildOutputSize\": $BUILD_OUTPUT_SIZE}" > build-time.json
 
       - name: Upload build time result
         uses: actions/upload-artifact@v4
@@ -178,7 +181,7 @@ jobs:
 
             BUILD_FILE="artifacts/build-time-$NAME/build-time.json"
             if [[ -f "$BUILD_FILE" ]]; then
-              STATS=$(echo "$STATS" | jq --slurpfile build "$BUILD_FILE" '. + {coldBuildTimeMs: $build[0].cold, warmBuildTimeMs: $build[0].warm}')
+              STATS=$(echo "$STATS" | jq --slurpfile build "$BUILD_FILE" '. + {coldBuildTimeMs: $build[0].cold, warmBuildTimeMs: $build[0].warm, buildOutputSize: $build[0].buildOutputSize}')
             fi
 
             echo "$DISPLAY_NAME stats: $STATS"

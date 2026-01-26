@@ -11,6 +11,7 @@ const statsCollection = defineCollection({
     installTimeMs: z.number(),
     coldBuildTimeMs: z.number(),
     warmBuildTimeMs: z.number(),
+    buildOutputSize: z.number(),
     nodeModulesSize: z.number(),
     nodeModulesSizeProdOnly: z.number(),
     timingMeasuredAt: z.string(),

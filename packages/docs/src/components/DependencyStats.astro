@@ -84,7 +84,9 @@ function formatBytesToMB(bytes: number): string {
           <thead>
             <tr>
               <th scope="col">Framework</th>
-              <th scope="col">Install</th>
+              <th scope="col">Avg Install</th>
+              <th scope="col">Min Install</th>
+              <th scope="col">Max Install</th>
               <th scope="col">Cold Build</th>
               <th scope="col">Warm Build</th>
               <th scope="col">Build Output</th>
@@ -95,7 +97,9 @@ function formatBytesToMB(bytes: number): string {
               stats.map((framework) => (
                 <tr>
                   <td class="framework-name">{framework.name}</td>
-                  <td>{(framework.installTimeMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.avgInstallTimeMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.minInstallTimeMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.maxInstallTimeMs / 1000).toFixed(2)}s</td>
                   <td>{(framework.coldBuildTimeMs / 1000).toFixed(2)}s</td>
                   <td>{(framework.warmBuildTimeMs / 1000).toFixed(2)}s</td>
                   <td>{formatBytesToMB(framework.buildOutputSize)}</td>

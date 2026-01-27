@@ -6,8 +6,10 @@ on:
     paths:
       - 'packages/starter-*/**'
       - '!packages/starter-*/.ci-stats.json'
+      - '!packages/starter-*/stats/**'
       - 'packages/app-*/**'
       - '!packages/app-*/.ci-stats.json'
+      - '!packages/app-*/stats/**'
       - 'packages/stats-generator/**'
       - '.github/workflows/generate-stats.yml'
       - '.github/frameworks.json'
@@ -63,6 +65,9 @@ jobs:
           END=$(date +%s%N)
           INSTALL_TIME=$((($END - $START) / 1000000))
 
+          # Extract framework version
+          FRAMEWORK_VERSION=$(pnpm list "${{ matrix.framework.frameworkPackage }}" --depth=0 --json | jq -r '.[0].dependencies["${{ matrix.framework.frameworkPackage }}"].version // .[0].devDependencies["${{ matrix.framework.frameworkPackage }}"].version')
+
           # Measure node_modules size (in bytes)
           SIZE=$(du -sb node_modules | cut -f1)
 
@@ -73,8 +78,8 @@ jobs:
           # Measure node_modules size production only (in bytes)
           SIZE_PROD_ONLY=$(du -sb node_modules | cut -f1)
 
-          echo "${{ matrix.framework.displayName }} - Install: ${INSTALL_TIME}ms, Size: ${SIZE} bytes, Prod only: ${SIZE_PROD_ONLY} bytes"
-          echo "{\"installTimeMs\": $INSTALL_TIME, \"nodeModulesSize\": $SIZE, \"nodeModulesSizeProdOnly\": $SIZE_PROD_ONLY}" > install-stats.json
+          echo "${{ matrix.framework.displayName }} v${FRAMEWORK_VERSION} - Install: ${INSTALL_TIME}ms, Size: ${SIZE} bytes, Prod only: ${SIZE_PROD_ONLY} bytes"
+          echo "{\"frameworkVersion\": \"$FRAMEWORK_VERSION\", \"installTimeMs\": $INSTALL_TIME, \"nodeModulesSize\": $SIZE, \"nodeModulesSizeProdOnly\": $SIZE_PROD_ONLY}" > install-stats.json
 
       - name: Upload install stats result
         uses: actions/upload-artifact@v4
@@ -173,10 +178,12 @@ jobs:
             DISPLAY_NAME=$(echo "$framework" | jq -r '.displayName')
 
             STATS="$BASE_STATS"
+            FRAMEWORK_VERSION=""
 
             INSTALL_FILE="artifacts/install-stats-$NAME/install-stats.json"
             if [[ -f "$INSTALL_FILE" ]]; then
               STATS=$(echo "$STATS" | jq --slurpfile install "$INSTALL_FILE" '. + $install[0]')
+              FRAMEWORK_VERSION=$(jq -r '.frameworkVersion' "$INSTALL_FILE")
             fi
 
             BUILD_FILE="artifacts/build-time-$NAME/build-time.json"
@@ -184,8 +191,18 @@ jobs:
               STATS=$(echo "$STATS" | jq --slurpfile build "$BUILD_FILE" '. + {coldBuildTimeMs: $build[0].cold, warmBuildTimeMs: $build[0].warm, buildOutputSize: $build[0].buildOutputSize}')
             fi
 
-            echo "$DISPLAY_NAME stats: $STATS"
+            echo "$DISPLAY_NAME v$FRAMEWORK_VERSION stats: $STATS"
+
+            # Create directories
             mkdir -p "packages/$PACKAGE"
+            mkdir -p "packages/$PACKAGE/stats"
+
+            # Save to versioned file if we have a version
+            if [[ -n "$FRAMEWORK_VERSION" && "$FRAMEWORK_VERSION" != "null" ]]; then
+              echo "$STATS" > "packages/$PACKAGE/stats/$FRAMEWORK_VERSION.json"
+            fi
+
+            # Always update .ci-stats.json with latest
             echo "$STATS" > "packages/$PACKAGE/.ci-stats.json"
           done
 
@@ -217,6 +234,7 @@ jobs:
 
           Includes:
           - CI build time measurements (.ci-stats.json)
+          - Versioned stats history (stats/<version>.json)
           - Generated framework comparison stats
 
           This PR was automatically created and will auto-merge if all checks pass." \

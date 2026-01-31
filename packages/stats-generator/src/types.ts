@@ -10,7 +10,9 @@ export interface FrameworkConfig {
 }
 
 export interface CIStats {
-  installTimeMs?: number
+  avgInstallTimeMs?: number
+  minInstallTimeMs?: number
+  maxInstallTimeMs?: number
   coldBuildTimeMs?: number
   warmBuildTimeMs?: number
   testTimeMs?: number

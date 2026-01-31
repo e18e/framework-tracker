@@ -30,8 +30,8 @@ jobs:
         id: set-matrix
         run: |
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | contains(["install"]))]')" >> $GITHUB_OUTPUT
-          echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | contains(["build"]))]')" >> $GITHUB_OUTPUT
+          echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | map(.type) | contains(["install"]))]')" >> $GITHUB_OUTPUT
+          echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | map(.type) | contains(["build"]))]')" >> $GITHUB_OUTPUT
 
   # Install time measurements - parallel on fresh runners for fair comparison
   measure-install:
@@ -56,30 +56,52 @@ jobs:
 
       - name: Measure ${{ matrix.framework.displayName }} install time and sizes
         run: |
+          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "install") | .runFrequency')
+          echo "Install run frequency: $RUN_FREQUENCY"
+
           cp -r packages/${{ matrix.framework.package }} /tmp/framework-test
           cd /tmp/framework-test
 
-          # Measure install time (full install with dev dependencies)
-          START=$(date +%s%N)
-          pnpm install
-          END=$(date +%s%N)
-          INSTALL_TIME=$((($END - $START) / 1000000))
+          INSTALL_TIMES=()
+
+          for i in $(seq 1 $RUN_FREQUENCY); do
+            echo "Calculate Install time run number: $i of $RUN_FREQUENCY"
+
+            # Create a clean slate for a fresh install ensuring we don't use pnpm cache
+            rm -rf node_modules # Remove node modules
+            pnpm store prune  # Clear pnpm store cache
+            rm -f pnpm-lock.yaml  # Force dependency resolution
+
+            # Measure install time (full install with dev dependencies)
+            START=$(date +%s%N)
+            pnpm install
+            END=$(date +%s%N)
+            INSTALL_TIME=$((($END - $START) / 1000000))
+            INSTALL_TIMES+=($INSTALL_TIME)
+            echo "Install time: $INSTALL_TIME"
+          done
+
+          AVG_INSTALL_TIME=$(printf '%s\n' "${INSTALL_TIMES[@]}" | jq -s 'add/length')
+          MIN_INSTALL_TIME=$(printf '%s\n' "${INSTALL_TIMES[@]}" | jq -s 'min')
+          MAX_INSTALL_TIME=$(printf '%s\n' "${INSTALL_TIMES[@]}" | jq -s 'max')
 
           # Extract framework version
           FRAMEWORK_VERSION=$(pnpm list "${{ matrix.framework.frameworkPackage }}" --depth=0 --json | jq -r '.[0].dependencies["${{ matrix.framework.frameworkPackage }}"].version // .[0].devDependencies["${{ matrix.framework.frameworkPackage }}"].version')
 
           # Measure node_modules size (in bytes)
-          SIZE=$(du -sb node_modules | cut -f1)
+          NODE_MODULES_SIZE=$(du -sb node_modules | cut -f1)
+          echo "Node modules size: $SIZE"
 
           # Clean and do production-only install
           rm -rf node_modules
           pnpm install --prod
 
           # Measure node_modules size production only (in bytes)
-          SIZE_PROD_ONLY=$(du -sb node_modules | cut -f1)
+          NODE_MODULES_PROD_SIZE=$(du -sb node_modules | cut -f1)
+          echo "Node modules prod size: $SIZE_PROD_ONLY"
 
-          echo "${{ matrix.framework.displayName }} v${FRAMEWORK_VERSION} - Install: ${INSTALL_TIME}ms, Size: ${SIZE} bytes, Prod only: ${SIZE_PROD_ONLY} bytes"
-          echo "{\"frameworkVersion\": \"$FRAMEWORK_VERSION\", \"installTimeMs\": $INSTALL_TIME, \"nodeModulesSize\": $SIZE, \"nodeModulesSizeProdOnly\": $SIZE_PROD_ONLY}" > install-stats.json
+          echo "${{ matrix.framework.displayName }} v${FRAMEWORK_VERSION} - Install Time Avg: ${AVG_INSTALL_TIME}ms, Install Time Min: ${MIN_INSTALL_TIME}ms, Install Time Max: ${MAX_INSTALL_TIME}ms, Size: ${NODE_MODULES_SIZE} bytes, Prod only: ${NODE_MODULES_PROD_SIZE} bytes"
+          echo "{\"frameworkVersion\": \"$FRAMEWORK_VERSION\", \"avgInstallTimeMs\": $AVG_INSTALL_TIME, \"minInstallTimeMs\": $MIN_INSTALL_TIME, \"maxInstallTimeMs\": $MAX_INSTALL_TIME, \"nodeModulesSize\": $NODE_MODULES_SIZE, \"nodeModulesSizeProdOnly\": $NODE_MODULES_PROD_SIZE}" > install-stats.json
 
       - name: Upload install stats result
         uses: actions/upload-artifact@v4

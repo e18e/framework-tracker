@@ -3,14 +3,20 @@ import { join } from 'node:path'
 import { packagesDir } from './constants.ts'
 import type { FrameworkStats } from './types.ts'
 
-export async function saveStats(packageName: string, stats: FrameworkStats) {
-  const outputDir = join(packagesDir, 'docs', 'src', 'content', 'stats')
+export type StatsCollection = 'devtime' | 'runtime'
+
+export async function saveStats(
+  packageName: string,
+  stats: FrameworkStats,
+  collection: StatsCollection = 'devtime',
+) {
+  const outputDir = join(packagesDir, 'docs', 'src', 'content', collection)
 
   try {
     await access(outputDir)
   } catch (_error) {
     throw new Error(
-      `Stats content for Astro Docs site does not exist: ${outputDir}`,
+      `Content directory for Astro Docs site does not exist: ${outputDir}`,
     )
   }
 

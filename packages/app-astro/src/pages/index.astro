@@ -1,0 +1,28 @@
+---
+import { testData } from '@framework-tracker/testdata'
+
+const entries = await testData()
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro SSR Benchmark</title>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        {
+          entries.map((entry) => (
+            <tr>
+              <td>{entry.id}</td>
+              <td>{entry.name}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </body>
+</html>

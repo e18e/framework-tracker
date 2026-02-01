@@ -1,13 +1,13 @@
 import { defineCollection, z } from 'astro:content'
 
-const statsCollection = defineCollection({
+const devtimeCollection = defineCollection({
   type: 'data',
   schema: z.object({
     name: z.string(),
     type: z.string(),
+    package: z.string(),
     prodDependencies: z.number(),
     devDependencies: z.number(),
-    package: z.string(),
     installTimeMs: z.number(),
     coldBuildTimeMs: z.number(),
     warmBuildTimeMs: z.number(),
@@ -16,9 +16,25 @@ const statsCollection = defineCollection({
     nodeModulesSizeProdOnly: z.number(),
     timingMeasuredAt: z.string(),
     runner: z.string(),
+    frameworkVersion: z.string().optional(),
+  }),
+})
+
+const runtimeCollection = defineCollection({
+  type: 'data',
+  schema: z.object({
+    name: z.string(),
+    type: z.string(),
+    package: z.string(),
+    ssrOpsPerSec: z.number(),
+    ssrAvgLatencyMs: z.number(),
+    ssrSamples: z.number(),
+    ssrBodySizeKb: z.number(),
+    ssrDuplicationFactor: z.number(),
   }),
 })
 
 export const collections = {
-  stats: statsCollection,
+  devtime: devtimeCollection,
+  runtime: runtimeCollection,
 }

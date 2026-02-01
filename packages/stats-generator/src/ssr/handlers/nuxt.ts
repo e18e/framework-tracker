@@ -1,0 +1,17 @@
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { packagesDir } from '../../constants.ts'
+import type { SSRHandler } from '../types.ts'
+
+export async function buildNuxtHandler(): Promise<SSRHandler> {
+  const entryPath = join(
+    packagesDir,
+    'app-nuxt',
+    '.output',
+    'server',
+    'index.mjs',
+  )
+  const entryUrl = pathToFileURL(entryPath).href
+  const { handler } = await import(entryUrl)
+  return handler as SSRHandler
+}

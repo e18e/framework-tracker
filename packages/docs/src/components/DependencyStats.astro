@@ -1,8 +1,11 @@
 ---
 import { getCollection } from 'astro:content'
 
-const statsEntries = await getCollection('stats')
-const stats = statsEntries.map((entry) => entry.data)
+const devtimeEntries = await getCollection('devtime')
+const runtimeEntries = await getCollection('runtime')
+
+const starterStats = devtimeEntries.map((entry) => entry.data)
+const ssrStats = runtimeEntries.map((entry) => entry.data)
 
 const BYTES_PER_KB = 1024
 const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
@@ -55,7 +58,7 @@ function formatBytesToMB(bytes: number): string {
           </thead>
           <tbody>
             {
-              stats.map((framework) => (
+              starterStats.map((framework) => (
                 <tr>
                   <td class="framework-name">{framework.name}</td>
                   <td>{framework.prodDependencies}</td>
@@ -92,7 +95,7 @@ function formatBytesToMB(bytes: number): string {
           </thead>
           <tbody>
             {
-              stats.map((framework) => (
+              starterStats.map((framework) => (
                 <tr>
                   <td class="framework-name">{framework.name}</td>
                   <td>{(framework.installTimeMs / 1000).toFixed(2)}s</td>
@@ -107,7 +110,74 @@ function formatBytesToMB(bytes: number): string {
       </div>
 
       <h2>Runtime Performance</h2>
-      <p class="coming-soon">Coming soon...</p>
+
+      <h3>SSR Performance</h3>
+
+      <p class="methodology">
+        Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR
+        benchmark apps.
+      </p>
+
+      <div class="table-wrapper">
+        <table aria-label="SSR performance by framework">
+          <thead>
+            <tr>
+              <th scope="col">Framework</th>
+              <th scope="col">Ops/sec</th>
+              <th scope="col">Avg Latency</th>
+              <th scope="col">Body Size</th>
+              <th scope="col">Duplication</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              ssrStats.map((framework) => (
+                <tr>
+                  <td class="framework-name">{framework.name}</td>
+                  <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
+                  <td>{framework.ssrAvgLatencyMs}ms</td>
+                  <td>{framework.ssrBodySizeKb}kb</td>
+                  <td>{framework.ssrDuplicationFactor}x</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="methodology-notes">
+        <h4>Methodology</h4>
+        <ul>
+          <li>
+            Each framework renders a table of 1000 rows with two UUID columns
+          </li>
+          <li>
+            Mock HTTP requests bypass TCP overhead for accurate rendering
+            measurement
+          </li>
+          <li>
+            Data is loaded asynchronously to simulate real-world data fetching
+          </li>
+          <li>
+            Duplication factor indicates how many times each UUID appears in the
+            response (1x = optimal, 2x = includes hydration payload)
+          </li>
+          <li>
+            Benchmarks run for 10 seconds using <a
+              href="https://github.com/tinylibs/tinybench"
+              target="_blank"
+              rel="noopener noreferrer">tinybench</a
+            >
+          </li>
+          <li>
+            Inspired by <a
+              href="https://github.com/eknkc/ssr-benchmark"
+              target="_blank"
+              rel="noopener noreferrer">eknkc/ssr-benchmark</a
+            >
+          </li>
+        </ul>
+      </div>
     </section>
   </main>
 </div>
@@ -191,10 +261,43 @@ function formatBytesToMB(bytes: number): string {
     margin-bottom: 2em;
   }
 
-  .coming-soon {
+  .methodology-notes {
+    margin-top: 1.5em;
+    padding: 1em 1.25em;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .methodology-notes h4 {
+    margin: 0 0 0.75em 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .methodology-notes ul {
+    margin: 0;
+    padding-left: 1.25em;
+    font-size: 13px;
     color: #6b7280;
-    font-style: italic;
-    font-size: 15px;
+  }
+
+  .methodology-notes li {
+    margin-bottom: 0.4em;
+  }
+
+  .methodology-notes li:last-child {
+    margin-bottom: 0;
+  }
+
+  .methodology-notes a {
+    color: #c37822;
+    text-decoration: none;
+  }
+
+  .methodology-notes a:hover {
+    text-decoration: underline;
   }
 
   table {
@@ -309,7 +412,16 @@ function formatBytesToMB(bytes: number): string {
     color: #ffffffa6;
   }
 
-  :global(html.dark) .coming-soon {
+  :global(html.dark) .methodology-notes {
+    background: #242424;
+    border-color: #2e2e2e;
+  }
+
+  :global(html.dark) .methodology-notes h4 {
+    color: #ffffffde;
+  }
+
+  :global(html.dark) .methodology-notes ul {
     color: #ffffffa6;
   }
 

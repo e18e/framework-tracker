@@ -1,8 +1,16 @@
-export type MeasurementType = 'install' | 'build' | 'test' | 'dependencies'
+export type MeasurementType =
+  | 'install'
+  | 'build'
+  | 'test'
+  | 'dependencies'
+  | 'ssr'
+
+export type FrameworkType = 'starter' | 'app'
 
 export interface FrameworkConfig {
   name: string
   displayName: string
+  type: FrameworkType
   package: string
   buildScript?: string
   testScript?: string
@@ -18,6 +26,12 @@ export interface CIStats {
   nodeModulesSizeProdOnly?: number
   timingMeasuredAt?: string
   runner?: string
+  // SSR benchmark stats
+  ssrOpsPerSec?: number
+  ssrAvgLatencyMs?: number
+  ssrSamples?: number
+  ssrBodySizeKb?: number
+  ssrDuplicationFactor?: number
 }
 
 export interface FrameworkStats extends CIStats {
@@ -26,6 +40,11 @@ export interface FrameworkStats extends CIStats {
   type?: string
   prodDependencies?: number
   devDependencies?: number
+  ssrOpsPerSec?: number
+  ssrAvgLatencyMs?: number
+  ssrSamples?: number
+  ssrBodySizeKb?: number
+  ssrDuplicationFactor?: number
 }
 
 export interface PackageJson {

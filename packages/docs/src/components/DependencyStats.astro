@@ -66,7 +66,13 @@ function formatBytesToMB(bytes: number): string {
                   <td class="framework-name">{framework.name}</td>
                   <td>{framework.supportsSPA ? 'Y' : 'N'}</td>
                   <td>{framework.supportsMPA ? 'Y' : 'N'}</td>
-                  <td>{framework.supportsSSG === undefined ? '?' : framework.supportsSSG ? 'Y' : 'N'}</td>
+                  <td>
+                    {framework.supportsSSG === undefined
+                      ? '?'
+                      : framework.supportsSSG
+                        ? 'Y'
+                        : 'N'}
+                  </td>
                   <td>{framework.recommended}</td>
                   <td>{framework.bundler}</td>
                   <td>{framework.otherBundlers?.join(', ') || '-'}</td>

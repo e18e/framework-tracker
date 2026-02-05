@@ -1,9 +1,11 @@
 ---
 import { getCollection } from 'astro:content'
 
+const frameworkEntries = await getCollection('frameworks')
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
 
+const frameworkMeta = frameworkEntries.map((entry) => entry.data)
 const starterStats = devtimeEntries.map((entry) => entry.data)
 const ssrStats = runtimeEntries.map((entry) => entry.data)
 
@@ -36,6 +38,44 @@ function formatBytesToMB(bytes: number): string {
         Stats are currently in active development and may change as we refine
         our methodology and testing process.
       </p>
+
+      <h2>Framework Overview</h2>
+
+      <p class="methodology">
+        Rendering capabilities supported by each framework, their recommended
+        default approach, and bundler.
+      </p>
+
+      <div class="table-wrapper">
+        <table aria-label="Framework rendering capabilities">
+          <thead>
+            <tr>
+              <th scope="col">Framework</th>
+              <th scope="col">SPA</th>
+              <th scope="col">MPA</th>
+              <th scope="col">SSG</th>
+              <th scope="col">Recommended</th>
+              <th scope="col">Default Bundler</th>
+              <th scope="col">Other Bundlers</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              frameworkMeta.map((framework) => (
+                <tr>
+                  <td class="framework-name">{framework.name}</td>
+                  <td>{framework.supportsSPA ? 'Y' : 'N'}</td>
+                  <td>{framework.supportsMPA ? 'Y' : 'N'}</td>
+                  <td>{framework.supportsSSG === undefined ? '?' : framework.supportsSSG ? 'Y' : 'N'}</td>
+                  <td>{framework.recommended}</td>
+                  <td>{framework.bundler}</td>
+                  <td>{framework.otherBundlers?.join(', ') || '-'}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
 
       <h2>Dev Time Performance</h2>
 

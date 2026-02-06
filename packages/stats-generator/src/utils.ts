@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
@@ -10,7 +10,7 @@ import type { FrameworkConfig } from './types.ts'
  */
 export function getDirectorySize(dirPath: string): number {
   try {
-    const output = execSync(`du -sk "${dirPath}"`, { encoding: 'utf-8' })
+    const output = execFileSync('du', ['-sk', dirPath], { encoding: 'utf-8' })
     const sizeKb = parseInt(output.split(/\s+/)[0], 10)
     return sizeKb * 1024
   } catch (error) {

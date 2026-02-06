@@ -1,5 +1,19 @@
 import { defineCollection, z } from 'astro:content'
 
+const frameworksCollection = defineCollection({
+  type: 'data',
+  schema: z.object({
+    name: z.string(),
+    package: z.string(),
+    supportsSPA: z.boolean(),
+    supportsMPA: z.boolean(),
+    supportsSSG: z.boolean().optional(),
+    recommended: z.string(),
+    bundler: z.string(),
+    otherBundlers: z.array(z.string()).optional(),
+  }),
+})
+
 const devtimeCollection = defineCollection({
   type: 'data',
   schema: z.object({
@@ -37,6 +51,7 @@ const runtimeCollection = defineCollection({
 })
 
 export const collections = {
+  frameworks: frameworksCollection,
   devtime: devtimeCollection,
   runtime: runtimeCollection,
 }

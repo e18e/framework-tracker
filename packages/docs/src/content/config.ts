@@ -1,5 +1,11 @@
 import { defineCollection, z } from 'astro:content'
 
+const timeSchema = z.object({
+  avgMs: z.number(),
+  minMs: z.number(),
+  maxMs: z.number(),
+})
+
 const devtimeCollection = defineCollection({
   type: 'data',
   schema: z.object({
@@ -8,11 +14,9 @@ const devtimeCollection = defineCollection({
     package: z.string(),
     prodDependencies: z.number(),
     devDependencies: z.number(),
-    avgInstallTimeMs: z.number(),
-    minInstallTimeMs: z.number(),
-    maxInstallTimeMs: z.number(),
-    coldBuildTimeMs: z.number(),
-    warmBuildTimeMs: z.number(),
+    installTime: timeSchema,
+    coldBuildTime: timeSchema,
+    warmBuildTime: timeSchema,
     buildOutputSize: z.number(),
     nodeModulesSize: z.number(),
     nodeModulesSizeProdOnly: z.number(),

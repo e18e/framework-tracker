@@ -24,14 +24,12 @@ export interface CIStats {
   runner?: string
   frameworkVersion?: string
   // Install stats
-  avgInstallTimeMs?: number
-  minInstallTimeMs?: number
-  maxInstallTimeMs?: number
+  installTime?: TimeStat
   nodeModulesSize?: number
   nodeModulesSizeProdOnly?: number
   // Build stats
-  coldBuildTimeMs?: number
-  warmBuildTimeMs?: number
+  coldBuildTime?: TimeStat
+  warmBuildTime?: TimeStat
   buildOutputSize?: number
   testTimeMs?: number
   // SSR stats
@@ -44,17 +42,21 @@ export interface CIStats {
 
 export interface InstallStats {
   frameworkVersion: string
-  avgInstallTimeMs: number
-  minInstallTimeMs: number
-  maxInstallTimeMs: number
+  installTime: TimeStat
   nodeModulesSize: number
   nodeModulesSizeProdOnly: number
 }
 
 export interface BuildStats {
-  coldBuildTimeMs: number
-  warmBuildTimeMs: number
+  coldBuildTime: TimeStat
+  warmBuildTime: TimeStat
   buildOutputSize: number
+}
+
+export interface TimeStat {
+  avgMs: number
+  minMs: number
+  maxMs: number
 }
 
 export interface FrameworkStats extends CIStats {

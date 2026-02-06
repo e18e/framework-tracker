@@ -90,8 +90,8 @@ function formatBytesToMB(bytes: number): string {
               <th scope="col">Avg Install</th>
               <th scope="col">Min Install</th>
               <th scope="col">Max Install</th>
-              <th scope="col">Cold Build</th>
-              <th scope="col">Warm Build</th>
+              <th scope="col">Avg Cold Build</th>
+              <th scope="col">Avg Warm Build</th>
               <th scope="col">Build Output</th>
             </tr>
           </thead>
@@ -100,11 +100,11 @@ function formatBytesToMB(bytes: number): string {
               starterStats.map((framework) => (
                 <tr>
                   <td class="framework-name">{framework.name}</td>
-                  <td>{(framework.avgInstallTimeMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.minInstallTimeMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.maxInstallTimeMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.coldBuildTimeMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.warmBuildTimeMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.installTime.avgMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.installTime.minMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.installTime.maxMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.coldBuildTime.avgMs / 1000).toFixed(2)}s</td>
+                  <td>{(framework.warmBuildTime.avgMs / 1000).toFixed(2)}s</td>
                   <td>{formatBytesToMB(framework.buildOutputSize)}</td>
                 </tr>
               ))

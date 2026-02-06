@@ -1,17 +1,21 @@
 import { z } from 'zod'
 
+export const TimeStatSchema = z.object({
+  avgMs: z.number(),
+  minMs: z.number(),
+  maxMs: z.number(),
+})
+
 export const InstallStatsSchema = z.object({
   frameworkVersion: z.string().min(1),
-  avgInstallTimeMs: z.number().nonnegative(),
-  minInstallTimeMs: z.number().nonnegative(),
-  maxInstallTimeMs: z.number().nonnegative(),
+  installTime: TimeStatSchema,
   nodeModulesSize: z.number().nonnegative(),
   nodeModulesSizeProdOnly: z.number().nonnegative(),
 })
 
 export const BuildStatsSchema = z.object({
-  coldBuildTimeMs: z.number().nonnegative(),
-  warmBuildTimeMs: z.number().nonnegative(),
+  coldBuildTime: TimeStatSchema,
+  warmBuildTime: TimeStatSchema,
   buildOutputSize: z.number().nonnegative(),
 })
 
@@ -29,3 +33,4 @@ export const SSRStatsSchema = z.object({
 export type InstallStats = z.infer<typeof InstallStatsSchema>
 export type BuildStats = z.infer<typeof BuildStatsSchema>
 export type SSRStats = z.infer<typeof SSRStatsSchema>
+export type TimeStat = z.infer<typeof TimeStatSchema>

@@ -65,7 +65,10 @@ async function main() {
   const { packageName, args } = parseArgs(
     'Usage: run-install-benchmark <package-name> [run-frequency]\nExample: run-install-benchmark starter-astro 5',
   )
-  const runFrequency = parseInt(args[0] || '5', 10)
+
+  const fallbackFrequency = '5'
+  const base = 10
+  const runFrequency = parseInt(args[0] || fallbackFrequency, base)
 
   const framework = await getFrameworkByPackage(packageName)
 
@@ -130,9 +133,11 @@ async function main() {
 
     const stats: InstallStats = {
       frameworkVersion,
-      avgInstallTimeMs,
-      minInstallTimeMs,
-      maxInstallTimeMs,
+      installTime: {
+        avgMs: avgInstallTimeMs,
+        minMs: minInstallTimeMs,
+        maxMs: maxInstallTimeMs,
+      },
       nodeModulesSize,
       nodeModulesSizeProdOnly,
     }
@@ -141,9 +146,9 @@ async function main() {
     writeJsonFile(outputPath, stats)
 
     console.info(`\n✓ Saved install stats to ${outputPath}`)
-    console.info(`  Average: ${stats.avgInstallTimeMs}ms`)
-    console.info(`  Min: ${stats.minInstallTimeMs}ms`)
-    console.info(`  Max: ${stats.maxInstallTimeMs}ms`)
+    console.info(`  Average: ${stats.installTime.avgMs}ms`)
+    console.info(`  Min: ${stats.installTime.minMs}ms`)
+    console.info(`  Max: ${stats.installTime.maxMs}ms`)
   } finally {
     rmSync(tempDir, { recursive: true, force: true })
   }

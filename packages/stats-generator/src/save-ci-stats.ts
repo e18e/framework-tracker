@@ -46,9 +46,7 @@ async function main() {
         stats = {
           ...stats,
           frameworkVersion: installStats.frameworkVersion,
-          avgInstallTimeMs: installStats.avgInstallTimeMs,
-          minInstallTimeMs: installStats.minInstallTimeMs,
-          maxInstallTimeMs: installStats.maxInstallTimeMs,
+          installTime: installStats.installTime,
           nodeModulesSize: installStats.nodeModulesSize,
           nodeModulesSizeProdOnly: installStats.nodeModulesSizeProdOnly,
         }
@@ -71,8 +69,8 @@ async function main() {
         console.info(`  ✓ Found build stats artifact`)
         stats = {
           ...stats,
-          coldBuildTimeMs: buildStats.coldBuildTimeMs,
-          warmBuildTimeMs: buildStats.warmBuildTimeMs,
+          coldBuildTime: buildStats.coldBuildTime,
+          warmBuildTime: buildStats.warmBuildTime,
           buildOutputSize: buildStats.buildOutputSize,
         }
       } else {

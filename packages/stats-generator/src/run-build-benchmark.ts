@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process'
 import { join } from 'node:path'
+import { existsSync, rmSync } from 'node:fs'
 import { packagesDir } from './constants.ts'
 import {
   getDirectorySize,
@@ -16,10 +17,23 @@ function measureBuildTime(cwd: string): number {
   return Math.round(end - start)
 }
 
+function rmBuildOutput(buildOutputPath: string): void {
+  if (existsSync(buildOutputPath)) {
+    console.info('Build output found. Removing build output')
+    rmSync(buildOutputPath, { recursive: true, force: true })
+  } else {
+    console.info('No build output found. Skipping removal of build output')
+  }
+}
+
 async function main() {
-  const { packageName } = parseArgs(
+  const { packageName, args } = parseArgs(
     'Usage: run-build-benchmark <package-name>\nExample: run-build-benchmark starter-astro',
   )
+
+  const fallbackFrequency = '5'
+  const base = 10
+  const runFrequency = parseInt(args[0] || fallbackFrequency, base)
 
   const framework = await getFrameworkByPackage(packageName)
 
@@ -33,22 +47,54 @@ async function main() {
   )
 
   const packageDir = join(packagesDir, packageName)
-
-  console.info('Cold build...')
-  const coldBuildTimeMs = measureBuildTime(packageDir)
-  console.info(`  Cold build time: ${coldBuildTimeMs}ms`)
-
-  console.info('\nWarm build...')
-  const warmBuildTimeMs = measureBuildTime(packageDir)
-  console.info(`  Warm build time: ${warmBuildTimeMs}ms`)
-
   const buildOutputPath = join(packageDir, framework.buildOutputDir)
+
+  const coldBuildTimesMs: number[] = []
+  const warmBuildTimesMs: number[] = []
+
+  for (let i = 1; i <= runFrequency; i++) {
+    console.info(`\nBuild run ${i}/${runFrequency}...`)
+    rmBuildOutput(buildOutputPath)
+
+    console.info('Cold build...')
+    const coldBuildTimeMs = measureBuildTime(packageDir)
+    coldBuildTimesMs.push(coldBuildTimeMs)
+    console.info(`  Cold build time: ${coldBuildTimeMs}ms`)
+
+    console.info('\nWarm build...')
+    const warmBuildTimeMs = measureBuildTime(packageDir)
+    warmBuildTimesMs.push(warmBuildTimeMs)
+    console.info(`  Warm build time: ${warmBuildTimeMs}ms`)
+  }
+
   const buildOutputSize = getDirectorySize(buildOutputPath)
   console.info(`\nBuild output size: ${buildOutputSize} bytes`)
 
+  const coldBuildTime = {
+    avgMs:
+      coldBuildTimesMs.reduce((total, cur) => total + cur, 0) /
+      coldBuildTimesMs.length,
+    minMs: Math.min(...coldBuildTimesMs),
+    maxMs: Math.max(...coldBuildTimesMs),
+  }
+  console.info(`\nAvg cold build time: ${coldBuildTime.avgMs} ms`)
+  console.info(`\nMin cold build time: ${coldBuildTime.minMs} ms`)
+  console.info(`\nMax cold build time: ${coldBuildTime.maxMs} ms`)
+
+  const warmBuildTime = {
+    avgMs:
+      warmBuildTimesMs.reduce((total, cur) => total + cur, 0) /
+      warmBuildTimesMs.length,
+    minMs: Math.min(...warmBuildTimesMs),
+    maxMs: Math.max(...warmBuildTimesMs),
+  }
+  console.info(`\nAvg warm build time: ${warmBuildTime.avgMs} ms`)
+  console.info(`\nMin warm build time: ${warmBuildTime.minMs} ms`)
+  console.info(`\nMax warm build time: ${warmBuildTime.maxMs} ms`)
+
   const stats: BuildStats = {
-    coldBuildTimeMs,
-    warmBuildTimeMs,
+    coldBuildTime,
+    warmBuildTime,
     buildOutputSize,
   }
 

@@ -97,7 +97,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run build benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }}
+        run: |
+          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "build") | .runFrequency')
+          pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }} $RUN_FREQUENCY
 
       - name: Upload build stats
         uses: actions/upload-artifact@v4

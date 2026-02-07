@@ -23,7 +23,7 @@ export class IncomingMessage extends Readable {
   }
 
   get rawHeaders(): string[] {
-    return ['']
+    return []
   }
 
   get rawTrailers(): string[] {

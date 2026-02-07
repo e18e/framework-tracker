@@ -3,6 +3,7 @@ import { buildAstroHandler } from './handlers/astro.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
 import { buildNextJSHandler } from './handlers/nextjs.ts'
+import { buildReactRouterHandler } from './handlers/react-router.ts'
 import type { SSRBenchmarkResult, SSRStats } from './types.ts'
 
 export type { SSRBenchmarkResult, SSRStats } from './types.ts'
@@ -43,6 +44,12 @@ const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [
     displayName: 'Next.js SSR',
     package: 'app-next-js',
     buildHandler: buildNextJSHandler,
+  },
+  {
+    name: 'react-router-ssr',
+    displayName: 'React Router SSR',
+    package: 'app-react-router',
+    buildHandler: buildReactRouterHandler,
   },
 ]
 

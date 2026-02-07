@@ -14,5 +14,9 @@ export async function buildReactRouterHandler(): Promise<SSRHandler> {
   )
   const buildUrl = pathToFileURL(buildPath).href
   const build = await import(buildUrl)
-  return createRequestListener({ build, mode: 'production' }) as SSRHandler
+  // TODO: Make the SSRHandler type more flexible so we don't have to cast here
+  return createRequestListener({
+    build,
+    mode: 'production',
+  }) as unknown as SSRHandler
 }

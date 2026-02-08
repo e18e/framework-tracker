@@ -5,9 +5,8 @@ import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
 import { buildNextJSHandler } from './handlers/nextjs.ts'
 import { buildReactRouterHandler } from './handlers/react-router.ts'
 import { buildSolidStartHandler } from './handlers/solid-start.ts'
+import { buildTanStackStartHandler } from './handlers/tanstack-start.ts'
 import type { SSRBenchmarkResult, SSRStats } from './types.ts'
-
-export type { SSRBenchmarkResult, SSRStats } from './types.ts'
 
 interface SSRFrameworkConfig {
   name: string
@@ -57,6 +56,12 @@ const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [
     displayName: 'SolidStart SSR',
     package: 'app-solid-start',
     buildHandler: buildSolidStartHandler,
+  },
+  {
+    name: 'tanstack-start-ssr',
+    displayName: 'TanStack Start SSR',
+    package: 'app-tanstack-start-react',
+    buildHandler: buildTanStackStartHandler,
   },
 ]
 

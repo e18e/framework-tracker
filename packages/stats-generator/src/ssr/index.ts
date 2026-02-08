@@ -62,7 +62,7 @@ const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [
   {
     name: 'tanstack-start-ssr',
     displayName: 'TanStack Start SSR',
-    package: 'app-tanstack-start',
+    package: 'app-tanstack-start-react',
     buildHandler: buildTanStackStartHandler,
   },
 ]

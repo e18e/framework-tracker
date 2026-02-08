@@ -6,7 +6,7 @@ import type { SSRHandler } from '../types.ts'
 export async function buildTanStackStartHandler(): Promise<SSRHandler> {
   const entryPath = join(
     packagesDir,
-    'app-tanstack-start',
+    'app-tanstack-start-react',
     '.output',
     'server',
     'index.mjs',

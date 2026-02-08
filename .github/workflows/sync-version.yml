@@ -1,0 +1,33 @@
+name: Sync Framework Versions
+
+on:
+  pull_request:
+    paths:
+      - 'packages/starter-*/package.json'
+      - 'packages/app-*/package.json'
+      - '.github/frameworks.json'
+  workflow_dispatch: # Allows manual triggering from GitHub Actions UI
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    # Skip PR events from bots to avoid loops; always run for workflow_dispatch
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.type != 'Bot'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install stats-generator dependencies
+        run: pnpm install --frozen-lockfile --filter @framework-tracker/stats-generator
+
+      - name: Check version synchronization
+        run: pnpm --filter @framework-tracker/stats-generator sync:versions

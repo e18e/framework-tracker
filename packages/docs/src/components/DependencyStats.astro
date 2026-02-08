@@ -1,19 +1,13 @@
 ---
 import { getCollection } from 'astro:content'
+import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from '../lib/utils'
+import '../styles/shared.css'
 
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
 
 const starterStats = devtimeEntries.map((entry) => entry.data)
 const ssrStats = runtimeEntries.map((entry) => entry.data)
-
-const BYTES_PER_KB = 1024
-const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
-
-function formatBytesToMB(bytes: number): string {
-  const mb = bytes / BYTES_PER_MB
-  return `${mb.toFixed(2)}MB`
-}
 ---
 
 <div id="container">
@@ -41,7 +35,7 @@ function formatBytesToMB(bytes: number): string {
 
       <p class="methodology">
         Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on
-        the starter project set up by each frameworks CLI.
+        the starter project set up by each framework's CLI.
       </p>
 
       <div class="table-wrapper">
@@ -60,7 +54,14 @@ function formatBytesToMB(bytes: number): string {
             {
               starterStats.map((framework) => (
                 <tr>
-                  <td class="framework-name">{framework.name}</td>
+                  <td class="framework-name">
+                    <a
+                      href={`/framework/${getFrameworkSlug(framework.package)}`}
+                      class="framework-link"
+                    >
+                      {framework.name}
+                    </a>
+                  </td>
                   <td>{framework.prodDependencies}</td>
                   <td>{framework.devDependencies}</td>
                   <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
@@ -99,12 +100,19 @@ function formatBytesToMB(bytes: number): string {
             {
               starterStats.map((framework) => (
                 <tr>
-                  <td class="framework-name">{framework.name}</td>
-                  <td>{(framework.installTime.avgMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.installTime.minMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.installTime.maxMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.coldBuildTime.avgMs / 1000).toFixed(2)}s</td>
-                  <td>{(framework.warmBuildTime.avgMs / 1000).toFixed(2)}s</td>
+                  <td class="framework-name">
+                    <a
+                      href={`/framework/${getFrameworkSlug(framework.package)}`}
+                      class="framework-link"
+                    >
+                      {framework.name}
+                    </a>
+                  </td>
+                  <td>{formatTimeMs(framework.installTime.avgMs)}</td>
+                  <td>{formatTimeMs(framework.installTime.minMs)}</td>
+                  <td>{formatTimeMs(framework.installTime.maxMs)}</td>
+                  <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
+                  <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
                   <td>{formatBytesToMB(framework.buildOutputSize)}</td>
                 </tr>
               ))
@@ -137,7 +145,14 @@ function formatBytesToMB(bytes: number): string {
             {
               ssrStats.map((framework) => (
                 <tr>
-                  <td class="framework-name">{framework.name}</td>
+                  <td class="framework-name">
+                    <a
+                      href={`/framework/${getFrameworkSlug(framework.package)}`}
+                      class="framework-link"
+                    >
+                      {framework.name}
+                    </a>
+                  </td>
                   <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
                   <td>{framework.ssrAvgLatencyMs}ms</td>
                   <td>{framework.ssrBodySizeKb}kb</td>
@@ -208,8 +223,8 @@ function formatBytesToMB(bytes: number): string {
       'Helvetica Neue',
       sans-serif;
     min-height: 100vh;
-    color: #213547;
-    background-color: #ffffff;
+    color: var(--ft-text);
+    background-color: var(--ft-bg);
     line-height: 1.5;
   }
 
@@ -229,7 +244,7 @@ function formatBytesToMB(bytes: number): string {
     margin-top: 0.25em;
     margin-bottom: 0.5em;
     font-weight: 700;
-    background: linear-gradient(120deg, #7cb560 0%, #cf8c3c 100%);
+    background: var(--ft-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -240,7 +255,7 @@ function formatBytesToMB(bytes: number): string {
     margin-top: 2em;
     margin-bottom: 1em;
     font-weight: 600;
-    color: #213547;
+    color: var(--ft-text);
   }
 
   h3 {
@@ -248,12 +263,12 @@ function formatBytesToMB(bytes: number): string {
     margin-top: 1.5em;
     margin-bottom: 0.75em;
     font-weight: 600;
-    color: #213547;
+    color: var(--ft-text);
   }
 
   .description {
     font-size: 16px;
-    color: #4b5563;
+    color: var(--ft-muted);
     line-height: 1.6;
     margin-bottom: 1em;
     max-width: 700px;
@@ -261,7 +276,7 @@ function formatBytesToMB(bytes: number): string {
 
   .methodology {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--ft-muted);
     margin-bottom: 0.5em;
   }
 
@@ -274,23 +289,23 @@ function formatBytesToMB(bytes: number): string {
   .methodology-notes {
     margin-top: 1.5em;
     padding: 1em 1.25em;
-    background: #f9fafb;
+    background: var(--ft-bg-muted);
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ft-border);
   }
 
   .methodology-notes h4 {
     margin: 0 0 0.75em 0;
     font-size: 14px;
     font-weight: 600;
-    color: #374151;
+    color: var(--ft-text);
   }
 
   .methodology-notes ul {
     margin: 0;
     padding-left: 1.25em;
     font-size: 13px;
-    color: #6b7280;
+    color: var(--ft-muted);
   }
 
   .methodology-notes li {
@@ -302,25 +317,26 @@ function formatBytesToMB(bytes: number): string {
   }
 
   .methodology-notes a {
-    color: #c37822;
+    color: var(--ft-accent);
     text-decoration: none;
   }
 
   .methodology-notes a:hover {
+    color: var(--ft-accent-hover);
     text-decoration: underline;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    background: #ffffff;
+    background: var(--ft-bg);
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--ft-border);
   }
 
   thead {
-    background: linear-gradient(120deg, #7cb560 0%, #cf8c3c 100%);
+    background: var(--ft-gradient);
     color: white;
   }
 
@@ -339,7 +355,7 @@ function formatBytesToMB(bytes: number): string {
 
   td {
     padding: 14px 16px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--ft-border);
     font-size: 15px;
   }
 
@@ -353,17 +369,29 @@ function formatBytesToMB(bytes: number): string {
 
   .framework-name {
     font-weight: 500;
-    color: #213547;
+    color: var(--ft-text);
+  }
+
+  .framework-link {
+    color: var(--ft-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .framework-link:hover {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
   }
 
   td:not(.framework-name) {
     text-align: center;
-    color: #6b7280;
+    color: var(--ft-muted);
   }
 
   .graph-link,
   .roadmap-link {
-    color: #c37822;
+    color: var(--ft-accent);
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
@@ -371,35 +399,35 @@ function formatBytesToMB(bytes: number): string {
 
   .graph-link:hover,
   .roadmap-link:hover {
-    color: #cf8c3c;
+    color: var(--ft-accent-hover);
     text-decoration: underline;
   }
 
   /* Dark mode styles */
   :global(html.dark) #container {
-    color: #ffffffde;
-    background-color: #1a1a1a;
+    color: var(--ft-text);
+    background-color: var(--ft-bg);
   }
 
   :global(html.dark) h2 {
-    color: #ffffffde;
+    color: var(--ft-text);
   }
 
   :global(html.dark) h3 {
-    color: #ffffffde;
+    color: var(--ft-text);
   }
 
   :global(html.dark) .description {
-    color: #ffffffa6;
+    color: var(--ft-muted);
   }
 
   :global(html.dark) table {
-    background: #1a1a1a;
-    border-color: #2e2e2e;
+    background: var(--ft-bg);
+    border-color: var(--ft-border);
   }
 
   :global(html.dark) td {
-    border-bottom-color: #2e2e2e;
+    border-bottom-color: var(--ft-border);
   }
 
   :global(html.dark) tbody tr:hover {
@@ -407,32 +435,36 @@ function formatBytesToMB(bytes: number): string {
   }
 
   :global(html.dark) .framework-name {
-    color: #ffffffde;
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) .framework-link {
+    color: var(--ft-accent);
+  }
+
+  :global(html.dark) .framework-link:hover {
+    color: var(--ft-accent-hover);
   }
 
   :global(html.dark) td:not(.framework-name) {
-    color: #ffffffa6;
-  }
-
-  :global(html.dark) .framework-links li {
-    color: #ffffffde;
+    color: var(--ft-muted);
   }
 
   :global(html.dark) .methodology {
-    color: #ffffffa6;
+    color: var(--ft-muted);
   }
 
   :global(html.dark) .methodology-notes {
-    background: #242424;
-    border-color: #2e2e2e;
+    background: var(--ft-bg-muted);
+    border-color: var(--ft-border);
   }
 
   :global(html.dark) .methodology-notes h4 {
-    color: #ffffffde;
+    color: var(--ft-text);
   }
 
   :global(html.dark) .methodology-notes ul {
-    color: #ffffffa6;
+    color: var(--ft-muted);
   }
 
   @media screen and (max-width: 768px) {

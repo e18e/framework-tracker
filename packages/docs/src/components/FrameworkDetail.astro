@@ -1,0 +1,472 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { formatBytesToMB, formatTimeMs } from '../lib/utils'
+import '../styles/shared.css'
+
+interface Props {
+  devtime: CollectionEntry<'devtime'>['data']
+  runtime?: CollectionEntry<'runtime'>['data']
+}
+
+const { devtime, runtime } = Astro.props
+
+const measuredDateDisplay = (() => {
+  const d = new Date(devtime.timingMeasuredAt)
+  return Number.isNaN(d.getTime())
+    ? devtime.timingMeasuredAt
+    : d.toLocaleDateString('en-US')
+})()
+---
+
+<div class="detail">
+  <a href="/" class="back-link">← All frameworks</a>
+
+  <header class="detail-header">
+    <h1 class="detail-title">{devtime.name}</h1>
+    {
+      (devtime.frameworkVersion ?? devtime.timingMeasuredAt) && (
+        <p class="detail-meta">
+          {devtime.frameworkVersion && (
+            <span>Version {devtime.frameworkVersion}</span>
+          )}
+          {devtime.frameworkVersion && devtime.timingMeasuredAt && ' · '}
+          {devtime.timingMeasuredAt && (
+            <span>Measured {measuredDateDisplay}</span>
+          )}
+        </p>
+      )
+    }
+  </header>
+
+  <section class="section">
+    <h2>Dev Time Performance</h2>
+    <p class="methodology">
+      Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on
+      the starter project set up by each framework's CLI.
+    </p>
+
+    <div class="table-wrapper">
+      <table aria-label="Dependency counts">
+        <thead>
+          <tr>
+            <th scope="col">Prod Deps</th>
+            <th scope="col">Dev Deps</th>
+            <th scope="col">Size</th>
+            <th scope="col">Size (Prod Only)</th>
+            <th scope="col">Graph</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{devtime.prodDependencies}</td>
+            <td>{devtime.devDependencies}</td>
+            <td>{formatBytesToMB(devtime.nodeModulesSize)}</td>
+            <td>{formatBytesToMB(devtime.nodeModulesSizeProdOnly)}</td>
+            <td>
+              <a
+                href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${devtime.package}/package.json`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="graph-link"
+              >
+                View
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrapper">
+      <table aria-label="Build and install times">
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            <th scope="col">Avg</th>
+            <th scope="col">Min</th>
+            <th scope="col">Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="metric-name">Install</td>
+            <td>{formatTimeMs(devtime.installTime.avgMs)}</td>
+            <td>{formatTimeMs(devtime.installTime.minMs)}</td>
+            <td>{formatTimeMs(devtime.installTime.maxMs)}</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Cold Build</td>
+            <td>{formatTimeMs(devtime.coldBuildTime.avgMs)}</td>
+            <td>{formatTimeMs(devtime.coldBuildTime.minMs)}</td>
+            <td>{formatTimeMs(devtime.coldBuildTime.maxMs)}</td>
+          </tr>
+          <tr>
+            <td class="metric-name">Warm Build</td>
+            <td>{formatTimeMs(devtime.warmBuildTime.avgMs)}</td>
+            <td>{formatTimeMs(devtime.warmBuildTime.minMs)}</td>
+            <td>{formatTimeMs(devtime.warmBuildTime.maxMs)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="build-output">
+      <strong>Build output size:</strong>
+      {formatBytesToMB(devtime.buildOutputSize)}
+    </p>
+  </section>
+
+  {
+    runtime && (
+      <section class="section">
+        <h2>Runtime Performance</h2>
+        <h3>SSR Performance</h3>
+        <p class="methodology">
+          Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR
+          benchmark apps.
+        </p>
+        <div class="table-wrapper">
+          <table aria-label="SSR performance">
+            <thead>
+              <tr>
+                <th scope="col">Ops/sec</th>
+                <th scope="col">Avg Latency</th>
+                <th scope="col">Body Size</th>
+                <th scope="col">Duplication</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{runtime.ssrOpsPerSec?.toLocaleString()}</td>
+                <td>{runtime.ssrAvgLatencyMs}ms</td>
+                <td>{runtime.ssrBodySizeKb}kb</td>
+                <td>{runtime.ssrDuplicationFactor}x</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="methodology-notes">
+          <h4>Methodology</h4>
+          <ul>
+            <li>
+              Each framework renders a table of 1000 rows with two UUID columns
+            </li>
+            <li>
+              Mock HTTP requests bypass TCP overhead for accurate rendering
+              measurement
+            </li>
+            <li>
+              Data is loaded asynchronously to simulate real-world data fetching
+            </li>
+            <li>
+              Duplication factor indicates how many times each UUID appears in
+              the response (1x = optimal, 2x = includes hydration payload)
+            </li>
+            <li>
+              Benchmarks run for 10 seconds using{' '}
+              <a
+                href="https://github.com/tinylibs/tinybench"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                tinybench
+              </a>
+            </li>
+            <li>
+              React Router uses Web APIs internally; benchmarks include the cost
+              of its official Node.js adapter (<code>@react-router/node</code>)
+            </li>
+            <li>
+              Inspired by{' '}
+              <a
+                href="https://github.com/eknkc/ssr-benchmark"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                eknkc/ssr-benchmark
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+    )
+  }
+</div>
+
+<style>
+  .detail {
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Fira Sans',
+      'Droid Sans',
+      'Helvetica Neue',
+      sans-serif;
+    color: var(--ft-text);
+    line-height: 1.5;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1.5em;
+    color: var(--ft-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
+  }
+
+  .detail-header {
+    margin-bottom: 2em;
+  }
+
+  .detail-title {
+    font-size: 32px;
+    margin: 0 0 0.25em 0;
+    font-weight: 700;
+    background: var(--ft-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .detail-meta {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ft-muted);
+  }
+
+  .section {
+    margin-top: 2em;
+  }
+
+  .section h2 {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 1em;
+    font-weight: 600;
+    color: var(--ft-text);
+  }
+
+  .section h3 {
+    font-size: 16px;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    font-weight: 600;
+    color: var(--ft-text);
+  }
+
+  .methodology {
+    font-size: 14px;
+    color: var(--ft-muted);
+    margin-bottom: 0.5em;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 2em;
+  }
+
+  .build-output {
+    margin: 1em 0 2em 0;
+    font-size: 15px;
+    color: var(--ft-muted);
+  }
+
+  .build-output strong {
+    color: var(--ft-text);
+  }
+
+  .methodology-notes {
+    margin-top: 2em;
+    padding: 1em 1.25em;
+    background: var(--ft-bg-muted);
+    border-radius: 8px;
+    border: 1px solid var(--ft-border);
+  }
+
+  .methodology-notes h4 {
+    margin: 0 0 0.75em 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ft-text);
+  }
+
+  .methodology-notes ul {
+    margin: 0;
+    padding-left: 1.25em;
+    font-size: 13px;
+    color: var(--ft-muted);
+  }
+
+  .methodology-notes li {
+    margin-bottom: 0.4em;
+  }
+
+  .methodology-notes li:last-child {
+    margin-bottom: 0;
+  }
+
+  .methodology-notes a {
+    color: var(--ft-accent);
+    text-decoration: none;
+  }
+
+  .methodology-notes a:hover {
+    text-decoration: underline;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--ft-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--ft-border);
+  }
+
+  thead {
+    background: var(--ft-gradient);
+    color: white;
+  }
+
+  th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  th:not(:first-child) {
+    text-align: center;
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--ft-border);
+    font-size: 15px;
+    color: var(--ft-muted);
+    text-align: center;
+  }
+
+  td.metric-name {
+    text-align: left;
+    font-weight: 500;
+    color: var(--ft-text);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: rgba(207, 140, 60, 0.05);
+  }
+
+  .graph-link {
+    color: var(--ft-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .graph-link:hover {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
+  }
+
+  /* Dark mode */
+  :global(html.dark) .detail {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) .detail-meta {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) .section h2,
+  :global(html.dark) .section h3 {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) .methodology {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) table {
+    background: var(--ft-bg);
+    border-color: var(--ft-border);
+  }
+
+  :global(html.dark) td {
+    border-bottom-color: var(--ft-border);
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) td.metric-name {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) tbody tr:hover {
+    background: rgba(124, 181, 96, 0.1);
+  }
+
+  :global(html.dark) .methodology-notes {
+    background: var(--ft-bg-muted);
+    border-color: var(--ft-border);
+  }
+
+  :global(html.dark) .methodology-notes h4 {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) .methodology-notes ul {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) .build-output {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) .build-output strong {
+    color: var(--ft-text);
+  }
+
+  @media screen and (max-width: 768px) {
+    .detail-title {
+      font-size: 26px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+    }
+
+    .section h3 {
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      padding: 12px 8px;
+      font-size: 13px;
+    }
+
+    th {
+      font-size: 12px;
+    }
+  }
+</style>

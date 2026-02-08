@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '../../layouts/Layout.astro'
+import FrameworkDetail from '../../components/FrameworkDetail.astro'
+import { getFrameworkSlug } from '../../lib/utils'
+
+export async function getStaticPaths() {
+  const devtimeEntries = await getCollection('devtime')
+  const runtimeEntries = await getCollection('runtime')
+  return devtimeEntries.map((entry) => {
+    const slug = getFrameworkSlug(entry.data.package)
+    const runtimePackage = `app-${slug}`
+    const runtimeEntry = runtimeEntries.find(
+      (e) => e.data.package === runtimePackage,
+    )
+    return {
+      params: { slug },
+      props: {
+        devtime: entry.data,
+        runtime: runtimeEntry?.data,
+      },
+    }
+  })
+}
+
+const { devtime, runtime } = Astro.props
+---
+
+<Layout title={`${devtime.name} — Framework Tracker`}>
+  <main class="framework-page-main">
+    <section class="framework-page-section">
+      <FrameworkDetail devtime={devtime} runtime={runtime} />
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .framework-page-main {
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+
+  .framework-page-section {
+    width: 100%;
+    max-width: 900px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .framework-page-main {
+      padding: 20px 16px;
+    }
+  }
+</style>

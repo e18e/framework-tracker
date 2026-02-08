@@ -51,29 +51,59 @@ async function main() {
   const frameworks = await getFrameworks()
   let hasFailures = false
 
-  for (const { package: pkg, displayName, type } of frameworks) {
-    if (target !== 'all' && target !== type && target !== pkg) continue
+  for (const framework of frameworks) {
+    // Validate starter
+    if (framework.starter) {
+      const pkg = framework.starter.package
+      if (target !== 'all' && target !== framework.name && target !== pkg)
+        continue
 
-    console.info(`Validating ${displayName} (${pkg})...`)
+      console.info(`Validating ${framework.displayName} starter (${pkg})...`)
 
-    const benchmarks = type === 'starter' ? STARTER_BENCHMARKS : APP_BENCHMARKS
-    const errors: string[] = []
+      const errors: string[] = []
+      for (const { type: benchType, file, schema } of STARTER_BENCHMARKS) {
+        if (filterType && filterType !== benchType) continue
 
-    for (const { type: benchType, file, schema } of benchmarks) {
-      if (filterType && filterType !== benchType) continue
+        const filePath = join(packagesDir, pkg, file)
+        const fileErrors = validateFile(filePath, schema)
+        errors.push(...fileErrors.map((e) => `[${benchType}] ${e}`))
+      }
 
-      const filePath = join(packagesDir, pkg, file)
-      const fileErrors = validateFile(filePath, schema)
-      errors.push(...fileErrors.map((e) => `[${benchType}] ${e}`))
+      if (errors.length === 0) {
+        console.info('  ✓ Valid\n')
+      } else {
+        console.info('  ✗ Invalid')
+        errors.forEach((e) => console.error(`    ${e}`))
+        console.info('')
+        hasFailures = true
+      }
     }
 
-    if (errors.length === 0) {
-      console.info('  ✓ Valid\n')
-    } else {
-      console.info('  ✗ Invalid')
-      errors.forEach((e) => console.error(`    ${e}`))
-      console.info('')
-      hasFailures = true
+    // Validate app
+    if (framework.app) {
+      const pkg = framework.app.package
+      if (target !== 'all' && target !== framework.name && target !== pkg)
+        continue
+
+      console.info(`Validating ${framework.displayName} app (${pkg})...`)
+
+      const errors: string[] = []
+      for (const { type: benchType, file, schema } of APP_BENCHMARKS) {
+        if (filterType && filterType !== benchType) continue
+
+        const filePath = join(packagesDir, pkg, file)
+        const fileErrors = validateFile(filePath, schema)
+        errors.push(...fileErrors.map((e) => `[${benchType}] ${e}`))
+      }
+
+      if (errors.length === 0) {
+        console.info('  ✓ Valid\n')
+      } else {
+        console.info('  ✗ Invalid')
+        errors.forEach((e) => console.error(`    ${e}`))
+        console.info('')
+        hasFailures = true
+      }
     }
   }
 

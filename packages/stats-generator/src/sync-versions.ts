@@ -2,7 +2,6 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
-import type { FrameworkConfig } from './types.ts'
 
 interface VersionMismatch {
   frameworkPackage: string
@@ -46,46 +45,21 @@ async function checkVersions(): Promise<VersionMismatch[]> {
   const frameworks = await getFrameworks()
   const mismatches: VersionMismatch[] = []
 
-  // Build lookup maps by package name
-  const starters = new Map<string, FrameworkConfig>()
-  const apps: FrameworkConfig[] = []
+  const pairs = frameworks.filter((f) => f.starter && f.app)
+  console.info(`Checking ${pairs.length} framework package pair(s)...\n`)
 
-  for (const framework of frameworks) {
-    if (framework.type === 'starter') {
-      starters.set(framework.package, framework)
-    } else if (framework.type === 'app') {
-      apps.push(framework)
-    }
-  }
+  for (const framework of pairs) {
+    const { displayName, frameworkPackage } = framework
+    const starterPkg = framework.starter!.package
+    const appPkg = framework.app!.package
 
-  // Pair each app with its corresponding starter by package name convention
-  // e.g. "app-astro" -> "starter-astro", "app-next-js" -> "starter-next-js"
-  console.info(`Checking ${apps.length} framework package pair(s)...\n`)
-
-  for (const app of apps) {
-    const starterPackageName = app.package.replace(/^app-/, 'starter-')
-    const starter = starters.get(starterPackageName)
-
-    if (!starter) {
-      console.warn(
-        `⚠ Skipping ${app.package}: No matching starter package "${starterPackageName}" found`,
-      )
-      continue
-    }
-
-    const frameworkPackage = app.frameworkPackage
-    if (!frameworkPackage) {
-      console.warn(`⚠ Skipping ${app.package}: No frameworkPackage defined`)
-      continue
-    }
-
-    console.info(`Checking ${starter.displayName}...`)
-    console.info(`  Starter: ${starter.package}`)
-    console.info(`  App: ${app.package}`)
+    console.info(`Checking ${displayName}...`)
+    console.info(`  Starter: ${starterPkg}`)
+    console.info(`  App: ${appPkg}`)
     console.info(`  Framework package: ${frameworkPackage}`)
 
     // Read both package.json files
-    const starterPath = join(packagesDir, starter.package, 'package.json')
+    const starterPath = join(packagesDir, starterPkg, 'package.json')
     let starterPackageJson: Record<string, unknown>
     try {
       const starterContent = await readFile(starterPath, 'utf-8')
@@ -98,7 +72,7 @@ async function checkVersions(): Promise<VersionMismatch[]> {
       continue
     }
 
-    const appPath = join(packagesDir, app.package, 'package.json')
+    const appPath = join(packagesDir, appPkg, 'package.json')
     let appPackageJson: Record<string, unknown>
     try {
       const appContent = await readFile(appPath, 'utf-8')
@@ -111,7 +85,6 @@ async function checkVersions(): Promise<VersionMismatch[]> {
       continue
     }
 
-    // Check the app's frameworkPackage version in both package.json files
     const starterVersionInfo = extractVersion(
       starterPackageJson,
       frameworkPackage,
@@ -119,7 +92,7 @@ async function checkVersions(): Promise<VersionMismatch[]> {
 
     if (!starterVersionInfo) {
       console.warn(
-        `  ❌ Framework package "${frameworkPackage}" not found in ${starter.package}`,
+        `  ❌ Framework package "${frameworkPackage}" not found in ${starterPkg}`,
       )
       continue
     }
@@ -128,7 +101,7 @@ async function checkVersions(): Promise<VersionMismatch[]> {
 
     if (!appVersionInfo) {
       console.warn(
-        `  ❌ Framework package "${frameworkPackage}" not found in ${app.package}`,
+        `  ❌ Framework package "${frameworkPackage}" not found in ${appPkg}`,
       )
       continue
     }
@@ -153,11 +126,11 @@ async function checkVersions(): Promise<VersionMismatch[]> {
       console.error(`  ❌ MISMATCH: ${starterNormalized} != ${appNormalized}`)
       mismatches.push({
         frameworkPackage,
-        displayName: starter.displayName,
-        starterPackage: starter.package,
+        displayName,
+        starterPackage: starterPkg,
         starterVersion: starterVersionInfo.version,
         starterIsDevDep: starterVersionInfo.isDevDep,
-        appPackage: app.package,
+        appPackage: appPkg,
         appVersion: appVersionInfo.version,
         appIsDevDep: appVersionInfo.isDevDep,
       })

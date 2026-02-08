@@ -35,19 +35,14 @@ async function main() {
   const base = 10
   const runFrequency = parseInt(args[0] || fallbackFrequency, base)
 
-  const framework = await getFrameworkByPackage(packageName)
-
-  if (!framework.buildOutputDir) {
-    console.error(`No buildOutputDir defined for ${packageName}`)
-    process.exit(1)
-  }
+  const { framework, testConfig } = await getFrameworkByPackage(packageName)
 
   console.info(
     `Running build benchmark for ${framework.displayName} (${packageName})...\n`,
   )
 
   const packageDir = join(packagesDir, packageName)
-  const buildOutputPath = join(packageDir, framework.buildOutputDir)
+  const buildOutputPath = join(packageDir, testConfig.buildOutputDir)
 
   const coldBuildTimesMs: number[] = []
   const warmBuildTimesMs: number[] = []

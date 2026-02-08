@@ -32,9 +32,9 @@ jobs:
         id: set-matrix
         run: |
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | map(.type) | contains(["install"]))]')" >> $GITHUB_OUTPUT
-          echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | map(.type) | contains(["build"]))]')" >> $GITHUB_OUTPUT
-          echo "ssr=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.measurements | map(.type) | contains(["ssr"]))]')" >> $GITHUB_OUTPUT
+          echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
 
   measure-install:
     needs: setup

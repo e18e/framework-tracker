@@ -17,10 +17,15 @@ async function getDependencyCounts(pkgDir: string) {
   }
 }
 
-async function processStarterFramework(framework: FrameworkConfig) {
-  const { package: pkgDir, displayName, measurements } = framework
+async function processStarter(framework: FrameworkConfig) {
+  const starter = framework.starter
+  if (!starter) return
 
-  const dependencyStats = measurements.includes('dependencies')
+  const { package: pkgDir, measurements } = starter
+  const { displayName } = framework
+
+  const hasDependencies = measurements.some((m) => m.type === 'dependencies')
+  const dependencyStats = hasDependencies
     ? await getDependencyCounts(pkgDir)
     : {}
 
@@ -38,8 +43,12 @@ async function processStarterFramework(framework: FrameworkConfig) {
   console.info(`✓ Collected ${displayName} (${pkgDir}) → devtime`)
 }
 
-async function processAppFramework(framework: FrameworkConfig) {
-  const { package: pkgDir, displayName } = framework
+async function processApp(framework: FrameworkConfig) {
+  const app = framework.app
+  if (!app) return
+
+  const { package: pkgDir } = app
+  const { displayName } = framework
 
   const ciStats = (await getCIStats(pkgDir)) ?? {}
 
@@ -57,32 +66,31 @@ async function processAppFramework(framework: FrameworkConfig) {
 async function collectStats() {
   const frameworks = await getFrameworks()
 
-  const starterFrameworks = frameworks.filter((f) => f.type === 'starter')
-  const appFrameworks = frameworks.filter((f) => f.type === 'app')
-
   console.info('Collecting starter stats...\n')
-  for (const framework of starterFrameworks) {
+  for (const framework of frameworks) {
+    if (!framework.starter) continue
     try {
-      await processStarterFramework(framework)
+      await processStarter(framework)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error'
       console.error(
-        `✗ Error collecting ${framework.displayName}:`,
+        `✗ Error collecting ${framework.displayName} starter:`,
         errorMessage,
       )
     }
   }
 
   console.info('\nCollecting app stats...\n')
-  for (const framework of appFrameworks) {
+  for (const framework of frameworks) {
+    if (!framework.app) continue
     try {
-      await processAppFramework(framework)
+      await processApp(framework)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error'
       console.error(
-        `✗ Error collecting ${framework.displayName}:`,
+        `✗ Error collecting ${framework.displayName} app:`,
         errorMessage,
       )
     }

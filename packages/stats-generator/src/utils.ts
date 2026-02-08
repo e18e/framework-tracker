@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
-import type { FrameworkConfig } from './types.ts'
+import type { FrameworkConfig, TestConfig } from './types.ts'
 
 /**
  * Get directory size in bytes using du command.
@@ -47,21 +47,25 @@ export function writeJsonFile(filePath: string, data: unknown): void {
 }
 
 /**
- * Find a framework by package name and validate it exists.
+ * Find a framework by package name (searching both starter and app sections).
  * Exits with error if not found.
  */
 export async function getFrameworkByPackage(
   packageName: string,
-): Promise<FrameworkConfig> {
+): Promise<{ framework: FrameworkConfig; testConfig: TestConfig }> {
   const frameworks = await getFrameworks()
-  const framework = frameworks.find((f) => f.package === packageName)
 
-  if (!framework) {
-    console.error(`Unknown package: ${packageName}`)
-    process.exit(1)
+  for (const framework of frameworks) {
+    if (framework.starter?.package === packageName) {
+      return { framework, testConfig: framework.starter }
+    }
+    if (framework.app?.package === packageName) {
+      return { framework, testConfig: framework.app }
+    }
   }
 
-  return framework
+  console.error(`Unknown package: ${packageName}`)
+  process.exit(1)
 }
 
 /**

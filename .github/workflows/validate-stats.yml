@@ -35,9 +35,9 @@ jobs:
 
           echo "=== Running SSR benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.type == "app")' | while read -r framework; do
-            PKG=$(echo "$framework" | jq -r '.package')
-            BUILD_SCRIPT=$(echo "$framework" | jq -r '.buildScript')
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app)' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.app.package')
+            BUILD_SCRIPT=$(echo "$framework" | jq -r '.app.buildScript')
             echo "Building $PKG..."
             pnpm $BUILD_SCRIPT
             echo "Running SSR benchmark for $PKG..."
@@ -47,12 +47,12 @@ jobs:
           echo ""
           echo "=== Running starter benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.type == "starter")' | while read -r framework; do
-            NAME=$(echo "$framework" | jq -r '.package')
-            echo "Running install benchmark for $NAME (1 run)..."
-            pnpm --filter @framework-tracker/stats-generator run:install $NAME 1
-            echo "Running build benchmark for $NAME..."
-            pnpm --filter @framework-tracker/stats-generator run:build $NAME
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter)' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.starter.package')
+            echo "Running install benchmark for $PKG (1 run)..."
+            pnpm --filter @framework-tracker/stats-generator run:install $PKG 1
+            echo "Running build benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:build $PKG
           done
 
           echo ""

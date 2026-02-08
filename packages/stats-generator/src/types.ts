@@ -5,18 +5,24 @@ export type MeasurementType =
   | 'dependencies'
   | 'ssr'
 
-export type FrameworkType = 'starter' | 'app'
+export interface MeasurementConfig {
+  type: MeasurementType
+  runFrequency?: number
+}
+
+export interface TestConfig {
+  package: string
+  buildScript: string
+  buildOutputDir: string
+  measurements: MeasurementConfig[]
+}
 
 export interface FrameworkConfig {
   name: string
   displayName: string
-  type: FrameworkType
-  package: string
-  frameworkPackage?: string
-  buildScript?: string
-  buildOutputDir?: string
-  testScript?: string
-  measurements: MeasurementType[]
+  frameworkPackage: string
+  starter?: TestConfig
+  app?: TestConfig
 }
 
 export interface CIStats {

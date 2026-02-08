@@ -70,12 +70,7 @@ async function main() {
   const base = 10
   const runFrequency = parseInt(args[0] || fallbackFrequency, base)
 
-  const framework = await getFrameworkByPackage(packageName)
-
-  if (!framework.frameworkPackage) {
-    console.error(`No frameworkPackage defined for ${packageName}`)
-    process.exit(1)
-  }
+  const { framework } = await getFrameworkByPackage(packageName)
 
   console.info(
     `Running install benchmark for ${framework.displayName} (${packageName})...`,

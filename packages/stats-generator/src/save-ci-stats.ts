@@ -17,22 +17,24 @@ async function main() {
   const frameworks = await getFrameworks()
 
   for (const framework of frameworks) {
-    const { name, package: packageName, displayName, type } = framework
+    const { name, displayName } = framework
 
-    console.info(`Processing ${displayName} (${packageName})...`)
+    // Process starter stats
+    if (framework.starter) {
+      const packageName = framework.starter.package
+      console.info(`Processing ${displayName} starter (${packageName})...`)
 
-    const existingStatsPath = join(packagesDir, packageName, 'ci-stats.json')
-    const existingStats = readJsonFile<CIStats>(existingStatsPath)
+      const existingStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      const existingStats = readJsonFile<CIStats>(existingStatsPath)
 
-    let stats: CIStats = {
-      ...existingStats,
-      timingMeasuredAt: timestamp,
-      runner,
-    }
+      let stats: CIStats = {
+        ...existingStats,
+        timingMeasuredAt: timestamp,
+        runner,
+      }
 
-    let frameworkVersion = existingStats?.frameworkVersion
+      let frameworkVersion = existingStats?.frameworkVersion
 
-    if (type === 'starter') {
       // Load install stats from artifact
       const installStatsPath = join(
         artifactsDir,
@@ -76,9 +78,43 @@ async function main() {
       } else {
         console.info(`  ⚠ No build stats artifact found at ${buildStatsPath}`)
       }
+
+      // Save to ci-stats.json
+      const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      writeJsonFile(ciStatsPath, stats)
+      console.info(`  ✓ Saved ${ciStatsPath}`)
+
+      // Save versioned stats if we have a valid version
+      if (frameworkVersion && frameworkVersion !== 'unknown') {
+        const versionedPath = join(
+          packagesDir,
+          packageName,
+          'stats',
+          `${frameworkVersion}.json`,
+        )
+        writeJsonFile(versionedPath, stats)
+        console.info(`  ✓ Saved ${versionedPath}`)
+      }
+
+      console.info('')
     }
 
-    if (type === 'app') {
+    // Process app stats
+    if (framework.app) {
+      const packageName = framework.app.package
+      console.info(`Processing ${displayName} app (${packageName})...`)
+
+      const existingStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      const existingStats = readJsonFile<CIStats>(existingStatsPath)
+
+      let stats: CIStats = {
+        ...existingStats,
+        timingMeasuredAt: timestamp,
+        runner,
+      }
+
+      let frameworkVersion = existingStats?.frameworkVersion
+
       // Load SSR stats from artifact
       const ssrStatsPath = join(
         artifactsDir,
@@ -102,26 +138,26 @@ async function main() {
       } else {
         console.info(`  ⚠ No SSR stats artifact found at ${ssrStatsPath}`)
       }
+
+      // Save to ci-stats.json
+      const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      writeJsonFile(ciStatsPath, stats)
+      console.info(`  ✓ Saved ${ciStatsPath}`)
+
+      // Save versioned stats if we have a valid version
+      if (frameworkVersion && frameworkVersion !== 'unknown') {
+        const versionedPath = join(
+          packagesDir,
+          packageName,
+          'stats',
+          `${frameworkVersion}.json`,
+        )
+        writeJsonFile(versionedPath, stats)
+        console.info(`  ✓ Saved ${versionedPath}`)
+      }
+
+      console.info('')
     }
-
-    // Save to ci-stats.json
-    const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
-    writeJsonFile(ciStatsPath, stats)
-    console.info(`  ✓ Saved ${ciStatsPath}`)
-
-    // Save versioned stats if we have a valid version
-    if (frameworkVersion && frameworkVersion !== 'unknown') {
-      const versionedPath = join(
-        packagesDir,
-        packageName,
-        'stats',
-        `${frameworkVersion}.json`,
-      )
-      writeJsonFile(versionedPath, stats)
-      console.info(`  ✓ Saved ${versionedPath}`)
-    }
-
-    console.info('')
   }
 
   console.info('Done!')

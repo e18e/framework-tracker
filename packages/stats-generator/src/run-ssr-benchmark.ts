@@ -2,31 +2,25 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { runSSRBenchmark } from './ssr/index.ts'
 import { packagesDir } from './constants.ts'
-import { getFrameworks } from './get-frameworks.ts'
+import { getFrameworkByPackage } from './utils.ts'
 
 async function getFrameworkVersion(
   packageName: string,
+  frameworkPackage: string,
 ): Promise<string | undefined> {
-  const frameworks = await getFrameworks()
-  const framework = frameworks.find((f) => f.package === packageName)
-
-  if (!framework?.frameworkPackage) {
-    return undefined
-  }
-
   try {
     const pkgJsonPath = join(
       packagesDir,
       packageName,
       'node_modules',
-      framework.frameworkPackage,
+      frameworkPackage,
       'package.json',
     )
     const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'))
     return pkgJson.version
   } catch {
     console.warn(
-      `Could not read version for ${framework.frameworkPackage} in ${packageName}`,
+      `Could not read version for ${frameworkPackage} in ${packageName}`,
     )
     return undefined
   }
@@ -43,9 +37,14 @@ async function main() {
 
   console.info(`Running SSR benchmark for ${packageName}...\n`)
 
+  const { framework } = await getFrameworkByPackage(packageName)
+
   const result = await runSSRBenchmark(packageName)
   const timestamp = new Date().toISOString()
-  const frameworkVersion = await getFrameworkVersion(packageName)
+  const frameworkVersion = await getFrameworkVersion(
+    packageName,
+    framework.frameworkPackage,
+  )
 
   const ciStats = {
     timingMeasuredAt: timestamp,

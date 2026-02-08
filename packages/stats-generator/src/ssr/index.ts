@@ -57,6 +57,12 @@ const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [
     package: 'app-solid-start',
     buildHandler: buildSolidStartHandler,
   },
+  {
+    name: 'tanstack-start-ssr',
+    displayName: 'TanStack Start SSR',
+    package: 'app-tanstack-start-react',
+    buildHandler: buildTanStackStartHandler,
+  },
 ]
 
 export async function runSSRBenchmark(

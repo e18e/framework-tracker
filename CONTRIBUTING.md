@@ -18,9 +18,9 @@ We currently run scripts in the CI to measure and collect metrics for each frame
 
 The current flow for collecting metrics is as follows:
 
-1. A PR is merged which triggers the CI Pipeline: `generate-stats`
-2. The CI Pipeline reads the framework config from `.github/frameworks.json` and runs measurements based on each framework's `measurements` array
-3. The collected metrics are passed into the final step which runs the scripts in `stats-generator`
+1. A PR is merged which triggers the CI Pipeline: `generate-stats` which uses functions from `packages/stats-generator` to run measurements for each framework
+2. The CI Pipeline reads the framework config from `.github/frameworks.json` and runs measurements based on each framework's `app` and `starter` config
+3. The collected metrics are passed into the final step which runs the scripts from `packages/stats-generator`
 4. The `stats-generator` reads `frameworks.json` and generates stats only for the configured measurements
 
 ### Framework Configuration
@@ -29,21 +29,27 @@ All frameworks are configured in `.github/frameworks.json`. Each entry specifies
 
 ```json
 {
-  "name": "next",
-  "displayName": "Next.js",
-  "package": "starter-next-js",
-  "buildScript": "build:next",
-  "measurements": ["install", "build", "dependencies"]
-}
+  "name": "astro",
+  "displayName": "Astro",
+  "frameworkPackage": "astro",
+  "starter": {
+    "package": "starter-astro",
+    "buildScript": "build:astro",
+    "buildOutputDir": "dist",
+    "measurements": [
+      { "type": "install", "runFrequency": 5 },
+      { "type": "build", "runFrequency": 5 },
+      { "type": "dependencies" }
+    ]
+  },
+  "app": {
+    "package": "app-astro",
+    "buildScript": "build:app-astro",
+    "buildOutputDir": "dist",
+    "measurements": [{ "type": "ssr" }]
+  }
+},
 ```
-
-**Available measurements:**
-
-| Measurement    | Description                                                     | Required fields |
-| -------------- | --------------------------------------------------------------- | --------------- |
-| `install`      | Measures clean install time (runs in parallel on fresh runners) | -               |
-| `build`        | Measures cold and warm build times                              | `buildScript`   |
-| `dependencies` | Counts prod/dev dependencies from package.json                  | -               |
 
 ### Adding a New Framework
 
@@ -51,17 +57,6 @@ To add a new framework to the tracker:
 
 1. Create a package in `packages/` (e.g., `packages/starter-astro`)
 2. Add necessary scripts to the root `package.json` (e.g., `"build:astro": "pnpm --filter starter-astro build"`)
-3. Create the stats file in `packages/docs/src/content/stats/` (e.g., `starter-astro.json`) with empty object `{}`
-4. Add an entry to `.github/frameworks.json`:
-
-```json
-{
-  "name": "astro",
-  "displayName": "Astro",
-  "package": "starter-astro",
-  "buildScript": "build:astro",
-  "measurements": ["install", "build", "dependencies"]
-}
-```
+3. Add an entry to `.github/frameworks.json`:
 
 The CI will automatically pick up the new framework and run only the configured measurements.

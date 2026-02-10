@@ -24,8 +24,10 @@ This is a monorepo managed with pnpm workspaces:
 ```
 framework-tracker/
 ├── packages/
-│   ├── docs/              # Astro-based documentation site
-│   └── metrics-collector/ # Tool for collecting framework metrics
+│   ├── docs/            # Astro-based documentation site
+│   └── stats-generator/ # Tool for collecting framework metrics
+│   └── starter-*/       # Metaframeworks configured using default set up
+│   └── app-*/           # Metaframeworks configured for run time tests
 ├── initial-comparison-list.md  # Roadmap and metrics plan
 └── package.json           # Workspace root configuration
 ```

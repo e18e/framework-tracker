@@ -5,7 +5,7 @@
 - [Next.js](https://nextjs.org) - React
 - [Nuxt](https://nuxt.com) - Vue
 - [SvelteKit](https://kit.svelte.dev) - Svelte
-- [React Router](https://reactrouter.com) - React (was Remix, new Remix using Preact is in beta)
+- [React Router](https://reactrouter.com) - React (was Remix, new Remix not using React is in alpha)
 - [Astro](https://astro.build) - Framework-agnostic
 - [SolidStart](https://start.solidjs.com) - Solid
 - [Qwik City](https://qwik.dev/docs/qwikcity/) - Qwik

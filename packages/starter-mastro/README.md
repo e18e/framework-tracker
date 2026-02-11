@@ -34,7 +34,6 @@ To make sure you're using the latest Mastro packages:
 
     pnpm update "@mastrojs/*" --latest
 
-
 ## Deploy to production
 
 - [Deploy static site](https://mastrojs.github.io/guide/deploy/#deploy-static-site-with-ci%2Fcd)

@@ -88,9 +88,33 @@ pnpm lint:fix
 pnpm type-check
 ```
 
-## Contributing
+## Data and Metrics
 
-Contributions are welcome! Whether it's adding new metrics, improving the documentation site, or enhancing the metrics collector, we'd love your help.
+If you would like to play around with the collected data to build your own visualizations or analyses, you can find the raw data output here:
+
+- Final formatted data: [Dev Time Performance](./packages/docs/src/content/devtime) -> JSON file per framework with all collected metrics
+
+- Final formatted data: [Runtime Performance](./packages/docs/src/content/runtime) -> JSON file per framework with all collected metrics
+
+- Raw data for each framework with past versions can be found in each package:
+
+  Dev Time Performance:
+  - [Next.js](./packages/starter-nextjs/ci-stats.json)
+  - [Nuxt](./packages/starter-nuxt/ci-stats.json)
+  - [SvelteKit](./packages/starter-sveltekit/ci-stats.json)
+  - [Astro](./packages/starter-astro/ci-stats.json)
+  - [Remix](./packages/starter-remix/ci-stats.json)
+  - [SolidStart](./packages/starter-solidstart/ci-stats.json)
+  - [Tanstack Start](./packages/starter-tanstack-start-react/ci-stats.json)
+
+  Runtime Performance:
+  - [Next.js](./packages/app-nextjs/ci-stats.json)
+  - [Nuxt](./packages/app-nuxt/ci-stats.json)
+  - [SvelteKit](./packages/app-sveltekit/ci-stats.json)
+  - [Astro](./packages/app-astro/ci-stats.json)
+  - [Remix](./packages/app-remix/ci-stats.json)
+  - [SolidStart](./packages/app-solidstart/ci-stats.json)
+  - [Tanstack Start](./packages/app-tanstack-start-react/ci-stats.json)
 
 ## License
 

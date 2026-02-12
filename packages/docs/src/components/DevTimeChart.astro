@@ -175,8 +175,16 @@ const chartData = JSON.stringify([
     d3.select(svg).attr('viewBox', `0 0 ${width} ${height}`)
 
     // Accessible labels for screen readers
-    d3.select(svg).append('title').text('Dev time performance: Install, Cold Build, and Warm Build times in seconds')
-    d3.select(svg).append('desc').text('Box chart showing minimum, average, and maximum duration for pnpm install, cold build, and warm build. See table above for exact values.')
+    d3.select(svg)
+      .append('title')
+      .text(
+        'Dev time performance: Install, Cold Build, and Warm Build times in seconds',
+      )
+    d3.select(svg)
+      .append('desc')
+      .text(
+        'Box chart showing minimum, average, and maximum duration for pnpm install, cold build, and warm build. See table above for exact values.',
+      )
 
     // Unique gradient ID to avoid collision when multiple charts exist in DOM
     const gradientId = `boxGradient-${crypto.randomUUID()}`
@@ -215,10 +223,7 @@ const chartData = JSON.stringify([
     const yMin = Math.max(0, minValue - dataRange * 0.5)
     const yMax = maxValue + dataRange * 0.4
 
-    const yScale = d3
-      .scaleLinear()
-      .domain([yMin, yMax])
-      .range([innerHeight, 0])
+    const yScale = d3.scaleLinear().domain([yMin, yMax]).range([innerHeight, 0])
 
     // Tick values at 0.5s increments
     const tickStep = 0.5
@@ -231,10 +236,7 @@ const chartData = JSON.stringify([
       .call(d3.axisBottom(xScale).tickSize(0))
       .call((sel) => sel.select('.domain').attr('class', 'axis-domain'))
       .call((sel) =>
-        sel
-          .selectAll('text')
-          .attr('class', 'x-axis-text')
-          .attr('dy', '1em'),
+        sel.selectAll('text').attr('class', 'x-axis-text').attr('dy', '1em'),
       )
 
     // Y axis
@@ -246,12 +248,10 @@ const chartData = JSON.stringify([
           .tickFormat((d) => `${d}s`),
       )
       .call((sel) => sel.select('.domain').attr('class', 'axis-domain'))
-      .call((sel) => sel.selectAll('.tick line').attr('class', 'axis-tick-line'))
       .call((sel) =>
-        sel
-          .selectAll('text')
-          .attr('class', 'y-axis-text'),
+        sel.selectAll('.tick line').attr('class', 'axis-tick-line'),
       )
+      .call((sel) => sel.selectAll('text').attr('class', 'y-axis-text'))
 
     // Y axis label
     g.append('text')
@@ -273,9 +273,7 @@ const chartData = JSON.stringify([
           .tickFormat(() => ''),
       )
       .call((sel) => sel.select('.domain').remove())
-      .call((sel) =>
-        sel.selectAll('.tick line').attr('class', 'grid-line'),
-      )
+      .call((sel) => sel.selectAll('.tick line').attr('class', 'grid-line'))
 
     // Create box groups
     const boxWidth = xScale.bandwidth()
@@ -440,13 +438,17 @@ const chartData = JSON.stringify([
         .attr('y1', function () {
           const parent = (this as SVGLineElement).parentElement
           const d = d3.select(parent).datum() as DataInSeconds
-          const isMin = (this as SVGLineElement).classList.contains('min-whisker')
+          const isMin = (this as SVGLineElement).classList.contains(
+            'min-whisker',
+          )
           return yScale(isMin ? d.min : d.max)
         })
         .attr('y2', function () {
           const parent = (this as SVGLineElement).parentElement
           const d = d3.select(parent).datum() as DataInSeconds
-          const isMin = (this as SVGLineElement).classList.contains('min-whisker')
+          const isMin = (this as SVGLineElement).classList.contains(
+            'min-whisker',
+          )
           return yScale(isMin ? d.min : d.max)
         })
         .attr('opacity', 1)

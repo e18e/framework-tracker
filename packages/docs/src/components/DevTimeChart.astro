@@ -1,0 +1,488 @@
+---
+interface TimeData {
+  avgMs: number
+  minMs: number
+  maxMs: number
+}
+
+interface Props {
+  installTime: TimeData
+  coldBuildTime: TimeData
+  warmBuildTime: TimeData
+}
+
+const { installTime, coldBuildTime, warmBuildTime } = Astro.props
+
+const chartData = JSON.stringify([
+  { label: 'Install', ...installTime },
+  { label: 'Cold Build', ...coldBuildTime },
+  { label: 'Warm Build', ...warmBuildTime },
+])
+---
+
+<div class="chart-container">
+  <div class="chart-wrapper" data-timings={chartData}>
+    <svg class="dev-time-chart"></svg>
+  </div>
+  <div class="chart-tooltip"></div>
+</div>
+
+<style>
+  .chart-container {
+    position: relative;
+    width: 100%;
+    margin-top: 1.5em;
+    margin-bottom: 2em;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .dev-time-chart {
+    width: 100%;
+    height: 600px;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .dev-time-chart {
+      height: 200px;
+    }
+  }
+
+  .chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--ft-bg);
+    border: 1px solid var(--ft-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    color: var(--ft-text);
+  }
+
+  .chart-tooltip.visible {
+    opacity: 1;
+  }
+
+  .chart-tooltip .tooltip-title {
+    font-weight: 600;
+    color: var(--ft-text);
+    margin-bottom: 4px;
+  }
+
+  .chart-tooltip .tooltip-values {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) .chart-tooltip {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Axis text styling - uses CSS variables for theme support */
+  .chart-wrapper :global(.x-axis-text) {
+    fill: var(--ft-text);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .chart-wrapper :global(.y-axis-text) {
+    fill: var(--ft-muted);
+    font-size: 12px;
+  }
+
+  .chart-wrapper :global(.y-axis-label) {
+    fill: var(--ft-muted);
+    font-size: 13px;
+  }
+
+  .chart-wrapper :global(.axis-domain) {
+    stroke: var(--ft-border);
+  }
+
+  .chart-wrapper :global(.axis-tick-line) {
+    stroke: var(--ft-border);
+  }
+
+  .chart-wrapper :global(.grid-line) {
+    stroke: var(--ft-border);
+    opacity: 0.5;
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  import * as d3 from 'd3'
+
+  interface ChartDataPoint {
+    label: string
+    avgMs: number
+    minMs: number
+    maxMs: number
+  }
+
+  interface DataInSeconds {
+    label: string
+    avg: number
+    min: number
+    max: number
+  }
+
+  function initChart(wrapper: HTMLElement) {
+    const svg = wrapper.querySelector('.dev-time-chart') as SVGSVGElement
+    const tooltip = wrapper.parentElement?.querySelector(
+      '.chart-tooltip',
+    ) as HTMLElement
+    if (!svg || !tooltip) return
+
+    const dataAttr = wrapper.dataset.timings
+    if (!dataAttr) return
+
+    let data: ChartDataPoint[]
+    try {
+      data = JSON.parse(dataAttr) as ChartDataPoint[]
+    } catch (e) {
+      console.warn('[DevTimeChart] Invalid chart data:', e)
+      return
+    }
+    const dataInSeconds: DataInSeconds[] = data.map((d) => ({
+      label: d.label,
+      avg: d.avgMs / 1000,
+      min: d.minMs / 1000,
+      max: d.maxMs / 1000,
+    }))
+
+    // Chart dimensions
+    const margin = { top: 30, right: 30, bottom: 50, left: 60 }
+    const rect = svg.getBoundingClientRect()
+    const width = rect.width || 500
+    const height = rect.height || 300
+    const innerWidth = width - margin.left - margin.right
+    const innerHeight = height - margin.top - margin.bottom
+
+    // Clear any existing content
+    d3.select(svg).selectAll('*').remove()
+
+    // Set viewBox for responsiveness
+    d3.select(svg).attr('viewBox', `0 0 ${width} ${height}`)
+
+    // Accessible labels for screen readers
+    d3.select(svg).append('title').text('Dev time performance: Install, Cold Build, and Warm Build times in seconds')
+    d3.select(svg).append('desc').text('Box chart showing minimum, average, and maximum duration for pnpm install, cold build, and warm build. See table above for exact values.')
+
+    // Unique gradient ID to avoid collision when multiple charts exist in DOM
+    const gradientId = `boxGradient-${crypto.randomUUID()}`
+
+    // Create main group
+    const g = d3
+      .select(svg)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    // Define gradient
+    const defs = d3.select(svg).append('defs')
+    const gradient = defs
+      .append('linearGradient')
+      .attr('id', gradientId)
+      .attr('x1', '0%')
+      .attr('y1', '0%')
+      .attr('x2', '100%')
+      .attr('y2', '0%')
+
+    gradient.append('stop').attr('offset', '0%').attr('stop-color', '#7cb560')
+    gradient.append('stop').attr('offset', '100%').attr('stop-color', '#cf8c3c')
+
+    // Scales
+    const xScale = d3
+      .scaleBand()
+      .domain(dataInSeconds.map((d) => d.label))
+      .range([0, innerWidth])
+      .padding(0.4)
+
+    const maxValue = d3.max(dataInSeconds, (d) => d.max) || 5
+    const minValue = d3.min(dataInSeconds, (d) => d.min) || 0
+
+    // Calculate range and set Y domain to zoom in on data
+    const dataRange = maxValue - minValue
+    const yMin = Math.max(0, minValue - dataRange * 0.5)
+    const yMax = maxValue + dataRange * 0.4
+
+    const yScale = d3
+      .scaleLinear()
+      .domain([yMin, yMax])
+      .range([innerHeight, 0])
+
+    // Tick values at 0.5s increments
+    const tickStep = 0.5
+    const startTick = Math.floor(yMin / tickStep) * tickStep
+    const yTickValues = d3.range(startTick, yMax + tickStep / 2, tickStep)
+
+    // X axis
+    g.append('g')
+      .attr('transform', `translate(0,${innerHeight})`)
+      .call(d3.axisBottom(xScale).tickSize(0))
+      .call((sel) => sel.select('.domain').attr('class', 'axis-domain'))
+      .call((sel) =>
+        sel
+          .selectAll('text')
+          .attr('class', 'x-axis-text')
+          .attr('dy', '1em'),
+      )
+
+    // Y axis
+    g.append('g')
+      .call(
+        d3
+          .axisLeft(yScale)
+          .tickValues(yTickValues)
+          .tickFormat((d) => `${d}s`),
+      )
+      .call((sel) => sel.select('.domain').attr('class', 'axis-domain'))
+      .call((sel) => sel.selectAll('.tick line').attr('class', 'axis-tick-line'))
+      .call((sel) =>
+        sel
+          .selectAll('text')
+          .attr('class', 'y-axis-text'),
+      )
+
+    // Y axis label
+    g.append('text')
+      .attr('class', 'y-axis-label')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -45)
+      .attr('x', -innerHeight / 2)
+      .attr('text-anchor', 'middle')
+      .text('Seconds')
+
+    // Grid lines
+    g.append('g')
+      .attr('class', 'grid')
+      .call(
+        d3
+          .axisLeft(yScale)
+          .tickValues(yTickValues)
+          .tickSize(-innerWidth)
+          .tickFormat(() => ''),
+      )
+      .call((sel) => sel.select('.domain').remove())
+      .call((sel) =>
+        sel.selectAll('.tick line').attr('class', 'grid-line'),
+      )
+
+    // Create box groups
+    const boxWidth = xScale.bandwidth()
+
+    const boxes = g
+      .selectAll('.box-group')
+      .data(dataInSeconds)
+      .enter()
+      .append('g')
+      .attr('class', 'box-group')
+      .attr('transform', (d) => `translate(${xScale(d.label)},0)`)
+
+    // Box rectangles (min to max range) - start with 0 height for animation
+    boxes
+      .append('rect')
+      .attr('class', 'box')
+      .attr('x', 0)
+      .attr('y', (d) => yScale(d.avg))
+      .attr('width', boxWidth)
+      .attr('height', 0)
+      .attr('fill', `url(#${gradientId})`)
+      .attr('stroke', 'rgba(0, 0, 0, 0.3)')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.9)
+      .attr('rx', 4)
+      .attr('ry', 4)
+      .style('cursor', 'pointer')
+
+    const lineColor = '#666666'
+
+    // Average line
+    boxes
+      .append('line')
+      .attr('class', 'avg-line')
+      .attr('x1', -5)
+      .attr('x2', boxWidth + 5)
+      .attr('y1', (d) => yScale(d.avg))
+      .attr('y2', (d) => yScale(d.avg))
+      .attr('stroke', lineColor)
+      .attr('stroke-width', 2)
+      .attr('opacity', 0)
+
+    // Center spine - vertical line through the middle, spans full chart height
+    boxes
+      .append('line')
+      .attr('class', 'center-spine')
+      .attr('x1', boxWidth / 2)
+      .attr('x2', boxWidth / 2)
+      .attr('y1', innerHeight)
+      .attr('y2', 0)
+      .attr('stroke', lineColor)
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0)
+
+    // Min whisker
+    boxes
+      .append('line')
+      .attr('class', 'min-whisker')
+      .attr('x1', boxWidth / 2)
+      .attr('x2', boxWidth / 2)
+      .attr('y1', (d) => yScale(d.min))
+      .attr('y2', (d) => yScale(d.min))
+      .attr('stroke', lineColor)
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0)
+
+    // Max whisker
+    boxes
+      .append('line')
+      .attr('class', 'max-whisker')
+      .attr('x1', boxWidth / 2)
+      .attr('x2', boxWidth / 2)
+      .attr('y1', (d) => yScale(d.max))
+      .attr('y2', (d) => yScale(d.max))
+      .attr('stroke', lineColor)
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0)
+
+    // Min cap
+    boxes
+      .append('line')
+      .attr('class', 'min-cap')
+      .attr('x1', boxWidth / 4)
+      .attr('x2', (boxWidth * 3) / 4)
+      .attr('y1', (d) => yScale(d.min))
+      .attr('y2', (d) => yScale(d.min))
+      .attr('stroke', lineColor)
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0)
+
+    // Max cap
+    boxes
+      .append('line')
+      .attr('class', 'max-cap')
+      .attr('x1', boxWidth / 4)
+      .attr('x2', (boxWidth * 3) / 4)
+      .attr('y1', (d) => yScale(d.max))
+      .attr('y2', (d) => yScale(d.max))
+      .attr('stroke', lineColor)
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0)
+
+    // Hover interactions
+    boxes
+      .on('mouseenter', function (_event: MouseEvent, d: DataInSeconds) {
+        d3.select(this).select('.box').attr('opacity', 1)
+
+        tooltip.innerHTML = `
+          <div class="tooltip-title">${d.label}</div>
+          <div class="tooltip-values">
+            <span>Min: ${d.min.toFixed(2)}s</span><br>
+            <span>Avg: ${d.avg.toFixed(2)}s</span><br>
+            <span>Max: ${d.max.toFixed(2)}s</span>
+          </div>
+        `
+        tooltip.classList.add('visible')
+      })
+      .on('mousemove', function (event: MouseEvent) {
+        const containerRect = wrapper.parentElement?.getBoundingClientRect()
+        if (!containerRect) return
+
+        const x = event.clientX - containerRect.left + 15
+        const y = event.clientY - containerRect.top - 10
+
+        tooltip.style.left = `${x}px`
+        tooltip.style.top = `${y}px`
+      })
+      .on('mouseleave', function () {
+        d3.select(this).select('.box').attr('opacity', 0.9)
+        tooltip.classList.remove('visible')
+      })
+
+    // Animation function
+    function animateIn() {
+      boxes
+        .selectAll('.box')
+        .transition()
+        .duration(600)
+        .ease(d3.easeCubicOut)
+        .attr('y', (d) => yScale(d.max))
+        .attr('height', (d) => yScale(d.min) - yScale(d.max))
+
+      boxes
+        .selectAll('.avg-line')
+        .transition()
+        .delay(400)
+        .duration(300)
+        .attr('opacity', 1)
+
+      boxes
+        .selectAll('.center-spine')
+        .transition()
+        .delay(400)
+        .duration(300)
+        .attr('opacity', 1)
+
+      boxes
+        .selectAll('.min-whisker, .max-whisker')
+        .transition()
+        .delay(300)
+        .duration(400)
+        .attr('y1', function () {
+          const parent = (this as SVGLineElement).parentElement
+          const d = d3.select(parent).datum() as DataInSeconds
+          const isMin = (this as SVGLineElement).classList.contains('min-whisker')
+          return yScale(isMin ? d.min : d.max)
+        })
+        .attr('y2', function () {
+          const parent = (this as SVGLineElement).parentElement
+          const d = d3.select(parent).datum() as DataInSeconds
+          const isMin = (this as SVGLineElement).classList.contains('min-whisker')
+          return yScale(isMin ? d.min : d.max)
+        })
+        .attr('opacity', 1)
+
+      boxes
+        .selectAll('.min-cap, .max-cap')
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateIn()
+            observer.disconnect()
+          }
+        })
+      },
+      { threshold: 1 },
+    )
+
+    observer.observe(svg)
+  }
+
+  function init() {
+    document.querySelectorAll('.chart-wrapper').forEach((el) => {
+      initChart(el as HTMLElement)
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init)
+  } else {
+    init()
+  }
+</script>

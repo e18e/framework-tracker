@@ -195,6 +195,12 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
             layers (<code>@react-router/node</code>, h3, and srvx respectively)
           </li>
           <li>
+            Next.js defaults to React Server Components (RSC), a different
+            rendering model than traditional SSR. To keep the comparison fair,
+            Next.js uses <code>"use client"</code> to opt out of RSC and use
+            traditional SSR + hydration like most of the other frameworks
+          </li>
+          <li>
             Inspired by <a
               href="https://github.com/eknkc/ssr-benchmark"
               target="_blank"

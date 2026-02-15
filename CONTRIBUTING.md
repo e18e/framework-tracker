@@ -90,16 +90,74 @@ Coming soon but will also pull from `.github/frameworks.json`
 
 ### Versioning
 
+We use [Dependabot](https://docs.github.com/en/code-security/dependabot) to keep framework versions up to date. Dependabot is configured to open PRs for minor and major version bumps on a weekly schedule, grouped by framework (e.g., a single PR for both `starter-nextjs` and `app-nextjs`).
+
+When a Dependabot PR is opened, a CI workflow (`sync-version`) runs automatically to check that the `starter` and `app` packages for each framework are using the same version of the core framework package. If there is a mismatch, the CI will fail and provide instructions on which `package.json` to update. This ensures that we are always comparing the same version of a framework across both project types.
+
+If you need to manually bump a framework version, make sure to update both the `starter-*` and `app-*` packages for that framework to the same version, then run `pnpm install` in each package directory to update the lockfile.
 
 ### Adding a New Framework
 
-To add a new framework to the tracker:
+Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If approved, follow these steps:
 
-1. Create a package in `packages/` (e.g., `packages/starter-astro`)
-2. Add necessary scripts to the root `package.json` (e.g., `"build:astro": "pnpm --filter starter-astro build"`)
-3. Add an entry to `.github/frameworks.json`:
+1. **Create the starter package**: Add a new directory in `packages/` (e.g., `packages/starter-my-framework`). Set it up using the framework's official CLI or getting started guide with the recommended defaults. The starter should not be added to the pnpm workspace — it has its own independent `package.json` and lockfile.
 
-The CI will automatically pick up the new framework and run only the configured measurements.
+2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity.
+
+3. **Add an entry to `.github/frameworks.json`**: Configure the framework's measurements:
+   ```json
+   {
+     "name": "my-framework",
+     "displayName": "My Framework",
+     "frameworkPackage": "my-framework",
+     "focusedFramework": false,
+     "starter": {
+       "package": "starter-my-framework",
+       "buildScript": "build:my-framework",
+       "buildOutputDir": "dist",
+       "measurements": [
+         { "type": "install", "runFrequency": 5 },
+         { "type": "build", "runFrequency": 5 },
+         { "type": "dependencies" }
+       ]
+     }
+   }
+   ```
+   Set `focusedFramework` to `false` for new additions unless the framework is a priority for tracking.
+
+4. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory
+
+5. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+
+6. **Submit a PR**: Open a pull request with the new packages and configuration. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics once your PR is merged.
 
 
 ### Getting Started
+
+To get the project running locally:
+
+1. **Prerequisites**: Make sure you have [Node.js](https://nodejs.org/) (v24+) and [pnpm](https://pnpm.io/) installed.
+
+2. **Clone the repo**:
+   ```bash
+   git clone https://github.com/e18e/framework-tracker.git
+   cd framework-tracker
+   ```
+
+3. **Install workspace dependencies**:
+   ```bash
+   pnpm install
+   ```
+   This installs dependencies for the workspace packages (docs and stats-generator). The `starter-*` and `app-*` packages are not part of the workspace and have their own lockfiles.
+
+4. **Run the docs site locally**:
+   ```bash
+   pnpm dev:docs
+   ```
+
+5. **Linting and formatting**:
+   ```bash
+   pnpm lint:all        # Run linting across workspace and framework packages
+   pnpm format          # Format code with Prettier
+   pnpm type-check:all  # Run type checking across workspace and framework packages
+   ```

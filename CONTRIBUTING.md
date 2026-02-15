@@ -105,6 +105,7 @@ Adding a new framework increases the maintenance burden, so please open an issue
 2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 
 3. **Add an entry to `.github/frameworks.json`**: Configure the framework's measurements:
+
    ```json
    {
      "name": "my-framework",
@@ -123,9 +124,11 @@ Adding a new framework increases the maintenance burden, so please open an issue
      }
    }
    ```
+
    Set `focusedFramework` to `false` for new additions unless the framework is a priority for tracking.
 
 4. **Add a Dependabot group in `.github/dependabot.yml`**: Add an entry so the framework's versions are automatically bumped. If the framework has both a starter and app package, group them together so they update in a single PR:
+
    ```yaml
    - package-ecosystem: 'npm'
      directories:
@@ -147,7 +150,6 @@ Adding a new framework increases the maintenance burden, so please open an issue
 
 7. **Submit a PR**: Open a pull request with the new packages and configuration. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 
-
 ### Getting Started
 
 To get the project running locally:
@@ -155,18 +157,22 @@ To get the project running locally:
 1. **Prerequisites**: Make sure you have [Node.js](https://nodejs.org/) (v24+) and [pnpm](https://pnpm.io/) installed.
 
 2. **Clone the repo**:
+
    ```bash
    git clone https://github.com/e18e/framework-tracker.git
    cd framework-tracker
    ```
 
 3. **Install workspace dependencies**:
+
    ```bash
    pnpm install
    ```
+
    This installs dependencies for the workspace packages (docs and stats-generator). The `starter-*` and `app-*` packages are not part of the workspace and have their own lockfiles.
 
 4. **Run the docs site locally**:
+
    ```bash
    pnpm dev:docs
    ```

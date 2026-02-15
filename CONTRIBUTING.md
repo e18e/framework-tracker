@@ -1,6 +1,6 @@
 # Contributing to Framework Tracker
 
-Framework Tracker is part of the e18e.dev community. Want to get involved head to our Discord at https://chat.e18e.dev. If you your keen to contribute to the project and get stuck straight into code we have an open list of good first issues in our GitHub repo: [Good First Issues](https://github.com/e18e/framework-tracker/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22). We keep this list updated and add new issues every week. Its one of the easiest ways to get involved and help push the project forward. 
+Framework Tracker is part of the e18e.dev community. Want to get involved? Head to our Discord at https://chat.e18e.dev. If you're keen to contribute to the project and get stuck straight into code, we have an open list of good first issues in our GitHub repo: [Good First Issues](https://github.com/e18e/framework-tracker/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22). We keep this list updated and add new issues every week. It's one of the easiest ways to get involved and help push the project forward.
 
 ## Where to Start
 
@@ -10,13 +10,13 @@ Framework Tracker has a few different areas which you can contribute to:
 
 - **Documentation**: Enhance our documentation site by fixing typos, improving explanations, or adding new sections.
 
-- **UI/UV Improvements**: Help us improve the documentation site by suggesting design improvements, fixing bugs, or adding new features.
+- **UI/UX Improvements**: Help us improve the documentation site by suggesting design improvements, fixing bugs, or adding new features.
 
-- **Adding New Frameworks**: Help us expand our list of tracked frameworks by adding new ones. See the [Adding a New Framework](./CONTRIBUTING.md#adding-a-new-framework) section below for details as this adds the maintenance burden heavily.
+- **Adding New Frameworks**: Help us expand our list of tracked frameworks by adding new ones. See the [Adding a New Framework](./CONTRIBUTING.md#adding-a-new-framework) section below for details, as each new framework adds significant maintenance burden.
 
 ### Project Structure
 
-This is a monorepo managed with pnpm workspaces hosting multiple packages however some of the packages are not part of the workspace.
+This is a monorepo managed with pnpm workspaces hosting multiple packages. However, some of the packages are not part of the workspace.
 
 Included in the workspace are the documentation site, built with Astro, and the stats generator, which is a tool for collecting and processing the metrics for each framework.
 
@@ -35,9 +35,9 @@ framework-tracker/
 ├── app-*/           # Metaframeworks configured for run time tests
 ```
 
-Any project marked with `starter` in the name should be direct setups of the meta-framework recommended default configuration. For most these we have followed the official getting started guide and used the CLI to set up the project with the recommend path. We often use these to measure dev time performance metrics like build times, dependency counts, and CI performance. It hard to compare meta-frameworks so sometimes it easier to compare the default set up of each framework as this is what most users will start with and gives a good baseline for comparison.
+Any project marked with `starter` in the name should be a direct setup of the meta-framework's recommended default configuration. For most of these, we have followed the official getting started guide and used the CLI to set up the project with the recommended path. We often use these to measure dev time performance metrics like build times, dependency counts, and CI performance. It's hard to compare meta-frameworks, so sometimes it's easier to compare the default setup of each framework, as this is what most users will start with and gives a good baseline for comparison.
 
-Any project marked with `app` in the name is a more complex set up which we often runtime performance tests. These are often more customized and have more features added on top of the default starter set up. This is because we want to test the performance of each framework under more real world conditions and with more complex features implemented. For example, we might add a blog page with dynamic routing, or a dashboard page with client side interactivity. This allows us to test the performance of each framework under more realistic conditions and see how they perform as the complexity of the app increases.
+Any project marked with `app` in the name is a more complex setup on which we often run runtime performance tests. These are often more customized and have more features added on top of the default starter set up. This is because we want to test the performance of each framework under more real world conditions and with more complex features implemented. For example, we might add a blog page with dynamic routing, or a dashboard page with client side interactivity. This allows us to test the performance of each framework under more realistic conditions and see how they perform as the complexity of the app increases.
 
 Having both a `starter` and `app` project for each framework allows us to get a more comprehensive view of the performance of each framework across different use cases and levels of complexity and create more fair comparisons.
 

@@ -23,14 +23,8 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Format check
-        run: pnpm format:check
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Type check
-        run: pnpm type-check
+      - name: Run all checks
+        run: pnpm check:all:ci

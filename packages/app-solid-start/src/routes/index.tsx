@@ -1,6 +1,6 @@
 import { For } from 'solid-js'
 import { query, createAsync } from '@solidjs/router'
-import { testData } from '@framework-tracker/testdata'
+import { testData } from '../../../testdata/src/ssr'
 
 const getData = query(async () => {
   'use server'

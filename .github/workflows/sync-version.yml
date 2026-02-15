@@ -11,8 +11,6 @@ on:
 jobs:
   check-versions:
     runs-on: ubuntu-latest
-    # Skip PR events from bots to avoid loops; always run for workflow_dispatch
-    if: github.event_name != 'pull_request' || github.event.pull_request.user.type != 'Bot'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

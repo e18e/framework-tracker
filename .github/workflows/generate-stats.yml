@@ -93,8 +93,12 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile --ignore-workspace
 
       - name: Run build benchmark
         run: |
@@ -130,11 +134,16 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
       - name: Build app
-        run: pnpm ${{ matrix.framework.buildScript }}
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm build
 
       - name: Run SSR benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:ssr ${{ matrix.framework.package }}

@@ -11,5 +11,5 @@ const data: TableEntry[] = Array(1000)
   }))
 
 export function testData(): Promise<TableEntry[]> {
-  return new Promise((resolve) => setImmediate(() => resolve(data)))
+  return new Promise((resolve) => setTimeout(() => resolve(data), 0))
 }

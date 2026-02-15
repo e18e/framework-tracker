@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { testData } from '@framework-tracker/testdata'
+import { testData } from '../../../testdata/src/ssr'
 
 export const Route = createFileRoute('/')({
   component: Home,

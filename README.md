@@ -116,6 +116,14 @@ If you would like to play around with the collected data to build your own visua
   - [SolidStart](./packages/app-solidstart/ci-stats.json)
   - [Tanstack Start](./packages/app-tanstack-start-react/ci-stats.json)
 
+## Sponsors
+
+<p align="center">
+  <a href="https://e18e.dev/sponsors.svg">
+    <img src="https://e18e.dev/sponsors.svg" alt="e18e community sponsors" />
+  </a>
+</p>
+
 ## License
 
 See [LICENSE](./LICENSE) for details.

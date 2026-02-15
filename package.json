@@ -14,9 +14,15 @@
     "collect:stats": "pnpm --filter @framework-tracker/stats-generator collect",
     "lint": "pnpm -r --parallel lint",
     "lint:fix": "pnpm -r --parallel lint:fix",
+    "lint:all": "pnpm lint && for dir in packages/starter-* packages/app-*; do if [ -f \"$dir/eslint.config.js\" ] || [ -f \"$dir/eslint.config.mjs\" ]; then echo \"Linting $dir...\" && (cd \"$dir\" && npx eslint .); fi; done",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "pnpm -r --parallel type-check"
+    "type-check": "pnpm -r --parallel type-check",
+    "type-check:all": "pnpm type-check && for pkg in packages/starter-* packages/app-*; do (cd \"$pkg\" && pnpm run --if-present type-check); done",
+    "install:all": "for pkg in packages/starter-* packages/app-*; do (cd \"$pkg\" && pnpm install --ignore-workspace); done",
+    "install:all:frozen": "for pkg in packages/starter-* packages/app-*; do (cd \"$pkg\" && pnpm install --frozen-lockfile --ignore-workspace); done",
+    "check:all": "pnpm install:all && pnpm format:check && pnpm lint:all && pnpm type-check:all",
+    "check:all:ci": "pnpm install:all:frozen && pnpm format:check && pnpm lint:all && pnpm type-check:all"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

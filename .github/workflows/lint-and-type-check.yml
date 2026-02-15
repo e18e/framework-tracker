@@ -26,38 +26,5 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install package dependencies
-        run: |
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty, .[].app.package // empty'); do
-            echo "Installing $PKG..."
-            cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
-          done
-
-      - name: Format check
-        run: pnpm format:check
-
-      - name: Lint workspace packages
-        run: pnpm lint
-
-      - name: Lint starter and app packages
-        run: |
-          for dir in packages/starter-* packages/app-*; do
-            if [ -f "$dir/eslint.config.js" ] || [ -f "$dir/eslint.config.mjs" ]; then
-              echo "Linting $dir..."
-              npx eslint "$dir"
-            fi
-          done
-
-      - name: Type check workspace packages
-        run: pnpm type-check
-
-      - name: Type check starter and app packages
-        run: |
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty, .[].app.package // empty'); do
-            if cd packages/$PKG && pnpm run --if-present type-check; then
-              echo "$PKG type-check passed"
-            fi
-            cd ../..
-          done
+      - name: Run all checks
+        run: pnpm check:all:ci

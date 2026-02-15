@@ -32,13 +32,9 @@ jobs:
       - name: Install all package dependencies
         run: |
           FRAMEWORKS=$(cat .github/frameworks.json)
-          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty'); do
+          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty, .[].app.package // empty'); do
             echo "Installing $PKG..."
-            cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
-          done
-          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].app.package // empty'); do
-            echo "Installing $PKG..."
-            cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
+            (cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace)
           done
 
       - name: Run all benchmarks and validate
@@ -50,7 +46,7 @@ jobs:
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app)' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
-            cd packages/$PKG && pnpm build && cd ../..
+            (cd packages/$PKG && pnpm build)
             echo "Running SSR benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:ssr $PKG
           done

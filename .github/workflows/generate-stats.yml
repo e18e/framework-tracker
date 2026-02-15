@@ -97,7 +97,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install package dependencies
-        run: cd packages/${{ matrix.framework.package }} && pnpm install --frozen-lockfile --ignore-workspace
+        run: cd packages/${{ matrix.framework.package }} && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
 
       - name: Run build benchmark
         run: |
@@ -137,10 +137,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install package dependencies
-        run: cd packages/${{ matrix.framework.package }} && pnpm install --frozen-lockfile --ignore-workspace
+        run: cd packages/${{ matrix.framework.package }} && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
 
       - name: Build app
-        run: cd packages/${{ matrix.framework.package }} && pnpm build
+        run: cd packages/${{ matrix.framework.package }} && pnpm build && cd ../..
 
       - name: Run SSR benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:ssr ${{ matrix.framework.package }}

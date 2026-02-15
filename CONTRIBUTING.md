@@ -100,9 +100,9 @@ If you need to manually bump a framework version, make sure to update both the `
 
 Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If approved, follow these steps:
 
-1. **Create the starter package**: Add a new directory in `packages/` (e.g., `packages/starter-my-framework`). Set it up using the framework's official CLI or getting started guide with the recommended defaults. The starter should not be added to the pnpm workspace — it has its own independent `package.json` and lockfile.
+1. **Create the starter package**: Add a new directory in `packages/` (e.g., `packages/starter-my-framework`). Set it up using the framework's official CLI or getting started guide with the recommended defaults. The starter should not be added to the pnpm workspace — it has its own independent `package.json` and lockfile. Pin the core framework dependency to an exact version (e.g., `"my-framework": "2.0.0"` not `"^2.0.0"`), as Dependabot will handle version bumps.
 
-2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity.
+2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 
 3. **Add an entry to `.github/frameworks.json`**: Configure the framework's measurements:
    ```json
@@ -125,11 +125,27 @@ Adding a new framework increases the maintenance burden, so please open an issue
    ```
    Set `focusedFramework` to `false` for new additions unless the framework is a priority for tracking.
 
-4. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory
+4. **Add a Dependabot group in `.github/dependabot.yml`**: Add an entry so the framework's versions are automatically bumped. If the framework has both a starter and app package, group them together so they update in a single PR:
+   ```yaml
+   - package-ecosystem: 'npm'
+     directories:
+       - '/packages/starter-my-framework'
+       - '/packages/app-my-framework'
+     schedule:
+       interval: 'weekly'
+       day: 'monday'
+     allow:
+       - dependency-name: 'my-framework'
+     ignore:
+       - dependency-name: 'my-framework'
+         update-types: ['version-update:semver-patch']
+   ```
 
-5. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+5. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory.
 
-6. **Submit a PR**: Open a pull request with the new packages and configuration. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics once your PR is merged.
+6. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+
+7. **Submit a PR**: Open a pull request with the new packages and configuration. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 
 
 ### Getting Started

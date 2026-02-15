@@ -1,5 +1,5 @@
 'use client'
-import type { TableEntry } from '@framework-tracker/testdata'
+import type { TableEntry } from '../../testdata/src/ssr'
 
 export function Table({ data }: { data: TableEntry[] }) {
   return (

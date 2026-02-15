@@ -1,0 +1,109 @@
+version: 2
+updates:
+  # Next.js (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-next-js'
+      - '/packages/app-next-js'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: 'next'
+    ignore:
+      - dependency-name: 'next'
+        update-types: ['version-update:semver-patch']
+
+  # Nuxt (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-nuxt'
+      - '/packages/app-nuxt'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: 'nuxt'
+    ignore:
+      - dependency-name: 'nuxt'
+        update-types: ['version-update:semver-patch']
+
+  # Astro (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-astro'
+      - '/packages/app-astro'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: 'astro'
+    ignore:
+      - dependency-name: 'astro'
+        update-types: ['version-update:semver-patch']
+
+  # SvelteKit (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-sveltekit'
+      - '/packages/app-sveltekit'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: '@sveltejs/kit'
+    ignore:
+      - dependency-name: '@sveltejs/kit'
+        update-types: ['version-update:semver-patch']
+
+  # React Router (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-react-router'
+      - '/packages/app-react-router'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: '@react-router/dev'
+    ignore:
+      - dependency-name: '@react-router/dev'
+        update-types: ['version-update:semver-patch']
+
+  # TanStack Start (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-tanstack-start-react'
+      - '/packages/app-tanstack-start-react'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: '@tanstack/react-start'
+    ignore:
+      - dependency-name: '@tanstack/react-start'
+        update-types: ['version-update:semver-patch']
+
+  # SolidStart (starter + app grouped)
+  - package-ecosystem: 'npm'
+    directories:
+      - '/packages/starter-solid-start'
+      - '/packages/app-solid-start'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    allow:
+      - dependency-name: '@solidjs/start'
+    ignore:
+      - dependency-name: '@solidjs/start'
+        update-types: ['version-update:semver-patch']
+
+  # Workspace packages (docs + stats-generator)
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'friday'
+    groups:
+      workspace-deps:
+        patterns: ['*']

@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process'
-import { cpSync, rmSync, existsSync, copyFileSync } from 'node:fs'
+import { cpSync, rmSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { packagesDir } from './constants.ts'
@@ -10,8 +10,6 @@ import {
   parseArgs,
 } from './utils.ts'
 import type { InstallStats } from './types.ts'
-
-const rootDir = join(packagesDir, '..')
 
 function execCommand(command: string, cwd: string): string {
   return execSync(command, {
@@ -85,11 +83,6 @@ async function main() {
 
   console.info(`Copying ${packageName} to ${tempDir}...`)
   cpSync(sourceDir, tempDir, { recursive: true })
-
-  const rootLockfile = join(rootDir, 'pnpm-lock.yaml')
-  if (existsSync(rootLockfile)) {
-    copyFileSync(rootLockfile, join(tempDir, 'pnpm-lock.yaml'))
-  }
 
   try {
     const installTimes: number[] = []

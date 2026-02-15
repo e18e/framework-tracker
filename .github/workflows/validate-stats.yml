@@ -26,8 +26,20 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install all package dependencies
+        run: |
+          FRAMEWORKS=$(cat .github/frameworks.json)
+          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty'); do
+            echo "Installing $PKG..."
+            cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
+          done
+          for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].app.package // empty'); do
+            echo "Installing $PKG..."
+            cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace && cd ../..
+          done
 
       - name: Run all benchmarks and validate
         run: |
@@ -37,9 +49,8 @@ jobs:
           FRAMEWORKS=$(cat .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app)' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
-            BUILD_SCRIPT=$(echo "$framework" | jq -r '.app.buildScript')
             echo "Building $PKG..."
-            pnpm $BUILD_SCRIPT
+            cd packages/$PKG && pnpm build && cd ../..
             echo "Running SSR benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:ssr $PKG
           done

@@ -1,4 +1,4 @@
-import { testData } from '@framework-tracker/testdata'
+import { testData } from '../../../testdata/src/ssr'
 import type { Route } from './+types/home'
 
 export async function loader() {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { testData } from '@framework-tracker/testdata'
+import { testData } from '../../../testdata/src/ssr'
 
 const { data } = await useAsyncData(() => testData(), { deep: false })
 </script>

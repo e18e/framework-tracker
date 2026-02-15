@@ -1,5 +1,6 @@
 import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
+import { buildMastroHandler } from './handlers/mastro.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
 import { buildNextJSHandler } from './handlers/nextjs.ts'
@@ -26,6 +27,12 @@ const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [
     displayName: 'Astro SSR',
     package: 'app-astro',
     buildHandler: buildAstroHandler,
+  },
+  {
+    name: 'mastro-ssr',
+    displayName: 'Mastro SSR',
+    package: 'app-mastro',
+    buildHandler: buildMastroHandler,
   },
   {
     name: 'nuxt-ssr',

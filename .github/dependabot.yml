@@ -1,13 +1,21 @@
 version: 2
 updates:
+  # NOTE: Framework updates are paused (open-pull-requests-limit: 0)
+  # while we evaluate replacing Dependabot with a custom workflow
+  # for incremental version bumping. Remove the limit to re-enable.
+
   # Next.js (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-next-js'
       - '/packages/app-next-js'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      next-js:
+        patterns: ['next']
     allow:
       - dependency-name: 'next'
     ignore:
@@ -16,12 +24,16 @@ updates:
 
   # Nuxt (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-nuxt'
       - '/packages/app-nuxt'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      nuxt:
+        patterns: ['nuxt']
     allow:
       - dependency-name: 'nuxt'
     ignore:
@@ -30,12 +42,16 @@ updates:
 
   # Astro (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-astro'
       - '/packages/app-astro'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      astro:
+        patterns: ['astro']
     allow:
       - dependency-name: 'astro'
     ignore:
@@ -44,12 +60,16 @@ updates:
 
   # SvelteKit (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-sveltekit'
       - '/packages/app-sveltekit'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      sveltekit:
+        patterns: ['@sveltejs/kit']
     allow:
       - dependency-name: '@sveltejs/kit'
     ignore:
@@ -58,12 +78,16 @@ updates:
 
   # React Router (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-react-router'
       - '/packages/app-react-router'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      react-router:
+        patterns: ['@react-router/dev']
     allow:
       - dependency-name: '@react-router/dev'
     ignore:
@@ -72,12 +96,16 @@ updates:
 
   # TanStack Start (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-tanstack-start-react'
       - '/packages/app-tanstack-start-react'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      tanstack-start:
+        patterns: ['@tanstack/react-start']
     allow:
       - dependency-name: '@tanstack/react-start'
     ignore:
@@ -86,12 +114,16 @@ updates:
 
   # SolidStart (starter + app grouped)
   - package-ecosystem: 'npm'
+    open-pull-requests-limit: 0
     directories:
       - '/packages/starter-solid-start'
       - '/packages/app-solid-start'
     schedule:
       interval: 'weekly'
       day: 'monday'
+    groups:
+      solid-start:
+        patterns: ['@solidjs/start']
     allow:
       - dependency-name: '@solidjs/start'
     ignore:

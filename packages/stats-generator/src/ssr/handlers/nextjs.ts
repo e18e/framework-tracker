@@ -13,6 +13,7 @@ export async function buildNextJSHandler(): Promise<SSRHandler> {
   await app.prepare()
   return {
     type: 'node',
-    handler: app.getRequestHandler() as unknown as import('../types.ts').NodeSSRHandler,
+    handler:
+      app.getRequestHandler() as unknown as import('../types.ts').NodeSSRHandler,
   }
 }

@@ -16,10 +16,13 @@ export async function buildSolidStartHandler(): Promise<SSRHandler> {
 
   // h3's sendStream short-circuits when res.socket is falsy,
   // so we wrap the handler to set a truthy socket on the mock response
-  return ((req, res) => {
-    if (!res.socket) {
-      res.socket = {} as any
-    }
-    return handler(req, res)
-  }) as SSRHandler
+  return {
+    type: 'node',
+    handler: (req, res) => {
+      if (!res.socket) {
+        res.socket = {} as any
+      }
+      return handler(req, res)
+    },
+  }
 }

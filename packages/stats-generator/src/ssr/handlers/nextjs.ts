@@ -11,6 +11,8 @@ export async function buildNextJSHandler(): Promise<SSRHandler> {
     dir: join(packagesDir, 'app-next-js'),
   })
   await app.prepare()
-  // TODO: Make the SSRHandler type more flexible so we don't have to cast here
-  return app.getRequestHandler() as unknown as SSRHandler
+  return {
+    type: 'node',
+    handler: app.getRequestHandler() as unknown as import('../types.ts').NodeSSRHandler,
+  }
 }

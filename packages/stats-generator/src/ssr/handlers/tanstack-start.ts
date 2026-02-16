@@ -16,10 +16,13 @@ export async function buildTanStackStartHandler(): Promise<SSRHandler> {
 
   // srvx's toNodeHandler checks res.socket and short-circuits when falsy,
   // so we wrap the handler to set a truthy socket on the mock response
-  return ((req, res) => {
-    if (!res.socket) {
-      res.socket = {} as any
-    }
-    return middleware(req, res)
-  }) as SSRHandler
+  return {
+    type: 'node',
+    handler: (req, res) => {
+      if (!res.socket) {
+        res.socket = {} as any
+      }
+      return middleware(req, res)
+    },
+  }
 }

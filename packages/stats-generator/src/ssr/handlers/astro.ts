@@ -13,5 +13,5 @@ export async function buildAstroHandler(): Promise<SSRHandler> {
   )
   const entryUrl = pathToFileURL(entryPath).href
   const { handler } = await import(entryUrl)
-  return handler as SSRHandler
+  return { type: 'node', handler }
 }

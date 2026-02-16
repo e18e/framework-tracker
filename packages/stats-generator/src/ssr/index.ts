@@ -6,18 +6,13 @@ import { buildNextJSHandler } from './handlers/nextjs.ts'
 import { buildReactRouterHandler } from './handlers/react-router.ts'
 import { buildSolidStartHandler } from './handlers/solid-start.ts'
 import { buildTanStackStartHandler } from './handlers/tanstack-start.ts'
-import type { SSRBenchmarkResult, SSRStats } from './types.ts'
+import type { SSRBenchmarkResult, SSRHandler, SSRStats } from './types.ts'
 
 interface SSRFrameworkConfig {
   name: string
   displayName: string
   package: string
-  buildHandler: () => Promise<
-    (
-      req: import('./mock-http.ts').IncomingMessage,
-      res: import('./mock-http.ts').ServerResponse,
-    ) => void | Promise<void>
-  >
+  buildHandler: () => Promise<SSRHandler>
 }
 
 const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [

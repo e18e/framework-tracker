@@ -2,10 +2,9 @@ import { testData } from '../../testdata/src/ssr.ts'
 import { html, htmlToResponse } from '@mastrojs/mastro'
 import { Layout } from '../components/Layout.ts'
 
-const entries = await testData()
-
-export const GET = () =>
-  htmlToResponse(
+export const GET = async () => {
+  const entries = await testData()
+  return htmlToResponse(
     Layout({
       title: 'Test',
       children: html`
@@ -24,3 +23,4 @@ export const GET = () =>
       `,
     }),
   )
+}

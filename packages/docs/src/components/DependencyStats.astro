@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from '../lib/utils'
 import '../styles/shared.css'
+import frameworksConfig from '../../../../.github/frameworks.json';
 
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
@@ -31,6 +32,17 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
         our methodology and testing process.
       </p>
 
+      
+      <div class="filter-container">
+        <label class="toggle-label" for="focused-toggle">
+          <div class="toggle-switch">
+            <input type="checkbox" id="focused-toggle" checked />
+            <span class="toggle-slider"></span>
+          </div>
+          <span class="toggle-text">Show focused frameworks only</span>
+        </label>
+      </div>
+
       <h2>Dev Time Performance</h2>
 
       <p class="methodology">
@@ -43,7 +55,7 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           <thead>
             <tr>
               <th scope="col">Framework</th>
-              <th scope="col">Prod Deps</th>
+              <th scope="col"></th>
               <th scope="col">Dev Deps</th>
               <th scope="col">Size</th>
               <th scope="col">Size (Prod Only)</th>
@@ -52,32 +64,37 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           </thead>
           <tbody>
             {
-              starterStats.map((framework) => (
-                <tr>
-                  <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
-                  </td>
-                  <td>{framework.prodDependencies}</td>
-                  <td>{framework.devDependencies}</td>
-                  <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
-                  <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
-                  <td>
-                    <a
-                      href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="graph-link"
-                    >
-                      View
-                    </a>
-                  </td>
-                </tr>
-              ))
+              starterStats.map((framework) => {
+                const config = frameworksConfig.find(f => f.displayName === framework.name);
+                const isFocused = config?.focusedFramework === false ? 'false' : 'true';
+
+                return (
+                  <tr data-focused={isFocused}>
+                    <td class="framework-name">
+                      <a
+                        href={`/framework/${getFrameworkSlug(framework.package)}`}
+                        class="framework-link"
+                      >
+                        {framework.name}
+                      </a>
+                    </td>
+                    <td>{framework.prodDependencies}</td>
+                    <td>{framework.devDependencies}</td>
+                    <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
+                    <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
+                    <td>
+                      <a
+                        href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="graph-link"
+                      >
+                        View
+                      </a>
+                    </td>
+                  </tr>
+                );
+              })
             }
           </tbody>
         </table>
@@ -98,24 +115,29 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           </thead>
           <tbody>
             {
-              starterStats.map((framework) => (
-                <tr>
-                  <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
-                  </td>
-                  <td>{formatTimeMs(framework.installTime.avgMs)}</td>
-                  <td>{formatTimeMs(framework.installTime.minMs)}</td>
-                  <td>{formatTimeMs(framework.installTime.maxMs)}</td>
-                  <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
-                  <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
-                  <td>{formatBytesToMB(framework.buildOutputSize)}</td>
-                </tr>
-              ))
+              starterStats.map((framework) => {
+                const config = frameworksConfig.find(f => f.displayName === framework.name);
+                const isFocused = config?.focusedFramework === false ? 'false' : 'true';
+
+                return (
+                  <tr data-focused={isFocused}>
+                    <td class="framework-name">
+                      <a
+                        href={`/framework/${getFrameworkSlug(framework.package)}`}
+                        class="framework-link"
+                      >
+                        {framework.name}
+                      </a>
+                    </td>
+                    <td>{formatTimeMs(framework.installTime.avgMs)}</td>
+                    <td>{formatTimeMs(framework.installTime.minMs)}</td>
+                    <td>{formatTimeMs(framework.installTime.maxMs)}</td>
+                    <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
+                    <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
+                    <td>{formatBytesToMB(framework.buildOutputSize)}</td>
+                  </tr>
+                );
+              })
             }
           </tbody>
         </table>
@@ -143,22 +165,27 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           </thead>
           <tbody>
             {
-              ssrStats.map((framework) => (
-                <tr>
-                  <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
-                  </td>
-                  <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
-                  <td>{framework.ssrAvgLatencyMs}ms</td>
-                  <td>{framework.ssrBodySizeKb}kb</td>
-                  <td>{framework.ssrDuplicationFactor}x</td>
-                </tr>
-              ))
+              ssrStats.map((framework) => {
+                const config = frameworksConfig.find(f => f.displayName === framework.name);
+                const isFocused = config?.focusedFramework === false ? 'false' : 'true';
+
+                return (
+                  <tr data-focused={isFocused}>
+                    <td class="framework-name">
+                      <a
+                        href={`/framework/${getFrameworkSlug(framework.package)}`}
+                        class="framework-link"
+                      >
+                        {framework.name}
+                      </a>
+                    </td>
+                    <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
+                    <td>{framework.ssrAvgLatencyMs}ms</td>
+                    <td>{framework.ssrBodySizeKb}kb</td>
+                    <td>{framework.ssrDuplicationFactor}x</td>
+                  </tr>
+                );
+              })
             }
           </tbody>
         </table>
@@ -473,6 +500,75 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
     color: var(--ft-muted);
   }
 
+  /* --- Filter switch style --- */
+  .filter-container {
+    margin-bottom: 2em;
+    display: flex;
+    align-items: center;
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--ft-border);
+    transition: 0.3s;
+    border-radius: 24px;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--ft-text);
+    transition: 0.3s;
+    border-radius: 50%;
+  }
+
+  input:checked + .toggle-slider {
+    background-color: var(--ft-accent);
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+    background-color: var(--ft-bg); 
+  }
+
+  input:focus-visible + .toggle-slider {
+    outline: 2px solid var(--ft-text);
+    outline-offset: 2px;
+  }
+
+  .toggle-text {
+    color: var(--ft-text);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
   @media screen and (max-width: 768px) {
     main {
       padding: 20px 16px;
@@ -501,3 +597,23 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
     }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.getElementById('focused-toggle') as HTMLInputElement | null;
+    const unfocusedRows = document.querySelectorAll<HTMLElement>('tr[data-focused="false"]');
+    const updateVisibility = (isFocusedOnly: boolean) => {
+      unfocusedRows.forEach(row => {
+        row.style.display = isFocusedOnly ? 'none' : '';
+      });
+    };
+
+    if (toggle) {
+      updateVisibility(toggle.checked);
+      toggle.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        updateVisibility(target.checked);
+      });
+    }
+  });
+</script>

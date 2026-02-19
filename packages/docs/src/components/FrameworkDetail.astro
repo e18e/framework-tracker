@@ -7,9 +7,10 @@ import '../styles/shared.css'
 interface Props {
   devtime: CollectionEntry<'devtime'>['data']
   runtime?: CollectionEntry<'runtime'>['data']
+  baseline?: CollectionEntry<'runtime'>['data']
 }
 
-const { devtime, runtime } = Astro.props
+const { devtime, runtime, baseline } = Astro.props
 
 const measuredDateDisplay = (() => {
   const d = new Date(devtime.timingMeasuredAt)
@@ -136,6 +137,7 @@ const measuredDateDisplay = (() => {
           <table aria-label="SSR performance">
             <thead>
               <tr>
+                <th scope="col">Framework</th>
                 <th scope="col">Ops/sec</th>
                 <th scope="col">Avg Latency</th>
                 <th scope="col">Body Size</th>
@@ -143,7 +145,17 @@ const measuredDateDisplay = (() => {
               </tr>
             </thead>
             <tbody>
+              {baseline && (
+                <tr>
+                  <td class="metric-name">{baseline.name}</td>
+                  <td>{baseline.ssrOpsPerSec?.toLocaleString()}</td>
+                  <td>{baseline.ssrAvgLatencyMs}ms</td>
+                  <td>{baseline.ssrBodySizeKb}kb</td>
+                  <td>{baseline.ssrDuplicationFactor}x</td>
+                </tr>
+              )}
               <tr>
+                <td class="metric-name">{runtime.name}</td>
                 <td>{runtime.ssrOpsPerSec?.toLocaleString()}</td>
                 <td>{runtime.ssrAvgLatencyMs}ms</td>
                 <td>{runtime.ssrBodySizeKb}kb</td>

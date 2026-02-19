@@ -1,111 +1,13 @@
 [
   {
-    "name": "next",
-    "displayName": "Next.js",
-    "frameworkPackage": "next",
-    "focusedFramework": true,
-    "starter": {
-      "package": "starter-next-js",
-      "buildScript": "build",
-      "buildOutputDir": ".next",
-      "measurements": [
-        { "type": "install", "runFrequency": 5 },
-        { "type": "build", "runFrequency": 5 },
-        { "type": "dependencies" }
-      ]
-    },
+    "name": "baseline-html",
+    "displayName": "Baseline HTML",
+    "frameworkPackage": "node",
+    "focusedFramework": false,
     "app": {
-      "package": "app-next-js",
+      "package": "app-baseline-html",
       "buildScript": "build",
-      "buildOutputDir": ".next",
-      "measurements": [{ "type": "ssr" }]
-    }
-  },
-  {
-    "name": "react-router",
-    "displayName": "React Router",
-    "frameworkPackage": "@react-router/dev",
-    "focusedFramework": true,
-    "starter": {
-      "package": "starter-react-router",
-      "buildScript": "build",
-      "buildOutputDir": "build",
-      "measurements": [
-        { "type": "install", "runFrequency": 5 },
-        { "type": "build", "runFrequency": 5 },
-        { "type": "dependencies" }
-      ]
-    },
-    "app": {
-      "package": "app-react-router",
-      "buildScript": "build",
-      "buildOutputDir": "build",
-      "measurements": [{ "type": "ssr" }]
-    }
-  },
-  {
-    "name": "tanstack",
-    "displayName": "TanStack Start",
-    "frameworkPackage": "@tanstack/react-start",
-    "focusedFramework": true,
-    "starter": {
-      "package": "starter-tanstack-start-react",
-      "buildScript": "build",
-      "buildOutputDir": ".output",
-      "measurements": [
-        { "type": "install", "runFrequency": 5 },
-        { "type": "build", "runFrequency": 5 },
-        { "type": "dependencies" }
-      ]
-    },
-    "app": {
-      "package": "app-tanstack-start-react",
-      "buildScript": "build",
-      "buildOutputDir": ".output",
-      "measurements": [{ "type": "ssr" }]
-    }
-  },
-  {
-    "name": "nuxt",
-    "displayName": "Nuxt",
-    "frameworkPackage": "nuxt",
-    "focusedFramework": true,
-    "starter": {
-      "package": "starter-nuxt",
-      "buildScript": "build",
-      "buildOutputDir": ".output",
-      "measurements": [
-        { "type": "install", "runFrequency": 5 },
-        { "type": "build", "runFrequency": 5 },
-        { "type": "dependencies" }
-      ]
-    },
-    "app": {
-      "package": "app-nuxt",
-      "buildScript": "build",
-      "buildOutputDir": ".output",
-      "measurements": [{ "type": "ssr" }]
-    }
-  },
-  {
-    "name": "sveltekit",
-    "displayName": "SvelteKit",
-    "frameworkPackage": "@sveltejs/kit",
-    "focusedFramework": true,
-    "starter": {
-      "package": "starter-sveltekit",
-      "buildScript": "build",
-      "buildOutputDir": "build",
-      "measurements": [
-        { "type": "install", "runFrequency": 5 },
-        { "type": "build", "runFrequency": 5 },
-        { "type": "dependencies" }
-      ]
-    },
-    "app": {
-      "package": "app-sveltekit",
-      "buildScript": "build",
-      "buildOutputDir": "build",
+      "buildOutputDir": ".",
       "measurements": [{ "type": "ssr" }]
     }
   },
@@ -154,6 +56,72 @@
     }
   },
   {
+    "name": "next",
+    "displayName": "Next.js",
+    "frameworkPackage": "next",
+    "focusedFramework": true,
+    "starter": {
+      "package": "starter-next-js",
+      "buildScript": "build",
+      "buildOutputDir": ".next",
+      "measurements": [
+        { "type": "install", "runFrequency": 5 },
+        { "type": "build", "runFrequency": 5 },
+        { "type": "dependencies" }
+      ]
+    },
+    "app": {
+      "package": "app-next-js",
+      "buildScript": "build",
+      "buildOutputDir": ".next",
+      "measurements": [{ "type": "ssr" }]
+    }
+  },
+  {
+    "name": "nuxt",
+    "displayName": "Nuxt",
+    "frameworkPackage": "nuxt",
+    "focusedFramework": true,
+    "starter": {
+      "package": "starter-nuxt",
+      "buildScript": "build",
+      "buildOutputDir": ".output",
+      "measurements": [
+        { "type": "install", "runFrequency": 5 },
+        { "type": "build", "runFrequency": 5 },
+        { "type": "dependencies" }
+      ]
+    },
+    "app": {
+      "package": "app-nuxt",
+      "buildScript": "build",
+      "buildOutputDir": ".output",
+      "measurements": [{ "type": "ssr" }]
+    }
+  },
+  {
+    "name": "react-router",
+    "displayName": "React Router",
+    "frameworkPackage": "@react-router/dev",
+    "focusedFramework": true,
+    "starter": {
+      "package": "starter-react-router",
+      "buildScript": "build",
+      "buildOutputDir": "build",
+      "measurements": [
+        { "type": "install", "runFrequency": 5 },
+        { "type": "build", "runFrequency": 5 },
+        { "type": "dependencies" }
+      ]
+    },
+    "app": {
+      "package": "app-react-router",
+      "buildScript": "build",
+      "buildOutputDir": "build",
+      "measurements": [{ "type": "ssr" }]
+    }
+  },
+  {
     "name": "solid-start",
     "displayName": "SolidStart",
     "frameworkPackage": "@solidjs/start",
@@ -170,6 +138,50 @@
     },
     "app": {
       "package": "app-solid-start",
+      "buildScript": "build",
+      "buildOutputDir": ".output",
+      "measurements": [{ "type": "ssr" }]
+    }
+  },
+  {
+    "name": "sveltekit",
+    "displayName": "SvelteKit",
+    "frameworkPackage": "@sveltejs/kit",
+    "focusedFramework": true,
+    "starter": {
+      "package": "starter-sveltekit",
+      "buildScript": "build",
+      "buildOutputDir": "build",
+      "measurements": [
+        { "type": "install", "runFrequency": 5 },
+        { "type": "build", "runFrequency": 5 },
+        { "type": "dependencies" }
+      ]
+    },
+    "app": {
+      "package": "app-sveltekit",
+      "buildScript": "build",
+      "buildOutputDir": "build",
+      "measurements": [{ "type": "ssr" }]
+    }
+  },
+  {
+    "name": "tanstack",
+    "displayName": "TanStack Start",
+    "frameworkPackage": "@tanstack/react-start",
+    "focusedFramework": true,
+    "starter": {
+      "package": "starter-tanstack-start-react",
+      "buildScript": "build",
+      "buildOutputDir": ".output",
+      "measurements": [
+        { "type": "install", "runFrequency": 5 },
+        { "type": "build", "runFrequency": 5 },
+        { "type": "dependencies" }
+      ]
+    },
+    "app": {
+      "package": "app-tanstack-start-react",
       "buildScript": "build",
       "buildOutputDir": ".output",
       "measurements": [{ "type": "ssr" }]

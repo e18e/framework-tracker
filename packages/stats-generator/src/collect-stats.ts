@@ -17,7 +17,7 @@ async function getDependencyCounts(pkgDir: string) {
   }
 }
 
-async function processStarter(framework: FrameworkConfig) {
+async function processStarter(framework: FrameworkConfig, order: number) {
   const starter = framework.starter
   if (!starter) return
 
@@ -35,6 +35,7 @@ async function processStarter(framework: FrameworkConfig) {
     name: displayName,
     package: pkgDir,
     type: 'starter-kit',
+    order,
     ...dependencyStats,
     ...ciStats,
   }
@@ -43,7 +44,7 @@ async function processStarter(framework: FrameworkConfig) {
   console.info(`✓ Collected ${displayName} (${pkgDir}) → devtime`)
 }
 
-async function processApp(framework: FrameworkConfig) {
+async function processApp(framework: FrameworkConfig, order: number) {
   const app = framework.app
   if (!app) return
 
@@ -56,6 +57,7 @@ async function processApp(framework: FrameworkConfig) {
     name: displayName,
     package: pkgDir,
     type: 'ssr-app',
+    order,
     ...ciStats,
   }
 
@@ -67,10 +69,11 @@ async function collectStats() {
   const frameworks = await getFrameworks()
 
   console.info('Collecting starter stats...\n')
-  for (const framework of frameworks) {
+  for (let i = 0; i < frameworks.length; i++) {
+    const framework = frameworks[i]
     if (!framework.starter) continue
     try {
-      await processStarter(framework)
+      await processStarter(framework, i)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error'
@@ -82,10 +85,11 @@ async function collectStats() {
   }
 
   console.info('\nCollecting app stats...\n')
-  for (const framework of frameworks) {
+  for (let i = 0; i < frameworks.length; i++) {
+    const framework = frameworks[i]
     if (!framework.app) continue
     try {
-      await processApp(framework)
+      await processApp(framework, i)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error'

@@ -6,8 +6,12 @@ import '../styles/shared.css'
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
 
-const starterStats = devtimeEntries.map((entry) => entry.data)
-const ssrStats = runtimeEntries.map((entry) => entry.data)
+const starterStats = devtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+const ssrStats = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
 ---
 
 <div id="container">
@@ -146,12 +150,16 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
               ssrStats.map((framework) => (
                 <tr>
                   <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
+                    {framework.package === 'app-baseline-html' ? (
+                      <span>{framework.name}</span>
+                    ) : (
+                      <a
+                        href={`/framework/${getFrameworkSlug(framework.package)}`}
+                        class="framework-link"
+                      >
+                        {framework.name}
+                      </a>
+                    )}
                   </td>
                   <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
                   <td>{framework.ssrAvgLatencyMs}ms</td>

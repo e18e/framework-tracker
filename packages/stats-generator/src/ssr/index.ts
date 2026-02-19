@@ -1,5 +1,6 @@
 import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
+import { buildBaselineHtmlHandler } from './handlers/baseline-html.ts'
 import { buildMastroHandler } from './handlers/mastro.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
@@ -17,6 +18,12 @@ interface SSRFrameworkConfig {
 }
 
 const SSR_FRAMEWORKS: SSRFrameworkConfig[] = [
+  {
+    name: 'baseline-html',
+    displayName: 'Baseline HTML',
+    package: 'app-baseline-html',
+    buildHandler: buildBaselineHtmlHandler,
+  },
   {
     name: 'astro-ssr',
     displayName: 'Astro SSR',

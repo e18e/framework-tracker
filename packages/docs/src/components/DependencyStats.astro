@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from '../lib/utils'
 import '../styles/shared.css'
-import frameworksConfig from '../../../../.github/frameworks.json';
+import frameworksConfig from '../../../../.github/frameworks.json'
 
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
@@ -32,7 +32,6 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
         our methodology and testing process.
       </p>
 
-      
       <div class="filter-container">
         <label class="toggle-label" for="focused-toggle">
           <div class="toggle-switch">
@@ -65,8 +64,11 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           <tbody>
             {
               starterStats.map((framework) => {
-                const config = frameworksConfig.find(f => f.displayName === framework.name);
-                const isFocused = config?.focusedFramework === false ? 'false' : 'true';
+                const config = frameworksConfig.find(
+                  (f) => f.displayName === framework.name,
+                )
+                const isFocused =
+                  config?.focusedFramework === false ? 'false' : 'true'
 
                 return (
                   <tr data-focused={isFocused}>
@@ -81,7 +83,9 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
                     <td>{framework.prodDependencies}</td>
                     <td>{framework.devDependencies}</td>
                     <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
-                    <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
+                    <td>
+                      {formatBytesToMB(framework.nodeModulesSizeProdOnly)}
+                    </td>
                     <td>
                       <a
                         href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
@@ -93,7 +97,7 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
                       </a>
                     </td>
                   </tr>
-                );
+                )
               })
             }
           </tbody>
@@ -116,8 +120,11 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           <tbody>
             {
               starterStats.map((framework) => {
-                const config = frameworksConfig.find(f => f.displayName === framework.name);
-                const isFocused = config?.focusedFramework === false ? 'false' : 'true';
+                const config = frameworksConfig.find(
+                  (f) => f.displayName === framework.name,
+                )
+                const isFocused =
+                  config?.focusedFramework === false ? 'false' : 'true'
 
                 return (
                   <tr data-focused={isFocused}>
@@ -136,7 +143,7 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
                     <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
                     <td>{formatBytesToMB(framework.buildOutputSize)}</td>
                   </tr>
-                );
+                )
               })
             }
           </tbody>
@@ -166,8 +173,11 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           <tbody>
             {
               ssrStats.map((framework) => {
-                const config = frameworksConfig.find(f => f.displayName === framework.name);
-                const isFocused = config?.focusedFramework === false ? 'false' : 'true';
+                const config = frameworksConfig.find(
+                  (f) => f.displayName === framework.name,
+                )
+                const isFocused =
+                  config?.focusedFramework === false ? 'false' : 'true'
 
                 return (
                   <tr data-focused={isFocused}>
@@ -184,7 +194,7 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
                     <td>{framework.ssrBodySizeKb}kb</td>
                     <td>{framework.ssrDuplicationFactor}x</td>
                   </tr>
-                );
+                )
               })
             }
           </tbody>
@@ -539,7 +549,7 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
 
   .toggle-slider:before {
     position: absolute;
-    content: "";
+    content: '';
     height: 18px;
     width: 18px;
     left: 3px;
@@ -555,7 +565,7 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
 
   input:checked + .toggle-slider:before {
     transform: translateX(20px);
-    background-color: var(--ft-bg); 
+    background-color: var(--ft-bg);
   }
 
   input:focus-visible + .toggle-slider {
@@ -600,20 +610,24 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const toggle = document.getElementById('focused-toggle') as HTMLInputElement | null;
-    const unfocusedRows = document.querySelectorAll<HTMLElement>('tr[data-focused="false"]');
+    const toggle = document.getElementById(
+      'focused-toggle',
+    ) as HTMLInputElement | null
+    const unfocusedRows = document.querySelectorAll<HTMLElement>(
+      'tr[data-focused="false"]',
+    )
     const updateVisibility = (isFocusedOnly: boolean) => {
-      unfocusedRows.forEach(row => {
-        row.style.display = isFocusedOnly ? 'none' : '';
-      });
-    };
+      unfocusedRows.forEach((row) => {
+        row.style.display = isFocusedOnly ? 'none' : ''
+      })
+    }
 
     if (toggle) {
-      updateVisibility(toggle.checked);
+      updateVisibility(toggle.checked)
       toggle.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        updateVisibility(target.checked);
-      });
+        const target = e.target as HTMLInputElement
+        updateVisibility(target.checked)
+      })
     }
-  });
+  })
 </script>

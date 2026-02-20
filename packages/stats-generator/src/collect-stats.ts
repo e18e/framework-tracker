@@ -35,6 +35,7 @@ async function processStarter(framework: FrameworkConfig) {
     name: displayName,
     package: pkgDir,
     type: 'starter-kit',
+    isFocused: framework.focusedFramework,
     ...dependencyStats,
     ...ciStats,
   }
@@ -56,6 +57,7 @@ async function processApp(framework: FrameworkConfig) {
     name: displayName,
     package: pkgDir,
     type: 'ssr-app',
+    isFocused: framework.focusedFramework,
     ...ciStats,
   }
 

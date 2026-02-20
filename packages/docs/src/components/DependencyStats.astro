@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from '../lib/utils'
 import '../styles/shared.css'
-import frameworksConfig from '../../../../.github/frameworks.json'
 
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
@@ -63,42 +62,32 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           </thead>
           <tbody>
             {
-              starterStats.map((framework) => {
-                const config = frameworksConfig.find(
-                  (f) => f.displayName === framework.name,
-                )
-                const isFocused =
-                  config?.focusedFramework === false ? 'false' : 'true'
-
-                return (
-                  <tr data-focused={isFocused}>
-                    <td class="framework-name">
-                      <a
-                        href={`/framework/${getFrameworkSlug(framework.package)}`}
-                        class="framework-link"
-                      >
-                        {framework.name}
-                      </a>
-                    </td>
-                    <td>{framework.prodDependencies}</td>
-                    <td>{framework.devDependencies}</td>
-                    <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
-                    <td>
-                      {formatBytesToMB(framework.nodeModulesSizeProdOnly)}
-                    </td>
-                    <td>
-                      <a
-                        href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="graph-link"
-                      >
-                        View
-                      </a>
-                    </td>
-                  </tr>
-                )
-              })
+              starterStats.map((framework) => (
+                <tr data-focused={framework.isFocused ? 'true' : 'false'}>
+                  <td class="framework-name">
+                    <a
+                      href={`/framework/${getFrameworkSlug(framework.package)}`}
+                      class="framework-link"
+                    >
+                      {framework.name}
+                    </a>
+                  </td>
+                  <td>{framework.prodDependencies}</td>
+                  <td>{framework.devDependencies}</td>
+                  <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
+                  <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
+                  <td>
+                    <a
+                      href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="graph-link"
+                    >
+                      View
+                    </a>
+                  </td>
+                </tr>
+              ))
             }
           </tbody>
         </table>
@@ -119,32 +108,24 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           </thead>
           <tbody>
             {
-              starterStats.map((framework) => {
-                const config = frameworksConfig.find(
-                  (f) => f.displayName === framework.name,
-                )
-                const isFocused =
-                  config?.focusedFramework === false ? 'false' : 'true'
-
-                return (
-                  <tr data-focused={isFocused}>
-                    <td class="framework-name">
-                      <a
-                        href={`/framework/${getFrameworkSlug(framework.package)}`}
-                        class="framework-link"
-                      >
-                        {framework.name}
-                      </a>
-                    </td>
-                    <td>{formatTimeMs(framework.installTime.avgMs)}</td>
-                    <td>{formatTimeMs(framework.installTime.minMs)}</td>
-                    <td>{formatTimeMs(framework.installTime.maxMs)}</td>
-                    <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
-                    <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
-                    <td>{formatBytesToMB(framework.buildOutputSize)}</td>
-                  </tr>
-                )
-              })
+              starterStats.map((framework) => (
+                <tr data-focused={framework.isFocused ? 'true' : 'false'}>
+                  <td class="framework-name">
+                    <a
+                      href={`/framework/${getFrameworkSlug(framework.package)}`}
+                      class="framework-link"
+                    >
+                      {framework.name}
+                    </a>
+                  </td>
+                  <td>{formatTimeMs(framework.installTime.avgMs)}</td>
+                  <td>{formatTimeMs(framework.installTime.minMs)}</td>
+                  <td>{formatTimeMs(framework.installTime.maxMs)}</td>
+                  <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
+                  <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
+                  <td>{formatBytesToMB(framework.buildOutputSize)}</td>
+                </tr>
+              ))
             }
           </tbody>
         </table>
@@ -172,30 +153,22 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
           </thead>
           <tbody>
             {
-              ssrStats.map((framework) => {
-                const config = frameworksConfig.find(
-                  (f) => f.displayName === framework.name,
-                )
-                const isFocused =
-                  config?.focusedFramework === false ? 'false' : 'true'
-
-                return (
-                  <tr data-focused={isFocused}>
-                    <td class="framework-name">
-                      <a
-                        href={`/framework/${getFrameworkSlug(framework.package)}`}
-                        class="framework-link"
-                      >
-                        {framework.name}
-                      </a>
-                    </td>
-                    <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
-                    <td>{framework.ssrAvgLatencyMs}ms</td>
-                    <td>{framework.ssrBodySizeKb}kb</td>
-                    <td>{framework.ssrDuplicationFactor}x</td>
-                  </tr>
-                )
-              })
+              ssrStats.map((framework) => (
+                <tr data-focused={framework.isFocused ? 'true' : 'false'}>
+                  <td class="framework-name">
+                    <a
+                      href={`/framework/${getFrameworkSlug(framework.package)}`}
+                      class="framework-link"
+                    >
+                      {framework.name}
+                    </a>
+                  </td>
+                  <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
+                  <td>{framework.ssrAvgLatencyMs}ms</td>
+                  <td>{framework.ssrBodySizeKb}kb</td>
+                  <td>{framework.ssrDuplicationFactor}x</td>
+                </tr>
+              ))
             }
           </tbody>
         </table>

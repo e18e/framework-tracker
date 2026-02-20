@@ -21,6 +21,7 @@ export interface FrameworkConfig {
   name: string
   displayName: string
   frameworkPackage: string
+  focusedFramework?: boolean
   starter?: TestConfig
   app?: TestConfig
 }
@@ -76,6 +77,7 @@ export interface FrameworkStats extends CIStats {
   ssrSamples?: number
   ssrBodySizeKb?: number
   ssrDuplicationFactor?: number
+  isFocused?: boolean
 }
 
 export interface PackageJson {

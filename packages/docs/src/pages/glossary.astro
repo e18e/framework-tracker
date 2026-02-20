@@ -137,31 +137,110 @@ import Layout from '../layouts/Layout.astro'
       </p>
 
       <h3 id="hydration">Hydration</h3>
-      <p>Hydration is the process of ...</p>
+      <p>
+        Hydration is the process of making server-rendered HTML interactive on
+        the client. After the browser receives the static HTML produced by
+        <a href="#ssr">SSR</a>, a JavaScript framework re-attaches event
+        handlers, restores component state, and wires up reactivity — turning an
+        inert document into a fully interactive application. During hydration
+        the framework typically re-executes the component tree against the
+        existing DOM rather than replacing it.
+      </p>
+      <p>
+        What happens after hydration depends on the
+        <a href="#application-architecture">application architecture</a>. For a
+        <a href="#spa">SPA</a>, once hydration completes the JavaScript
+        framework takes over routing and rendering — subsequent navigations are
+        handled client-side. In <a href="#mpa">MPA</a> setups, hydration only activates
+        specific components without changing the navigation model - page transitions
+        still trigger full server requests.
+      </p>
+      <p>
+        The tradeoff is that hydration requires downloading and executing the
+        same component code that was already run on the server, which can delay
+        interactivity on slow devices or large pages. Techniques like
+        <a href="#partial-hydration">partial hydration</a>,
+        <a href="#progressive-hydration">progressive hydration</a>, and
+        <a href="#islands">islands architecture</a> aim to reduce this cost.
+      </p>
 
       <h3 id="partial-hydration">Partial Hydration</h3>
-      <p>Partial Hydration is a technique where ...</p>
+      <p>
+        Partial hydration is a technique where only specific components on a
+        page are hydrated on the client, rather than hydrating the entire
+        component tree. Static parts of the page remain as plain HTML and never
+        load any JavaScript, while interactive components are selectively
+        hydrated. This reduces the amount of JavaScript the browser needs to
+        download, parse, and execute.
+      </p>
 
       <h3 id="progressive-hydration">Progressive Hydration</h3>
-      <p>Progressive Hydration is a technique where ...</p>
-
-      <h3 id="streaming">Streaming</h3>
-      <p>Streaming is a rendering approach where ...</p>
-
-      <h3 id="isr">Incremental Static Regeneration (ISR)</h3>
-      <p>ISR stands for Incremental Static Regeneration, which ...</p>
-
-      <h3 id="ppr">Partial Prerendering (PPR)</h3>
-      <p>Partial Prerendering is a rendering strategy where ...</p>
+      <p>
+        Progressive hydration defers the hydration of individual components
+        until they are actually needed, rather than hydrating everything at once
+        on page load. Components can be hydrated based on triggers such as the
+        component scrolling into the viewport, the browser becoming idle, or the
+        user interacting with the component for the first time. This spreads the
+        cost of <a href="#hydration">hydration</a> over time.
+      </p>
 
       <h3 id="islands">Islands Architecture</h3>
-      <p>Islands Architecture is a pattern where ...</p>
+      <p>
+        Islands architecture is a pattern where interactive UI components —
+        called "islands" — are hydrated independently within an otherwise static
+        HTML page. The static content is rendered at build time or on the server
+        with zero JavaScript, and only the islands ship client-side code. Each
+        island hydrates on its own, without depending on a top-level application
+        shell.
+      </p>
+
+      <h3 id="isr">Incremental Static Regeneration (ISR)</h3>
+      <p>
+        ISR is a hybrid of <a href="#ssg">SSG</a> and <a href="#ssr">SSR</a>
+        where statically generated pages are regenerated in the background after a
+        configured time interval or on-demand trigger, without requiring a full site
+        rebuild. When a request arrives for a stale page, the cached version is served
+        immediately while a fresh version is generated in the background for subsequent
+        requests.
+      </p>
+
+      <h3 id="ppr">Partial Prerendering (PPR)</h3>
+      <p>
+        Partial prerendering splits a single route into a static shell that is
+        served instantly and dynamic holes that are streamed in at request time.
+        The static parts of the page — any content known at build time — are
+        prerendered and cached, while personalized or data-dependent sections
+        are rendered on-demand and streamed into the page via Suspense
+        boundaries.
+      </p>
+
+      <h3 id="streaming">Streaming</h3>
+      <p>
+        Streaming is a rendering approach where server-rendered HTML is sent to
+        the browser in chunks as each part becomes ready, rather than waiting
+        for the entire page to finish rendering. The browser can begin parsing
+        and displaying content as soon as the first bytes arrive, improving
+        time-to-first-byte and perceived performance.
+      </p>
 
       <h3 id="rsc">Server Components (RSC)</h3>
-      <p>Server Components are components that ...</p>
+      <p>
+        Server Components are components that execute exclusively on the server.
+        Unlike traditional <a href="#ssr">SSR</a>, where component code is sent
+        to the client for <a href="#hydration">hydration</a>, Server Components
+        send only their rendered output — never their source code — to the
+        client. They can directly access server-side resources such as databases
+        and file systems without exposing those details to the browser.
+      </p>
 
       <h3 id="esr">Edge-Side Rendering (ESR)</h3>
-      <p>Edge-Side Rendering is an approach where ...</p>
+      <p>
+        Edge-side rendering moves the rendering step from a central origin
+        server to edge servers distributed geographically close to the user.
+        Instead of every request traveling to a single data center, the nearest
+        edge node renders the HTML, reducing latency and improving
+        time-to-first-byte.
+      </p>
     </section>
   </main>
 

@@ -1,0 +1,258 @@
+---
+import BackLink from '../components/BackLink.astro'
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="Glossary page">
+  <main>
+    <BackLink />
+
+    <header>
+      <h1 class="detail-title">Glossary</h1>
+      <p>
+        This site describes the terminology and concepts used in the framework
+        tracker.
+      </p>
+    </header>
+
+    <section>
+      <h2 id="application-architecture">Application architecture</h2>
+      <p>
+        <strong>MPA (Multi-Page Application)</strong> and
+        <strong>SPA (Single-Page Application)</strong>
+        are the two foundational architectures for web applications. The choice between
+        them shapes how pages are rendered, how navigation works, and how state is
+        managed. In practice, many modern frameworks blur the line by supporting hybrid
+        approaches — for example, combining server-rendered pages with client-side
+        navigation.
+      </p>
+      <p>The key aspects that distinguish an application architecture are:</p>
+      <ul>
+        <li>
+          <strong>Navigation model</strong> — Does the browser perform a full page
+          load for each route (MPA), or does JavaScript intercept navigation and update
+          the page in-place (SPA)?
+        </li>
+        <li>
+          <strong>Content loading and processing</strong> — Is HTML assembled on the
+          server and sent ready-to-display (MPA), or is it generated in the browser
+          by a JavaScript framework consuming raw data fetched from an API (SPA)?
+        </li>
+        <li>
+          <strong>State lifetime</strong> — Is in-memory state reset on every navigation
+          (MPA), or does it persist across route changes within the same session (SPA)?
+        </li>
+        <li>
+          <strong>JavaScript dependency</strong> — Is JavaScript required for the
+          page to be meaningful, or is it an optional progressive enhancement on top
+          of server-rendered HTML?
+        </li>
+        <li>
+          <strong>SEO and initial load</strong> — Is content present in the first
+          HTML response (MPA), or does meaningful content only appear after JS downloads
+          and executes (SPA)?
+        </li>
+      </ul>
+
+      <h3 id="mpa">Multi-Page Application (MPA)</h3>
+      <p>
+        In an MPA, each navigation triggers a full browser request and the
+        server responds with a complete HTML document. HTML is generated on the
+        server per request, so the browser always receives ready-to-display
+        content. JavaScript is optional and typically used only for progressive
+        enhancement. In-memory state is lost on every navigation. Because
+        content is present in the initial HTML response, MPAs are naturally
+        SEO-friendly. The server must be capable of rendering and serving a full
+        page for every route.
+      </p>
+
+      <h3 id="spa">Single-Page Application (SPA)</h3>
+      <p>
+        In an SPA, the browser loads a single HTML shell once and all subsequent
+        navigation is handled client-side by JavaScript, without full page
+        reloads. HTML is generated in the browser, typically by a JavaScript
+        framework rendering components on demand. On initial load the browser
+        receives a minimal document and must download and execute JS before
+        content appears. Subsequent navigations fetch only data (e.g. via API
+        calls), keeping the page transition fast. In-memory state persists
+        across navigation. Because the initial HTML shell contains little
+        content, SPAs require extra effort (SSR, prerendering) for good SEO. The
+        server only needs to serve static assets.
+      </p>
+    </section>
+
+    <section>
+      <h2 id="rendering-patterns">Rendering Patterns</h2>
+      <p>
+        A rendering pattern describes how and when content is generated and
+        delivered to the client, typically the browser. The rendering process
+        can happen on the client or on a server, and at different stages of the
+        application lifecycle.
+      </p>
+      <p>
+        Each pattern has different tradeoffs in terms of performance, SEO, UX,
+        resource usage, robustness, and complexity. The choice of rendering
+        pattern can have a significant impact on the overall experience and
+        maintainability of the application.
+      </p>
+
+      <h3 id="ssg">Static Site Generation (SSG)</h3>
+      <p>
+        All pages are pre-built into static HTML files at build time (ahead of
+        time) by a build tool or framework. The output is a set of
+        ready-to-serve files — one per route — that can be delivered directly
+        from a CDN with no server needed at runtime. Because every response is a
+        pre-built file, load times are fast and infrastructure is simple. Best
+        suited for content that doesn't change per request.
+      </p>
+
+      <h3 id="ssr">Server-Side Rendering (SSR)</h3>
+      <p>
+        HTML is generated on a server for each incoming request (just in time).
+        This allows dynamic content and per-request logic such as
+        authentication, personalization, or A/B testing. Unlike SSG, SSR
+        requires a running server at runtime.
+      </p>
+      <p>
+        The term SSR is often used together with
+        <a href="#hydration">hydration</a>. However, classic SSR works without
+        hydration — the server sends functional HTML that relies on native
+        browser capabilities (links, forms) rather than a JavaScript framework.
+        This is the traditional web model where JavaScript is only used for
+        progressive enhancement, not for rendering core content.
+      </p>
+
+      <h3 id="csr">Client-Side Rendering (CSR)</h3>
+      <p>
+        Instead of receiving ready-made HTML from a server, the browser receives
+        a minimal HTML skeleton and a JavaScript bundle. The JS framework then
+        fetches data, builds the DOM, and controls all rendering on the client
+        side.
+      </p>
+      <p>
+        This enables highly dynamic interfaces where the page can update without
+        full reloads. The tradeoff is a slower initial load — nothing meaningful
+        appears until the JavaScript has downloaded and executed — and weaker
+        SEO by default, since the initial HTML response contains little content.
+      </p>
+
+      <h3 id="hydration">Hydration</h3>
+      <p>Hydration is the process of ...</p>
+
+      <h3 id="partial-hydration">Partial Hydration</h3>
+      <p>Partial Hydration is a technique where ...</p>
+
+      <h3 id="progressive-hydration">Progressive Hydration</h3>
+      <p>Progressive Hydration is a technique where ...</p>
+
+      <h3 id="streaming">Streaming</h3>
+      <p>Streaming is a rendering approach where ...</p>
+
+      <h3 id="isr">Incremental Static Regeneration (ISR)</h3>
+      <p>ISR stands for Incremental Static Regeneration, which ...</p>
+
+      <h3 id="ppr">Partial Prerendering (PPR)</h3>
+      <p>Partial Prerendering is a rendering strategy where ...</p>
+
+      <h3 id="islands">Islands Architecture</h3>
+      <p>Islands Architecture is a pattern where ...</p>
+
+      <h3 id="rsc">Server Components (RSC)</h3>
+      <p>Server Components are components that ...</p>
+
+      <h3 id="esr">Edge-Side Rendering (ESR)</h3>
+      <p>Edge-Side Rendering is an approach where ...</p>
+    </section>
+  </main>
+
+  <style>
+    main {
+      margin: 0 auto;
+      padding: 40px 16px;
+      max-width: 900px;
+
+      font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        'Fira Sans',
+        'Droid Sans',
+        'Helvetica Neue',
+        sans-serif;
+      min-height: 100vh;
+      color: var(--ft-text);
+      background-color: var(--ft-bg);
+      line-height: 1.5;
+    }
+
+    section {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    @media screen and (max-width: 768px) {
+      main {
+        padding: 20px 16px;
+      }
+    }
+
+    .detail-header {
+      margin-bottom: 2em;
+    }
+
+    .detail-title {
+      font-size: 32px;
+      margin: 0 0 0.25em 0;
+      font-weight: 700;
+      background: var(--ft-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p,
+    ul {
+      font-size: 16px;
+      color: var(--ft-muted);
+      line-height: 1.6;
+      margin-bottom: 1em;
+      max-width: 700px;
+    }
+
+    section {
+      margin-top: 2em;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-top: 0.25em;
+      margin-bottom: 0.5em;
+      font-weight: 700;
+      background: var(--ft-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-top: 2em;
+      margin-bottom: 1em;
+      font-weight: 600;
+      color: var(--ft-text);
+    }
+
+    h3 {
+      font-size: 16px;
+      margin-top: 1.5em;
+      margin-bottom: 0.75em;
+      font-weight: 600;
+      color: var(--ft-text);
+    }
+  </style>
+</Layout>

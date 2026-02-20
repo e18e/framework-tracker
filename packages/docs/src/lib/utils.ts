@@ -1,5 +1,5 @@
 const BYTES_PER_KB = 1024
-const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
+export const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
 
 /**
  * Returns the URL slug for a framework details page.

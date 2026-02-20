@@ -70,6 +70,7 @@ export interface FrameworkStats extends CIStats {
   name?: string
   package?: string
   type?: string
+  order?: number
   prodDependencies?: number
   devDependencies?: number
   ssrOpsPerSec?: number

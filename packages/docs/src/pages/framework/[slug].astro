@@ -7,6 +7,9 @@ import { getFrameworkSlug } from '../../lib/utils'
 export async function getStaticPaths() {
   const devtimeEntries = await getCollection('devtime')
   const runtimeEntries = await getCollection('runtime')
+  const baseline = runtimeEntries.find(
+    (e) => e.data.package === 'app-baseline-html',
+  )?.data
   return devtimeEntries.map((entry) => {
     const slug = getFrameworkSlug(entry.data.package)
     const runtimePackage = `app-${slug}`
@@ -18,18 +21,23 @@ export async function getStaticPaths() {
       props: {
         devtime: entry.data,
         runtime: runtimeEntry?.data,
+        baseline,
       },
     }
   })
 }
 
-const { devtime, runtime } = Astro.props
+const { devtime, runtime, baseline } = Astro.props
 ---
 
 <Layout title={`${devtime.name} — Framework Tracker`}>
   <main class="framework-page-main">
     <section class="framework-page-section">
-      <FrameworkDetail devtime={devtime} runtime={runtime} />
+      <FrameworkDetail
+        devtime={devtime}
+        runtime={runtime}
+        baseline={baseline}
+      />
     </section>
   </main>
 </Layout>

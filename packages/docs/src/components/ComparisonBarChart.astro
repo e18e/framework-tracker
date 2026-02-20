@@ -1,0 +1,346 @@
+---
+import type { ChartDatum } from '../lib/types'
+
+interface Props {
+  title: string
+  data: ChartDatum[]
+  valueFormat: 'count' | 'mb'
+}
+
+const { title, data, valueFormat } = Astro.props
+const chartPayload = JSON.stringify({ data, valueFormat })
+---
+
+<div class="comparison-chart-container">
+  <h3 class="comparison-chart-title">{title}</h3>
+  <div class="comparison-chart-wrapper" data-comparison={chartPayload}>
+    <svg class="comparison-bar-chart" role="img" aria-label={title}></svg>
+  </div>
+  <div class="comparison-chart-tooltip"></div>
+</div>
+
+<style>
+  .comparison-chart-container {
+    position: relative;
+    width: 100%;
+    margin-top: 1em;
+    margin-bottom: 2em;
+  }
+
+  .comparison-chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ft-text);
+    margin: 0 0 0.75em 0;
+  }
+
+  .comparison-chart-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .comparison-bar-chart {
+    width: 100%;
+    height: 400px;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .comparison-bar-chart {
+      height: 280px;
+    }
+  }
+
+  .comparison-chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--ft-bg);
+    border: 1px solid var(--ft-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    color: var(--ft-text);
+  }
+
+  .comparison-chart-tooltip.visible {
+    opacity: 1;
+  }
+
+  .comparison-chart-tooltip .tooltip-title {
+    font-weight: 600;
+    color: var(--ft-text);
+    margin-bottom: 4px;
+  }
+
+  .comparison-chart-tooltip .tooltip-value {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) .comparison-chart-tooltip {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .comparison-chart-wrapper :global(.comparison-x-axis-text) {
+    fill: var(--ft-text);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .comparison-chart-wrapper :global(.comparison-y-axis-text) {
+    fill: var(--ft-muted);
+    font-size: 12px;
+  }
+
+  .comparison-chart-wrapper :global(.comparison-axis-domain) {
+    stroke: var(--ft-border);
+  }
+
+  .comparison-chart-wrapper :global(.comparison-axis-tick-line) {
+    stroke: var(--ft-border);
+  }
+
+  .comparison-chart-wrapper :global(.comparison-grid-line) {
+    stroke: var(--ft-chart-grid, var(--ft-border));
+  }
+</style>
+
+<script>
+  import * as d3 from 'd3'
+  import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
+
+  const chartDimensionsCache = new WeakMap<
+    HTMLElement,
+    { width: number; height: number }
+  >()
+
+  function formatValue(value: number, format: 'count' | 'mb'): string {
+    if (format === 'count') return String(Math.round(value))
+    return `${value.toFixed(2)} MB`
+  }
+
+  function setTooltipContent(
+    tooltip: HTMLElement,
+    name: string,
+    valueText: string,
+  ) {
+    const titleDiv = document.createElement('div')
+    titleDiv.className = 'tooltip-title'
+    titleDiv.textContent = name
+    const valueDiv = document.createElement('div')
+    valueDiv.className = 'tooltip-value'
+    valueDiv.textContent = valueText
+    tooltip.replaceChildren(titleDiv, valueDiv)
+  }
+
+  function initComparisonChart(wrapper: HTMLElement) {
+    const svg = wrapper.querySelector('.comparison-bar-chart') as SVGSVGElement
+    const container = wrapper.closest('.comparison-chart-container')
+    const tooltip = container?.querySelector(
+      '.comparison-chart-tooltip',
+    ) as HTMLElement
+    if (!svg || !tooltip) return
+
+    const dataAttr = wrapper.dataset.comparison
+    if (!dataAttr) return
+
+    let payload: ComparisonChartPayload
+    try {
+      payload = JSON.parse(dataAttr) as ComparisonChartPayload
+    } catch (e) {
+      console.warn('[ComparisonBarChart] Invalid chart data:', e)
+      return
+    }
+
+    const { valueFormat } = payload
+    const rawData = payload.data
+    if (!rawData?.length) return
+
+    const data: ChartDatum[] = rawData.map((d) => ({
+      name: String(d?.name ?? ''),
+      value: Math.max(0, Number(d.value) || 0),
+    }))
+
+    const margin = { top: 20, right: 40, bottom: 80, left: 50 }
+    const rect = wrapper.getBoundingClientRect()
+    const width = rect.width || 500
+    const height = rect.height || 300
+    const innerWidth = width - margin.left - margin.right
+    const innerHeight = height - margin.top - margin.bottom
+
+    d3.select(svg).selectAll('*').remove()
+    d3.select(svg).attr('viewBox', `0 0 ${width} ${height}`)
+
+    const titleEl = wrapper
+      .closest('.comparison-chart-container')
+      ?.querySelector('.comparison-chart-title')
+    const chartTitle = titleEl?.textContent ?? 'Comparison'
+    d3.select(svg)
+      .append('title')
+      .text(`${chartTitle}. Bar chart comparing frameworks.`)
+    d3.select(svg)
+      .append('desc')
+      .text(
+        `Bar chart comparing each framework by ${chartTitle}. See table for exact values.`,
+      )
+
+    const gradientId = `comparisonBarGradient-${crypto.randomUUID()}`
+    const g = d3
+      .select(svg)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const defs = d3.select(svg).append('defs')
+    const gradient = defs
+      .append('linearGradient')
+      .attr('id', gradientId)
+      .attr('x1', '0%')
+      .attr('y1', '100%')
+      .attr('x2', '0%')
+      .attr('y2', '0%')
+    gradient.append('stop').attr('offset', '0%').attr('stop-color', '#7cb560')
+    gradient.append('stop').attr('offset', '100%').attr('stop-color', '#cf8c3c')
+
+    const xScale = d3
+      .scaleBand()
+      .domain(data.map((d) => d.name))
+      .range([0, innerWidth])
+      .padding(0.25)
+
+    const maxValue = d3.max(data, (d) => d.value) ?? 1
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, maxValue * 1.05])
+      .range([innerHeight, 0])
+
+    const minBarHeightPx = 4
+    function barY(d: ChartDatum) {
+      return d.value === 0 ? innerHeight - minBarHeightPx : yScale(d.value)
+    }
+    function barHeight(d: ChartDatum) {
+      return d.value === 0 ? minBarHeightPx : innerHeight - yScale(d.value)
+    }
+
+    g.append('g')
+      .attr('transform', `translate(0,${innerHeight})`)
+      .call(d3.axisBottom(xScale).tickSize(0))
+      .call((sel) =>
+        sel.select('.domain').attr('class', 'comparison-axis-domain'),
+      )
+      .call((sel) =>
+        sel
+          .selectAll('text')
+          .attr('class', 'comparison-x-axis-text')
+          .attr('dy', '1em')
+          .attr('transform', 'rotate(-45)')
+          .attr('text-anchor', 'end'),
+      )
+
+    g.append('g')
+      .call(d3.axisLeft(yScale).tickSize(0))
+      .call((sel) =>
+        sel.select('.domain').attr('class', 'comparison-axis-domain'),
+      )
+      .call((sel) =>
+        sel.selectAll('.tick line').attr('class', 'comparison-axis-tick-line'),
+      )
+      .call((sel) =>
+        sel.selectAll('text').attr('class', 'comparison-y-axis-text'),
+      )
+
+    g.append('g')
+      .attr('class', 'comparison-grid')
+      .call(
+        d3
+          .axisLeft(yScale)
+          .tickSize(-innerWidth)
+          .tickFormat(() => ''),
+      )
+      .call((sel) => sel.select('.domain').remove())
+      .call((sel) =>
+        sel.selectAll('.tick line').attr('class', 'comparison-grid-line'),
+      )
+
+    const bars = g
+      .selectAll('.comparison-bar')
+      .data(data)
+      .enter()
+      .append('g')
+      .attr('class', 'comparison-bar')
+      .attr('transform', (d) => `translate(${xScale(d.name) ?? 0},0)`)
+
+    bars
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', innerHeight)
+      .attr('width', xScale.bandwidth())
+      .attr('height', 0)
+      .attr('fill', `url(#${gradientId})`)
+      .attr('rx', 4)
+      .attr('ry', 4)
+      .style('cursor', 'pointer')
+
+    bars
+      .on('mouseenter', function (_event: MouseEvent, d: ChartDatum) {
+        d3.select(this).select('rect').attr('opacity', 1)
+        setTooltipContent(tooltip, d.name, formatValue(d.value, valueFormat))
+        tooltip.classList.add('visible')
+      })
+      .on('mousemove', function (event: MouseEvent) {
+        const containerRect = container?.getBoundingClientRect()
+        if (!containerRect) return
+        const x = event.clientX - containerRect.left + 15
+        const y = event.clientY - containerRect.top - 10
+        tooltip.style.left = `${x}px`
+        tooltip.style.top = `${y}px`
+      })
+      .on('mouseleave', function () {
+        d3.select(this).select('rect').attr('opacity', 0.9)
+        tooltip.classList.remove('visible')
+      })
+
+    bars
+      .select('rect')
+      .transition()
+      .duration(500)
+      .ease(d3.easeCubicOut)
+      .attr('y', (d) => barY(d))
+      .attr('height', (d) => barHeight(d))
+      .attr('opacity', 0.9)
+
+    chartDimensionsCache.set(wrapper, { width, height })
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => {
+        const r = wrapper.getBoundingClientRect()
+        const w = r.width || 0
+        const h = r.height || 0
+        const last = chartDimensionsCache.get(wrapper)
+        const lastW = last?.width ?? 0
+        const lastH = last?.height ?? 0
+        if (w > 0 && h > 0 && (w !== lastW || h !== lastH)) {
+          ro.disconnect()
+          initComparisonChart(wrapper)
+        }
+      })
+      ro.observe(wrapper)
+    }
+  }
+
+  function init() {
+    document.querySelectorAll('.comparison-chart-wrapper').forEach((el) => {
+      initComparisonChart(el as HTMLElement)
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init)
+  } else {
+    init()
+  }
+</script>

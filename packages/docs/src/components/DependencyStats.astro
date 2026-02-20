@@ -1,13 +1,49 @@
 ---
 import { getCollection } from 'astro:content'
-import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from '../lib/utils'
+import {
+  BYTES_PER_MB,
+  formatBytesToMB,
+  formatTimeMs,
+  getFrameworkSlug,
+} from '../lib/utils'
 import '../styles/shared.css'
+import ComparisonBarChart from './ComparisonBarChart.astro'
 
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
 
-const starterStats = devtimeEntries.map((entry) => entry.data)
-const ssrStats = runtimeEntries.map((entry) => entry.data)
+const starterStats = devtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+const ssrStats = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+
+const validForCharts = starterStats.filter(
+  (f) =>
+    f?.name != null &&
+    Number.isFinite(f.devDependencies) &&
+    Number.isFinite(f.prodDependencies) &&
+    Number.isFinite(f.buildOutputSize) &&
+    Number.isFinite(f.nodeModulesSizeProdOnly),
+)
+
+const depsData = validForCharts.map((f) => ({
+  name: f.name,
+  value: f.devDependencies,
+}))
+const prodDepsData = validForCharts.map((f) => ({
+  name: f.name,
+  value: f.prodDependencies,
+}))
+const buildSizeData = validForCharts.map((f) => ({
+  name: f.name,
+  value: f.buildOutputSize / BYTES_PER_MB,
+}))
+const buildSizeProdData = validForCharts.map((f) => ({
+  name: f.name,
+  value: f.nodeModulesSizeProdOnly / BYTES_PER_MB,
+}))
 ---
 
 <div id="container">
@@ -93,6 +129,65 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
         </table>
       </div>
 
+      <div
+        class="chart-tabs-container section-with-tabs"
+        data-tab-section="deps"
+      >
+        <div
+          class="tablist chart-tablist"
+          role="tablist"
+          aria-label="Dependency graphs"
+        >
+          <button
+            type="button"
+            role="tab"
+            id="deps-deps-tab"
+            aria-selected="true"
+            aria-controls="deps-deps-panel"
+            class="tab active"
+          >
+            Deps
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="deps-prod-tab"
+            aria-selected="false"
+            aria-controls="deps-prod-panel"
+            class="tab"
+          >
+            Prod Deps
+          </button>
+        </div>
+        <div class="chart-tabpanels">
+          <div
+            role="tabpanel"
+            id="deps-deps-panel"
+            aria-labelledby="deps-deps-tab"
+            class="tabpanel chart-tabpanel active"
+          >
+            <ComparisonBarChart
+              title="Deps"
+              data={depsData}
+              valueFormat="count"
+            />
+          </div>
+          <div
+            role="tabpanel"
+            id="deps-prod-panel"
+            aria-labelledby="deps-prod-tab"
+            class="tabpanel chart-tabpanel"
+            hidden
+          >
+            <ComparisonBarChart
+              title="Prod Deps"
+              data={prodDepsData}
+              valueFormat="count"
+            />
+          </div>
+        </div>
+      </div>
+
       <div class="table-wrapper">
         <table aria-label="Build and install times by framework">
           <thead>
@@ -131,6 +226,65 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
         </table>
       </div>
 
+      <div
+        class="chart-tabs-container section-with-tabs"
+        data-tab-section="build"
+      >
+        <div
+          class="tablist chart-tablist"
+          role="tablist"
+          aria-label="Build size graphs"
+        >
+          <button
+            type="button"
+            role="tab"
+            id="build-size-tab"
+            aria-selected="true"
+            aria-controls="build-size-panel"
+            class="tab active"
+          >
+            Build size
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="build-size-prod-tab"
+            aria-selected="false"
+            aria-controls="build-size-prod-panel"
+            class="tab"
+          >
+            Build size prod
+          </button>
+        </div>
+        <div class="chart-tabpanels">
+          <div
+            role="tabpanel"
+            id="build-size-panel"
+            aria-labelledby="build-size-tab"
+            class="tabpanel chart-tabpanel active"
+          >
+            <ComparisonBarChart
+              title="Build size"
+              data={buildSizeData}
+              valueFormat="mb"
+            />
+          </div>
+          <div
+            role="tabpanel"
+            id="build-size-prod-panel"
+            aria-labelledby="build-size-prod-tab"
+            class="tabpanel chart-tabpanel"
+            hidden
+          >
+            <ComparisonBarChart
+              title="Build size prod"
+              data={buildSizeProdData}
+              valueFormat="mb"
+            />
+          </div>
+        </div>
+      </div>
+
       <h2>Runtime Performance</h2>
 
       <h3>SSR Performance</h3>
@@ -156,12 +310,16 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
               ssrStats.map((framework) => (
                 <tr data-focused={framework.isFocused ? 'true' : 'false'}>
                   <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
+                    {framework.package === 'app-baseline-html' ? (
+                      <span>{framework.name}</span>
+                    ) : (
+                      <a
+                        href={`/framework/${getFrameworkSlug(framework.package)}`}
+                        class="framework-link"
+                      >
+                        {framework.name}
+                      </a>
+                    )}
                   </td>
                   <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
                   <td>{framework.ssrAvgLatencyMs}ms</td>
@@ -550,6 +708,123 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
     color: var(--ft-text);
     font-size: 15px;
     font-weight: 500;
+  .section-with-tabs {
+    margin-top: 16px;
+    margin-bottom: 2em;
+  }
+
+  .chart-tabs-container {
+    margin-top: 1.5em;
+    padding: 1em 1.25em;
+    border: 1px solid var(--ft-border);
+    border-radius: 12px;
+    background: var(--ft-bg-muted);
+  }
+
+  .tablist {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--ft-border);
+  }
+
+  .chart-tablist {
+    margin: 0 0 1em 0;
+    padding: 0;
+    border-bottom: none;
+    gap: 8px;
+  }
+
+  .tab {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ft-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+
+  .chart-tablist .tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .tab:hover {
+    color: var(--ft-text);
+  }
+
+  .tab:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: 2px;
+  }
+
+  .tab.active {
+    color: var(--ft-accent);
+    border-bottom-color: currentColor;
+  }
+
+  .chart-tablist .tab.active {
+    background: var(--ft-accent);
+    color: white;
+    border-bottom: none;
+  }
+
+  .tabpanel {
+    margin-top: 0;
+  }
+
+  .tabpanel[hidden] {
+    display: none;
+  }
+
+  .chart-tabpanels {
+    position: relative;
+    min-height: 320px;
+  }
+
+  .chart-tabpanel {
+    transition: opacity 0.2s ease;
+  }
+
+  .chart-tabpanel[hidden] {
+    display: none;
+    opacity: 0;
+  }
+
+  .chart-tabpanel:not([hidden]) {
+    opacity: 1;
+  }
+
+  .methodology-note {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+  }
+
+  :global(html.dark) .tab {
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) .tab:hover {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) .tab.active {
+    color: var(--ft-accent);
+  }
+
+  :global(html.dark) .chart-tablist .tab.active {
+    background: var(--ft-accent);
+    color: var(--ft-bg);
   }
 
   @media screen and (max-width: 768px) {
@@ -578,6 +853,11 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
     th {
       font-size: 12px;
     }
+
+    .tab {
+      padding: 8px 14px;
+      font-size: 13px;
+    }
   }
 </style>
 
@@ -603,4 +883,57 @@ const ssrStats = runtimeEntries.map((entry) => entry.data)
       })
     }
   })
+  function initTabs() {
+    const sections = document.querySelectorAll(
+      '.chart-tabs-container[data-tab-section]',
+    )
+    sections.forEach((section: Element) => {
+      const tabs = section.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+      const panels = section.querySelectorAll<HTMLElement>('[role="tabpanel"]')
+
+      if (tabs.length !== 2 || panels.length !== 2) return
+
+      function setActive(index: number) {
+        tabs.forEach((tab, i) => {
+          const isSelected = i === index
+          tab.setAttribute('aria-selected', String(isSelected))
+          tab.classList.toggle('active', isSelected)
+        })
+        panels.forEach((panel, i) => {
+          panel.hidden = i !== index
+        })
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => setActive(index))
+
+        tab.addEventListener('keydown', (e: KeyboardEvent) => {
+          let newIndex = index
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault()
+            newIndex = index === 0 ? tabs.length - 1 : index - 1
+          } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault()
+            newIndex = index === tabs.length - 1 ? 0 : index + 1
+          } else if (e.key === 'Home') {
+            e.preventDefault()
+            newIndex = 0
+          } else if (e.key === 'End') {
+            e.preventDefault()
+            newIndex = tabs.length - 1
+          } else return
+          ;(tabs[newIndex] as HTMLButtonElement).focus()
+          setActive(newIndex)
+        })
+      })
+
+      setActive(0)
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTabs)
+  } else {
+    initTabs()
+  }
 </script>

@@ -1,6 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content'
 import { formatBytesToMB, formatTimeMs } from '../lib/utils'
+import '../styles/shared.css'
+import BackLink from './BackLink.astro'
 import DevTimeChart from './DevTimeChart.astro'
 import MethodologyTag from './MethodologyTag.astro'
 import MethodologyNotes from './MethodologyNotes.astro'
@@ -25,7 +27,7 @@ const measuredDateDisplay = (() => {
 ---
 
 <div class="detail">
-  <a href="/" class="back-link">← All frameworks</a>
+  <BackLink />
 
   <header class="detail-header">
     <PageHeader>{devtime.name}</PageHeader>
@@ -191,20 +193,6 @@ const measuredDateDisplay = (() => {
       sans-serif;
     color: var(--ft-text);
     line-height: 1.5;
-  }
-
-  .back-link {
-    display: inline-block;
-    margin-bottom: 1.5em;
-    color: var(--ft-accent);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .back-link:hover {
-    color: var(--ft-accent-hover);
-    text-decoration: underline;
   }
 
   .detail-header {

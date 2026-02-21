@@ -31,32 +31,15 @@ const { devtime, runtime, baseline } = Astro.props
 ---
 
 <Layout title={`${devtime.name} — Framework Tracker`}>
-  <main class="framework-page-main">
-    <section class="framework-page-section">
-      <FrameworkDetail
-        devtime={devtime}
-        runtime={runtime}
-        baseline={baseline}
-      />
-    </section>
-  </main>
+  <section class="framework-page-section">
+    <FrameworkDetail devtime={devtime} runtime={runtime} baseline={baseline} />
+  </section>
 </Layout>
 
 <style>
-  .framework-page-main {
-    display: flex;
-    justify-content: center;
-    padding: 40px 16px;
-  }
-
   .framework-page-section {
     width: 100%;
     max-width: 900px;
-  }
-
-  @media screen and (max-width: 768px) {
-    .framework-page-main {
-      padding: 20px 16px;
-    }
+    margin: 0 auto;
   }
 </style>

@@ -42,7 +42,13 @@ const { title = 'Framework Tracker' } = Astro.props
   </head>
   <body>
     <Navbar />
-    <slot />
+    <div id="container">
+      <main>
+        <div class="page-content">
+          <slot />
+        </div>
+      </main>
+    </div>
   </body>
 </html>
 
@@ -53,5 +59,42 @@ const { title = 'Framework Tracker' } = Astro.props
     width: 100%;
     height: 100%;
     background-color: var(--ft-bg);
+  }
+
+  main {
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+
+  .page-content {
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  @media screen and (max-width: 768px) {
+    main {
+      padding: 20px 16px;
+    }
+  }
+
+  #container {
+    font-family:
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      'Fira Sans',
+      'Droid Sans',
+      'Helvetica Neue',
+      sans-serif;
+    min-height: 100vh;
+    color: var(--ft-text);
+    background-color: var(--ft-bg);
+    line-height: 1.5;
   }
 </style>

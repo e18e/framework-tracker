@@ -1,5 +1,5 @@
 ---
-
+const pathname = Astro.url.pathname
 ---
 
 <header>
@@ -10,6 +10,16 @@
 
     <div class="nav-content">
       <nav class="nav-links">
+        <a
+          href="/dev-time"
+          class={`nav-link${pathname === '/dev-time' ? ' nav-link--active' : ''}`}
+          >Dev Time</a
+        >
+        <a
+          href="/run-time"
+          class={`nav-link${pathname === '/run-time' ? ' nav-link--active' : ''}`}
+          >Run Time</a
+        >
         <a href="https://e18e.dev" class="nav-link">e18e.dev</a>
         <a href="https://e18e.dev/blog" class="nav-link">Blog</a>
       </nav>
@@ -139,13 +149,50 @@
           </svg>
         </a>
       </div>
+
+      <button
+        id="menu-toggle"
+        class="menu-toggle"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
     </div>
   </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a
+      href="/dev-time"
+      class={`mobile-nav-link${pathname === '/dev-time' ? ' mobile-nav-link--active' : ''}`}
+      >Dev Time</a
+    >
+    <a
+      href="/run-time"
+      class={`mobile-nav-link${pathname === '/run-time' ? ' mobile-nav-link--active' : ''}`}
+      >Run Time</a
+    >
+    <a href="https://e18e.dev" class="mobile-nav-link">e18e.dev</a>
+    <a href="https://e18e.dev/blog" class="mobile-nav-link">Blog</a>
+  </div>
 </header>
 
 <script>
-  const themeToggle = document.getElementById('theme-toggle')
-
   function getStoredTheme() {
     return localStorage.getItem('theme')
   }
@@ -164,17 +211,10 @@
     return getStoredTheme() || getSystemTheme()
   }
 
+  // Apply theme immediately (before page paint)
   applyTheme(getEffectiveTheme())
 
-  themeToggle?.addEventListener('click', () => {
-    const currentTheme = document.documentElement.classList.contains('dark')
-      ? 'dark'
-      : 'light'
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
-    localStorage.setItem('theme', newTheme)
-    applyTheme(newTheme)
-  })
-
+  // System theme change — only needs registering once
   window
     .matchMedia('(prefers-color-scheme: dark)')
     .addEventListener('change', (e) => {
@@ -182,6 +222,68 @@
         applyTheme(e.matches ? 'dark' : 'light')
       }
     })
+
+  // Outside-click and Escape handlers live on document — register once,
+  // look up elements dynamically so they always reference the current DOM.
+  document.addEventListener('click', (e) => {
+    const header = document.querySelector('header')
+    if (header && !header.contains(e.target as Node)) {
+      document.getElementById('mobile-menu')?.classList.remove('open')
+      document
+        .getElementById('menu-toggle')
+        ?.setAttribute('aria-expanded', 'false')
+    }
+  })
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.getElementById('mobile-menu')?.classList.remove('open')
+      document
+        .getElementById('menu-toggle')
+        ?.setAttribute('aria-expanded', 'false')
+    }
+  })
+
+  function initNavListeners() {
+    const themeToggle = document.getElementById('theme-toggle')
+    const menuToggle = document.getElementById('menu-toggle')
+    const mobileMenu = document.getElementById('mobile-menu')
+
+    themeToggle?.addEventListener('click', () => {
+      const currentTheme = document.documentElement.classList.contains('dark')
+        ? 'dark'
+        : 'light'
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+      localStorage.setItem('theme', newTheme)
+      applyTheme(newTheme)
+    })
+
+    menuToggle?.addEventListener('click', () => {
+      const open = mobileMenu?.classList.toggle('open') ?? false
+      menuToggle.setAttribute('aria-expanded', String(open))
+      menuToggle.setAttribute(
+        'aria-label',
+        open ? 'Close navigation' : 'Open navigation',
+      )
+    })
+
+    mobileMenu?.querySelectorAll('a').forEach((a) =>
+      a.addEventListener('click', () => {
+        mobileMenu?.classList.remove('open')
+        menuToggle?.setAttribute('aria-expanded', 'false')
+      }),
+    )
+  }
+
+  // Re-bind after client-side navigation (when View Transitions are enabled)
+  document.addEventListener('astro:page-load', initNavListeners)
+
+  // Initial page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavListeners)
+  } else {
+    initNavListeners()
+  }
 </script>
 
 <style>
@@ -249,6 +351,15 @@
 
   .nav-link:hover {
     color: #7cb560;
+  }
+
+  .nav-link--active {
+    color: #c37822;
+    font-weight: 600;
+  }
+
+  :global(html.dark) .nav-link--active {
+    color: #cf8c3c;
   }
 
   .nav-content {
@@ -355,17 +466,100 @@
     background-color: #2e2e2e;
   }
 
-  @media screen and (max-width: 640px) {
+  .menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #213547;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.2s;
+  }
+
+  :global(html.dark) .menu-toggle {
+    color: #ffffffde;
+  }
+
+  .menu-toggle:hover {
+    background-color: #f3f4f6;
+  }
+
+  :global(html.dark) .menu-toggle:hover {
+    background-color: #2e2e2e;
+  }
+
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: 12px 24px 16px;
+    border-top: 1px solid #e5e7eb;
+    background-color: #ffffff;
+  }
+
+  :global(html.dark) .mobile-menu {
+    background-color: #1a1a1a;
+    border-top-color: #2e2e2e;
+  }
+
+  .mobile-menu.open {
+    display: flex;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0;
+    color: #213547;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid #f3f4f6;
+    transition: color 0.2s;
+  }
+
+  :global(html.dark) .mobile-nav-link {
+    color: #ffffffde;
+    border-bottom-color: #2e2e2e;
+  }
+
+  .mobile-nav-link:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-nav-link:hover {
+    color: #7cb560;
+  }
+
+  .mobile-nav-link--active {
+    color: #c37822;
+    font-weight: 600;
+  }
+
+  :global(html.dark) .mobile-nav-link--active {
+    color: #cf8c3c;
+  }
+
+  @media screen and (max-width: 992px) {
     nav {
       padding: 0 16px;
     }
 
     .nav-links {
-      display: none;
+      display: none !important;
     }
 
     .social-links {
       display: none;
+    }
+
+    .menu-toggle {
+      display: flex;
     }
   }
 </style>

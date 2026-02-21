@@ -9,6 +9,7 @@ import {
 import '../styles/shared.css'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 import FocusedToggle from './FocusedToggle.astro'
+import PageHeader from './PageHeader.astro'
 
 const devtimeEntries = await getCollection('devtime')
 const runtimeEntries = await getCollection('runtime')
@@ -47,376 +48,315 @@ const buildSizeProdData = validForCharts.map((f) => ({
 }))
 ---
 
-<div id="container">
-  <main>
-    <section id="hero">
-      <h1>Framework Tracker</h1>
-      <p class="description">
-        For a full list of what we plan to track see{' '}
-        <a
-          href="https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="roadmap-link"
-        >
-          roadmap
-        </a>.
-      </p>
+<PageHeader>Framework Tracker</PageHeader>
+<p class="description">
+  For a full list of what we plan to track see{' '}
+  <a
+    href="https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="roadmap-link"
+  >
+    roadmap
+  </a>.
+</p>
 
-      <p class="description">
-        Stats are currently in active development and may change as we refine
-        our methodology and testing process.
-      </p>
+<p class="description">
+  Stats are currently in active development and may change as we refine our
+  methodology and testing process.
+</p>
 
-      <FocusedToggle />
+<FocusedToggle />
 
-      <h2>Dev Time Performance</h2>
+<h2>Dev Time Performance</h2>
 
-      <p class="methodology">
-        Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on
-        the starter project set up by each framework's CLI.
-      </p>
+<p class="methodology">
+  Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on the
+  starter project set up by each framework's CLI.
+</p>
 
-      <div class="table-wrapper">
-        <table aria-label="Dependency counts by framework">
-          <thead>
-            <tr>
-              <th scope="col">Framework</th>
-              <th scope="col"></th>
-              <th scope="col">Dev Deps</th>
-              <th scope="col">Size</th>
-              <th scope="col">Size (Prod Only)</th>
-              <th scope="col">Graph</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              starterStats.map((framework) => (
-                <tr data-focused={framework.isFocused ? 'true' : 'false'}>
-                  <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
-                  </td>
-                  <td>{framework.prodDependencies}</td>
-                  <td>{framework.devDependencies}</td>
-                  <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
-                  <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
-                  <td>
-                    <a
-                      href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="graph-link"
-                    >
-                      View
-                    </a>
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
+<div class="table-wrapper">
+  <table aria-label="Dependency counts by framework">
+    <thead>
+      <tr>
+        <th scope="col">Framework</th>
+        <th scope="col"></th>
+        <th scope="col">Dev Deps</th>
+        <th scope="col">Size</th>
+        <th scope="col">Size (Prod Only)</th>
+        <th scope="col">Graph</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        starterStats.map((framework) => (
+          <tr data-focused={framework.isFocused ? 'true' : 'false'}>
+            <td class="framework-name">
+              <a
+                href={`/framework/${getFrameworkSlug(framework.package)}`}
+                class="framework-link"
+              >
+                {framework.name}
+              </a>
+            </td>
+            <td>{framework.prodDependencies}</td>
+            <td>{framework.devDependencies}</td>
+            <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
+            <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
+            <td>
+              <a
+                href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="graph-link"
+              >
+                View
+              </a>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
 
-      <div
-        class="chart-tabs-container section-with-tabs"
-        data-tab-section="deps"
+<div class="chart-tabs-container section-with-tabs" data-tab-section="deps">
+  <div
+    class="tablist chart-tablist"
+    role="tablist"
+    aria-label="Dependency graphs"
+  >
+    <button
+      type="button"
+      role="tab"
+      id="deps-deps-tab"
+      aria-selected="true"
+      aria-controls="deps-deps-panel"
+      class="tab active"
+    >
+      Deps
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="deps-prod-tab"
+      aria-selected="false"
+      aria-controls="deps-prod-panel"
+      class="tab"
+    >
+      Prod Deps
+    </button>
+  </div>
+  <div class="chart-tabpanels">
+    <div
+      role="tabpanel"
+      id="deps-deps-panel"
+      aria-labelledby="deps-deps-tab"
+      class="tabpanel chart-tabpanel active"
+    >
+      <ComparisonBarChart title="Deps" data={depsData} valueFormat="count" />
+    </div>
+    <div
+      role="tabpanel"
+      id="deps-prod-panel"
+      aria-labelledby="deps-prod-tab"
+      class="tabpanel chart-tabpanel"
+      hidden
+    >
+      <ComparisonBarChart
+        title="Prod Deps"
+        data={prodDepsData}
+        valueFormat="count"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="table-wrapper">
+  <table aria-label="Build and install times by framework">
+    <thead>
+      <tr>
+        <th scope="col">Framework</th>
+        <th scope="col">Avg Install</th>
+        <th scope="col">Min Install</th>
+        <th scope="col">Max Install</th>
+        <th scope="col">Avg Cold Build</th>
+        <th scope="col">Avg Warm Build</th>
+        <th scope="col">Build Output</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        starterStats.map((framework) => (
+          <tr data-focused={framework.isFocused ? 'true' : 'false'}>
+            <td class="framework-name">
+              <a
+                href={`/framework/${getFrameworkSlug(framework.package)}`}
+                class="framework-link"
+              >
+                {framework.name}
+              </a>
+            </td>
+            <td>{formatTimeMs(framework.installTime.avgMs)}</td>
+            <td>{formatTimeMs(framework.installTime.minMs)}</td>
+            <td>{formatTimeMs(framework.installTime.maxMs)}</td>
+            <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
+            <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
+            <td>{formatBytesToMB(framework.buildOutputSize)}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="chart-tabs-container section-with-tabs" data-tab-section="build">
+  <div
+    class="tablist chart-tablist"
+    role="tablist"
+    aria-label="Build size graphs"
+  >
+    <button
+      type="button"
+      role="tab"
+      id="build-size-tab"
+      aria-selected="true"
+      aria-controls="build-size-panel"
+      class="tab active"
+    >
+      Build size
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="build-size-prod-tab"
+      aria-selected="false"
+      aria-controls="build-size-prod-panel"
+      class="tab"
+    >
+      Build size prod
+    </button>
+  </div>
+  <div class="chart-tabpanels">
+    <div
+      role="tabpanel"
+      id="build-size-panel"
+      aria-labelledby="build-size-tab"
+      class="tabpanel chart-tabpanel active"
+    >
+      <ComparisonBarChart
+        title="Build size"
+        data={buildSizeData}
+        valueFormat="mb"
+      />
+    </div>
+    <div
+      role="tabpanel"
+      id="build-size-prod-panel"
+      aria-labelledby="build-size-prod-tab"
+      class="tabpanel chart-tabpanel"
+      hidden
+    >
+      <ComparisonBarChart
+        title="Build size prod"
+        data={buildSizeProdData}
+        valueFormat="mb"
+      />
+    </div>
+  </div>
+</div>
+
+<h2>Runtime Performance</h2>
+
+<h3>SSR Performance</h3>
+
+<p class="methodology">
+  Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR benchmark
+  apps.
+</p>
+
+<div class="table-wrapper">
+  <table aria-label="SSR performance by framework">
+    <thead>
+      <tr>
+        <th scope="col">Framework</th>
+        <th scope="col">Ops/sec</th>
+        <th scope="col">Avg Latency</th>
+        <th scope="col">Body Size</th>
+        <th scope="col">Duplication</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        ssrStats.map((framework) => (
+          <tr data-focused={framework.isFocused ? 'true' : 'false'}>
+            <td class="framework-name">
+              {framework.package === 'app-baseline-html' ? (
+                <span>{framework.name}</span>
+              ) : (
+                <a
+                  href={`/framework/${getFrameworkSlug(framework.package)}`}
+                  class="framework-link"
+                >
+                  {framework.name}
+                </a>
+              )}
+            </td>
+            <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
+            <td>{framework.ssrAvgLatencyMs}ms</td>
+            <td>{framework.ssrBodySizeKb}kb</td>
+            <td>{framework.ssrDuplicationFactor}x</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="methodology-notes">
+  <h4>Methodology</h4>
+  <ul>
+    <li>Each framework renders a table of 1000 rows with two UUID columns</li>
+    <li>
+      Mock HTTP requests bypass TCP overhead for accurate rendering measurement
+    </li>
+    <li>Data is loaded asynchronously to simulate real-world data fetching</li>
+    <li>
+      Duplication factor indicates how many times each UUID appears in the
+      response (1x = optimal, 2x = includes hydration payload)
+    </li>
+    <li>
+      Benchmarks run for 10 seconds using <a
+        href="https://github.com/tinylibs/tinybench"
+        target="_blank"
+        rel="noopener noreferrer">tinybench</a
       >
-        <div
-          class="tablist chart-tablist"
-          role="tablist"
-          aria-label="Dependency graphs"
-        >
-          <button
-            type="button"
-            role="tab"
-            id="deps-deps-tab"
-            aria-selected="true"
-            aria-controls="deps-deps-panel"
-            class="tab active"
-          >
-            Deps
-          </button>
-          <button
-            type="button"
-            role="tab"
-            id="deps-prod-tab"
-            aria-selected="false"
-            aria-controls="deps-prod-panel"
-            class="tab"
-          >
-            Prod Deps
-          </button>
-        </div>
-        <div class="chart-tabpanels">
-          <div
-            role="tabpanel"
-            id="deps-deps-panel"
-            aria-labelledby="deps-deps-tab"
-            class="tabpanel chart-tabpanel active"
-          >
-            <ComparisonBarChart
-              title="Deps"
-              data={depsData}
-              valueFormat="count"
-            />
-          </div>
-          <div
-            role="tabpanel"
-            id="deps-prod-panel"
-            aria-labelledby="deps-prod-tab"
-            class="tabpanel chart-tabpanel"
-            hidden
-          >
-            <ComparisonBarChart
-              title="Prod Deps"
-              data={prodDepsData}
-              valueFormat="count"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="table-wrapper">
-        <table aria-label="Build and install times by framework">
-          <thead>
-            <tr>
-              <th scope="col">Framework</th>
-              <th scope="col">Avg Install</th>
-              <th scope="col">Min Install</th>
-              <th scope="col">Max Install</th>
-              <th scope="col">Avg Cold Build</th>
-              <th scope="col">Avg Warm Build</th>
-              <th scope="col">Build Output</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              starterStats.map((framework) => (
-                <tr data-focused={framework.isFocused ? 'true' : 'false'}>
-                  <td class="framework-name">
-                    <a
-                      href={`/framework/${getFrameworkSlug(framework.package)}`}
-                      class="framework-link"
-                    >
-                      {framework.name}
-                    </a>
-                  </td>
-                  <td>{formatTimeMs(framework.installTime.avgMs)}</td>
-                  <td>{formatTimeMs(framework.installTime.minMs)}</td>
-                  <td>{formatTimeMs(framework.installTime.maxMs)}</td>
-                  <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
-                  <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
-                  <td>{formatBytesToMB(framework.buildOutputSize)}</td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div
-        class="chart-tabs-container section-with-tabs"
-        data-tab-section="build"
+    </li>
+    <li>
+      Astro, Nuxt, and SvelteKit handle Node.js HTTP requests natively. React
+      Router, SolidStart, and TanStack Start use Web APIs internally, so
+      benchmarks include the cost of their Node.js adapter layers (<code
+        >@react-router/node</code
+      >, h3, and srvx respectively)
+    </li>
+    <li>
+      Next.js defaults to React Server Components (RSC), a different rendering
+      model than traditional SSR. To keep the comparison fair, Next.js uses <code
+        >"use client"</code
+      > to opt out of RSC and use traditional SSR + hydration like most of the other
+      frameworks
+    </li>
+    <li>
+      Inspired by <a
+        href="https://github.com/eknkc/ssr-benchmark"
+        target="_blank"
+        rel="noopener noreferrer">eknkc/ssr-benchmark</a
       >
-        <div
-          class="tablist chart-tablist"
-          role="tablist"
-          aria-label="Build size graphs"
-        >
-          <button
-            type="button"
-            role="tab"
-            id="build-size-tab"
-            aria-selected="true"
-            aria-controls="build-size-panel"
-            class="tab active"
-          >
-            Build size
-          </button>
-          <button
-            type="button"
-            role="tab"
-            id="build-size-prod-tab"
-            aria-selected="false"
-            aria-controls="build-size-prod-panel"
-            class="tab"
-          >
-            Build size prod
-          </button>
-        </div>
-        <div class="chart-tabpanels">
-          <div
-            role="tabpanel"
-            id="build-size-panel"
-            aria-labelledby="build-size-tab"
-            class="tabpanel chart-tabpanel active"
-          >
-            <ComparisonBarChart
-              title="Build size"
-              data={buildSizeData}
-              valueFormat="mb"
-            />
-          </div>
-          <div
-            role="tabpanel"
-            id="build-size-prod-panel"
-            aria-labelledby="build-size-prod-tab"
-            class="tabpanel chart-tabpanel"
-            hidden
-          >
-            <ComparisonBarChart
-              title="Build size prod"
-              data={buildSizeProdData}
-              valueFormat="mb"
-            />
-          </div>
-        </div>
-      </div>
-
-      <h2>Runtime Performance</h2>
-
-      <h3>SSR Performance</h3>
-
-      <p class="methodology">
-        Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR
-        benchmark apps.
-      </p>
-
-      <div class="table-wrapper">
-        <table aria-label="SSR performance by framework">
-          <thead>
-            <tr>
-              <th scope="col">Framework</th>
-              <th scope="col">Ops/sec</th>
-              <th scope="col">Avg Latency</th>
-              <th scope="col">Body Size</th>
-              <th scope="col">Duplication</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              ssrStats.map((framework) => (
-                <tr data-focused={framework.isFocused ? 'true' : 'false'}>
-                  <td class="framework-name">
-                    {framework.package === 'app-baseline-html' ? (
-                      <span>{framework.name}</span>
-                    ) : (
-                      <a
-                        href={`/framework/${getFrameworkSlug(framework.package)}`}
-                        class="framework-link"
-                      >
-                        {framework.name}
-                      </a>
-                    )}
-                  </td>
-                  <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
-                  <td>{framework.ssrAvgLatencyMs}ms</td>
-                  <td>{framework.ssrBodySizeKb}kb</td>
-                  <td>{framework.ssrDuplicationFactor}x</td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <div class="methodology-notes">
-        <h4>Methodology</h4>
-        <ul>
-          <li>
-            Each framework renders a table of 1000 rows with two UUID columns
-          </li>
-          <li>
-            Mock HTTP requests bypass TCP overhead for accurate rendering
-            measurement
-          </li>
-          <li>
-            Data is loaded asynchronously to simulate real-world data fetching
-          </li>
-          <li>
-            Duplication factor indicates how many times each UUID appears in the
-            response (1x = optimal, 2x = includes hydration payload)
-          </li>
-          <li>
-            Benchmarks run for 10 seconds using <a
-              href="https://github.com/tinylibs/tinybench"
-              target="_blank"
-              rel="noopener noreferrer">tinybench</a
-            >
-          </li>
-          <li>
-            Astro, Nuxt, and SvelteKit handle Node.js HTTP requests natively.
-            React Router, SolidStart, and TanStack Start use Web APIs
-            internally, so benchmarks include the cost of their Node.js adapter
-            layers (<code>@react-router/node</code>, h3, and srvx respectively)
-          </li>
-          <li>
-            Next.js defaults to React Server Components (RSC), a different
-            rendering model than traditional SSR. To keep the comparison fair,
-            Next.js uses <code>"use client"</code> to opt out of RSC and use traditional
-            SSR + hydration like most of the other frameworks
-          </li>
-          <li>
-            Inspired by <a
-              href="https://github.com/eknkc/ssr-benchmark"
-              target="_blank"
-              rel="noopener noreferrer">eknkc/ssr-benchmark</a
-            >
-          </li>
-        </ul>
-      </div>
-    </section>
-  </main>
+    </li>
+  </ul>
 </div>
 
 <style>
-  #container {
-    font-family:
-      'Inter',
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      Roboto,
-      Oxygen,
-      Ubuntu,
-      Cantarell,
-      'Fira Sans',
-      'Droid Sans',
-      'Helvetica Neue',
-      sans-serif;
-    min-height: 100vh;
-    color: var(--ft-text);
-    background-color: var(--ft-bg);
-    line-height: 1.5;
-  }
-
-  main {
-    display: flex;
-    justify-content: center;
-    padding: 40px 16px;
-  }
-
-  #hero {
-    width: 100%;
-    max-width: 900px;
-  }
-
-  h1 {
-    font-size: 32px;
-    margin-top: 0.25em;
-    margin-bottom: 0.5em;
-    font-weight: 700;
-    background: var(--ft-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
   h2 {
     font-size: 20px;
     margin-top: 2em;
@@ -571,11 +511,6 @@ const buildSizeProdData = validForCharts.map((f) => ({
   }
 
   /* Dark mode styles */
-  :global(html.dark) #container {
-    color: var(--ft-text);
-    background-color: var(--ft-bg);
-  }
-
   :global(html.dark) h2 {
     color: var(--ft-text);
   }
@@ -754,14 +689,6 @@ const buildSizeProdData = validForCharts.map((f) => ({
   }
 
   @media screen and (max-width: 768px) {
-    main {
-      padding: 20px 16px;
-    }
-
-    h1 {
-      font-size: 26px;
-    }
-
     h2 {
       font-size: 18px;
     }

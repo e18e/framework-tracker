@@ -3,6 +3,7 @@ import type { CollectionEntry } from 'astro:content'
 import { formatBytesToMB, formatTimeMs } from '../lib/utils'
 import DevTimeChart from './DevTimeChart.astro'
 import '../styles/shared.css'
+import PageHeader from './PageHeader.astro'
 
 interface Props {
   devtime: CollectionEntry<'devtime'>['data']
@@ -24,7 +25,7 @@ const measuredDateDisplay = (() => {
   <a href="/" class="back-link">← All frameworks</a>
 
   <header class="detail-header">
-    <h1 class="detail-title">{devtime.name}</h1>
+    <PageHeader>{devtime.name}</PageHeader>
     {
       (devtime.frameworkVersion ?? devtime.timingMeasuredAt) && (
         <p class="detail-meta">

@@ -6,6 +6,7 @@ import MethodologyTag from './MethodologyTag.astro'
 import MethodologyNotes from './MethodologyNotes.astro'
 import '../styles/shared.css'
 import PageHeader from './PageHeader.astro'
+import SSRStatsMethodologyNotes from './SSRStatsMethodologyNotes.astro'
 
 interface Props {
   devtime: CollectionEntry<'devtime'>['data']
@@ -167,47 +168,7 @@ const measuredDateDisplay = (() => {
             </tbody>
           </table>
         </div>
-
-        <MethodologyNotes>
-          <li>
-            Each framework renders a table of 1000 rows with two UUID columns
-          </li>
-          <li>
-            Mock HTTP requests bypass TCP overhead for accurate rendering
-            measurement
-          </li>
-          <li>
-            Data is loaded asynchronously to simulate real-world data fetching
-          </li>
-          <li>
-            Duplication factor indicates how many times each UUID appears in the
-            response (1x = optimal, 2x = includes hydration payload)
-          </li>
-          <li>
-            Benchmarks run for 10 seconds using{' '}
-            <a
-              href="https://github.com/tinylibs/tinybench"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              tinybench
-            </a>
-          </li>
-          <li>
-            React Router uses Web APIs internally; benchmarks include the cost
-            of its official Node.js adapter (<code>@react-router/node</code>)
-          </li>
-          <li>
-            Inspired by{' '}
-            <a
-              href="https://github.com/eknkc/ssr-benchmark"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              eknkc/ssr-benchmark
-            </a>
-          </li>
-        </MethodologyNotes>
+        <SSRStatsMethodologyNotes />
       </section>
     )
   }

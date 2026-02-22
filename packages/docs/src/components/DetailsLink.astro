@@ -1,0 +1,32 @@
+---
+interface Props {
+  href: string
+  label: string
+}
+
+const { href, label } = Astro.props
+---
+
+<p class="details-link">
+  For full details and methodology, see <a href={href}>{label}</a>.
+</p>
+
+<style>
+  .details-link {
+    font-size: 13px;
+    color: var(--ft-muted);
+    margin-bottom: 1em;
+  }
+
+  .details-link a {
+    color: var(--ft-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .details-link a:hover {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
+  }
+</style>

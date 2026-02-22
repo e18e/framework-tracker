@@ -2,6 +2,8 @@
 import type { CollectionEntry } from 'astro:content'
 import { formatBytesToMB, formatTimeMs } from '../lib/utils'
 import DevTimeChart from './DevTimeChart.astro'
+import MethodologyTag from './MethodologyTag.astro'
+import MethodologyNotes from './MethodologyNotes.astro'
 import '../styles/shared.css'
 import PageHeader from './PageHeader.astro'
 
@@ -43,10 +45,10 @@ const measuredDateDisplay = (() => {
 
   <section class="section">
     <h2>Dev Time Performance</h2>
-    <p class="methodology">
+    <MethodologyTag>
       Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on
       the starter project set up by each framework's CLI.
-    </p>
+    </MethodologyTag>
 
     <div class="table-wrapper">
       <table aria-label="Dependency counts">
@@ -130,10 +132,10 @@ const measuredDateDisplay = (() => {
       <section class="section">
         <h2>Runtime Performance</h2>
         <h3>SSR Performance</h3>
-        <p class="methodology">
+        <MethodologyTag>
           Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR
           benchmark apps.
-        </p>
+        </MethodologyTag>
         <div class="table-wrapper">
           <table aria-label="SSR performance">
             <thead>
@@ -166,49 +168,46 @@ const measuredDateDisplay = (() => {
           </table>
         </div>
 
-        <div class="methodology-notes">
-          <h4>Methodology</h4>
-          <ul>
-            <li>
-              Each framework renders a table of 1000 rows with two UUID columns
-            </li>
-            <li>
-              Mock HTTP requests bypass TCP overhead for accurate rendering
-              measurement
-            </li>
-            <li>
-              Data is loaded asynchronously to simulate real-world data fetching
-            </li>
-            <li>
-              Duplication factor indicates how many times each UUID appears in
-              the response (1x = optimal, 2x = includes hydration payload)
-            </li>
-            <li>
-              Benchmarks run for 10 seconds using{' '}
-              <a
-                href="https://github.com/tinylibs/tinybench"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                tinybench
-              </a>
-            </li>
-            <li>
-              React Router uses Web APIs internally; benchmarks include the cost
-              of its official Node.js adapter (<code>@react-router/node</code>)
-            </li>
-            <li>
-              Inspired by{' '}
-              <a
-                href="https://github.com/eknkc/ssr-benchmark"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                eknkc/ssr-benchmark
-              </a>
-            </li>
-          </ul>
-        </div>
+        <MethodologyNotes>
+          <li>
+            Each framework renders a table of 1000 rows with two UUID columns
+          </li>
+          <li>
+            Mock HTTP requests bypass TCP overhead for accurate rendering
+            measurement
+          </li>
+          <li>
+            Data is loaded asynchronously to simulate real-world data fetching
+          </li>
+          <li>
+            Duplication factor indicates how many times each UUID appears in the
+            response (1x = optimal, 2x = includes hydration payload)
+          </li>
+          <li>
+            Benchmarks run for 10 seconds using{' '}
+            <a
+              href="https://github.com/tinylibs/tinybench"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              tinybench
+            </a>
+          </li>
+          <li>
+            React Router uses Web APIs internally; benchmarks include the cost
+            of its official Node.js adapter (<code>@react-router/node</code>)
+          </li>
+          <li>
+            Inspired by{' '}
+            <a
+              href="https://github.com/eknkc/ssr-benchmark"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              eknkc/ssr-benchmark
+            </a>
+          </li>
+        </MethodologyNotes>
       </section>
     )
   }
@@ -287,12 +286,6 @@ const measuredDateDisplay = (() => {
     color: var(--ft-text);
   }
 
-  .methodology {
-    font-size: 14px;
-    color: var(--ft-muted);
-    margin-bottom: 0.5em;
-  }
-
   .table-wrapper {
     width: 100%;
     margin-top: 16px;
@@ -307,45 +300,6 @@ const measuredDateDisplay = (() => {
 
   .build-output strong {
     color: var(--ft-text);
-  }
-
-  .methodology-notes {
-    margin-top: 2em;
-    padding: 1em 1.25em;
-    background: var(--ft-bg-muted);
-    border-radius: 8px;
-    border: 1px solid var(--ft-border);
-  }
-
-  .methodology-notes h4 {
-    margin: 0 0 0.75em 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ft-text);
-  }
-
-  .methodology-notes ul {
-    margin: 0;
-    padding-left: 1.25em;
-    font-size: 13px;
-    color: var(--ft-muted);
-  }
-
-  .methodology-notes li {
-    margin-bottom: 0.4em;
-  }
-
-  .methodology-notes li:last-child {
-    margin-bottom: 0;
-  }
-
-  .methodology-notes a {
-    color: var(--ft-accent);
-    text-decoration: none;
-  }
-
-  .methodology-notes a:hover {
-    text-decoration: underline;
   }
 
   table {
@@ -410,60 +364,8 @@ const measuredDateDisplay = (() => {
   }
 
   /* Dark mode */
-  :global(html.dark) .detail {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .detail-meta {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .section h2,
-  :global(html.dark) .section h3 {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .methodology {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) table {
-    background: var(--ft-bg);
-    border-color: var(--ft-border);
-  }
-
-  :global(html.dark) td {
-    border-bottom-color: var(--ft-border);
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) td.metric-name {
-    color: var(--ft-text);
-  }
-
   :global(html.dark) tbody tr:hover {
     background: rgba(124, 181, 96, 0.1);
-  }
-
-  :global(html.dark) .methodology-notes {
-    background: var(--ft-bg-muted);
-    border-color: var(--ft-border);
-  }
-
-  :global(html.dark) .methodology-notes h4 {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .methodology-notes ul {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .build-output {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .build-output strong {
-    color: var(--ft-text);
   }
 
   @media screen and (max-width: 768px) {

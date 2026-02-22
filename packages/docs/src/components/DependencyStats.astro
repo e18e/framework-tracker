@@ -10,16 +10,72 @@ import '../styles/shared.css'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 import FocusedToggle from './FocusedToggle.astro'
 import PageHeader from './PageHeader.astro'
+import Description from './Description.astro'
+import MethodologyTag from './MethodologyTag.astro'
+import StatsTable from './StatsTable.astro'
 
 const devtimeEntries = await getCollection('devtime')
-const runtimeEntries = await getCollection('runtime')
 
 const starterStats = devtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-const ssrStats = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
+
+const depsColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'prodDependencies', header: 'Prod Deps' },
+  { key: 'devDependencies', header: 'Dev Deps' },
+  { key: 'nodeModulesSize', header: 'Size' },
+  { key: 'nodeModulesSizeProdOnly', header: 'Size (Prod Only)' },
+  {
+    key: 'graph',
+    header: 'Graph',
+    href: (row: Record<string, unknown>) =>
+      `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${row.package}/package.json`,
+  },
+]
+
+const depsData = starterStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.isFocused,
+  prodDependencies: f.prodDependencies,
+  devDependencies: f.devDependencies,
+  nodeModulesSize: formatBytesToMB(f.nodeModulesSize),
+  nodeModulesSizeProdOnly: formatBytesToMB(f.nodeModulesSizeProdOnly),
+  graph: 'View',
+}))
+
+const buildColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'avgInstall', header: 'Avg Install' },
+  { key: 'minInstall', header: 'Min Install' },
+  { key: 'maxInstall', header: 'Max Install' },
+  { key: 'avgColdBuild', header: 'Avg Cold Build' },
+  { key: 'avgWarmBuild', header: 'Avg Warm Build' },
+  { key: 'buildOutput', header: 'Build Output' },
+]
+
+const buildData = starterStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.isFocused,
+  avgInstall: formatTimeMs(f.installTime.avgMs),
+  minInstall: formatTimeMs(f.installTime.minMs),
+  maxInstall: formatTimeMs(f.installTime.maxMs),
+  avgColdBuild: formatTimeMs(f.coldBuildTime.avgMs),
+  avgWarmBuild: formatTimeMs(f.warmBuildTime.avgMs),
+  buildOutput: formatBytesToMB(f.buildOutputSize),
+}))
 
 const validForCharts = starterStats.filter(
   (f) =>
@@ -30,26 +86,26 @@ const validForCharts = starterStats.filter(
     Number.isFinite(f.nodeModulesSizeProdOnly),
 )
 
-const depsData = validForCharts.map((f) => ({
+const chartDepsData = validForCharts.map((f) => ({
   name: f.name,
   value: f.devDependencies,
 }))
-const prodDepsData = validForCharts.map((f) => ({
+const chartProdDepsData = validForCharts.map((f) => ({
   name: f.name,
   value: f.prodDependencies,
 }))
-const buildSizeData = validForCharts.map((f) => ({
+const chartBuildSizeData = validForCharts.map((f) => ({
   name: f.name,
   value: f.buildOutputSize / BYTES_PER_MB,
 }))
-const buildSizeProdData = validForCharts.map((f) => ({
+const chartBuildSizeProdData = validForCharts.map((f) => ({
   name: f.name,
   value: f.nodeModulesSizeProdOnly / BYTES_PER_MB,
 }))
 ---
 
 <PageHeader>Framework Tracker</PageHeader>
-<p class="description">
+<Description>
   For a full list of what we plan to track see{' '}
   <a
     href="https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md"
@@ -59,66 +115,27 @@ const buildSizeProdData = validForCharts.map((f) => ({
   >
     roadmap
   </a>.
-</p>
+</Description>
 
-<p class="description">
+<Description>
   Stats are currently in active development and may change as we refine our
   methodology and testing process.
-</p>
+</Description>
 
 <FocusedToggle />
 
 <h2>Dev Time Performance</h2>
 
-<p class="methodology">
+<MethodologyTag>
   Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on the
   starter project set up by each framework's CLI.
-</p>
+</MethodologyTag>
 
-<div class="table-wrapper">
-  <table aria-label="Dependency counts by framework">
-    <thead>
-      <tr>
-        <th scope="col">Framework</th>
-        <th scope="col"></th>
-        <th scope="col">Dev Deps</th>
-        <th scope="col">Size</th>
-        <th scope="col">Size (Prod Only)</th>
-        <th scope="col">Graph</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        starterStats.map((framework) => (
-          <tr data-focused={framework.isFocused ? 'true' : 'false'}>
-            <td class="framework-name">
-              <a
-                href={`/framework/${getFrameworkSlug(framework.package)}`}
-                class="framework-link"
-              >
-                {framework.name}
-              </a>
-            </td>
-            <td>{framework.prodDependencies}</td>
-            <td>{framework.devDependencies}</td>
-            <td>{formatBytesToMB(framework.nodeModulesSize)}</td>
-            <td>{formatBytesToMB(framework.nodeModulesSizeProdOnly)}</td>
-            <td>
-              <a
-                href={`https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.package}/package.json`}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="graph-link"
-              >
-                View
-              </a>
-            </td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
-</div>
+<StatsTable
+  label="Dependency counts by framework"
+  columns={depsColumns}
+  data={depsData}
+/>
 
 <div class="chart-tabs-container section-with-tabs" data-tab-section="deps">
   <div
@@ -154,7 +171,11 @@ const buildSizeProdData = validForCharts.map((f) => ({
       aria-labelledby="deps-deps-tab"
       class="tabpanel chart-tabpanel active"
     >
-      <ComparisonBarChart title="Deps" data={depsData} valueFormat="count" />
+      <ComparisonBarChart
+        title="Deps"
+        data={chartDepsData}
+        valueFormat="count"
+      />
     </div>
     <div
       role="tabpanel"
@@ -165,50 +186,18 @@ const buildSizeProdData = validForCharts.map((f) => ({
     >
       <ComparisonBarChart
         title="Prod Deps"
-        data={prodDepsData}
+        data={chartProdDepsData}
         valueFormat="count"
       />
     </div>
   </div>
 </div>
 
-<div class="table-wrapper">
-  <table aria-label="Build and install times by framework">
-    <thead>
-      <tr>
-        <th scope="col">Framework</th>
-        <th scope="col">Avg Install</th>
-        <th scope="col">Min Install</th>
-        <th scope="col">Max Install</th>
-        <th scope="col">Avg Cold Build</th>
-        <th scope="col">Avg Warm Build</th>
-        <th scope="col">Build Output</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        starterStats.map((framework) => (
-          <tr data-focused={framework.isFocused ? 'true' : 'false'}>
-            <td class="framework-name">
-              <a
-                href={`/framework/${getFrameworkSlug(framework.package)}`}
-                class="framework-link"
-              >
-                {framework.name}
-              </a>
-            </td>
-            <td>{formatTimeMs(framework.installTime.avgMs)}</td>
-            <td>{formatTimeMs(framework.installTime.minMs)}</td>
-            <td>{formatTimeMs(framework.installTime.maxMs)}</td>
-            <td>{formatTimeMs(framework.coldBuildTime.avgMs)}</td>
-            <td>{formatTimeMs(framework.warmBuildTime.avgMs)}</td>
-            <td>{formatBytesToMB(framework.buildOutputSize)}</td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
-</div>
+<StatsTable
+  label="Build and install times by framework"
+  columns={buildColumns}
+  data={buildData}
+/>
 
 <div class="chart-tabs-container section-with-tabs" data-tab-section="build">
   <div
@@ -246,7 +235,7 @@ const buildSizeProdData = validForCharts.map((f) => ({
     >
       <ComparisonBarChart
         title="Build size"
-        data={buildSizeData}
+        data={chartBuildSizeData}
         valueFormat="mb"
       />
     </div>
@@ -259,244 +248,14 @@ const buildSizeProdData = validForCharts.map((f) => ({
     >
       <ComparisonBarChart
         title="Build size prod"
-        data={buildSizeProdData}
+        data={chartBuildSizeProdData}
         valueFormat="mb"
       />
     </div>
   </div>
 </div>
 
-<h2>Runtime Performance</h2>
-
-<h3>SSR Performance</h3>
-
-<p class="methodology">
-  Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR benchmark
-  apps.
-</p>
-
-<div class="table-wrapper">
-  <table aria-label="SSR performance by framework">
-    <thead>
-      <tr>
-        <th scope="col">Framework</th>
-        <th scope="col">Ops/sec</th>
-        <th scope="col">Avg Latency</th>
-        <th scope="col">Body Size</th>
-        <th scope="col">Duplication</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        ssrStats.map((framework) => (
-          <tr data-focused={framework.isFocused ? 'true' : 'false'}>
-            <td class="framework-name">
-              {framework.package === 'app-baseline-html' ? (
-                <span>{framework.name}</span>
-              ) : (
-                <a
-                  href={`/framework/${getFrameworkSlug(framework.package)}`}
-                  class="framework-link"
-                >
-                  {framework.name}
-                </a>
-              )}
-            </td>
-            <td>{framework.ssrOpsPerSec?.toLocaleString()}</td>
-            <td>{framework.ssrAvgLatencyMs}ms</td>
-            <td>{framework.ssrBodySizeKb}kb</td>
-            <td>{framework.ssrDuplicationFactor}x</td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
-</div>
-
-<div class="methodology-notes">
-  <h4>Methodology</h4>
-  <ul>
-    <li>Each framework renders a table of 1000 rows with two UUID columns</li>
-    <li>
-      Mock HTTP requests bypass TCP overhead for accurate rendering measurement
-    </li>
-    <li>Data is loaded asynchronously to simulate real-world data fetching</li>
-    <li>
-      Duplication factor indicates how many times each UUID appears in the
-      response (1x = optimal, 2x = includes hydration payload)
-    </li>
-    <li>
-      Benchmarks run for 10 seconds using <a
-        href="https://github.com/tinylibs/tinybench"
-        target="_blank"
-        rel="noopener noreferrer">tinybench</a
-      >
-    </li>
-    <li>
-      Astro, Nuxt, and SvelteKit handle Node.js HTTP requests natively. React
-      Router, SolidStart, and TanStack Start use Web APIs internally, so
-      benchmarks include the cost of their Node.js adapter layers (<code
-        >@react-router/node</code
-      >, h3, and srvx respectively)
-    </li>
-    <li>
-      Next.js defaults to React Server Components (RSC), a different rendering
-      model than traditional SSR. To keep the comparison fair, Next.js uses <code
-        >"use client"</code
-      > to opt out of RSC and use traditional SSR + hydration like most of the other
-      frameworks
-    </li>
-    <li>
-      Inspired by <a
-        href="https://github.com/eknkc/ssr-benchmark"
-        target="_blank"
-        rel="noopener noreferrer">eknkc/ssr-benchmark</a
-      >
-    </li>
-  </ul>
-</div>
-
 <style>
-  h2 {
-    font-size: 20px;
-    margin-top: 2em;
-    margin-bottom: 1em;
-    font-weight: 600;
-    color: var(--ft-text);
-  }
-
-  h3 {
-    font-size: 16px;
-    margin-top: 1.5em;
-    margin-bottom: 0.75em;
-    font-weight: 600;
-    color: var(--ft-text);
-  }
-
-  .description {
-    font-size: 16px;
-    color: var(--ft-muted);
-    line-height: 1.6;
-    margin-bottom: 1em;
-    max-width: 700px;
-  }
-
-  .methodology {
-    font-size: 14px;
-    color: var(--ft-muted);
-    margin-bottom: 0.5em;
-  }
-
-  .table-wrapper {
-    width: 100%;
-    margin-top: 16px;
-    margin-bottom: 2em;
-  }
-
-  .methodology-notes {
-    margin-top: 1.5em;
-    padding: 1em 1.25em;
-    background: var(--ft-bg-muted);
-    border-radius: 8px;
-    border: 1px solid var(--ft-border);
-  }
-
-  .methodology-notes h4 {
-    margin: 0 0 0.75em 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ft-text);
-  }
-
-  .methodology-notes ul {
-    margin: 0;
-    padding-left: 1.25em;
-    font-size: 13px;
-    color: var(--ft-muted);
-  }
-
-  .methodology-notes li {
-    margin-bottom: 0.4em;
-  }
-
-  .methodology-notes li:last-child {
-    margin-bottom: 0;
-  }
-
-  .methodology-notes a {
-    color: var(--ft-accent);
-    text-decoration: none;
-  }
-
-  .methodology-notes a:hover {
-    color: var(--ft-accent-hover);
-    text-decoration: underline;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--ft-bg);
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--ft-border);
-  }
-
-  thead {
-    background: var(--ft-gradient);
-    color: white;
-  }
-
-  th {
-    padding: 16px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  th:not(:first-child) {
-    text-align: center;
-  }
-
-  td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--ft-border);
-    font-size: 15px;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  tbody tr:hover {
-    background: rgba(207, 140, 60, 0.05);
-  }
-
-  .framework-name {
-    font-weight: 500;
-    color: var(--ft-text);
-  }
-
-  .framework-link {
-    color: var(--ft-accent);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .framework-link:hover {
-    color: var(--ft-accent-hover);
-    text-decoration: underline;
-  }
-
-  td:not(.framework-name) {
-    text-align: center;
-    color: var(--ft-muted);
-  }
-
-  .graph-link,
   .roadmap-link {
     color: var(--ft-accent);
     text-decoration: none;
@@ -504,69 +263,9 @@ const buildSizeProdData = validForCharts.map((f) => ({
     transition: color 0.2s;
   }
 
-  .graph-link:hover,
   .roadmap-link:hover {
     color: var(--ft-accent-hover);
     text-decoration: underline;
-  }
-
-  /* Dark mode styles */
-  :global(html.dark) h2 {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) h3 {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .description {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) table {
-    background: var(--ft-bg);
-    border-color: var(--ft-border);
-  }
-
-  :global(html.dark) td {
-    border-bottom-color: var(--ft-border);
-  }
-
-  :global(html.dark) tbody tr:hover {
-    background: rgba(124, 181, 96, 0.1);
-  }
-
-  :global(html.dark) .framework-name {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .framework-link {
-    color: var(--ft-accent);
-  }
-
-  :global(html.dark) .framework-link:hover {
-    color: var(--ft-accent-hover);
-  }
-
-  :global(html.dark) td:not(.framework-name) {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .methodology {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .methodology-notes {
-    background: var(--ft-bg-muted);
-    border-color: var(--ft-border);
-  }
-
-  :global(html.dark) .methodology-notes h4 {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .methodology-notes ul {
-    color: var(--ft-muted);
   }
 
   .section-with-tabs {
@@ -666,47 +365,12 @@ const buildSizeProdData = validForCharts.map((f) => ({
     opacity: 1;
   }
 
-  .methodology-note {
-    margin-top: 0.5em;
-    margin-bottom: 1em;
-  }
-
-  :global(html.dark) .tab {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .tab:hover {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) .tab.active {
-    color: var(--ft-accent);
-  }
-
   :global(html.dark) .chart-tablist .tab.active {
     background: var(--ft-accent);
     color: var(--ft-bg);
   }
 
   @media screen and (max-width: 768px) {
-    h2 {
-      font-size: 18px;
-    }
-
-    .description {
-      font-size: 15px;
-    }
-
-    th,
-    td {
-      padding: 12px 8px;
-      font-size: 13px;
-    }
-
-    th {
-      font-size: 12px;
-    }
-
     .tab {
       padding: 8px 14px;
       font-size: 13px;

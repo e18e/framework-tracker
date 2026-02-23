@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
-import Layout from '../../layouts/Layout.astro'
 import FrameworkDetail from '../../components/FrameworkDetail.astro'
+import Layout from '../../layouts/Layout.astro'
 import { getFrameworkSlug } from '../../lib/utils'
 
 export async function getStaticPaths() {
@@ -35,11 +35,3 @@ const { devtime, runtime, baseline } = Astro.props
     <FrameworkDetail devtime={devtime} runtime={runtime} baseline={baseline} />
   </section>
 </Layout>
-
-<style>
-  .framework-page-section {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-</style>

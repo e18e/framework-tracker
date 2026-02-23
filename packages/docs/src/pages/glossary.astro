@@ -1,322 +1,240 @@
 ---
 import BackLink from '../components/BackLink.astro'
+import PageHeader from '../components/PageHeader.astro'
 import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout title="Glossary — Framework Tracker">
-  <main>
-    <BackLink />
+  <BackLink />
 
-    <header>
-      <h1 class="detail-title">Glossary</h1>
-      <p>
-        This site describes the terminology and concepts used in the framework
-        tracker.
-      </p>
-    </header>
+  <header>
+    <PageHeader>Glossary</PageHeader>
+    <p>
+      This site describes the terminology and concepts used in the framework
+      tracker.
+    </p>
+  </header>
 
-    <section>
-      <h2 id="application-architecture">Application architecture</h2>
-      <p>
-        <strong>MPA (Multi-Page Application)</strong> and
-        <strong>SPA (Single-Page Application)</strong>
-        are the two foundational architectures for web applications. The choice between
-        them shapes how pages are rendered, how navigation works, and how state is
-        managed. In practice, many modern frameworks blur the line by supporting hybrid
-        approaches — for example, combining server-rendered pages with client-side
-        navigation.
-      </p>
-      <p>The key aspects that distinguish an application architecture are:</p>
-      <ul>
-        <li>
-          <strong>Navigation model</strong> — Does the browser perform a full page
-          load for each route (MPA), or does JavaScript intercept navigation and update
-          the page in-place (SPA)?
-        </li>
-        <li>
-          <strong>Content loading and processing</strong> — Is HTML assembled on the
-          server and sent ready-to-display (MPA), or is it generated in the browser
-          by a JavaScript framework consuming raw data fetched from an API (SPA)?
-        </li>
-        <li>
-          <strong>State lifetime</strong> — Is in-memory state reset on every navigation
-          (MPA), or does it persist across route changes within the same session (SPA)?
-        </li>
-        <li>
-          <strong>JavaScript dependency</strong> — Is JavaScript required for the
-          page to be meaningful, or is it an optional progressive enhancement on top
-          of server-rendered HTML?
-        </li>
-        <li>
-          <strong>SEO and initial load</strong> — Is content present in the first
-          HTML response (MPA), or does meaningful content only appear after JS downloads
-          and executes (SPA)?
-        </li>
-      </ul>
+  <section>
+    <h2 id="application-architecture">Application architecture</h2>
+    <p>
+      <strong>MPA (Multi-Page Application)</strong> and
+      <strong>SPA (Single-Page Application)</strong>
+      are the two foundational architectures for web applications. The choice between
+      them shapes how pages are rendered, how navigation works, and how state is managed.
+      In practice, many modern frameworks blur the line by supporting hybrid approaches
+      — for example, combining server-rendered pages with client-side navigation.
+    </p>
+    <p>The key aspects that distinguish an application architecture are:</p>
+    <ul>
+      <li>
+        <strong>Navigation model</strong> — Does the browser perform a full page load
+        for each route (MPA), or does JavaScript intercept navigation and update the
+        page in-place (SPA)?
+      </li>
+      <li>
+        <strong>Content loading and processing</strong> — Is HTML assembled on the
+        server and sent ready-to-display (MPA), or is it generated in the browser
+        by a JavaScript framework consuming raw data fetched from an API (SPA)?
+      </li>
+      <li>
+        <strong>State lifetime</strong> — Is in-memory state reset on every navigation
+        (MPA), or does it persist across route changes within the same session (SPA)?
+      </li>
+      <li>
+        <strong>JavaScript dependency</strong> — Is JavaScript required for the page
+        to be meaningful, or is it an optional progressive enhancement on top of server-rendered
+        HTML?
+      </li>
+      <li>
+        <strong>SEO and initial load</strong> — Is content present in the first HTML
+        response (MPA), or does meaningful content only appear after JS downloads
+        and executes (SPA)?
+      </li>
+    </ul>
 
-      <h3 id="mpa">Multi-Page Application (MPA)</h3>
-      <p>
-        In an MPA, each navigation triggers a full browser request and the
-        server responds with a complete HTML document. HTML is generated on the
-        server per request, so the browser always receives ready-to-display
-        content. JavaScript is optional and typically used only for progressive
-        enhancement. In-memory state is lost on every navigation. Because
-        content is present in the initial HTML response, MPAs are naturally
-        SEO-friendly. The server must be capable of rendering and serving a full
-        page for every route.
-      </p>
+    <h3 id="mpa">Multi-Page Application (MPA)</h3>
+    <p>
+      In an MPA, each navigation triggers a full browser request and the server
+      responds with a complete HTML document. HTML is generated on the server
+      per request, so the browser always receives ready-to-display content.
+      JavaScript is optional and typically used only for progressive
+      enhancement. In-memory state is lost on every navigation. Because content
+      is present in the initial HTML response, MPAs are naturally SEO-friendly.
+      The server must be capable of rendering and serving a full page for every
+      route.
+    </p>
 
-      <h3 id="spa">Single-Page Application (SPA)</h3>
-      <p>
-        In an SPA, the browser loads a single HTML shell once and all subsequent
-        navigation is handled client-side by JavaScript, without full page
-        reloads. HTML is generated in the browser, typically by a JavaScript
-        framework rendering components on demand. On initial load the browser
-        receives a minimal document and must download and execute JS before
-        content appears. Subsequent navigations fetch only data (e.g. via API
-        calls), keeping the page transition fast. In-memory state persists
-        across navigation. Because the initial HTML shell contains little
-        content, SPAs require extra effort (SSR, prerendering) for good SEO. The
-        server only needs to serve static assets.
-      </p>
-    </section>
+    <h3 id="spa">Single-Page Application (SPA)</h3>
+    <p>
+      In an SPA, the browser loads a single HTML shell once and all subsequent
+      navigation is handled client-side by JavaScript, without full page
+      reloads. HTML is generated in the browser, typically by a JavaScript
+      framework rendering components on demand. On initial load the browser
+      receives a minimal document and must download and execute JS before
+      content appears. Subsequent navigations fetch only data (e.g. via API
+      calls), keeping the page transition fast. In-memory state persists across
+      navigation. Because the initial HTML shell contains little content, SPAs
+      require extra effort (SSR, prerendering) for good SEO. The server only
+      needs to serve static assets.
+    </p>
+  </section>
 
-    <section>
-      <h2 id="rendering-patterns">Rendering Patterns</h2>
-      <p>
-        A rendering pattern describes how and when content is generated and
-        delivered to the client, typically the browser. The rendering process
-        can happen on the client or on a server, and at different stages of the
-        application lifecycle.
-      </p>
-      <p>
-        Each pattern has different tradeoffs in terms of performance, SEO, UX,
-        resource usage, robustness, and complexity. The choice of rendering
-        pattern can have a significant impact on the overall experience and
-        maintainability of the application.
-      </p>
+  <section>
+    <h2 id="rendering-patterns">Rendering Patterns</h2>
+    <p>
+      A rendering pattern describes how and when content is generated and
+      delivered to the client, typically the browser. The rendering process can
+      happen on the client or on a server, and at different stages of the
+      application lifecycle.
+    </p>
+    <p>
+      Each pattern has different tradeoffs in terms of performance, SEO, UX,
+      resource usage, robustness, and complexity. The choice of rendering
+      pattern can have a significant impact on the overall experience and
+      maintainability of the application.
+    </p>
 
-      <h3 id="ssg">Static Site Generation (SSG)</h3>
-      <p>
-        All pages are pre-built into static HTML files at build time (ahead of
-        time) by a build tool or framework. The output is a set of
-        ready-to-serve files — one per route — that can be delivered directly
-        from a CDN with no server needed at runtime. Because every response is a
-        pre-built file, load times are fast and infrastructure is simple. Best
-        suited for content that doesn't change per request.
-      </p>
+    <h3 id="ssg">Static Site Generation (SSG)</h3>
+    <p>
+      All pages are pre-built into static HTML files at build time (ahead of
+      time) by a build tool or framework. The output is a set of ready-to-serve
+      files — one per route — that can be delivered directly from a CDN with no
+      server needed at runtime. Because every response is a pre-built file, load
+      times are fast and infrastructure is simple. Best suited for content that
+      doesn't change per request.
+    </p>
 
-      <h3 id="ssr">Server-Side Rendering (SSR)</h3>
-      <p>
-        HTML is generated on a server for each incoming request (just in time).
-        This allows dynamic content and per-request logic such as
-        authentication, personalization, or A/B testing. Unlike SSG, SSR
-        requires a running server at runtime.
-      </p>
-      <p>
-        The term SSR is often used together with
-        <a href="#hydration">hydration</a>. However, classic SSR works without
-        hydration — the server sends functional HTML that relies on native
-        browser capabilities (links, forms) rather than a JavaScript framework.
-        This is the traditional web model where JavaScript is only used for
-        progressive enhancement, not for rendering core content.
-      </p>
+    <h3 id="ssr">Server-Side Rendering (SSR)</h3>
+    <p>
+      HTML is generated on a server for each incoming request (just in time).
+      This allows dynamic content and per-request logic such as authentication,
+      personalization, or A/B testing. Unlike SSG, SSR requires a running server
+      at runtime.
+    </p>
+    <p>
+      The term SSR is often used together with
+      <a href="#hydration">hydration</a>. However, classic SSR works without
+      hydration — the server sends functional HTML that relies on native browser
+      capabilities (links, forms) rather than a JavaScript framework. This is
+      the traditional web model where JavaScript is only used for progressive
+      enhancement, not for rendering core content.
+    </p>
 
-      <h3 id="csr">Client-Side Rendering (CSR)</h3>
-      <p>
-        Instead of receiving ready-made HTML from a server, the browser receives
-        a minimal HTML skeleton and a JavaScript bundle. The JS framework then
-        fetches data, builds the DOM, and controls all rendering on the client
-        side.
-      </p>
-      <p>
-        This enables highly dynamic interfaces where the page can update without
-        full reloads. The tradeoff is a slower initial load — nothing meaningful
-        appears until the JavaScript has downloaded and executed — and weaker
-        SEO by default, since the initial HTML response contains little content.
-      </p>
+    <h3 id="csr">Client-Side Rendering (CSR)</h3>
+    <p>
+      Instead of receiving ready-made HTML from a server, the browser receives a
+      minimal HTML skeleton and a JavaScript bundle. The JS framework then
+      fetches data, builds the DOM, and controls all rendering on the client
+      side.
+    </p>
+    <p>
+      This enables highly dynamic interfaces where the page can update without
+      full reloads. The tradeoff is a slower initial load — nothing meaningful
+      appears until the JavaScript has downloaded and executed — and weaker SEO
+      by default, since the initial HTML response contains little content.
+    </p>
 
-      <h3 id="hydration">Hydration</h3>
-      <p>
-        Hydration is the process of making server-rendered HTML interactive on
-        the client. After the browser receives the static HTML produced by
-        <a href="#ssr">SSR</a>, a JavaScript framework re-attaches event
-        handlers, restores component state, and wires up reactivity — turning an
-        inert document into a fully interactive application. During hydration
-        the framework typically re-executes the component tree against the
-        existing DOM rather than replacing it.
-      </p>
-      <p>
-        What happens after hydration depends on the
-        <a href="#application-architecture">application architecture</a>. For a
-        <a href="#spa">SPA</a>, once hydration completes the JavaScript
-        framework takes over routing and rendering — subsequent navigations are
-        handled client-side. In <a href="#mpa">MPA</a> setups, hydration only activates
-        specific components without changing the navigation model - page transitions
-        still trigger full server requests.
-      </p>
-      <p>
-        The tradeoff is that hydration requires downloading and executing the
-        same component code that was already run on the server, which can delay
-        interactivity on slow devices or large pages. Techniques like
-        <a href="#partial-hydration">partial hydration</a>,
-        <a href="#progressive-hydration">progressive hydration</a>, and
-        <a href="#islands">islands architecture</a> aim to reduce this cost.
-      </p>
+    <h3 id="hydration">Hydration</h3>
+    <p>
+      Hydration is the process of making server-rendered HTML interactive on the
+      client. After the browser receives the static HTML produced by
+      <a href="#ssr">SSR</a>, a JavaScript framework re-attaches event handlers,
+      restores component state, and wires up reactivity — turning an inert
+      document into a fully interactive application. During hydration the
+      framework typically re-executes the component tree against the existing
+      DOM rather than replacing it.
+    </p>
+    <p>
+      What happens after hydration depends on the
+      <a href="#application-architecture">application architecture</a>. For a
+      <a href="#spa">SPA</a>, once hydration completes the JavaScript framework
+      takes over routing and rendering — subsequent navigations are handled
+      client-side. In <a href="#mpa">MPA</a> setups, hydration only activates specific
+      components without changing the navigation model - page transitions still trigger
+      full server requests.
+    </p>
+    <p>
+      The tradeoff is that hydration requires downloading and executing the same
+      component code that was already run on the server, which can delay
+      interactivity on slow devices or large pages. Techniques like
+      <a href="#partial-hydration">partial hydration</a>,
+      <a href="#progressive-hydration">progressive hydration</a>, and
+      <a href="#islands">islands architecture</a> aim to reduce this cost.
+    </p>
 
-      <h3 id="partial-hydration">Partial Hydration</h3>
-      <p>
-        Partial hydration is a technique where only specific components on a
-        page are hydrated on the client, rather than hydrating the entire
-        component tree. Static parts of the page remain as plain HTML and never
-        load any JavaScript, while interactive components are selectively
-        hydrated. This reduces the amount of JavaScript the browser needs to
-        download, parse, and execute.
-      </p>
+    <h3 id="partial-hydration">Partial Hydration</h3>
+    <p>
+      Partial hydration is a technique where only specific components on a page
+      are hydrated on the client, rather than hydrating the entire component
+      tree. Static parts of the page remain as plain HTML and never load any
+      JavaScript, while interactive components are selectively hydrated. This
+      reduces the amount of JavaScript the browser needs to download, parse, and
+      execute.
+    </p>
 
-      <h3 id="progressive-hydration">Progressive Hydration</h3>
-      <p>
-        Progressive hydration defers the hydration of individual components
-        until they are actually needed, rather than hydrating everything at once
-        on page load. Components can be hydrated based on triggers such as the
-        component scrolling into the viewport, the browser becoming idle, or the
-        user interacting with the component for the first time. This spreads the
-        cost of <a href="#hydration">hydration</a> over time.
-      </p>
+    <h3 id="progressive-hydration">Progressive Hydration</h3>
+    <p>
+      Progressive hydration defers the hydration of individual components until
+      they are actually needed, rather than hydrating everything at once on page
+      load. Components can be hydrated based on triggers such as the component
+      scrolling into the viewport, the browser becoming idle, or the user
+      interacting with the component for the first time. This spreads the cost
+      of <a href="#hydration">hydration</a> over time.
+    </p>
 
-      <h3 id="islands">Islands Architecture</h3>
-      <p>
-        Islands architecture is a pattern where interactive UI components —
-        called "islands" — are hydrated independently within an otherwise static
-        HTML page. The static content is rendered at build time or on the server
-        with zero JavaScript, and only the islands ship client-side code. Each
-        island hydrates on its own, without depending on a top-level application
-        shell.
-      </p>
+    <h3 id="islands">Islands Architecture</h3>
+    <p>
+      Islands architecture is a pattern where interactive UI components — called
+      "islands" — are hydrated independently within an otherwise static HTML
+      page. The static content is rendered at build time or on the server with
+      zero JavaScript, and only the islands ship client-side code. Each island
+      hydrates on its own, without depending on a top-level application shell.
+    </p>
 
-      <h3 id="isr">Incremental Static Regeneration (ISR)</h3>
-      <p>
-        ISR is a hybrid of <a href="#ssg">SSG</a> and <a href="#ssr">SSR</a>
-        where statically generated pages are regenerated in the background after a
-        configured time interval or on-demand trigger, without requiring a full site
-        rebuild. When a request arrives for a stale page, the cached version is served
-        immediately while a fresh version is generated in the background for subsequent
-        requests.
-      </p>
+    <h3 id="isr">Incremental Static Regeneration (ISR)</h3>
+    <p>
+      ISR is a hybrid of <a href="#ssg">SSG</a> and <a href="#ssr">SSR</a>
+      where statically generated pages are regenerated in the background after a configured
+      time interval or on-demand trigger, without requiring a full site rebuild. When
+      a request arrives for a stale page, the cached version is served immediately
+      while a fresh version is generated in the background for subsequent requests.
+    </p>
 
-      <h3 id="ppr">Partial Prerendering (PPR)</h3>
-      <p>
-        Partial prerendering splits a single route into a static shell that is
-        served instantly and dynamic holes that are streamed in at request time.
-        The static parts of the page — any content known at build time — are
-        prerendered and cached, while personalized or data-dependent sections
-        are rendered on-demand and streamed into the page via Suspense
-        boundaries.
-      </p>
+    <h3 id="ppr">Partial Prerendering (PPR)</h3>
+    <p>
+      Partial prerendering splits a single route into a static shell that is
+      served instantly and dynamic holes that are streamed in at request time.
+      The static parts of the page — any content known at build time — are
+      prerendered and cached, while personalized or data-dependent sections are
+      rendered on-demand and streamed into the page via Suspense boundaries.
+    </p>
 
-      <h3 id="streaming">Streaming</h3>
-      <p>
-        Streaming is a rendering approach where server-rendered HTML is sent to
-        the browser in chunks as each part becomes ready, rather than waiting
-        for the entire page to finish rendering. The browser can begin parsing
-        and displaying content as soon as the first bytes arrive, improving
-        time-to-first-byte and perceived performance.
-      </p>
+    <h3 id="streaming">Streaming</h3>
+    <p>
+      Streaming is a rendering approach where server-rendered HTML is sent to
+      the browser in chunks as each part becomes ready, rather than waiting for
+      the entire page to finish rendering. The browser can begin parsing and
+      displaying content as soon as the first bytes arrive, improving
+      time-to-first-byte and perceived performance.
+    </p>
 
-      <h3 id="rsc">Server Components (RSC)</h3>
-      <p>
-        Server Components are components that execute exclusively on the server.
-        Unlike traditional <a href="#ssr">SSR</a>, where component code is sent
-        to the client for <a href="#hydration">hydration</a>, Server Components
-        send only their rendered output — never their source code — to the
-        client. They can directly access server-side resources such as databases
-        and file systems without exposing those details to the browser.
-      </p>
+    <h3 id="rsc">Server Components (RSC)</h3>
+    <p>
+      Server Components are components that execute exclusively on the server.
+      Unlike traditional <a href="#ssr">SSR</a>, where component code is sent to
+      the client for <a href="#hydration">hydration</a>, Server Components send
+      only their rendered output — never their source code — to the client. They
+      can directly access server-side resources such as databases and file
+      systems without exposing those details to the browser.
+    </p>
 
-      <h3 id="esr">Edge-Side Rendering (ESR)</h3>
-      <p>
-        Edge-side rendering moves the rendering step from a central origin
-        server to edge servers distributed geographically close to the user.
-        Instead of every request traveling to a single data center, the nearest
-        edge node renders the HTML, reducing latency and improving
-        time-to-first-byte.
-      </p>
-    </section>
-  </main>
-
-  <style>
-    main {
-      margin: 0 auto;
-      padding: 40px 16px;
-      max-width: 900px;
-
-      font-family:
-        'Inter',
-        -apple-system,
-        BlinkMacSystemFont,
-        'Segoe UI',
-        Roboto,
-        Oxygen,
-        Ubuntu,
-        Cantarell,
-        'Fira Sans',
-        'Droid Sans',
-        'Helvetica Neue',
-        sans-serif;
-      min-height: 100vh;
-      color: var(--ft-text);
-      background-color: var(--ft-bg);
-      line-height: 1.5;
-    }
-
-    section {
-      width: 100%;
-      max-width: 900px;
-    }
-
-    @media screen and (max-width: 768px) {
-      main {
-        padding: 20px 16px;
-      }
-    }
-
-    p,
-    ul {
-      font-size: 16px;
-      color: var(--ft-muted);
-      line-height: 1.6;
-      margin-bottom: 1em;
-      max-width: 700px;
-    }
-
-    section {
-      margin-top: 2em;
-    }
-
-    h1 {
-      font-size: 32px;
-      margin: 0 0 0.25em 0;
-      font-weight: 700;
-      background: var(--ft-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    h2 {
-      font-size: 20px;
-      margin-top: 2em;
-      margin-bottom: 1em;
-      font-weight: 600;
-      color: var(--ft-text);
-    }
-
-    h3 {
-      font-size: 16px;
-      margin-top: 1.5em;
-      margin-bottom: 0.75em;
-      font-weight: 600;
-      color: var(--ft-text);
-    }
-  </style>
+    <h3 id="esr">Edge-Side Rendering (ESR)</h3>
+    <p>
+      Edge-side rendering moves the rendering step from a central origin server
+      to edge servers distributed geographically close to the user. Instead of
+      every request traveling to a single data center, the nearest edge node
+      renders the HTML, reducing latency and improving time-to-first-byte.
+    </p>
+  </section>
 </Layout>

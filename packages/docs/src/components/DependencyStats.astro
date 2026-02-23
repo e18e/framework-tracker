@@ -404,7 +404,7 @@ const chartBuildSizeProdData = validForCharts.map((f) => ({
         tab.addEventListener('click', () => setActive(index))
 
         tab.addEventListener('keydown', (e: KeyboardEvent) => {
-          let newIndex = index
+          let newIndex
           if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
             e.preventDefault()
             newIndex = index === 0 ? tabs.length - 1 : index - 1
@@ -417,7 +417,9 @@ const chartBuildSizeProdData = validForCharts.map((f) => ({
           } else if (e.key === 'End') {
             e.preventDefault()
             newIndex = tabs.length - 1
-          } else return
+          } else {
+            return
+          }
           ;(tabs[newIndex] as HTMLButtonElement).focus()
           setActive(newIndex)
         })

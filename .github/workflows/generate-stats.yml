@@ -36,131 +36,17 @@ jobs:
           echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "ssr=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
 
-  measure-install:
+  measure:
     needs: setup
-    if: needs.setup.outputs.install-matrix != '[]'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        framework: ${{ fromJson(needs.setup.outputs.install-matrix) }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - name: Install stats-generator dependencies
-        run: pnpm install --frozen-lockfile --filter @framework-tracker/stats-generator
-
-      - name: Run install benchmark
-        run: |
-          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "install") | .runFrequency')
-          pnpm --filter @framework-tracker/stats-generator run:install ${{ matrix.framework.package }} $RUN_FREQUENCY
-
-      - name: Upload install stats
-        uses: actions/upload-artifact@v4
-        with:
-          name: install-stats-${{ matrix.framework.name }}
-          path: packages/${{ matrix.framework.package }}/install-stats.json
-          retention-days: 1
-          if-no-files-found: error
-
-  measure-build:
-    needs: setup
-    if: needs.setup.outputs.build-matrix != '[]'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        framework: ${{ fromJson(needs.setup.outputs.build-matrix) }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install package dependencies
-        working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace
-
-      - name: Run build benchmark
-        run: |
-          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "build") | .runFrequency')
-          pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }} $RUN_FREQUENCY
-
-      - name: Upload build stats
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-stats-${{ matrix.framework.name }}
-          path: packages/${{ matrix.framework.package }}/build-stats.json
-          retention-days: 1
-          if-no-files-found: error
-
-  measure-ssr:
-    needs: setup
-    if: needs.setup.outputs.ssr-matrix != '[]'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        framework: ${{ fromJson(needs.setup.outputs.ssr-matrix) }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-
-      - name: Install workspace dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install package dependencies
-        working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace
-
-      - name: Build app
-        working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm build
-
-      - name: Run SSR benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:ssr ${{ matrix.framework.package }}
-        env:
-          RUNNER_LABEL: ubuntu-latest
-
-      - name: Upload SSR stats
-        uses: actions/upload-artifact@v4
-        with:
-          name: ssr-stats-${{ matrix.framework.name }}
-          path: packages/${{ matrix.framework.package }}/ci-stats.json
-          retention-days: 1
-          if-no-files-found: error
+    uses: ./.github/workflows/measure-framework.yml
+    with:
+      install-matrix: ${{ needs.setup.outputs.install-matrix }}
+      build-matrix: ${{ needs.setup.outputs.build-matrix }}
+      ssr-matrix: ${{ needs.setup.outputs.ssr-matrix }}
 
   generate-stats:
-    needs: [setup, measure-install, measure-build, measure-ssr]
-    if: always() && needs.setup.result == 'success' && (needs.measure-install.result == 'success' || needs.measure-build.result == 'success' || needs.measure-ssr.result == 'success')
+    needs: [setup, measure]
+    if: always() && needs.setup.result == 'success' && needs.measure.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write

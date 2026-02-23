@@ -1,0 +1,160 @@
+---
+type Row = Record<string, unknown>
+
+interface Column {
+  key: string
+  header: string
+  href?: (row: Row) => string | null | undefined
+}
+
+interface Props {
+  label: string
+  columns: Column[]
+  data: Row[]
+}
+
+const { label, columns, data } = Astro.props
+---
+
+<div class="wrapper">
+  <table aria-label={label}>
+    <thead>
+      <tr>
+        {columns.map((col) => <th scope="col">{col.header}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        data.map((row) => (
+          <tr data-focused={row.isFocused ? 'true' : 'false'}>
+            {columns.map((col, i) => {
+              const href = col.href?.(row)
+              return (
+                <td class={i === 0 ? 'name-cell' : undefined}>
+                  {href ? (
+                    <a href={href} class="table-link">
+                      {String(row[col.key] ?? '')}
+                    </a>
+                  ) : (
+                    String(row[col.key] ?? '')
+                  )}
+                </td>
+              )
+            })}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .wrapper {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 2em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--ft-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--ft-border);
+  }
+
+  thead {
+    background: var(--ft-gradient);
+    color: white;
+  }
+
+  th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  th:not(:first-child) {
+    text-align: center;
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--ft-border);
+    font-size: 15px;
+    color: var(--ft-muted);
+  }
+
+  td:not(.name-cell) {
+    text-align: center;
+  }
+
+  td.name-cell {
+    font-weight: 500;
+    color: var(--ft-text);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: rgba(207, 140, 60, 0.05);
+  }
+
+  .table-link {
+    color: var(--ft-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .table-link:hover {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
+  }
+
+  /* Dark mode */
+  :global(html.dark) table {
+    background: var(--ft-bg);
+    border-color: var(--ft-border);
+  }
+
+  :global(html.dark) td {
+    border-bottom-color: var(--ft-border);
+    color: var(--ft-muted);
+  }
+
+  :global(html.dark) td.name-cell {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) tbody tr:hover {
+    background: rgba(124, 181, 96, 0.1);
+  }
+
+  :global(html.dark) .table-link {
+    color: var(--ft-accent);
+  }
+
+  :global(html.dark) .table-link:hover {
+    color: var(--ft-accent-hover);
+  }
+
+  /* Responsive */
+  @media screen and (max-width: 768px) {
+    th,
+    td {
+      padding: 12px 8px;
+      font-size: 13px;
+    }
+
+    th {
+      font-size: 12px;
+    }
+  }
+</style>

@@ -1,0 +1,137 @@
+name: Measure Framework
+
+on:
+  workflow_call:
+    inputs:
+      install-matrix:
+        description: 'JSON array of frameworks to measure install time'
+        type: string
+        required: true
+      build-matrix:
+        description: 'JSON array of frameworks to measure build time'
+        type: string
+        required: true
+      ssr-matrix:
+        description: 'JSON array of frameworks to measure SSR performance'
+        type: string
+        required: true
+
+jobs:
+  measure-install:
+    if: inputs.install-matrix != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.install-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install stats-generator dependencies
+        run: pnpm install --frozen-lockfile --filter @framework-tracker/stats-generator
+
+      - name: Run install benchmark
+        run: |
+          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "install") | .runFrequency')
+          pnpm --filter @framework-tracker/stats-generator run:install ${{ matrix.framework.package }} $RUN_FREQUENCY
+
+      - name: Upload install stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/install-stats.json
+          retention-days: 1
+          if-no-files-found: error
+
+  measure-build:
+    if: inputs.build-matrix != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.build-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
+      - name: Run build benchmark
+        run: |
+          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "build") | .runFrequency')
+          pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }} $RUN_FREQUENCY
+
+      - name: Upload build stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/build-stats.json
+          retention-days: 1
+          if-no-files-found: error
+
+  measure-ssr:
+    if: inputs.ssr-matrix != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.ssr-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
+      - name: Build app
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm build
+
+      - name: Run SSR benchmark
+        run: pnpm --filter @framework-tracker/stats-generator run:ssr ${{ matrix.framework.package }}
+        env:
+          RUNNER_LABEL: ubuntu-latest
+
+      - name: Upload SSR stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssr-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/ci-stats.json
+          retention-days: 1
+          if-no-files-found: error

@@ -1,0 +1,41 @@
+---
+import { ssrStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import MethodologyTag from './MethodologyTag.astro'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    href: (row: Record<string, unknown>) =>
+      row.package !== 'app-baseline-html'
+        ? `/framework/${getFrameworkSlug(row.package as string)}`
+        : null,
+  },
+  { key: 'ssrOpsPerSec', header: 'Ops/sec' },
+  { key: 'ssrAvgLatencyMs', header: 'Avg Latency' },
+  { key: 'ssrBodySizeKb', header: 'Body Size' },
+  { key: 'ssrDuplicationFactor', header: 'Duplication' },
+]
+
+const tableData = ssrStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.isFocused,
+  ssrOpsPerSec: f.ssrOpsPerSec?.toLocaleString() ?? '',
+  ssrAvgLatencyMs: `${f.ssrAvgLatencyMs}ms`,
+  ssrBodySizeKb: `${f.ssrBodySizeKb}kb`,
+  ssrDuplicationFactor: `${f.ssrDuplicationFactor}x`,
+}))
+---
+
+<MethodologyTag>
+  Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR benchmark
+  apps.
+</MethodologyTag>
+<StatsTable
+  label="SSR performance by framework"
+  columns={columns}
+  data={tableData}
+/>

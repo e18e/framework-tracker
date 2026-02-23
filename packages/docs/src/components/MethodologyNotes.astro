@@ -1,0 +1,68 @@
+---
+
+---
+
+<div class="methodology-notes">
+  <h4>Methodology</h4>
+  <ul>
+    <slot />
+  </ul>
+</div>
+
+<style>
+  /* Elements owned by this component — regular scoped styles */
+  .methodology-notes {
+    margin-top: 1.5em;
+    padding: 1em 1.25em;
+    background: var(--ft-bg-muted);
+    border-radius: 8px;
+    border: 1px solid var(--ft-border);
+  }
+
+  .methodology-notes h4 {
+    margin: 0 0 0.75em 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ft-text);
+  }
+
+  .methodology-notes ul {
+    margin: 0;
+    padding-left: 1.25em;
+    font-size: 13px;
+    color: var(--ft-muted);
+  }
+
+  /* Slotted content — escape scoping, anchored to .methodology-notes */
+  :global(.methodology-notes li) {
+    margin-bottom: 0.4em;
+  }
+
+  :global(.methodology-notes li:last-child) {
+    margin-bottom: 0;
+  }
+
+  :global(.methodology-notes a) {
+    color: var(--ft-accent);
+    text-decoration: none;
+  }
+
+  :global(.methodology-notes a:hover) {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
+  }
+
+  /* Dark mode */
+  :global(html.dark) .methodology-notes {
+    background: var(--ft-bg-muted);
+    border-color: var(--ft-border);
+  }
+
+  :global(html.dark) .methodology-notes h4 {
+    color: var(--ft-text);
+  }
+
+  :global(html.dark) .methodology-notes ul {
+    color: var(--ft-muted);
+  }
+</style>

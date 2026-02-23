@@ -1,0 +1,43 @@
+---
+import MethodologyNotes from '../components/MethodologyNotes.astro'
+---
+
+<MethodologyNotes>
+  <li>Each framework renders a table of 1000 rows with two UUID columns</li>
+  <li>
+    Mock HTTP requests bypass TCP overhead for accurate rendering measurement
+  </li>
+  <li>Data is loaded asynchronously to simulate real-world data fetching</li>
+  <li>
+    Duplication factor indicates how many times each UUID appears in the
+    response (1x = optimal, 2x = includes hydration payload)
+  </li>
+  <li>
+    Benchmarks run for 10 seconds using <a
+      href="https://github.com/tinylibs/tinybench"
+      target="_blank"
+      rel="noopener noreferrer">tinybench</a
+    >
+  </li>
+  <li>
+    Astro, Nuxt, and SvelteKit handle Node.js HTTP requests natively. React
+    Router, SolidStart, and TanStack Start use Web APIs internally, so
+    benchmarks include the cost of their Node.js adapter layers (<code
+      >@react-router/node</code
+    >, h3, and srvx respectively)
+  </li>
+  <li>
+    Next.js defaults to React Server Components (RSC), a different rendering
+    model than traditional SSR. To keep the comparison fair, Next.js uses <code
+      >"use client"</code
+    > to opt out of RSC and use traditional SSR + hydration like most of the other
+    frameworks
+  </li>
+  <li>
+    Inspired by <a
+      href="https://github.com/eknkc/ssr-benchmark"
+      target="_blank"
+      rel="noopener noreferrer">eknkc/ssr-benchmark</a
+    >
+  </li>
+</MethodologyNotes>

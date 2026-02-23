@@ -1,0 +1,126 @@
+name: Preview Stats
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      install-matrix: ${{ steps.detect.outputs.install }}
+      build-matrix: ${{ steps.detect.outputs.build }}
+      ssr-matrix: ${{ steps.detect.outputs.ssr }}
+      framework-names: ${{ steps.detect.outputs.framework-names }}
+      has-changes: ${{ steps.detect.outputs.has-changes }}
+      pr-number: ${{ steps.detect.outputs.pr-number }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect PR, changed frameworks, and build matrices
+        id: detect
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_INFO=$(gh pr view --json number,baseRefName 2>/dev/null)
+          if [[ -z "$PR_INFO" ]]; then
+            echo "::error::No open PR found for branch ${{ github.ref_name }}"
+            exit 1
+          fi
+          PR_NUMBER=$(echo "$PR_INFO" | jq -r '.number')
+          BASE_REF=$(echo "$PR_INFO" | jq -r '.baseRefName')
+          echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "Detected PR #$PR_NUMBER targeting $BASE_REF"
+
+          FRAMEWORKS=$(cat .github/frameworks.json)
+
+          CHANGED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD -- 'packages/starter-*/package.json' 'packages/app-*/package.json')
+
+          if [[ -z "$CHANGED_FILES" ]]; then
+            echo "No framework package.json files changed, skipping"
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "framework-names=[]" >> $GITHUB_OUTPUT
+            echo "install=[]" >> $GITHUB_OUTPUT
+            echo "build=[]" >> $GITHUB_OUTPUT
+            echo "ssr=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          CHANGED_PACKAGES=$(echo "$CHANGED_FILES" | grep -oE 'packages/[^/]+' | sed 's|packages/||' | sort -u)
+
+          echo "Changed packages:"
+          echo "$CHANGED_PACKAGES"
+
+          NAMES_JSON=$(echo "$CHANGED_PACKAGES" | while read -r PKG; do
+            echo "$FRAMEWORKS" | jq -r --arg pkg "$PKG" '.[] | select(.starter.package == $pkg or .app.package == $pkg) | .name'
+          done | sort -u | jq -R . | jq -s -c .)
+
+          echo "Detected frameworks: $NAMES_JSON"
+          echo "has-changes=true" >> $GITHUB_OUTPUT
+          echo "framework-names=$NAMES_JSON" >> $GITHUB_OUTPUT
+
+          echo "install=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "build=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+
+  measure:
+    needs: setup
+    if: needs.setup.result == 'success' && needs.setup.outputs.has-changes == 'true'
+    uses: ./.github/workflows/measure-framework.yml
+    with:
+      install-matrix: ${{ needs.setup.outputs.install-matrix }}
+      build-matrix: ${{ needs.setup.outputs.build-matrix }}
+      ssr-matrix: ${{ needs.setup.outputs.ssr-matrix }}
+
+  preview-comment:
+    needs: [setup, measure]
+    if: always() && needs.setup.result == 'success' && needs.setup.outputs.has-changes == 'true' && needs.measure.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: find artifacts -type f -name "*.json" 2>/dev/null || echo "No artifacts found"
+
+      - name: Save CI stats
+        run: pnpm --filter @framework-tracker/stats-generator save:ci-stats $GITHUB_WORKSPACE/artifacts
+        env:
+          RUNNER_LABEL: ubuntu-latest
+
+      - name: Collect stats for docs
+        run: pnpm collect:stats
+
+      - name: Generate comment
+        run: |
+          FRAMEWORK_ARGS=$(echo '${{ needs.setup.outputs.framework-names }}' | jq -r '.[]' | tr '\n' ' ')
+          pnpm --filter @framework-tracker/stats-generator generate:preview-comment $FRAMEWORK_ARGS
+
+      - name: Post preview comment
+        run: gh pr comment ${{ needs.setup.outputs.pr-number }} --body-file comment.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

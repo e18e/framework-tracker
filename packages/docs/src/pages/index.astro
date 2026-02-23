@@ -1,8 +1,14 @@
 ---
 import DependencyStats from '../components/DependencyStats.astro'
+import DetailsLink from '../components/DetailsLink.astro'
+import SSRStatsTable from '../components/SSRStatsTable.astro'
 import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout>
   <DependencyStats />
+  <h2>Runtime Performance</h2>
+  <h3>SSR Performance</h3>
+  <SSRStatsTable />
+  <DetailsLink href="/run-time#ssr-performance" label="SSR in Run Time Stats" />
 </Layout>

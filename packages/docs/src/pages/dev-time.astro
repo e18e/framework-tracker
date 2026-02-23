@@ -1,8 +1,25 @@
 ---
+import BuildInstallStatsTable from '../components/BuildInstallStatsTable.astro'
+import BuildSizeCharts from '../components/BuildSizeCharts.astro'
+import DependencyCharts from '../components/DependencyCharts.astro'
+import DependencyStatsTable from '../components/DependencyStatsTable.astro'
+import FocusedToggle from '../components/FocusedToggle.astro'
+import MethodologyTag from '../components/MethodologyTag.astro'
 import PageHeader from '../components/PageHeader.astro'
 import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout>
   <PageHeader>Dev Time Stats</PageHeader>
+  <FocusedToggle />
+  <MethodologyTag>
+    Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on the
+    starter project set up by each framework's CLI.
+  </MethodologyTag>
+  <h2 id="dependency-counts">Dependency Counts</h2>
+  <DependencyStatsTable />
+  <DependencyCharts />
+  <h2 id="build-and-install-times">Build and Install Times</h2>
+  <BuildInstallStatsTable />
+  <BuildSizeCharts />
 </Layout>

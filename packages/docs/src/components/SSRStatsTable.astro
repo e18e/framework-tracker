@@ -22,7 +22,7 @@ const columns = [
 const tableData = ssrStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
+  isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
   ssrOpsPerSec: f.ssrOpsPerSec?.toLocaleString() ?? '',
   ssrAvgLatencyMs: `${f.ssrAvgLatencyMs}ms`,
   ssrBodySizeKb: `${f.ssrBodySizeKb}kb`,

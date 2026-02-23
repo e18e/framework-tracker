@@ -1,0 +1,26 @@
+---
+import { buildInstallData, depsStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const buildInstallColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'avgInstall', header: 'Avg Install' },
+  { key: 'minInstall', header: 'Min Install' },
+  { key: 'maxInstall', header: 'Max Install' },
+  { key: 'avgColdBuild', header: 'Avg Cold Build' },
+  { key: 'avgWarmBuild', header: 'Avg Warm Build' },
+  { key: 'buildOutput', header: 'Build Output' },
+]
+---
+
+<StatsTable
+  label="Build and install times by framework"
+  columns={buildInstallColumns}
+  data={buildInstallData}
+/>

@@ -1,0 +1,15 @@
+---
+import { starterStats } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const validEntries = starterStats.filter(
+  (f) => f?.name != null && Number.isFinite(f.devDependencies),
+)
+
+const data = validEntries.map((f) => ({
+  name: f.name,
+  value: f.devDependencies,
+}))
+---
+
+<ComparisonBarChart title="Deps" data={data} valueFormat="count" />

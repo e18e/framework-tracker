@@ -1,14 +1,61 @@
 ---
-import DependencyStats from '../components/DependencyStats.astro'
+import BuildSizeCharts from '../components/BuildSizeCharts.astro'
+import DependencyCharts from '../components/DependencyCharts.astro'
+import Description from '../components/Description.astro'
 import DetailsLink from '../components/DetailsLink.astro'
+import FocusedToggle from '../components/FocusedToggle.astro'
+import PageHeader from '../components/PageHeader.astro'
 import SSRStatsTable from '../components/SSRStatsTable.astro'
 import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout>
-  <DependencyStats />
+  <PageHeader>Framework Tracker</PageHeader>
+  <Description>
+    For a full list of what we plan to track see{' '}
+    <a
+      href="https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="roadmap-link"
+    >
+      roadmap
+    </a>.
+  </Description>
+  <Description>
+    Stats are currently in active development and may change as we refine our
+    methodology and testing process.
+  </Description>
+  <FocusedToggle />
+  <h2>Dev Time Performance</h2>
+  <h3>Dependency Counts</h3>
+  <DependencyCharts />
+  <DetailsLink
+    href="/dev-time#dependency-counts"
+    label="Dependency Counts in Dev Time Stats"
+  />
+  <h3>Build Size</h3>
+  <BuildSizeCharts />
+  <DetailsLink
+    href="/dev-time#build-and-install-times"
+    label="Build and Install in Dev Time Stats"
+  />
   <h2>Runtime Performance</h2>
   <h3>SSR Performance</h3>
   <SSRStatsTable />
   <DetailsLink href="/run-time#ssr-performance" label="SSR in Run Time Stats" />
 </Layout>
+
+<style>
+  .roadmap-link {
+    color: var(--ft-accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .roadmap-link:hover {
+    color: var(--ft-accent-hover);
+    text-decoration: underline;
+  }
+</style>

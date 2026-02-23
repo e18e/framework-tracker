@@ -1,0 +1,30 @@
+---
+import { depsStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const depsColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'prodDependencies', header: 'Prod Deps' },
+  { key: 'devDependencies', header: 'Dev Deps' },
+  { key: 'nodeModulesSize', header: 'Size' },
+  { key: 'nodeModulesSizeProdOnly', header: 'Size (Prod Only)' },
+  {
+    key: 'graph',
+    header: 'Graph',
+    href: (row: Record<string, unknown>) =>
+      `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${row.package}/package.json`,
+  },
+]
+---
+
+<StatsTable
+  label="Dependency counts by framework"
+  columns={depsColumns}
+  data={depsStats}
+/>

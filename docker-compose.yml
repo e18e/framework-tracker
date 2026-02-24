@@ -1,0 +1,13 @@
+services:
+  cwv-stats-lcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cwv-stats-lcp
+    image: cwv-stats-lcp
+    volumes:
+      - ~/.config/gcloud/application_default_credentials.json:/app/application_default_credentials.json:ro
+      - ./packages/cwv-stats/src:/app/src
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/application_default_credentials.json
+      - GOOGLE_CLOUD_PROJECT=framework-tracker

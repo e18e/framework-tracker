@@ -31,7 +31,11 @@ const buildInstallData = starterStats.map((f) => ({
   minInstall: formatTimeMs(f.installTime.minMs),
   maxInstall: formatTimeMs(f.installTime.maxMs),
   avgColdBuild: formatTimeMs(f.coldBuildTime.avgMs),
+  minColdBuild: formatTimeMs(f.coldBuildTime.minMs),
+  maxColdBuild: formatTimeMs(f.coldBuildTime.maxMs),
   avgWarmBuild: formatTimeMs(f.warmBuildTime.avgMs),
+  minWarmBuild: formatTimeMs(f.warmBuildTime.minMs),
+  maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
   buildOutput: formatBytesToMB(f.buildOutputSize),
 }))
 

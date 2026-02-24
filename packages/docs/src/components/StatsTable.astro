@@ -4,6 +4,7 @@ type Row = Record<string, unknown>
 interface Column {
   key: string
   header: string
+  nameCell?: boolean
   href?: (row: Row) => string | null | undefined
 }
 
@@ -20,17 +21,23 @@ const { label, columns, data } = Astro.props
   <table aria-label={label}>
     <thead>
       <tr>
-        {columns.map((col) => <th scope="col">{col.header}</th>)}
+        {
+          columns.map((col) => (
+            <th scope="col" class={col.nameCell ? 'name-cell' : undefined}>
+              {col.header}
+            </th>
+          ))
+        }
       </tr>
     </thead>
     <tbody>
       {
         data.map((row) => (
           <tr data-focused={row.isFocused ? 'true' : 'false'}>
-            {columns.map((col, i) => {
+            {columns.map((col) => {
               const href = col.href?.(row)
               return (
-                <td class={i === 0 ? 'name-cell' : undefined}>
+                <td class={col.nameCell ? 'name-cell' : undefined}>
                   {href ? (
                     <a href={href} class="table-link">
                       {String(row[col.key] ?? '')}
@@ -78,7 +85,7 @@ const { label, columns, data } = Astro.props
     letter-spacing: 0.05em;
   }
 
-  th:not(:first-child) {
+  th:not(.name-cell) {
     text-align: center;
   }
 

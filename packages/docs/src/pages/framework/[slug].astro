@@ -1,7 +1,13 @@
 ---
 import { getCollection } from 'astro:content'
-import FrameworkDetail from '../../components/FrameworkDetail.astro'
+import BackLink from '../../components/BackLink.astro'
+import DevTimeChart from '../../components/DevTimeChart.astro'
+import MethodologyTag from '../../components/MethodologyTag.astro'
+import PageHeader from '../../components/PageHeader.astro'
+import SSRStatsMethodologyNotes from '../../components/SSRStatsMethodologyNotes.astro'
+import StatsTable from '../../components/StatsTable.astro'
 import Layout from '../../layouts/Layout.astro'
+import { buildInstallData, depsStats } from '../../lib/collections'
 import { getFrameworkSlug } from '../../lib/utils'
 
 export async function getStaticPaths() {
@@ -28,10 +34,170 @@ export async function getStaticPaths() {
 }
 
 const { devtime, runtime, baseline } = Astro.props
+
+const measuredDateDisplay = (() => {
+  const d = new Date(devtime.timingMeasuredAt)
+  return Number.isNaN(d.getTime())
+    ? devtime.timingMeasuredAt
+    : d.toLocaleDateString('en-US')
+})()
+
+const depsEntry = depsStats.find((e) => e.package === devtime.package)!
+const buildEntry = buildInstallData.find((e) => e.package === devtime.package)!
+
+const depsColumns = [
+  { key: 'prodDependencies', header: 'Prod Deps' },
+  { key: 'devDependencies', header: 'Dev Deps' },
+  { key: 'nodeModulesSize', header: 'Size' },
+  { key: 'nodeModulesSizeProdOnly', header: 'Size (Prod Only)' },
+  {
+    key: 'graph',
+    header: 'Graph',
+    href: (row: Record<string, unknown>) => row.graphHref as string,
+  },
+]
+
+const depsData = [
+  {
+    prodDependencies: String(depsEntry.prodDependencies),
+    devDependencies: String(depsEntry.devDependencies),
+    nodeModulesSize: depsEntry.nodeModulesSize,
+    nodeModulesSizeProdOnly: depsEntry.nodeModulesSizeProdOnly,
+    graph: depsEntry.graph,
+    graphHref: `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${devtime.package}/package.json`,
+  },
+]
+
+const buildColumns = [
+  { key: 'metric', header: 'Metric', nameCell: true },
+  { key: 'avg', header: 'Avg' },
+  { key: 'min', header: 'Min' },
+  { key: 'max', header: 'Max' },
+]
+
+const buildData = [
+  {
+    metric: 'Install',
+    avg: buildEntry.avgInstall,
+    min: buildEntry.minInstall,
+    max: buildEntry.maxInstall,
+  },
+  {
+    metric: 'Cold Build',
+    avg: buildEntry.avgColdBuild,
+    min: buildEntry.minColdBuild,
+    max: buildEntry.maxColdBuild,
+  },
+  {
+    metric: 'Warm Build',
+    avg: buildEntry.avgWarmBuild,
+    min: buildEntry.minWarmBuild,
+    max: buildEntry.maxWarmBuild,
+  },
+]
+
+const ssrColumns = [
+  { key: 'name', header: 'Framework', nameCell: true },
+  { key: 'ssrOpsPerSec', header: 'Ops/sec' },
+  { key: 'ssrAvgLatencyMs', header: 'Avg Latency' },
+  { key: 'ssrBodySizeKb', header: 'Body Size' },
+  { key: 'ssrDuplicationFactor', header: 'Duplication' },
+]
+
+const ssrData = [
+  ...(baseline
+    ? [
+        {
+          name: baseline.name,
+          ssrOpsPerSec: baseline.ssrOpsPerSec?.toLocaleString() ?? '',
+          ssrAvgLatencyMs: `${baseline.ssrAvgLatencyMs}ms`,
+          ssrBodySizeKb: `${baseline.ssrBodySizeKb}kb`,
+          ssrDuplicationFactor: `${baseline.ssrDuplicationFactor}x`,
+        },
+      ]
+    : []),
+  ...(runtime
+    ? [
+        {
+          name: runtime.name,
+          ssrOpsPerSec: runtime.ssrOpsPerSec?.toLocaleString() ?? '',
+          ssrAvgLatencyMs: `${runtime.ssrAvgLatencyMs}ms`,
+          ssrBodySizeKb: `${runtime.ssrBodySizeKb}kb`,
+          ssrDuplicationFactor: `${runtime.ssrDuplicationFactor}x`,
+        },
+      ]
+    : []),
+]
 ---
 
 <Layout title={`${devtime.name} — Framework Tracker`}>
-  <section class="framework-page-section">
-    <FrameworkDetail devtime={devtime} runtime={runtime} baseline={baseline} />
-  </section>
+  <BackLink />
+  <header>
+    <PageHeader>{devtime.name}</PageHeader>
+    {
+      (devtime.frameworkVersion ?? devtime.timingMeasuredAt) && (
+        <p class="detail-meta">
+          {devtime.frameworkVersion && (
+            <span>Version {devtime.frameworkVersion}</span>
+          )}
+          {devtime.frameworkVersion && devtime.timingMeasuredAt && ' · '}
+          {devtime.timingMeasuredAt && (
+            <span>Measured {measuredDateDisplay}</span>
+          )}
+        </p>
+      )
+    }
+  </header>
+
+  <h2>Dev Time Performance</h2>
+  <MethodologyTag>
+    Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on the
+    starter project set up by each framework's CLI.
+  </MethodologyTag>
+  <StatsTable label="Dependency counts" columns={depsColumns} data={depsData} />
+  <StatsTable
+    label="Build and install times"
+    columns={buildColumns}
+    data={buildData}
+  />
+  <DevTimeChart
+    installTime={devtime.installTime}
+    coldBuildTime={devtime.coldBuildTime}
+    warmBuildTime={devtime.warmBuildTime}
+  />
+  <p class="build-output">
+    <strong>Build output size:</strong>
+    {buildEntry.buildOutput}
+  </p>
+
+  {
+    runtime && (
+      <>
+        <h2>Runtime Performance</h2>
+        <h3>SSR Performance</h3>
+        <MethodologyTag>
+          Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR
+          benchmark apps.
+        </MethodologyTag>
+        <StatsTable
+          label="SSR performance"
+          columns={ssrColumns}
+          data={ssrData}
+        />
+        <SSRStatsMethodologyNotes />
+      </>
+    )
+  }
 </Layout>
+
+<style>
+  .detail-meta {
+    margin: 0;
+    font-size: 14px;
+    color: var(--ft-muted);
+  }
+
+  .build-output strong {
+    color: var(--ft-text);
+  }
+</style>

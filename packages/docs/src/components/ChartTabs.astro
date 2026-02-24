@@ -4,14 +4,17 @@ interface Props {
   label: string
   tab1Label: string
   tab2Label: string
+  tab3Label?: string
 }
 
-const { sectionId, label, tab1Label, tab2Label } = Astro.props
+const { sectionId, label, tab1Label, tab2Label, tab3Label } = Astro.props
 
 const tab1Id = `${sectionId}-tab-1`
 const tab2Id = `${sectionId}-tab-2`
+const tab3Id = `${sectionId}-tab-3`
 const panel1Id = `${sectionId}-panel-1`
 const panel2Id = `${sectionId}-panel-2`
+const panel3Id = `${sectionId}-panel-3`
 ---
 
 <div class="chart-tabs-container" data-tab-section={sectionId}>
@@ -36,6 +39,20 @@ const panel2Id = `${sectionId}-panel-2`
     >
       {tab2Label}
     </button>
+    {
+      tab3Label && (
+        <button
+          type="button"
+          role="tab"
+          id={tab3Id}
+          aria-selected="false"
+          aria-controls={panel3Id}
+          class="tab"
+        >
+          {tab3Label}
+        </button>
+      )
+    }
   </div>
   <div class="chart-tabpanels">
     <div
@@ -55,6 +72,19 @@ const panel2Id = `${sectionId}-panel-2`
     >
       <slot name="panel-2" />
     </div>
+    {
+      tab3Label && (
+        <div
+          role="tabpanel"
+          id={panel3Id}
+          aria-labelledby={tab3Id}
+          class="chart-tabpanel"
+          hidden
+        >
+          <slot name="panel-3" />
+        </div>
+      )
+    }
   </div>
 </div>
 
@@ -134,7 +164,7 @@ const panel2Id = `${sectionId}-panel-2`
       const tabs = section.querySelectorAll<HTMLButtonElement>('[role="tab"]')
       const panels = section.querySelectorAll<HTMLElement>('[role="tabpanel"]')
 
-      if (tabs.length !== 2 || panels.length !== 2) return
+      if (tabs.length === 0 || panels.length === 0) return
 
       function setActive(index: number) {
         tabs.forEach((tab, i) => {

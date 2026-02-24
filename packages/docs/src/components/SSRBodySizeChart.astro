@@ -1,0 +1,10 @@
+---
+import { ssrStats } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = ssrStats
+  .filter((f) => f?.name != null && Number.isFinite(f.ssrBodySizeKb))
+  .map((f) => ({ name: f.name, value: f.ssrBodySizeKb }))
+---
+
+<ComparisonBarChart title="Body Size" data={data} valueFormat="kb" />

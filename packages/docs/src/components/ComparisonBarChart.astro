@@ -4,7 +4,7 @@ import type { ChartDatum } from '../lib/types'
 interface Props {
   title: string
   data: ChartDatum[]
-  valueFormat: 'count' | 'mb'
+  valueFormat: 'count' | 'mb' | 'kb' | 'ms'
 }
 
 const { title, data, valueFormat } = Astro.props
@@ -119,9 +119,14 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     { width: number; height: number }
   >()
 
-  function formatValue(value: number, format: 'count' | 'mb'): string {
+  function formatValue(
+    value: number,
+    format: 'count' | 'mb' | 'kb' | 'ms',
+  ): string {
     if (format === 'count') return String(Math.round(value))
-    return `${value.toFixed(2)} MB`
+    if (format === 'mb') return `${value.toFixed(2)} MB`
+    if (format === 'kb') return `${value.toFixed(2)} KB`
+    return `${value.toFixed(2)} ms`
   }
 
   function setTooltipContent(

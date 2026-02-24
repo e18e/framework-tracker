@@ -1,0 +1,18 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import SSRBodySizeChart from './SSRBodySizeChart.astro'
+import SSRLatencyChart from './SSRLatencyChart.astro'
+import SSROpsChart from './SSROpsChart.astro'
+---
+
+<ChartTabs
+  sectionId="ssr"
+  label="SSR performance graphs"
+  tab1Label="Ops/sec"
+  tab2Label="Body Size"
+  tab3Label="Avg Latency"
+>
+  <SSROpsChart slot="panel-1" />
+  <SSRBodySizeChart slot="panel-2" />
+  <SSRLatencyChart slot="panel-3" />
+</ChartTabs>

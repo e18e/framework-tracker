@@ -5,5 +5,5 @@ export interface ChartDatum {
 
 export interface ComparisonChartPayload {
   data: ChartDatum[]
-  valueFormat: 'count' | 'mb'
+  valueFormat: 'count' | 'mb' | 'kb' | 'ms'
 }

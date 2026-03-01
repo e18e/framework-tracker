@@ -4,7 +4,7 @@ import type { ChartDatum } from '../lib/types'
 interface Props {
   title: string
   data: ChartDatum[]
-  valueFormat: 'count' | 'mb' | 'kb' | 'ms'
+  valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
 }
 
 const { title, data, valueFormat } = Astro.props
@@ -121,11 +121,12 @@ const chartPayload = JSON.stringify({ data, valueFormat })
 
   function formatValue(
     value: number,
-    format: 'count' | 'mb' | 'kb' | 'ms',
+    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
   ): string {
     if (format === 'count') return String(Math.round(value))
     if (format === 'mb') return `${value.toFixed(2)} MB`
     if (format === 'kb') return `${value.toFixed(2)} KB`
+    if (format === 's') return `${value.toFixed(2)}s`
     return `${value.toFixed(2)} ms`
   }
 

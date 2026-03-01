@@ -1,6 +1,7 @@
 ---
 import BuildSizeCharts from '../components/BuildSizeCharts.astro'
 import DependencyCharts from '../components/DependencyCharts.astro'
+import NodeModulesSizeCharts from '../components/NodeModulesSizeCharts.astro'
 import Description from '../components/Description.astro'
 import DetailsLink from '../components/DetailsLink.astro'
 import FocusedToggle from '../components/FocusedToggle.astro'
@@ -35,7 +36,13 @@ import Layout from '../layouts/Layout.astro'
     href="/dev-time#dependency-counts"
     label="Dependency Counts in Dev Time Stats"
   />
-  <h3>Build Size</h3>
+  <h3>Node Modules Size</h3>
+  <NodeModulesSizeCharts />
+  <DetailsLink
+    href="/dev-time#node-modules-size"
+    label="Node Modules Size in Dev Time Stats"
+  />
+  <h3>Build Times</h3>
   <BuildSizeCharts />
   <DetailsLink
     href="/dev-time#build-and-install-times"

@@ -1,16 +1,15 @@
 ---
 import { starterStats } from '../lib/collections'
-import { BYTES_PER_MB } from '../lib/utils'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
 const validEntries = starterStats.filter(
-  (f) => f?.name != null && Number.isFinite(f.nodeModulesSizeProdOnly),
+  (f) => f?.name != null && Number.isFinite(f.warmBuildTime?.avgMs),
 )
 
 const data = validEntries.map((f) => ({
   name: f.name,
-  value: f.nodeModulesSizeProdOnly / BYTES_PER_MB,
+  value: f.warmBuildTime.avgMs / 1000,
 }))
 ---
 
-<ComparisonBarChart title="Build size prod" data={data} valueFormat="mb" />
+<ComparisonBarChart title="Warm build time" data={data} valueFormat="s" />

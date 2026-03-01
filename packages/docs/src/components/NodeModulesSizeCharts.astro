@@ -1,0 +1,15 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import NodeModulesSizeChart from './NodeModulesSizeChart.astro'
+import NodeModulesSizeProdChart from './NodeModulesSizeProdChart.astro'
+---
+
+<ChartTabs
+  sectionId="node-modules"
+  label="Node modules size graphs"
+  tab1Label="All"
+  tab2Label="Prod only"
+>
+  <NodeModulesSizeChart slot="panel-1" />
+  <NodeModulesSizeProdChart slot="panel-2" />
+</ChartTabs>

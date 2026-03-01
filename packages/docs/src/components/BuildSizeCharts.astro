@@ -1,4 +1,5 @@
 ---
+import BuildOutputSizeChart from './BuildOutputSizeChart.astro'
 import BuildSizeChart from './BuildSizeChart.astro'
 import BuildSizeProdChart from './BuildSizeProdChart.astro'
 import ChartTabs from './ChartTabs.astro'
@@ -6,10 +7,12 @@ import ChartTabs from './ChartTabs.astro'
 
 <ChartTabs
   sectionId="build"
-  label="Build size graphs"
-  tab1Label="Build size"
-  tab2Label="Build size prod"
+  label="Build time graphs"
+  tab1Label="Cold build time"
+  tab2Label="Warm build time"
+  tab3Label="Build output size"
 >
   <BuildSizeChart slot="panel-1" />
   <BuildSizeProdChart slot="panel-2" />
+  <BuildOutputSizeChart slot="panel-3" />
 </ChartTabs>

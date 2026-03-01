@@ -12,7 +12,49 @@ const chartPayload = JSON.stringify({ data, valueFormat })
 ---
 
 <div class="comparison-chart-container">
-  <h3 class="comparison-chart-title">{title}</h3>
+  <div class="comparison-chart-header">
+    <h3 class="comparison-chart-title">{title}</h3>
+    <details class="sort-dropdown">
+      <summary class="sort-trigger">
+        <svg
+          class="sort-icon"
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M10 5L7 2 4 5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+          <path
+            d="M4 9l3 3 3-3"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span class="sort-label">Default</span>
+      </summary>
+      <menu class="sort-menu">
+        <li>
+          <button class="sort-option active" data-sort="default" type="button"
+            >Default</button>
+        </li>
+        <li>
+          <button class="sort-option" data-sort="asc" type="button"
+            >↑ Low–High</button>
+        </li>
+        <li>
+          <button class="sort-option" data-sort="desc" type="button"
+            >↓ High–Low</button>
+        </li>
+      </menu>
+    </details>
+  </div>
   <div class="comparison-chart-wrapper" data-comparison={chartPayload}>
     <svg class="comparison-bar-chart" role="img" aria-label={title}></svg>
   </div>
@@ -23,15 +65,139 @@ const chartPayload = JSON.stringify({ data, valueFormat })
   .comparison-chart-container {
     position: relative;
     width: 100%;
-    margin-top: 1em;
+    margin-top: 0;
     margin-bottom: 2em;
+  }
+
+  .comparison-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    margin-bottom: 0.75em;
+    flex-wrap: wrap;
   }
 
   .comparison-chart-title {
     font-size: 16px;
     font-weight: 600;
     color: var(--ft-text);
-    margin: 0 0 0.75em 0;
+    margin: 0;
+  }
+
+  .sort-dropdown {
+    position: relative;
+  }
+
+  .sort-trigger {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ft-muted);
+    background: transparent;
+    border: 1px solid var(--ft-border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    list-style: none;
+    user-select: none;
+    transition:
+      color 0.2s,
+      border-color 0.2s;
+  }
+
+  .sort-trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .sort-trigger::marker {
+    display: none;
+  }
+
+  .sort-trigger:hover {
+    color: var(--ft-text);
+    border-color: var(--ft-accent);
+  }
+
+  .sort-trigger:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: 2px;
+  }
+
+  .sort-dropdown[open] .sort-trigger {
+    color: var(--ft-accent);
+    border-color: var(--ft-accent);
+  }
+
+  .sort-icon {
+    flex-shrink: 0;
+  }
+
+  .sort-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 50;
+    min-width: 120px;
+    background: var(--ft-bg);
+    border: 1px solid var(--ft-border);
+    border-radius: 8px;
+    padding: 4px;
+    margin: 0;
+    list-style: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  @starting-style {
+    .sort-dropdown[open] .sort-menu {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  :global(html.dark) .sort-menu {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+
+  .sort-option {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ft-muted);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+
+  .sort-option:hover {
+    color: var(--ft-text);
+    background: var(--ft-bg-muted);
+  }
+
+  .sort-option:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: -2px;
+  }
+
+  .sort-option.active {
+    color: var(--ft-accent);
+    font-weight: 600;
   }
 
   .comparison-chart-wrapper {
@@ -118,6 +284,7 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     HTMLElement,
     { width: number; height: number }
   >()
+  const chartResizeObserverCache = new WeakMap<HTMLElement, ResizeObserver>()
 
   function formatValue(
     value: number,
@@ -143,12 +310,16 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     tooltip.replaceChildren(titleDiv, valueDiv)
   }
 
+  function getSortedData(data: ChartDatum[], sortMode: string): ChartDatum[] {
+    if (sortMode === 'asc') return [...data].sort((a, b) => a.value - b.value)
+    if (sortMode === 'desc') return [...data].sort((a, b) => b.value - a.value)
+    return data
+  }
+
   function initComparisonChart(wrapper: HTMLElement) {
     const svg = wrapper.querySelector('.comparison-bar-chart') as SVGSVGElement
-    const container = wrapper.closest('.comparison-chart-container')
-    const tooltip = container?.querySelector(
-      '.comparison-chart-tooltip',
-    ) as HTMLElement
+    const container = wrapper.closest<HTMLElement>('.comparison-chart-container')
+    const tooltip = container?.querySelector<HTMLElement>('.comparison-chart-tooltip')
     if (!svg || !tooltip) return
 
     const dataAttr = wrapper.dataset.comparison
@@ -166,10 +337,14 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     const rawData = payload.data
     if (!rawData?.length) return
 
-    const data: ChartDatum[] = rawData.map((d) => ({
-      name: String(d?.name ?? ''),
-      value: Math.max(0, Number(d.value) || 0),
-    }))
+    const sortMode = container?.dataset.sortMode ?? 'default'
+    const data: ChartDatum[] = getSortedData(
+      rawData.map((d) => ({
+        name: String(d?.name ?? ''),
+        value: Math.max(0, Number(d.value) || 0),
+      })),
+      sortMode,
+    )
 
     const margin = { top: 20, right: 40, bottom: 80, left: 50 }
     const rect = wrapper.getBoundingClientRect()
@@ -321,6 +496,7 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     chartDimensionsCache.set(wrapper, { width, height })
 
     if (typeof ResizeObserver !== 'undefined') {
+      chartResizeObserverCache.get(wrapper)?.disconnect()
       const ro = new ResizeObserver(() => {
         const r = wrapper.getBoundingClientRect()
         const w = r.width || 0
@@ -330,17 +506,58 @@ const chartPayload = JSON.stringify({ data, valueFormat })
         const lastH = last?.height ?? 0
         if (w > 0 && h > 0 && (w !== lastW || h !== lastH)) {
           ro.disconnect()
+          chartResizeObserverCache.delete(wrapper)
           initComparisonChart(wrapper)
         }
       })
       ro.observe(wrapper)
+      chartResizeObserverCache.set(wrapper, ro)
     }
+  }
+
+  function initSortControls() {
+    document
+      .querySelectorAll<HTMLDetailsElement>('.sort-dropdown')
+      .forEach((dropdown) => {
+        const container = dropdown.closest<HTMLElement>('.comparison-chart-container')
+        const wrapper = container?.querySelector<HTMLElement>('.comparison-chart-wrapper')
+        if (!container || !wrapper) return
+
+        const label = dropdown.querySelector<HTMLElement>('.sort-label')
+        const options =
+          dropdown.querySelectorAll<HTMLButtonElement>('.sort-option')
+
+        options.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            options.forEach((b) => b.classList.remove('active'))
+            btn.classList.add('active')
+            if (label) label.textContent = btn.textContent
+            container.dataset.sortMode = btn.dataset.sort ?? 'default'
+            dropdown.open = false
+            initComparisonChart(wrapper)
+          })
+        })
+
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+          if (!dropdown.contains(e.target as Node)) dropdown.open = false
+        })
+
+        // Close on Escape
+        dropdown.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            dropdown.open = false
+            dropdown.querySelector<HTMLElement>('.sort-trigger')?.focus()
+          }
+        })
+      })
   }
 
   function init() {
     document.querySelectorAll('.comparison-chart-wrapper').forEach((el) => {
       initComparisonChart(el as HTMLElement)
     })
+    initSortControls()
   }
 
   if (document.readyState === 'loading') {

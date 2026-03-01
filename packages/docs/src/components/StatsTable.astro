@@ -72,8 +72,8 @@ const { label, columns, data } = Astro.props
   }
 
   thead {
-    background: var(--ft-gradient);
-    color: white;
+    background: #f3f4f6;
+    color: var(--ft-text);
   }
 
   th {
@@ -126,6 +126,11 @@ const { label, columns, data } = Astro.props
   }
 
   /* Dark mode */
+  :global(html.dark) thead {
+    background: #374151;
+    color: var(--ft-text);
+  }
+
   :global(html.dark) table {
     background: var(--ft-bg);
     border-color: var(--ft-border);

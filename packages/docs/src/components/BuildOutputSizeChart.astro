@@ -1,0 +1,16 @@
+---
+import { starterStats } from '../lib/collections'
+import { BYTES_PER_MB } from '../lib/utils'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const validEntries = starterStats.filter(
+  (f) => f?.name != null && Number.isFinite(f.buildOutputSize),
+)
+
+const data = validEntries.map((f) => ({
+  name: f.name,
+  value: f.buildOutputSize / BYTES_PER_MB,
+}))
+---
+
+<ComparisonBarChart title="Build output size" data={data} valueFormat="mb" />

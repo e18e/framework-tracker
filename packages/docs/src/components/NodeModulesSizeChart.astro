@@ -1,0 +1,16 @@
+---
+import { starterStats } from '../lib/collections'
+import { BYTES_PER_MB } from '../lib/utils'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const validEntries = starterStats.filter(
+  (f) => f?.name != null && Number.isFinite(f.nodeModulesSize),
+)
+
+const data = validEntries.map((f) => ({
+  name: f.name,
+  value: f.nodeModulesSize / BYTES_PER_MB,
+}))
+---
+
+<ComparisonBarChart title="Node modules size" data={data} valueFormat="mb" />

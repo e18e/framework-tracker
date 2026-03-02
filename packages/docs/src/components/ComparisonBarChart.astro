@@ -42,15 +42,18 @@ const chartPayload = JSON.stringify({ data, valueFormat })
       <menu class="sort-menu">
         <li>
           <button class="sort-option active" data-sort="default" type="button"
-            >Default</button>
+            >Default</button
+          >
         </li>
         <li>
           <button class="sort-option" data-sort="asc" type="button"
-            >↑ Low–High</button>
+            >↑ Low–High</button
+          >
         </li>
         <li>
           <button class="sort-option" data-sort="desc" type="button"
-            >↓ High–Low</button>
+            >↓ High–Low</button
+          >
         </li>
       </menu>
     </details>
@@ -319,8 +322,12 @@ const chartPayload = JSON.stringify({ data, valueFormat })
 
   function initComparisonChart(wrapper: HTMLElement) {
     const svg = wrapper.querySelector('.comparison-bar-chart') as SVGSVGElement
-    const container = wrapper.closest<HTMLElement>('.comparison-chart-container')
-    const tooltip = container?.querySelector<HTMLElement>('.comparison-chart-tooltip')
+    const container = wrapper.closest<HTMLElement>(
+      '.comparison-chart-container',
+    )
+    const tooltip = container?.querySelector<HTMLElement>(
+      '.comparison-chart-tooltip',
+    )
     if (!svg || !tooltip) return
 
     const dataAttr = wrapper.dataset.comparison
@@ -520,8 +527,12 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     document
       .querySelectorAll<HTMLDetailsElement>('.sort-dropdown')
       .forEach((dropdown) => {
-        const container = dropdown.closest<HTMLElement>('.comparison-chart-container')
-        const wrapper = container?.querySelector<HTMLElement>('.comparison-chart-wrapper')
+        const container = dropdown.closest<HTMLElement>(
+          '.comparison-chart-container',
+        )
+        const wrapper = container?.querySelector<HTMLElement>(
+          '.comparison-chart-wrapper',
+        )
         if (!container || !wrapper) return
 
         const label = dropdown.querySelector<HTMLElement>('.sort-label')

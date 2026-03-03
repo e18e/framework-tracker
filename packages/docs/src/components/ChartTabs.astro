@@ -92,36 +92,38 @@ const panel3Id = `${sectionId}-panel-3`
   .chart-tabs-container {
     margin-top: 1.5em;
     margin-bottom: 2em;
-    padding: 1em 1.25em;
-    border: 1px solid var(--ft-border);
-    border-radius: 12px;
-    background: var(--ft-bg-muted);
   }
 
   .chart-tablist {
     display: flex;
-    gap: 8px;
-    margin: 0 0 1em 0;
+    gap: 4px;
+    margin: 0;
     padding: 0;
+    border-bottom: 1px solid var(--ft-border);
   }
 
   .tab {
-    padding: 8px 16px;
+    padding: 8px 18px;
     font-size: 14px;
     font-weight: 500;
     color: var(--ft-muted);
     background: transparent;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
     cursor: pointer;
     font-family: inherit;
+    margin-bottom: -1px;
     transition:
       color 0.2s,
-      background-color 0.2s;
+      background-color 0.2s,
+      border-color 0.2s;
   }
 
   .tab:hover {
     color: var(--ft-text);
+    background: var(--ft-bg-muted);
+    border-color: var(--ft-border);
   }
 
   .tab:focus-visible {
@@ -132,15 +134,24 @@ const panel3Id = `${sectionId}-panel-3`
   .tab.active {
     background: var(--ft-accent);
     color: white;
+    border-color: var(--ft-accent);
+    /* covers the tablist border-bottom, merging tab into panel */
+    border-bottom: 1px solid var(--ft-bg);
   }
 
   :global(html.dark) .tab.active {
     color: var(--ft-bg);
+    border-bottom-color: var(--ft-bg);
   }
 
   .chart-tabpanels {
     position: relative;
     min-height: 320px;
+    border: 1px solid var(--ft-border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 0.75em 1.25em 1em;
+    background: var(--ft-bg);
   }
 
   .chart-tabpanel[hidden] {

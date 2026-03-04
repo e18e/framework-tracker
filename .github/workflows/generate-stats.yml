@@ -9,6 +9,7 @@ on:
       - '!packages/starter-*/stats/**'
       - '!packages/starter-*/install-stats.json'
       - '!packages/starter-*/build-stats.json'
+      - '!packages/starter-*/e18e-stats.json'
       - 'packages/app-*/**'
       - '!packages/app-*/ci-stats.json'
       - '!packages/app-*/stats/**'
@@ -24,6 +25,7 @@ jobs:
       install-matrix: ${{ steps.set-matrix.outputs.install }}
       build-matrix: ${{ steps.set-matrix.outputs.build }}
       ssr-matrix: ${{ steps.set-matrix.outputs.ssr }}
+      deps-matrix: ${{ steps.set-matrix.outputs.deps }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,6 +37,7 @@ jobs:
           echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "ssr=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "deps=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
 
   measure:
     needs: setup
@@ -43,6 +46,7 @@ jobs:
       install-matrix: ${{ needs.setup.outputs.install-matrix }}
       build-matrix: ${{ needs.setup.outputs.build-matrix }}
       ssr-matrix: ${{ needs.setup.outputs.ssr-matrix }}
+      deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
 
   generate-stats:
     needs: [setup, measure]

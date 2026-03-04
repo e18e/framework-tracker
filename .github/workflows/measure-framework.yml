@@ -15,6 +15,10 @@ on:
         description: 'JSON array of frameworks to measure SSR performance'
         type: string
         required: true
+      deps-matrix:
+        description: 'JSON array of frameworks to run e18e dependency analysis'
+        type: string
+        required: true
 
 jobs:
   measure-install:
@@ -133,5 +137,41 @@ jobs:
         with:
           name: ssr-stats-${{ matrix.framework.name }}
           path: packages/${{ matrix.framework.package }}/ci-stats.json
+          retention-days: 1
+          if-no-files-found: error
+
+  measure-dependencies:
+    if: inputs.deps-matrix != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.deps-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
+      - name: Run e18e analysis
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: npx @e18e/cli@latest analyze --json > e18e-stats.json
+
+      - name: Upload e18e stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: e18e-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/e18e-stats.json
           retention-days: 1
           if-no-files-found: error

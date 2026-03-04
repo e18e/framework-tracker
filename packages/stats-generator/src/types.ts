@@ -73,6 +73,7 @@ export interface FrameworkStats extends CIStats {
   order?: number
   prodDependencies?: number
   devDependencies?: number
+  duplicateDependencies?: number
   ssrOpsPerSec?: number
   ssrAvgLatencyMs?: number
   ssrSamples?: number
@@ -84,4 +85,26 @@ export interface FrameworkStats extends CIStats {
 export interface PackageJson {
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
+}
+
+export interface E18eStats {
+  stats: {
+    name: string
+    version: string
+    installSize?: number
+    dependencyCount: {
+      production: number
+      development: number
+    }
+    extraStats?: Array<{
+      name: string
+      label?: string
+      value: number | string
+    }>
+  }
+  messages: Array<{
+    severity: string
+    message: string
+    fixableBy?: string
+  }>
 }

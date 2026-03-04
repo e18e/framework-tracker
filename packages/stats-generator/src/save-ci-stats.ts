@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { readJsonFile, writeJsonFile } from './utils.ts'
-import type { CIStats, InstallStats, BuildStats } from './types.ts'
+import type { CIStats, InstallStats, BuildStats, E18eStats } from './types.ts'
 
 async function main() {
   const artifactsDir = process.argv[2] || 'artifacts'
@@ -77,6 +77,22 @@ async function main() {
         }
       } else {
         console.info(`  ⚠ No build stats artifact found at ${buildStatsPath}`)
+      }
+
+      // Load e18e stats from artifact
+      const e18eArtifactPath = join(
+        artifactsDir,
+        `e18e-stats-${name}`,
+        'e18e-stats.json',
+      )
+      const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
+      if (e18eStats) {
+        console.info(`  ✓ Found e18e stats artifact`)
+        const destPath = join(packagesDir, packageName, 'e18e-stats.json')
+        writeJsonFile(destPath, e18eStats)
+        console.info(`  ✓ Saved ${destPath}`)
+      } else {
+        console.info(`  ⚠ No e18e stats artifact found at ${e18eArtifactPath}`)
       }
 
       // Save to ci-stats.json

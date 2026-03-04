@@ -44,7 +44,7 @@ If you would like to play around with the collected data to build your own visua
 ## Sponsors
 
 <p align="center">
-  <a href="https://e18e.dev/sponsors.svg">
+  <a href="https://e18e.dev/sponsor">
     <img src="https://e18e.dev/sponsors.svg" alt="e18e community sponsors" />
   </a>
 </p>

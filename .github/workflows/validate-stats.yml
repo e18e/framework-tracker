@@ -30,9 +30,6 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install root dependencies
-        run: pnpm install --frozen-lockfile --filter framework-tracker
-
       - name: Install all package dependencies
         run: |
           FRAMEWORKS=$(cat .github/frameworks.json)

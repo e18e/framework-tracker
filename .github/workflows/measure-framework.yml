@@ -167,7 +167,7 @@ jobs:
 
       - name: Run e18e analysis
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json
+        run: npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json || true
 
       - name: Upload e18e stats
         uses: actions/upload-artifact@v4

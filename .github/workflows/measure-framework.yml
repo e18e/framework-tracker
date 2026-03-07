@@ -161,16 +161,13 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Install root dependencies
-        run: pnpm install --frozen-lockfile --filter framework-tracker
-
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm install --frozen-lockfile --ignore-workspace
 
       - name: Run e18e analysis
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm exec e18e-cli analyze --json > e18e-stats.json
+        run: npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json
 
       - name: Upload e18e stats
         uses: actions/upload-artifact@v4

@@ -69,7 +69,7 @@ jobs:
           echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Running e18e analysis for $PKG..."
-            (cd packages/$PKG && pnpm exec e18e-cli analyze --json > e18e-stats.json)
+            (cd packages/$PKG && npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json)
           done
 
           echo ""

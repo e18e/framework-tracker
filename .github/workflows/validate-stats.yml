@@ -30,6 +30,9 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile --filter framework-tracker
+
       - name: Install all package dependencies
         run: |
           FRAMEWORKS=$(cat .github/frameworks.json)
@@ -61,6 +64,15 @@ jobs:
             pnpm --filter @framework-tracker/stats-generator run:install $PKG 1
             echo "Running build benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:build $PKG
+          done
+
+          echo ""
+          echo "=== Running e18e dependency analysis ==="
+          FRAMEWORKS=$(cat .github/frameworks.json)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"]))' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.starter.package')
+            echo "Running e18e analysis for $PKG..."
+            (cd packages/$PKG && pnpm exec e18e analyze --json > e18e-stats.json)
           done
 
           echo ""

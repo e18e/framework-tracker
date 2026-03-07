@@ -170,7 +170,7 @@ jobs:
 
       - name: Run e18e analysis
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm exec e18e analyze --json > e18e-stats.json
+        run: pnpm exec e18e-cli analyze --json > e18e-stats.json
 
       - name: Upload e18e stats
         uses: actions/upload-artifact@v4

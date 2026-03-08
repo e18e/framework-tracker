@@ -32,10 +32,6 @@ type FrameworkMetric = {
   stats: PercentileStatistics
 }
 
-// TODO - Once we have GCP credits replace httparchive.sample_data.pages_10k with httparchive.latest.pages
-// httparchive.latest.pages is a view that reflects the latest monthly snapshot.
-// httparchive.crawl.pages is all data from 2011
-
 export async function getFrameworksLCP(
   frameworks: Array<Framework>,
 ): Promise<Array<FrameworkMetric>> {
@@ -49,7 +45,7 @@ export async function getFrameworksLCP(
               tech.technology AS framework,
               SAFE.FLOAT64(JSON_EXTRACT(lighthouse, '$.audits.largest-contentful-paint.numericValue')) AS lcp_ms
             FROM
-              \`httparchive.sample_data.pages_10k\`,
+              \`httparchive.latest.pages\`,
               UNNEST(technologies) AS tech
             WHERE
               client = 'desktop' AND

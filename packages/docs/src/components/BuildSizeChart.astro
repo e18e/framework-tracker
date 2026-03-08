@@ -9,6 +9,7 @@ const validEntries = starterStats.filter(
 const data = validEntries.map((f) => ({
   name: f.name,
   value: f.coldBuildTime.avgMs / 1000,
+  focused: f.isFocused,
 }))
 ---
 

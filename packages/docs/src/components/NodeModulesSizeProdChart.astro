@@ -10,6 +10,7 @@ const validEntries = starterStats.filter(
 const data = validEntries.map((f) => ({
   name: f.name,
   value: f.nodeModulesSizeProdOnly / BYTES_PER_MB,
+  focused: f.isFocused,
 }))
 ---
 

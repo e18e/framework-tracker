@@ -4,7 +4,11 @@ import ComparisonBarChart from './ComparisonBarChart.astro'
 
 const data = ssrStats
   .filter((f) => f?.name != null && Number.isFinite(f.ssrAvgLatencyMs))
-  .map((f) => ({ name: f.name, value: f.ssrAvgLatencyMs }))
+  .map((f) => ({
+    name: f.name,
+    value: f.ssrAvgLatencyMs,
+    focused: f.isFocused,
+  }))
 ---
 
 <ComparisonBarChart title="Avg Latency" data={data} valueFormat="ms" />

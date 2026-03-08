@@ -4,7 +4,7 @@ import ComparisonBarChart from './ComparisonBarChart.astro'
 
 const data = ssrStats
   .filter((f) => f?.name != null && Number.isFinite(f.ssrOpsPerSec))
-  .map((f) => ({ name: f.name, value: f.ssrOpsPerSec }))
+  .map((f) => ({ name: f.name, value: f.ssrOpsPerSec, focused: f.isFocused }))
 ---
 
 <ComparisonBarChart title="Ops/sec" data={data} valueFormat="count" />

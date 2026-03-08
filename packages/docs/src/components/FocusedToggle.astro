@@ -101,6 +101,11 @@
       toggle.addEventListener('change', (e) => {
         const target = e.target as HTMLInputElement
         updateVisibility(target.checked)
+        window.dispatchEvent(
+          new CustomEvent('focused-toggle', {
+            detail: { focusedOnly: target.checked },
+          }),
+        )
       })
     }
   })

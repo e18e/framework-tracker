@@ -345,12 +345,20 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     const rawData = payload.data
     if (!rawData?.length) return
 
+    const toggle = document.getElementById(
+      'focused-toggle',
+    ) as HTMLInputElement | null
+    const focusedOnly = toggle ? toggle.checked : false
+
     const sortMode = container?.dataset.sortMode ?? 'default'
     const data: ChartDatum[] = getSortedData(
-      rawData.map((d) => ({
-        name: String(d?.name ?? ''),
-        value: Math.max(0, Number(d.value) || 0),
-      })),
+      rawData
+        .filter((d) => !focusedOnly || d.focused !== false)
+        .map((d) => ({
+          name: String(d?.name ?? ''),
+          value: Math.max(0, Number(d.value) || 0),
+          focused: d.focused,
+        })),
       sortMode,
     )
 
@@ -570,6 +578,11 @@ const chartPayload = JSON.stringify({ data, valueFormat })
       initComparisonChart(el as HTMLElement)
     })
     initSortControls()
+    window.addEventListener('focused-toggle', () => {
+      document.querySelectorAll('.comparison-chart-wrapper').forEach((el) => {
+        initComparisonChart(el as HTMLElement)
+      })
+    })
   }
 
   if (document.readyState === 'loading') {

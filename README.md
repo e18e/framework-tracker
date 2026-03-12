@@ -24,21 +24,21 @@ If you would like to play around with the collected data to build your own visua
 - Raw data for each framework with past versions can be found in each package:
 
   Dev Time Performance:
-  - [Next.js](./packages/starter-nextjs/ci-stats.json)
+  - [Next.js](./packages/starter-next-js/ci-stats.json)
   - [Nuxt](./packages/starter-nuxt/ci-stats.json)
   - [SvelteKit](./packages/starter-sveltekit/ci-stats.json)
   - [Astro](./packages/starter-astro/ci-stats.json)
-  - [Remix](./packages/starter-remix/ci-stats.json)
-  - [SolidStart](./packages/starter-solidstart/ci-stats.json)
+  - [React Router](./packages/starter-react-router/ci-stats.json)
+  - [SolidStart](./packages/starter-solid-start/ci-stats.json)
   - [Tanstack Start](./packages/starter-tanstack-start-react/ci-stats.json)
 
   Runtime Performance:
-  - [Next.js](./packages/app-nextjs/ci-stats.json)
+  - [Next.js](./packages/app-next-js/ci-stats.json)
   - [Nuxt](./packages/app-nuxt/ci-stats.json)
   - [SvelteKit](./packages/app-sveltekit/ci-stats.json)
   - [Astro](./packages/app-astro/ci-stats.json)
-  - [Remix](./packages/app-remix/ci-stats.json)
-  - [SolidStart](./packages/app-solidstart/ci-stats.json)
+  - [React Router](./packages/app-react-router/ci-stats.json)
+  - [SolidStart](./packages/app-solid-start/ci-stats.json)
   - [Tanstack Start](./packages/app-tanstack-start-react/ci-stats.json)
 
 ## Sponsors

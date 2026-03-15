@@ -13,13 +13,13 @@ import Layout from '../../layouts/Layout.astro'
 import { buildInstallData, depsStats } from '../../lib/collections'
 import { getFrameworkSlug } from '../../lib/utils'
 
-export async function getStaticPaths() {
-  interface E18eMessage {
-    severity: string
-    message: string
-    fixableBy?: string
-  }
+interface E18eMessage {
+  severity: string
+  message: string
+  fixableBy?: string
+}
 
+export async function getStaticPaths() {
   function readE18eMessages(packageName: string): E18eMessage[] {
     try {
       const packagesDir = fileURLToPath(

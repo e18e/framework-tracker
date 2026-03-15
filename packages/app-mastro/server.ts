@@ -1,6 +1,6 @@
 import * as http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Mastro } from '@mastrojs/mastro/server'
+import { Mastro } from '@mastrojs/mastro/server-programmatic'
 import { GET as getHome } from './handlers/home.ts'
 
 // This is using Mastro's programmatic (Express-like) router

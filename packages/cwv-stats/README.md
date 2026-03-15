@@ -23,7 +23,7 @@ The code that runs the query lives in:
 To run `cwv-stats` locally (inside Docker) you’ll need:
 
 - **Google Cloud Account & Project**.
-  Setup your Google Cloud Account and new project named `framework-tracker` which has access to BigQuery and the HTTP Archive public dataset  
+  Setup your Google Cloud Account and new project named `httparchive` which has access to BigQuery and the HTTP Archive public dataset  
   (e.g. `httparchive.sample_data.pages_10k`, or the full `httparchive.latest.pages` if you have billing enabled on this account).
   Visit [Getting started accessing the HTTP Archive with BigQuery](https://har.fyi/guides/getting-started/)
 - **Docker** installed and running on your machine. [Docker Mac Installation](https://docs.docker.com/desktop/setup/install/mac-install/)

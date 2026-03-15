@@ -5,31 +5,9 @@ import { packagesDir } from './constants.ts'
 import { readJsonFile } from './utils.ts'
 import { saveStats } from './save-stats.ts'
 import { getCIStats } from './get-ci-stats.ts'
-import type {
-  FrameworkStats,
-  PackageJson,
-  FrameworkConfig,
-  E18eStats,
-} from './types.ts'
+import type { FrameworkStats, PackageJson, FrameworkConfig } from './types.ts'
 
-async function getDependencyCounts(pkgDir: string) {
-  const e18eStatsPath = join(packagesDir, pkgDir, 'e18e-stats.json')
-  const e18eStats = readJsonFile<E18eStats>(e18eStatsPath)
-
-  if (e18eStats) {
-    const duplicateEntry = e18eStats.stats.extraStats?.find(
-      (s) => s.name === 'duplicateDependencyCount',
-    )
-    return {
-      prodDependencies: e18eStats.stats.dependencyCount.production,
-      devDependencies: e18eStats.stats.dependencyCount.development,
-      duplicateDependencies:
-        typeof duplicateEntry?.value === 'number'
-          ? duplicateEntry.value
-          : undefined,
-    }
-  }
-
+async function getDependencyCountsFromPackageJson(pkgDir: string) {
   const packageJsonPath = join(packagesDir, pkgDir, 'package.json')
   const content = await readFile(packageJsonPath, 'utf-8')
   const packageJson = JSON.parse(content) as PackageJson
@@ -47,12 +25,13 @@ async function processStarter(framework: FrameworkConfig, order: number) {
   const { package: pkgDir, measurements } = starter
   const { displayName } = framework
 
-  const hasDependencies = measurements.some((m) => m.type === 'dependencies')
-  const dependencyStats = hasDependencies
-    ? await getDependencyCounts(pkgDir)
-    : {}
-
   const ciStats = (await getCIStats(pkgDir)) ?? {}
+
+  const hasDependencies = measurements.some((m) => m.type === 'dependencies')
+  const dependencyStats =
+    hasDependencies && ciStats.prodDependencies === undefined
+      ? await getDependencyCountsFromPackageJson(pkgDir)
+      : {}
 
   const stats: FrameworkStats = {
     name: displayName,

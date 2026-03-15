@@ -88,9 +88,19 @@ async function main() {
       const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
       if (e18eStats) {
         console.info(`  ✓ Found e18e stats artifact`)
-        const destPath = join(packagesDir, packageName, 'e18e-stats.json')
-        writeJsonFile(destPath, e18eStats)
-        console.info(`  ✓ Saved ${destPath}`)
+        const duplicateEntry = e18eStats.stats.extraStats?.find(
+          (s) => s.name === 'duplicateDependencyCount',
+        )
+        stats = {
+          ...stats,
+          prodDependencies: e18eStats.stats.dependencyCount.production,
+          devDependencies: e18eStats.stats.dependencyCount.development,
+          duplicateDependencies:
+            typeof duplicateEntry?.value === 'number'
+              ? duplicateEntry.value
+              : undefined,
+          depInstallSize: e18eStats.stats.installSize,
+        }
       } else {
         console.info(`  ⚠ No e18e stats artifact found at ${e18eArtifactPath}`)
       }

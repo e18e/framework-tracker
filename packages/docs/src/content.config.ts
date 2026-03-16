@@ -25,6 +25,15 @@ const devtimeCollection = defineCollection({
     nodeModulesSize: z.number(),
     nodeModulesSizeProdOnly: z.number(),
     duplicateDependencies: z.number().optional(),
+    e18eMessages: z
+      .array(
+        z.object({
+          severity: z.string(),
+          message: z.string(),
+          fixableBy: z.string().optional(),
+        }),
+      )
+      .optional(),
     timingMeasuredAt: z.string(),
     runner: z.string(),
     frameworkVersion: z.string().optional(),

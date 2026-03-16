@@ -1,7 +1,4 @@
 ---
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
@@ -13,27 +10,7 @@ import Layout from '../../layouts/Layout.astro'
 import { buildInstallData, depsStats } from '../../lib/collections'
 import { getFrameworkSlug } from '../../lib/utils'
 
-interface E18eMessage {
-  severity: string
-  message: string
-  fixableBy?: string
-}
-
 export async function getStaticPaths() {
-  function readE18eMessages(packageName: string): E18eMessage[] {
-    try {
-      const packagesDir = fileURLToPath(
-        new URL('../../../../', import.meta.url),
-      )
-      const filePath = join(packagesDir, packageName, 'e18e-stats.json')
-      const content = readFileSync(filePath, 'utf-8')
-      const data = JSON.parse(content) as { messages?: E18eMessage[] }
-      return data.messages ?? []
-    } catch {
-      return []
-    }
-  }
-
   const devtimeEntries = await getCollection('devtime')
   const runtimeEntries = await getCollection('runtime')
   const baseline = runtimeEntries.find(
@@ -45,14 +22,13 @@ export async function getStaticPaths() {
     const runtimeEntry = runtimeEntries.find(
       (e) => e.data.package === runtimePackage,
     )
-    const e18eMessages = readE18eMessages(entry.data.package)
     return {
       params: { slug },
       props: {
         devtime: entry.data,
         runtime: runtimeEntry?.data,
         baseline,
-        e18eMessages,
+        e18eMessages: entry.data.e18eMessages ?? [],
       },
     }
   })

@@ -100,6 +100,7 @@ async function main() {
               ? duplicateEntry.value
               : undefined,
           depInstallSize: e18eStats.stats.installSize,
+          e18eMessages: e18eStats.messages,
         }
       } else {
         console.info(`  ⚠ No e18e stats artifact found at ${e18eArtifactPath}`)

@@ -50,6 +50,11 @@ export interface CIStats {
   devDependencies?: number
   duplicateDependencies?: number
   depInstallSize?: number
+  e18eMessages?: Array<{
+    severity: string
+    message: string
+    fixableBy?: string
+  }>
 }
 
 export interface InstallStats {

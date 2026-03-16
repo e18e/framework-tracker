@@ -60,7 +60,7 @@ export async function getStaticPaths() {
 
 const { devtime, runtime, baseline, e18eMessages } = Astro.props
 
-const dupeDepsMessages = e18eMessages.filter((m) =>
+const duplicateDependencyMessages = e18eMessages.filter((m) =>
   m.message.startsWith('[duplicate dependency]'),
 )
 
@@ -211,21 +211,25 @@ const ssrData = [
   </p>
 
   {
-    dupeDepsMessages.length > 0 && (
+    duplicateDependencyMessages.length > 0 && (
       <section class="dupe-deps-section">
         <h2>Duplicate Dependencies</h2>
         <p class="dupe-deps-intro">
-          {dupeDepsMessages.length} duplicate{' '}
-          {dupeDepsMessages.length === 1 ? 'dependency' : 'dependencies'}{' '}
+          {duplicateDependencyMessages.length} duplicate{' '}
+          {duplicateDependencyMessages.length === 1
+            ? 'dependency'
+            : 'dependencies'}{' '}
           detected across this starter's node_modules.
         </p>
         <details class="dupe-deps-details">
           <summary>
-            View {dupeDepsMessages.length} duplicate{' '}
-            {dupeDepsMessages.length === 1 ? 'dependency' : 'dependencies'}
+            View {duplicateDependencyMessages.length} duplicate{' '}
+            {duplicateDependencyMessages.length === 1
+              ? 'dependency'
+              : 'dependencies'}
           </summary>
           <ul class="dupe-list">
-            {dupeDepsMessages.map((msg) => (
+            {duplicateDependencyMessages.map((msg) => (
               <li class="dupe-item">
                 <strong class="dupe-name">{parseDupeName(msg.message)}</strong>
                 <pre class="dupe-message">{msg.message}</pre>

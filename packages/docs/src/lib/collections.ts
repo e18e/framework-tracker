@@ -40,7 +40,7 @@ const buildInstallData = starterStats.map((f) => ({
   buildOutput: formatBytesToMB(f.buildOutputSize),
 }))
 
-export const chartDupeDepsData = starterStats
+export const chartDuplicateDependencyData = starterStats
   .filter((f) => f?.name != null && Number.isFinite(f.duplicateDependencies))
   .map((f) => ({
     name: f.name,

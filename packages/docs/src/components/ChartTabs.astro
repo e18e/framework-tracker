@@ -192,7 +192,7 @@ const panel3Id = `${sectionId}-panel-3`
         tab.addEventListener('click', () => setActive(index))
 
         tab.addEventListener('keydown', (e: KeyboardEvent) => {
-          let newIndex = index
+          let newIndex
           if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
             e.preventDefault()
             newIndex = index === 0 ? tabs.length - 1 : index - 1

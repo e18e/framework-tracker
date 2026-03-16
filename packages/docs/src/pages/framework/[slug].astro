@@ -1,4 +1,7 @@
 ---
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
@@ -10,7 +13,27 @@ import Layout from '../../layouts/Layout.astro'
 import { buildInstallData, depsStats } from '../../lib/collections'
 import { getFrameworkSlug } from '../../lib/utils'
 
+interface E18eMessage {
+  severity: string
+  message: string
+  fixableBy?: string
+}
+
 export async function getStaticPaths() {
+  function readE18eMessages(packageName: string): E18eMessage[] {
+    try {
+      const packagesDir = fileURLToPath(
+        new URL('../../../../', import.meta.url),
+      )
+      const filePath = join(packagesDir, packageName, 'e18e-stats.json')
+      const content = readFileSync(filePath, 'utf-8')
+      const data = JSON.parse(content) as { messages?: E18eMessage[] }
+      return data.messages ?? []
+    } catch {
+      return []
+    }
+  }
+
   const devtimeEntries = await getCollection('devtime')
   const runtimeEntries = await getCollection('runtime')
   const baseline = runtimeEntries.find(
@@ -22,18 +45,29 @@ export async function getStaticPaths() {
     const runtimeEntry = runtimeEntries.find(
       (e) => e.data.package === runtimePackage,
     )
+    const e18eMessages = readE18eMessages(entry.data.package)
     return {
       params: { slug },
       props: {
         devtime: entry.data,
         runtime: runtimeEntry?.data,
         baseline,
+        e18eMessages,
       },
     }
   })
 }
 
-const { devtime, runtime, baseline } = Astro.props
+const { devtime, runtime, baseline, e18eMessages } = Astro.props
+
+const duplicateDependencyMessages = e18eMessages.filter((m) =>
+  m.message.startsWith('[duplicate dependency]'),
+)
+
+function parseDupeName(message: string): string {
+  const match = message.match(/\[duplicate dependency\] (\S+) has/)
+  return match?.[1] ?? 'unknown'
+}
 
 const measuredDateDisplay = (() => {
   const d = new Date(devtime.timingMeasuredAt)
@@ -48,6 +82,9 @@ const buildEntry = buildInstallData.find((e) => e.package === devtime.package)!
 const depsColumns = [
   { key: 'prodDependencies', header: 'Prod Deps' },
   { key: 'devDependencies', header: 'Dev Deps' },
+  ...(devtime.duplicateDependencies != null
+    ? [{ key: 'duplicateDependencies', header: 'Dup. Deps' }]
+    : []),
   { key: 'nodeModulesSize', header: 'Size' },
   { key: 'nodeModulesSizeProdOnly', header: 'Size (Prod Only)' },
   {
@@ -61,6 +98,9 @@ const depsData = [
   {
     prodDependencies: String(depsEntry.prodDependencies),
     devDependencies: String(depsEntry.devDependencies),
+    ...(devtime.duplicateDependencies != null
+      ? { duplicateDependencies: String(devtime.duplicateDependencies) }
+      : {}),
     nodeModulesSize: depsEntry.nodeModulesSize,
     nodeModulesSizeProdOnly: depsEntry.nodeModulesSizeProdOnly,
     graph: depsEntry.graph,
@@ -171,6 +211,37 @@ const ssrData = [
   </p>
 
   {
+    duplicateDependencyMessages.length > 0 && (
+      <section class="dupe-deps-section">
+        <h2>Duplicate Dependencies</h2>
+        <p class="dupe-deps-intro">
+          {duplicateDependencyMessages.length} duplicate{' '}
+          {duplicateDependencyMessages.length === 1
+            ? 'dependency'
+            : 'dependencies'}{' '}
+          detected across this starter's node_modules.
+        </p>
+        <details class="dupe-deps-details">
+          <summary>
+            View {duplicateDependencyMessages.length} duplicate{' '}
+            {duplicateDependencyMessages.length === 1
+              ? 'dependency'
+              : 'dependencies'}
+          </summary>
+          <ul class="dupe-list">
+            {duplicateDependencyMessages.map((msg) => (
+              <li class="dupe-item">
+                <strong class="dupe-name">{parseDupeName(msg.message)}</strong>
+                <pre class="dupe-message">{msg.message}</pre>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </section>
+    )
+  }
+
+  {
     runtime && (
       <>
         <h2>Runtime Performance</h2>
@@ -199,5 +270,67 @@ const ssrData = [
 
   .build-output strong {
     color: var(--ft-text);
+  }
+
+  .dupe-deps-intro {
+    color: var(--ft-muted);
+    font-size: 14px;
+    margin: 0 0 0.75em;
+  }
+
+  .dupe-deps-details {
+    border: 1px solid var(--ft-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .dupe-deps-details summary {
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    color: var(--ft-text);
+    background: var(--ft-bg-muted);
+  }
+
+  .dupe-deps-details summary:hover {
+    background: var(--ft-border);
+  }
+
+  .dupe-deps-details[open] summary {
+    border-bottom: 1px solid var(--ft-border);
+  }
+
+  .dupe-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dupe-item {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--ft-border);
+  }
+
+  .dupe-item:last-child {
+    border-bottom: none;
+  }
+
+  .dupe-name {
+    display: block;
+    font-size: 14px;
+    color: var(--ft-text);
+    margin-bottom: 6px;
+  }
+
+  .dupe-message {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ft-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
   }
 </style>

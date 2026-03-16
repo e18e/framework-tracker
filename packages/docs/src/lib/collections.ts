@@ -18,6 +18,7 @@ const depsStats = starterStats.map((f) => ({
   isFocused: f.isFocused,
   prodDependencies: f.prodDependencies,
   devDependencies: f.devDependencies,
+  duplicateDependencies: f.duplicateDependencies,
   nodeModulesSize: formatBytesToMB(f.nodeModulesSize),
   nodeModulesSizeProdOnly: formatBytesToMB(f.nodeModulesSizeProdOnly),
   graph: 'View',
@@ -38,5 +39,13 @@ const buildInstallData = starterStats.map((f) => ({
   maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
   buildOutput: formatBytesToMB(f.buildOutputSize),
 }))
+
+export const chartDuplicateDependencyData = starterStats
+  .filter((f) => f?.name != null && Number.isFinite(f.duplicateDependencies))
+  .map((f) => ({
+    name: f.name,
+    value: f.duplicateDependencies!,
+    focused: f.isFocused,
+  }))
 
 export { ssrStats, depsStats, buildInstallData }

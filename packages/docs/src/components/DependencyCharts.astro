@@ -1,6 +1,7 @@
 ---
 import ChartTabs from './ChartTabs.astro'
 import DepsChart from './DepsChart.astro'
+import DuplicateDependencyChart from './DuplicateDependencyChart.astro'
 import ProdDepsChart from './ProdDepsChart.astro'
 ---
 
@@ -9,7 +10,9 @@ import ProdDepsChart from './ProdDepsChart.astro'
   label="Dependency graphs"
   tab1Label="Deps"
   tab2Label="Prod Deps"
+  tab3Label="Dup. Deps"
 >
   <DepsChart slot="panel-1" />
   <ProdDepsChart slot="panel-2" />
+  <DuplicateDependencyChart slot="panel-3" />
 </ChartTabs>

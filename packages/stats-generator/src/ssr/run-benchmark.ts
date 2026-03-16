@@ -74,7 +74,7 @@ export async function runBenchmark(
   const bench = new Bench({
     time: 10_000,
     setup: async (task, mode) => {
-      if (mode === 'run') {
+      if (mode === 'run' && task !== undefined) {
         console.log(`Running ${task.name} benchmark...`)
       }
     },
@@ -86,14 +86,13 @@ export async function runBenchmark(
     })
   }
 
-  await bench.warmup()
   await bench.run()
 
   const results: SSRBenchmarkResult[] = []
 
   for (const config of handlers) {
     const task = bench.getTask(config.name)
-    if (!task || !task.result) continue
+    if (!task || !task.result || task.result.state !== 'completed') continue
 
     const { body, length } = await runHandler(config.handler, true)
     const duplicationFactor = getDuplicationFactor(body)
@@ -102,9 +101,9 @@ export async function runBenchmark(
       name: config.name,
       displayName: config.displayName,
       package: config.package,
-      opsPerSec: Math.round(task.result.hz),
-      avgLatencyMs: Number(task.result.mean.toFixed(3)),
-      samples: task.result.samples.length,
+      opsPerSec: Math.round(task.result.throughput.mean),
+      avgLatencyMs: Number(task.result.latency.mean.toFixed(3)),
+      samples: task.result.throughput.samplesCount,
       bodySizeKb: Number((length / 1024).toFixed(2)),
       duplicationFactor: Number(duplicationFactor.toFixed(2)),
     })

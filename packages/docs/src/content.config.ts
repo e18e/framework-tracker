@@ -1,4 +1,6 @@
-import { defineCollection, z } from 'astro:content'
+import { defineCollection } from 'astro:content'
+import { glob } from 'astro/loaders'
+import { z } from 'astro/zod'
 
 const timeSchema = z.object({
   avgMs: z.number(),
@@ -7,7 +9,7 @@ const timeSchema = z.object({
 })
 
 const devtimeCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '*.json', base: './src/content/devtime' }),
   schema: z.object({
     name: z.string(),
     type: z.string(),
@@ -22,6 +24,7 @@ const devtimeCollection = defineCollection({
     buildOutputSize: z.number(),
     nodeModulesSize: z.number(),
     nodeModulesSizeProdOnly: z.number(),
+    duplicateDependencies: z.number().optional(),
     timingMeasuredAt: z.string(),
     runner: z.string(),
     frameworkVersion: z.string().optional(),
@@ -29,7 +32,7 @@ const devtimeCollection = defineCollection({
 })
 
 const runtimeCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '*.json', base: './src/content/runtime' }),
   schema: z.object({
     name: z.string(),
     type: z.string(),

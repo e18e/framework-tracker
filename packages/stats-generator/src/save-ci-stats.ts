@@ -2,7 +2,13 @@ import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { readJsonFile, writeJsonFile } from './utils.ts'
-import type { CIStats, InstallStats, BuildStats, E18eStats } from './types.ts'
+import type {
+  CIStats,
+  InstallStats,
+  BuildStats,
+  CoreJsStats,
+  E18eStats,
+} from './types.ts'
 
 async function main() {
   const artifactsDir = process.argv[2] || 'artifacts'
@@ -77,6 +83,26 @@ async function main() {
         }
       } else {
         console.info(`  ⚠ No build stats artifact found at ${buildStatsPath}`)
+      }
+
+      // Load core-js stats from artifact
+      const coreJsArtifactPath = join(
+        artifactsDir,
+        `corejs-stats-${name}`,
+        'corejs-stats.json',
+      )
+      const coreJsStats = readJsonFile<CoreJsStats>(coreJsArtifactPath)
+      if (coreJsStats) {
+        console.info(`  ✓ Found core-js stats artifact`)
+        stats = {
+          ...stats,
+          vendoredCoreJsSize: coreJsStats.totalVendoredBytes,
+          vendoredCoreJsUnnecessaryModules: coreJsStats.unnecessaryModules,
+        }
+      } else {
+        console.info(
+          `  ⚠ No core-js stats artifact found at ${coreJsArtifactPath}`,
+        )
       }
 
       // Load e18e stats from artifact

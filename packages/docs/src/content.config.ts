@@ -25,6 +25,7 @@ const devtimeCollection = defineCollection({
     nodeModulesSize: z.number(),
     nodeModulesSizeProdOnly: z.number(),
     duplicateDependencies: z.number().optional(),
+    depInstallSize: z.number().optional(),
     e18eMessages: z
       .array(
         z.object({
@@ -34,6 +35,8 @@ const devtimeCollection = defineCollection({
         }),
       )
       .optional(),
+    vendoredCoreJsSize: z.number().optional(),
+    vendoredCoreJsUnnecessaryModules: z.array(z.string()).optional(),
     timingMeasuredAt: z.string(),
     runner: z.string(),
     frameworkVersion: z.string().optional(),

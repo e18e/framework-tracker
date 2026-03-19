@@ -1,5 +1,6 @@
 ---
 import BuildSizeCharts from '../components/BuildSizeCharts.astro'
+import CoreJsTable from '../components/CoreJsTable.astro'
 import DependencyCharts from '../components/DependencyCharts.astro'
 import NodeModulesSizeCharts from '../components/NodeModulesSizeCharts.astro'
 import Description from '../components/Description.astro'
@@ -48,6 +49,12 @@ import Layout from '../layouts/Layout.astro'
     href="/dev-time#build-and-install-times"
     label="Build and Install in Dev Time Stats"
   />
+  <h3>Core-JS Polyfills</h3>
+  <CoreJsTable />
+  <DetailsLink
+    href="/dev-time#core-js"
+    label="Core-JS Polyfills in Dev Time Stats"
+  />
   <h2>Runtime Performance</h2>
   <h3>SSR Performance</h3>
   <SSRStatsTable />
@@ -57,14 +64,6 @@ import Layout from '../layouts/Layout.astro'
 
 <style>
   .roadmap-link {
-    color: var(--ft-accent);
-    text-decoration: none;
     font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .roadmap-link:hover {
-    color: var(--ft-accent-hover);
-    text-decoration: underline;
   }
 </style>

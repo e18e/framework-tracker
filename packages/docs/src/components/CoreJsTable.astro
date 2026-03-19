@@ -1,0 +1,23 @@
+---
+import { coreJsTableData } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'bundledSize', header: '~Size' },
+  { key: 'unnecessaryModules', header: 'Unnecessary Modules' },
+]
+---
+
+<StatsTable
+  label="Core-JS polyfills by framework"
+  columns={columns}
+  data={coreJsTableData}
+/>

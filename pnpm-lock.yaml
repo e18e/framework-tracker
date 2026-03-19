@@ -61,6 +61,9 @@ importers:
 
   packages/stats-generator:
     dependencies:
+      core-js-compat:
+        specifier: ^3.48.0
+        version: 3.49.0
       next:
         specifier: 16.1.6
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -76,6 +79,9 @@ importers:
       tinybench:
         specifier: ^6.0.0
         version: 6.0.0
+      tinyglobby:
+        specifier: ^0.2.15
+        version: 0.2.15
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -1167,6 +1173,11 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
+  browserslist@4.28.1:
+    resolution: {integrity: sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
 
@@ -1246,6 +1257,9 @@ packages:
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
+
+  core-js-compat@3.49.0:
+    resolution: {integrity: sha512-VQXt1jr9cBz03b331DFDCCP90b3fanciLkgiOoy8SBHy06gNf+vQ1A3WFLqG7I8TipYIKeYK9wxd0tUrvHcOZA==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -1506,6 +1520,9 @@ packages:
 
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
+
+  electron-to-chromium@1.5.313:
+    resolution: {integrity: sha512-QBMrTWEf00GXZmJyx2lbYD45jpI3TUFnNIzJ5BBc8piGUDwMPa1GV6HJWTZVvY/eiN3fSopl7NRbgGp9sZ9LTA==}
 
   emmet@2.4.11:
     resolution: {integrity: sha512-23QPJB3moh/U9sT4rQzGgeyyGIrcM+GH5uVYg2C6wZIxAIJq7Ng3QLT79tl8FUwDXhyq9SusfknOrofAKqvgyQ==}
@@ -2229,6 +2246,9 @@ packages:
   node-mock-http@1.0.4:
     resolution: {integrity: sha512-8DY+kFsDkNXy1sJglUfuODx1/opAGJGyrTuFqEoN90oRc2Vk0ZbD4K2qmKXBBEhZQzdKHIVfEJpDU8Ak2NJEvQ==}
 
+  node-releases@2.0.36:
+    resolution: {integrity: sha512-TdC8FSgHz8Mwtw9g5L4gR/Sh9XhSP/0DEkQxfEFXOpiul5IiHgHan2VhYYb6agDSfp4KuvltmGApc8HMgUrIkA==}
+
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
@@ -2809,6 +2829,12 @@ packages:
         optional: true
       uploadthing:
         optional: true
+
+  update-browserslist-db@1.2.3:
+    resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
+    hasBin: true
+    peerDependencies:
+      browserslist: '>= 4.21.0'
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
@@ -4156,6 +4182,14 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
+  browserslist@4.28.1:
+    dependencies:
+      baseline-browser-mapping: 2.10.7
+      caniuse-lite: 1.0.30001778
+      electron-to-chromium: 1.5.313
+      node-releases: 2.0.36
+      update-browserslist-db: 1.2.3(browserslist@4.28.1)
+
   buffer-equal-constant-time@1.0.1: {}
 
   buffer-from@1.1.2:
@@ -4214,6 +4248,10 @@ snapshots:
   cookie-es@1.2.2: {}
 
   cookie@1.1.1: {}
+
+  core-js-compat@3.49.0:
+    dependencies:
+      browserslist: 4.28.1
 
   cross-spawn@7.0.6:
     dependencies:
@@ -4476,6 +4514,8 @@ snapshots:
   ecdsa-sig-formatter@1.0.11:
     dependencies:
       safe-buffer: 5.2.1
+
+  electron-to-chromium@1.5.313: {}
 
   emmet@2.4.11:
     dependencies:
@@ -5471,6 +5511,8 @@ snapshots:
 
   node-mock-http@1.0.4: {}
 
+  node-releases@2.0.36: {}
+
   normalize-path@3.0.0: {}
 
   nth-check@2.1.1:
@@ -6104,6 +6146,12 @@ snapshots:
     optionalDependencies:
       db0: 0.3.4
       ioredis: 5.8.2
+
+  update-browserslist-db@1.2.3(browserslist@4.28.1):
+    dependencies:
+      browserslist: 4.28.1
+      escalade: 3.2.0
+      picocolors: 1.1.1
 
   uri-js@4.4.1:
     dependencies:

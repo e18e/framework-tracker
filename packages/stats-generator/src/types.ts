@@ -45,6 +45,9 @@ export interface CIStats {
   ssrSamples?: number
   ssrBodySizeKb?: number
   ssrDuplicationFactor?: number
+  // Core-js vendored polyfill stats
+  vendoredCoreJsSize?: number
+  vendoredCoreJsUnnecessaryModules?: string[]
   // Dependency stats (from e18e analysis)
   prodDependencies?: number
   devDependencies?: number
@@ -68,6 +71,17 @@ export interface BuildStats {
   coldBuildTime: TimeStat
   warmBuildTime: TimeStat
   buildOutputSize: number
+}
+
+export interface CoreJsStats {
+  vendoredFiles: Array<{
+    file: string
+    version: string
+    sizeBytes: number
+    unnecessaryModules: string[]
+  }>
+  totalVendoredBytes: number
+  unnecessaryModules: string[]
 }
 
 export interface TimeStat {

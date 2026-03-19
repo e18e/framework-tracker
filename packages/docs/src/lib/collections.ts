@@ -21,6 +21,8 @@ const depsStats = starterStats.map((f) => ({
   duplicateDependencies: f.duplicateDependencies,
   nodeModulesSize: formatBytesToMB(f.nodeModulesSize),
   nodeModulesSizeProdOnly: formatBytesToMB(f.nodeModulesSizeProdOnly),
+  depInstallSize:
+    f.depInstallSize != null ? formatBytesToMB(f.depInstallSize) : '—',
   graph: 'View',
 }))
 
@@ -41,11 +43,26 @@ const buildInstallData = starterStats.map((f) => ({
 }))
 
 export const chartDuplicateDependencyData = starterStats
-  .filter((f) => f?.name != null && Number.isFinite(f.duplicateDependencies))
+  .filter((f) => Number.isFinite(f.duplicateDependencies))
   .map((f) => ({
     name: f.name,
     value: f.duplicateDependencies!,
     focused: f.isFocused,
   }))
+
+export const coreJsTableData = starterStats.map((f) => {
+  const hasCorejs = (f.vendoredCoreJsUnnecessaryModules?.length ?? 0) > 0
+  return {
+    name: f.name,
+    package: f.package,
+    isFocused: f.isFocused,
+    bundledSize: hasCorejs
+      ? `${((f.vendoredCoreJsSize ?? 0) / 1024).toFixed(1)} KB`
+      : '—',
+    unnecessaryModules: hasCorejs
+      ? String(f.vendoredCoreJsUnnecessaryModules!.length)
+      : '—',
+  }
+})
 
 export { ssrStats, depsStats, buildInstallData }

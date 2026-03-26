@@ -48,4 +48,16 @@ export const chartDuplicateDependencyData = starterStats
     focused: f.isFocused,
   }))
 
+export const chartSPAFCPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaFCPMs))
+  .map((f) => ({ name: f.name, value: f.spaFCPMs!, focused: f.isFocused }))
+
+export const chartSPAINPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaINPMs))
+  .map((f) => ({ name: f.name, value: f.spaINPMs!, focused: f.isFocused }))
+
 export { ssrStats, depsStats, buildInstallData }

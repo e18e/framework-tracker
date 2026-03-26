@@ -3,6 +3,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { readJsonFile, writeJsonFile } from './utils.ts'
 import type { CIStats, InstallStats, BuildStats, E18eStats } from './types.ts'
+import type { SPAStats } from './spa/types.ts'
 
 async function main() {
   const artifactsDir = process.argv[2] || 'artifacts'
@@ -164,6 +165,27 @@ async function main() {
         frameworkVersion = ssrStats.frameworkVersion
       } else {
         console.info(`  ⚠ No SSR stats artifact found at ${ssrStatsPath}`)
+      }
+
+      // Load SPA stats from artifact
+      const spaStatsPath = join(
+        artifactsDir,
+        `spa-stats-${name}`,
+        'spa-stats.json',
+      )
+      const spaStats = readJsonFile<SPAStats>(spaStatsPath)
+
+      if (spaStats) {
+        console.info(`  ✓ Found SPA stats artifact`)
+        stats = {
+          ...stats,
+          spaFirstPaintMs: spaStats.spaFirstPaintMs,
+          spaFCPMs: spaStats.spaFCPMs,
+          spaINPMs: spaStats.spaINPMs,
+          spaRuns: spaStats.spaRuns,
+        }
+      } else {
+        console.info(`  ⚠ No SPA stats artifact found at ${spaStatsPath}`)
       }
 
       // Save to ci-stats.json

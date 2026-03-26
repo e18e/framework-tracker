@@ -21,3 +21,10 @@ CMD [ "node", "src/lcp/index.ts" ]
 # LCP Stats
 FROM cwv-stats-base AS cwv-stats-lcp
 CMD [ "node", "src/lcp/index.ts" ]
+
+FROM mcr.microsoft.com/playwright:v1.49.0-noble AS spa-benchmark
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN npm install -g pnpm
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1

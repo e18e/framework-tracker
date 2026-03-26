@@ -6,6 +6,7 @@ import { readJsonFile } from './utils.ts'
 import { saveStats } from './save-stats.ts'
 import { getCIStats } from './get-ci-stats.ts'
 import type { FrameworkStats, PackageJson, FrameworkConfig } from './types.ts'
+import type { SPAStats } from './spa/types.ts'
 
 async function getDependencyCountsFromPackageJson(pkgDir: string) {
   const packageJsonPath = join(packagesDir, pkgDir, 'package.json')
@@ -56,6 +57,12 @@ async function processApp(framework: FrameworkConfig, order: number) {
 
   const ciStats = (await getCIStats(pkgDir)) ?? {}
 
+  // In the local dev workflow, spa-stats.json is written by run:spa before
+  // save:ci-stats has had a chance to merge it into ci-stats.json. Read it
+  // directly so that collect:stats picks it up without needing the full CI flow.
+  const spaStatsPath = join(packagesDir, pkgDir, 'spa-stats.json')
+  const spaStats = readJsonFile<SPAStats>(spaStatsPath)
+
   const stats: FrameworkStats = {
     name: displayName,
     package: pkgDir,
@@ -63,6 +70,12 @@ async function processApp(framework: FrameworkConfig, order: number) {
     isFocused: framework.focusedFramework,
     order,
     ...ciStats,
+    ...(spaStats && {
+      spaFirstPaintMs: spaStats.spaFirstPaintMs,
+      spaFCPMs: spaStats.spaFCPMs,
+      spaINPMs: spaStats.spaINPMs,
+      spaRuns: spaStats.spaRuns,
+    }),
   }
 
   await saveStats(pkgDir, stats, 'runtime')

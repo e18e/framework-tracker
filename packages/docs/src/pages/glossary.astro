@@ -55,14 +55,12 @@ import Layout from '../layouts/Layout.astro'
 
     <h3 id="mpa">Multi-Page Application (MPA)</h3>
     <p>
-      In an MPA, each navigation triggers a full browser request and the server
-      responds with a complete HTML document. HTML is generated on the server
-      per request, so the browser always receives ready-to-display content.
-      JavaScript is optional and typically used only for progressive
-      enhancement. In-memory state is lost on every navigation. Because content
-      is present in the initial HTML response, MPAs are naturally SEO-friendly.
-      The server must be capable of rendering and serving a full page for every
-      route.
+      In an MPA, each navigation triggers a `document` request by the browser
+      and the server (or CDN) responds with a complete HTML document, so the
+      browser always receives ready-to-display content. JavaScript is optional
+      and typically used only for progressive enhancement. In-memory state is
+      lost on every navigation. Because content is present in the initial HTML
+      response, MPAs are naturally SEO-friendly.
     </p>
 
     <h3 id="spa">Single-Page Application (SPA)</h3>
@@ -71,12 +69,12 @@ import Layout from '../layouts/Layout.astro'
       navigation is handled client-side by JavaScript, without full page
       reloads. HTML is generated in the browser, typically by a JavaScript
       framework rendering components on demand. On initial load the browser
-      receives a minimal document and must download and execute JS before
-      content appears. Subsequent navigations fetch only data (e.g. via API
-      calls), keeping the page transition fast. In-memory state persists across
-      navigation. Because the initial HTML shell contains little content, SPAs
-      require extra effort (SSR, prerendering) for good SEO. The server only
-      needs to serve static assets.
+      typically receives a minimal document and must download and execute JS
+      before content appears. Subsequent navigations fetch only data (e.g. via
+      API calls), keeping the page transition fast. In-memory state persists
+      across navigation. Because the initial HTML shell contains little content,
+      SPAs require extra effort (SSR, prerendering) for good SEO. The server
+      only needs to serve static assets.
     </p>
   </section>
 

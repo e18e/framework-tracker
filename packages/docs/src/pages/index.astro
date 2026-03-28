@@ -56,6 +56,15 @@ import Layout from '../layouts/Layout.astro'
   <DetailsLink href="/run-time#ssr-performance" label="SSR in Run Time Stats" />
   <h3>SPA Performance</h3>
   <SPACharts />
+  <p class="methodology-note">
+    Next.js, TanStack Start, and React Router default to SSR with no per-route
+    opt-out. Next.js wraps the SPA table in a <code>dynamic</code> import with <code
+      >ssr: false</code
+    > to prevent build-time prerendering. TanStack Start uses its built-in spa mode.
+    React Router disables SSR entirely via <code>ssr: false</code> in its config.
+    All other frameworks (Nuxt, SvelteKit, SolidStart, Astro) disable SSR per-route
+    without a separate build.
+  </p>
 </Layout>
 
 <style>

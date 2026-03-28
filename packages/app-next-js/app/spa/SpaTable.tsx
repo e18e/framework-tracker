@@ -1,9 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+'use client'
 
-export const Route = createFileRoute('/spa_/result')({
-  component: SpaResultPage,
-})
+import { useState } from 'react'
+import Link from 'next/link'
 
 type Entry = { id: string; name: string }
 
@@ -14,14 +12,8 @@ function generateData(): Entry[] {
   }))
 }
 
-function SpaResultPage() {
-  const [entries, setEntries] = useState<Entry[] | null>(null)
-
-  useEffect(() => {
-    setEntries(generateData())
-  }, [])
-
-  if (entries === null) return null
+export default function SpaTable() {
+  const [entries] = useState(generateData)
 
   return (
     <table>
@@ -30,6 +22,9 @@ function SpaResultPage() {
           <tr key={entry.id}>
             <td>{entry.id}</td>
             <td>{entry.name}</td>
+            <td>
+              <Link href={`/spa/detail?id=${entry.id}`}>View →</Link>
+            </td>
           </tr>
         ))}
       </tbody>

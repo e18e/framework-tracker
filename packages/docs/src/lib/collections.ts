@@ -48,6 +48,16 @@ export const chartDuplicateDependencyData = starterStats
     focused: f.isFocused,
   }))
 
+export const chartSPAFPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaFirstPaintMs))
+  .map((f) => ({
+    name: f.name,
+    value: f.spaFirstPaintMs!,
+    focused: f.isFocused,
+  }))
+
 export const chartSPAFCPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)

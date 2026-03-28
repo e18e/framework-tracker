@@ -10,26 +10,21 @@ function generateData(): Entry[] {
 }
 
 export default function SpaPage() {
-  const [entries, setEntries] = useState<Entry[] | null>(null)
-
-  if (entries !== null) {
-    return (
-      <table>
-        <tbody>
-          {entries.map((entry) => (
-            <tr key={entry.id}>
-              <td>{entry.id}</td>
-              <td>{entry.name}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )
-  }
+  const [entries] = useState(generateData)
 
   return (
-    <button id="interact-btn" onClick={() => setEntries(generateData())}>
-      Run Benchmark
-    </button>
+    <table>
+      <tbody>
+        {entries.map((entry) => (
+          <tr key={entry.id}>
+            <td>{entry.id}</td>
+            <td>{entry.name}</td>
+            <td>
+              <a href={`/spa/detail?id=${entry.id}`}>View →</a>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }

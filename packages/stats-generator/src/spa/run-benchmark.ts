@@ -1,11 +1,10 @@
+/// <reference lib="dom" />
 import { existsSync, readdirSync } from 'node:fs'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
 import type { SPABenchmarkResult, SPARunResult } from './types.ts'
 
 const SPA_PATH = '/spa'
-const WAIT_FOR_SELECTOR = 'table tbody tr'
-const INTERACT_BTN = '#interact-btn'
 
 function findChromium(): string {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH
@@ -50,41 +49,43 @@ async function runOnce(
 
     const flow = await startFlow(page, {
       name: 'SPA benchmark',
-      config: {
-        settings: {
-          throttlingMethod: 'provided',
-          onlyCategories: ['performance'],
-        },
+      flags: {
+        throttlingMethod: 'provided',
+        formFactor: 'desktop',
+        screenEmulation: { disabled: true },
       },
     })
 
+    // FP + FCP: navigate to /spa, wait for the table to render
     await flow.navigate(`${url}${SPA_PATH}`)
+    await page.waitForSelector('table tbody tr', { timeout: 15_000 })
 
-    const firstPaintMs = await page.evaluate(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fp = (performance as any)
-        .getEntriesByType('paint')
-        .find((e: PerformanceEntry) => e.name === 'first-paint')
-      return fp ? (fp as PerformanceEntry).startTime : null
-    })
-
-    await page.waitForSelector(INTERACT_BTN, { timeout: 15_000 })
-
+    // INP: click the first row's detail link
     await flow.startTimespan()
-    await page.click(INTERACT_BTN)
-    await page.waitForSelector(WAIT_FOR_SELECTOR, { timeout: 15_000 })
+    await page.click('table tbody tr:first-child a')
+    await page.waitForSelector('#detail-id', { timeout: 15_000 })
+    // Double rAF ensures the paint entry is recorded before the timespan ends.
+    await page.evaluate(
+      () =>
+        new Promise((r) =>
+          requestAnimationFrame(() => requestAnimationFrame(r)),
+        ),
+    )
     await flow.endTimespan()
 
     const flowResult = await flow.createFlowResult()
     const navLhr = flowResult.steps[0].lhr
     const timespanLhr = flowResult.steps[1].lhr
 
+    const metricsItems = (
+      navLhr.audits['metrics']?.details as { items?: Record<string, number>[] }
+    )?.items?.[0]
+    const firstPaintMs = metricsItems?.observedFirstPaint ?? null
     const fcpMs = navLhr.audits['first-contentful-paint']?.numericValue ?? null
     const inpMs =
-      timespanLhr.audits['interaction-to-next-paint']?.numericValue ?? 0
+      timespanLhr.audits['interaction-to-next-paint']?.numericValue ?? null
 
     await page.close()
-
     return { firstPaintMs, fcpMs, inpMs }
   } finally {
     await browser.close()
@@ -114,7 +115,7 @@ export async function runBenchmark(
     .map((r) => r.firstPaintMs)
     .filter((v): v is number => v !== null)
   const fcp = results.map((r) => r.fcpMs).filter((v): v is number => v !== null)
-  const inp = results.map((r) => r.inpMs)
+  const inp = results.map((r) => r.inpMs).filter((v): v is number => v !== null)
 
   return {
     name: packageName,

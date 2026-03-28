@@ -1,7 +1,7 @@
 export interface SPARunResult {
   firstPaintMs: number | null
   fcpMs: number | null
-  inpMs: number
+  inpMs: number | null
 }
 
 export interface SPABenchmarkResult {

@@ -9,13 +9,15 @@ const PORT = parseInt(process.env.PORT ?? '3000', 10)
 const publicDir = join(__dirname, '.output', 'public')
 
 const MIME = {
+  '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript',
+  '.mjs': 'application/javascript',
   '.css': 'text/css',
-  '.html': 'text/html',
   '.json': 'application/json',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
   '.woff2': 'font/woff2',
 }
 

@@ -1,7 +1,20 @@
 <script lang="ts">
-  import { goto } from '$app/navigation'
+  type Entry = { id: string; name: string }
+
+  const entries: Entry[] = Array.from({ length: 1000 }, () => ({
+    id: crypto.randomUUID(),
+    name: crypto.randomUUID(),
+  }))
 </script>
 
-<button id="interact-btn" onclick={() => goto('/spa/result')}>
-  Run Benchmark
-</button>
+<table>
+  <tbody>
+    {#each entries as entry (entry.id)}
+      <tr>
+        <td>{entry.id}</td>
+        <td>{entry.name}</td>
+        <td><a href="/spa/detail?id={entry.id}">View →</a></td>
+      </tr>
+    {/each}
+  </tbody>
+</table>

@@ -4,10 +4,8 @@ import { join, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const PORT = parseInt(process.env.PORT ?? '4321', 10)
-const clientDir = join(__dirname, 'dist', 'client')
-
-const { handler } = await import('./dist/server/entry.mjs')
+const PORT = parseInt(process.env.PORT ?? '3000', 10)
+const clientDir = join(__dirname, 'build', 'client')
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -16,7 +14,6 @@ const MIME = {
   '.css': 'text/css',
   '.json': 'application/json',
   '.png': 'image/png',
-  '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.woff': 'font/woff',
@@ -29,19 +26,17 @@ createServer((req, res) => {
 
   try {
     if (existsSync(filePath) && statSync(filePath).isFile()) {
-      const contentType = MIME[extname(filePath)] ?? 'application/octet-stream'
-      res.setHeader('Content-Type', contentType)
+      const ext = extname(filePath)
+      res.setHeader('Content-Type', MIME[ext] ?? 'application/octet-stream')
       createReadStream(filePath).pipe(res)
       return
     }
   } catch {
-    // not a static file, fall through
+    // not a static file, fall through to SPA index
   }
 
-  handler(req, res, () => {
-    res.writeHead(404)
-    res.end('Not Found')
-  })
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  createReadStream(join(clientDir, 'index.html')).pipe(res)
 }).listen(PORT, () => {
   console.log(`Ready at http://localhost:${PORT}`)
 })

@@ -40,6 +40,24 @@ const duplicateDependencyMessages = e18eMessages.filter((m) =>
   m.message.startsWith('[duplicate dependency]'),
 )
 
+const coreJsModules = devtime.vendoredCoreJsUnnecessaryModules ?? []
+const coreJsGroups = coreJsModules.reduce<Record<string, number>>(
+  (acc, mod) => {
+    const parts = mod.split('.')
+    const group = parts[0] === 'web' ? 'web' : `${parts[0]}.${parts[1]}`
+    acc[group] = (acc[group] ?? 0) + 1
+    return acc
+  },
+  {},
+)
+const coreJsGroupEntries = Object.entries(coreJsGroups).sort(
+  (a, b) => b[1] - a[1],
+)
+const coreJsSizeKb =
+  devtime.vendoredCoreJsSize != null && devtime.vendoredCoreJsSize > 0
+    ? (devtime.vendoredCoreJsSize / 1024).toFixed(1)
+    : null
+
 function parseDupeName(message: string): string {
   const match = message.match(/\[duplicate dependency\] (\S+) has/)
   return match?.[1] ?? 'unknown'
@@ -61,8 +79,9 @@ const depsColumns = [
   ...(devtime.duplicateDependencies != null
     ? [{ key: 'duplicateDependencies', header: 'Dup. Deps' }]
     : []),
-  { key: 'nodeModulesSize', header: 'Size' },
-  { key: 'nodeModulesSizeProdOnly', header: 'Size (Prod Only)' },
+  { key: 'nodeModulesSize', header: 'node_modules' },
+  { key: 'nodeModulesSizeProdOnly', header: 'node_modules (prod)' },
+  { key: 'depInstallSize', header: 'Dep Install Size' },
   {
     key: 'graph',
     header: 'Graph',
@@ -79,6 +98,7 @@ const depsData = [
       : {}),
     nodeModulesSize: depsEntry.nodeModulesSize,
     nodeModulesSizeProdOnly: depsEntry.nodeModulesSizeProdOnly,
+    depInstallSize: depsEntry.depInstallSize,
     graph: depsEntry.graph,
     graphHref: `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${devtime.package}/package.json`,
   },
@@ -187,6 +207,57 @@ const ssrData = [
   </p>
 
   {
+    coreJsModules.length > 0 && (
+      <section class="corejs-section">
+        <h2>Unnecessary Core-JS Polyfills</h2>
+        <p class="corejs-intro">
+          {coreJsModules.length}{' '}
+          <a
+            href="https://github.com/zloirock/core-js/blob/master/packages/core-js-compat/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            core-js
+          </a>{' '}
+          polyfill module{coreJsModules.length === 1 ? '' : 's'} are bundled but
+          already natively supported by the{' '}
+          <a
+            href="https://browsersl.ist/#q=last+2+Chrome+major+versions%2C+last+2+Firefox+major+versions%2C+last+2+Safari+major+versions%2C+last+2+Edge+major+versions"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            last 2 major versions of Chrome, Firefox, Safari, and Edge
+          </a>{' '}
+          — code users download even though their browser already supports it
+          natively.
+          {coreJsSizeKb && (
+            <>
+              {' '}
+              The containing chunk is approximately{' '}
+              <strong>{coreJsSizeKb} KB</strong> (chunk size, not isolated
+              core-js bytes).
+            </>
+          )}
+        </p>
+        <details class="corejs-details">
+          <summary>
+            View {coreJsModules.length} unnecessary{' '}
+            {coreJsModules.length === 1 ? 'module' : 'modules'} by category
+          </summary>
+          <ul class="corejs-group-list">
+            {coreJsGroupEntries.map(([group, count]) => (
+              <li class="corejs-group-item">
+                <code class="corejs-group-name">{group}.*</code>
+                <span class="corejs-group-count">{count}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </section>
+    )
+  }
+
+  {
     duplicateDependencyMessages.length > 0 && (
       <section class="dupe-deps-section">
         <h2>Duplicate Dependencies</h2>
@@ -246,6 +317,65 @@ const ssrData = [
 
   .build-output strong {
     color: var(--ft-text);
+  }
+
+  .corejs-intro {
+    color: var(--ft-muted);
+    font-size: 14px;
+    margin: 0 0 0.75em;
+  }
+
+  .corejs-details {
+    border: 1px solid var(--ft-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .corejs-details summary {
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    color: var(--ft-text);
+    background: var(--ft-bg-muted);
+  }
+
+  .corejs-details summary:hover {
+    background: var(--ft-border);
+  }
+
+  .corejs-details[open] summary {
+    border-bottom: 1px solid var(--ft-border);
+  }
+
+  .corejs-group-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .corejs-group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--ft-border);
+    font-size: 13px;
+  }
+
+  .corejs-group-item:last-child {
+    border-bottom: none;
+  }
+
+  .corejs-group-name {
+    color: var(--ft-text);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+
+  .corejs-group-count {
+    color: var(--ft-muted);
+    font-variant-numeric: tabular-nums;
   }
 
   .dupe-deps-intro {

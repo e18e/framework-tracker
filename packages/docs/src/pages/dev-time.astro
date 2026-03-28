@@ -1,6 +1,7 @@
 ---
 import BuildInstallStatsTable from '../components/BuildInstallStatsTable.astro'
 import BuildSizeCharts from '../components/BuildSizeCharts.astro'
+import CoreJsTable from '../components/CoreJsTable.astro'
 import DependencyCharts from '../components/DependencyCharts.astro'
 import DependencyStatsTable from '../components/DependencyStatsTable.astro'
 import NodeModulesSizeCharts from '../components/NodeModulesSizeCharts.astro'
@@ -25,4 +26,20 @@ import Layout from '../layouts/Layout.astro'
   <h2 id="build-and-install-times">Build and Install Times</h2>
   <BuildInstallStatsTable />
   <BuildSizeCharts />
+  <h2 id="core-js">Core-JS Polyfills</h2>
+  <MethodologyTag>
+    Detects vendored <a
+      href="https://github.com/zloirock/core-js/blob/master/packages/core-js-compat/README.md"
+      target="_blank"
+      rel="noopener noreferrer">core-js</a
+    > in build output and counts polyfill modules that are already natively supported
+    by the <a
+      href="https://browsersl.ist/#q=last+2+Chrome+major+versions%2C+last+2+Firefox+major+versions%2C+last+2+Safari+major+versions%2C+last+2+Edge+major+versions"
+      target="_blank"
+      rel="noopener noreferrer"
+      >last 2 major versions of Chrome, Firefox, Safari, and Edge</a
+    >. Size is approximate — it reflects the JS chunk containing core-js, which
+    may include other bundled code.
+  </MethodologyTag>
+  <CoreJsTable />
 </Layout>

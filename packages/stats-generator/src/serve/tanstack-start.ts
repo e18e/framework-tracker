@@ -1,12 +1,3 @@
-/**
- * Serve a TanStack Start app (SSR or SPA mode).
- *
- * Automatically detects the build mode by checking for _shell.html:
- *   SPA build  → dist/client/_shell.html exists  → static + _shell.html fallback
- *   SSR build  → .output/ exists                 → static + Nitro middleware
- *
- * Usage: node tanstack-start.ts <app-dir>
- */
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'

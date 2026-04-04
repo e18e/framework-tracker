@@ -1,12 +1,3 @@
-/**
- * Serve a Nitro-based SSR app (Nuxt, SolidStart).
- *
- * Build output layout:
- *   .output/public/   — static assets
- *   .output/server/index.mjs — Nitro server entry (exports `listener`)
- *
- * Usage: node nitro.ts <app-dir>
- */
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'

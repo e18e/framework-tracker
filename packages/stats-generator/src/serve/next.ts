@@ -1,9 +1,3 @@
-/**
- * Serve a Next.js app using Next's own server loaded from the app's node_modules.
- * This avoids a version mismatch between the stats-generator and the app.
- *
- * Usage: node next.ts <app-dir>
- */
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'

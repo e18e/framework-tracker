@@ -29,12 +29,6 @@ export function parseAppDir(): string {
   return appDir
 }
 
-/**
- * Attempt to serve a file from staticDir matching the URL pathname.
- * Returns true if the file was served, false if not found or not a file.
- * Handles HEAD requests (headers only, no body).
- * Prevents path traversal attacks.
- */
 export function tryServeFile(
   staticDir: string,
   pathname: string,
@@ -72,10 +66,6 @@ export function tryServeFile(
   }
 }
 
-/**
- * Serve a fallback HTML file (e.g. index.html or _shell.html) for SPA routing.
- * Handles HEAD requests correctly.
- */
 export function serveFallback(
   fallbackPath: string,
   req: IncomingMessage,
@@ -89,10 +79,6 @@ export function serveFallback(
   }
 }
 
-/**
- * Register SIGTERM and SIGINT handlers for graceful shutdown.
- * Immediately closes all connections (including keep-alive) then exits.
- */
 export function registerShutdown(server: Server): void {
   const shutdown = () => {
     server.closeAllConnections()

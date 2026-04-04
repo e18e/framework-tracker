@@ -6,7 +6,6 @@ import { runBenchmark } from './run-benchmark.ts'
 import type { SPABenchmarkResult } from './types.ts'
 
 const SPA_PORT = 3001
-const serveDir = fileURLToPath(new URL('../serve', import.meta.url))
 
 interface SPAFrameworkConfig {
   name: string
@@ -79,7 +78,9 @@ async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
 
 async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
   const appDir = join(packagesDir, config.package)
-  const scriptPath = join(serveDir, config.serveScript)
+  const scriptPath = fileURLToPath(
+    new URL(`../serve/${config.serveScript}`, import.meta.url),
+  )
   const scriptArgs = [scriptPath, appDir, ...(config.serveArgs ?? [])]
 
   const proc = spawn('node', scriptArgs, {

@@ -1,13 +1,3 @@
-/**
- * Serve a pure SPA (no SSR) with a static file directory and HTML fallback.
- * All unmatched routes fall back to the fallback file for client-side routing.
- *
- * Usage: node static-spa.ts <app-dir> [static-subdir] [fallback-file]
- *
- * Defaults:
- *   static-subdir  build/client
- *   fallback-file  index.html
- */
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import {

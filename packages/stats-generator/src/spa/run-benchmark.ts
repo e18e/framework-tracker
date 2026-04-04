@@ -1,4 +1,3 @@
-/// <reference lib="dom" />
 import { existsSync, readdirSync } from 'node:fs'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
@@ -66,10 +65,11 @@ async function runOnce(
     await page.waitForSelector('#detail-id', { timeout: 15_000 })
     // Double rAF ensures the paint entry is recorded before the timespan ends.
     await page.evaluate(
-      () =>
-        new Promise((r) =>
-          requestAnimationFrame(() => requestAnimationFrame(r)),
-        ),
+      (): Promise<void> =>
+        new Promise((r) => {
+          // @ts-expect-error — callback runs in browser context, not Node.js
+          requestAnimationFrame(() => requestAnimationFrame(r))
+        }),
     )
     await flow.endTimespan()
 

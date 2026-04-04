@@ -1,6 +1,6 @@
-export const ssr = false
-
 import { useSearchParams } from '@solidjs/router'
+
+export const ssr = false
 
 export default function SpaDetailPage() {
   const [searchParams] = useSearchParams()

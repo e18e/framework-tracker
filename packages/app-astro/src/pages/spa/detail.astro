@@ -1,7 +1,5 @@
 ---
 import SpaDetail from '../../components/SpaDetail'
-
-const id = Astro.url.searchParams.get('id')
 ---
 
 <html lang="en">
@@ -11,6 +9,6 @@ const id = Astro.url.searchParams.get('id')
     <title>Astro SPA Detail</title>
   </head>
   <body>
-    <SpaDetail id={id} client:only="react" />
+    <SpaDetail client:only="react" />
   </body>
 </html>

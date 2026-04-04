@@ -1,14 +1,3 @@
-/**
- * Serve an Astro SSR app (adapter-node).
- *
- * Build output layout:
- *   dist/client/   — static assets
- *   dist/server/entry.mjs — Astro server entry (exports `handler`)
- *
- * The Astro handler uses a Node.js middleware signature: (req, res, next).
- *
- * Usage: node astro.ts <app-dir>
- */
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'

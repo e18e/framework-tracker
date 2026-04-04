@@ -1,40 +1,65 @@
 import { spawn } from 'node:child_process'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { packagesDir } from '../constants.ts'
 import { runBenchmark } from './run-benchmark.ts'
 import type { SPABenchmarkResult } from './types.ts'
 
 const SPA_PORT = 3001
+const serveDir = fileURLToPath(new URL('../serve', import.meta.url))
 
 interface SPAFrameworkConfig {
   name: string
   displayName: string
   package: string
+  /** Filename of the serve script in src/serve/ */
+  serveScript: string
+  /** Additional arguments passed to the serve script after <app-dir> */
+  serveArgs?: string[]
 }
 
 const SPA_FRAMEWORKS: SPAFrameworkConfig[] = [
-  { name: 'astro-spa', displayName: 'Astro SPA', package: 'app-astro' },
-  { name: 'next-spa', displayName: 'Next.js SPA', package: 'app-next-js' },
-  { name: 'nuxt-spa', displayName: 'Nuxt SPA', package: 'app-nuxt' },
+  {
+    name: 'astro-spa',
+    displayName: 'Astro SPA',
+    package: 'app-astro',
+    serveScript: 'astro.ts',
+  },
+  {
+    name: 'next-spa',
+    displayName: 'Next.js SPA',
+    package: 'app-next-js',
+    serveScript: 'next.ts',
+  },
+  {
+    name: 'nuxt-spa',
+    displayName: 'Nuxt SPA',
+    package: 'app-nuxt',
+    serveScript: 'nitro.ts',
+  },
   {
     name: 'react-router-spa',
     displayName: 'React Router SPA',
     package: 'app-react-router',
+    serveScript: 'static-spa.ts',
   },
   {
     name: 'solid-start-spa',
     displayName: 'SolidStart SPA',
     package: 'app-solid-start',
+    serveScript: 'nitro.ts',
   },
   {
     name: 'sveltekit-spa',
     displayName: 'SvelteKit SPA',
     package: 'app-sveltekit',
+    serveScript: 'sveltekit.ts',
   },
   {
     name: 'tanstack-start-spa',
     displayName: 'TanStack Start SPA',
     package: 'app-tanstack-start-react',
+    serveScript: 'tanstack-start.ts',
   },
 ]
 
@@ -52,27 +77,28 @@ async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
   throw new Error(`Server at ${url} did not become ready within ${timeoutMs}ms`)
 }
 
-async function spawnServer(packageName: string): Promise<() => void> {
-  const packageDir = join(packagesDir, packageName)
+async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
+  const appDir = join(packagesDir, config.package)
+  const scriptPath = join(serveDir, config.serveScript)
+  const scriptArgs = [scriptPath, appDir, ...(config.serveArgs ?? [])]
 
-  const proc = spawn('pnpm', ['run', 'serve'], {
-    cwd: packageDir,
+  const proc = spawn('node', scriptArgs, {
     env: { ...process.env, PORT: String(SPA_PORT) },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 
   proc.stdout?.on('data', (chunk: Buffer) =>
-    process.stdout.write(`[${packageName}] ${chunk}`),
+    process.stdout.write(`[${config.package}] ${chunk}`),
   )
   proc.stderr?.on('data', (chunk: Buffer) =>
-    process.stderr.write(`[${packageName}] ${chunk}`),
+    process.stderr.write(`[${config.package}] ${chunk}`),
   )
 
   let exited = false
   proc.on('exit', (code) => {
     exited = true
     if (code != null && code !== 0) {
-      console.error(`[${packageName}] server exited with code ${code}`)
+      console.error(`[${config.package}] server exited with code ${code}`)
     }
   })
 
@@ -107,7 +133,7 @@ export async function runSPABenchmark(
   }
 
   console.info(`Starting server for ${config.displayName}...`)
-  const killServer = await spawnServer(packageName)
+  const killServer = await spawnServer(config)
 
   try {
     console.info(`Running SPA benchmark for ${config.displayName}...`)

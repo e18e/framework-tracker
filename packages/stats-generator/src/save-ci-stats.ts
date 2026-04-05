@@ -2,7 +2,6 @@ import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { readJsonFile, writeJsonFile } from './utils.ts'
-import type { SPAStats } from './spa/types.ts'
 import type {
   CIStats,
   InstallStats,
@@ -193,13 +192,13 @@ async function main() {
         console.info(`  ⚠ No SSR stats artifact found at ${ssrStatsPath}`)
       }
 
-      // Load SPA stats from artifact
-      const spaStatsPath = join(
+      // Load SPA stats from artifact (run-spa-benchmark writes directly to ci-stats.json)
+      const spaStatsArtifactPath = join(
         artifactsDir,
         `spa-stats-${name}`,
-        'spa-stats.json',
+        'ci-stats.json',
       )
-      const spaStats = readJsonFile<SPAStats>(spaStatsPath)
+      const spaStats = readJsonFile<CIStats>(spaStatsArtifactPath)
 
       if (spaStats) {
         console.info(`  ✓ Found SPA stats artifact`)
@@ -211,7 +210,9 @@ async function main() {
           spaRuns: spaStats.spaRuns,
         }
       } else {
-        console.info(`  ⚠ No SPA stats artifact found at ${spaStatsPath}`)
+        console.info(
+          `  ⚠ No SPA stats artifact found at ${spaStatsArtifactPath}`,
+        )
       }
 
       // Save to ci-stats.json

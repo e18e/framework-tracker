@@ -67,7 +67,7 @@ async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
   while (Date.now() < deadline) {
     try {
       const res = await fetch(url)
-      if (res.status < 500) return
+      if (res.status === 200) return
     } catch {
       // not ready yet
     }
@@ -112,7 +112,7 @@ async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
   })
 
   await Promise.race([
-    waitForServer(`http://localhost:${SPA_PORT}/`),
+    waitForServer(`http://localhost:${SPA_PORT}/spa`),
     exitPromise,
   ])
 

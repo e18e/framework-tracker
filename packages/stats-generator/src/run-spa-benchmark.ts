@@ -2,8 +2,8 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { runSPABenchmark } from './spa/index.ts'
 import { packagesDir } from './constants.ts'
-import { getFrameworkByPackage } from './utils.ts'
-import type { SPAStats } from './spa/types.ts'
+import { getFrameworkByPackage, readJsonFile } from './utils.ts'
+import type { CIStats } from './types.ts'
 
 async function getFrameworkVersion(
   packageName: string,
@@ -47,19 +47,25 @@ async function main() {
 
   const result = await runSPABenchmark(packageName, runs)
   const timestamp = new Date().toISOString()
+  const runner = process.env.RUNNER_LABEL || 'local'
 
-  const spaStats: SPAStats = {
+  const existingStats = readJsonFile<CIStats>(
+    join(packagesDir, packageName, 'ci-stats.json'),
+  )
+
+  const ciStats: CIStats = {
+    ...existingStats,
     timingMeasuredAt: timestamp,
-    runner: process.env.RUNNER_LABEL || 'local',
-    frameworkVersion,
+    runner,
+    frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
     spaFirstPaintMs: result.spaFirstPaintMs,
     spaFCPMs: result.spaFCPMs,
     spaINPMs: result.spaINPMs,
     spaRuns: result.spaRuns,
   }
 
-  const outputPath = join(packagesDir, packageName, 'spa-stats.json')
-  await writeFile(outputPath, JSON.stringify(spaStats, null, 2), 'utf-8')
+  const outputPath = join(packagesDir, packageName, 'ci-stats.json')
+  await writeFile(outputPath, JSON.stringify(ciStats, null, 2), 'utf-8')
 
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,

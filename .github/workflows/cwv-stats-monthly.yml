@@ -1,8 +1,8 @@
 name: CWV Stats Monthly
 
 on:
-  # http archive crawl usually starts on the 2nd Tuesday of the month and finishes within ~2weeks therefore
-  # we run the crawl with a 7 day buffer on either side of the crawl finishing/starting.
+  # http archive crawl usually starts on the 2nd Tuesday of the month and finishes within ~2weeks usually by the 1st
+  # of the following month therefore we run the crawl on the 7th to give a full weeks buffer after the crawl finishes.
   # https://har.fyi/guides/release-cycle/#running-the-crawl
   schedule:
     - cron: '0 0 7 * *' # At 00:00 on day-of-month 7 (UTC)

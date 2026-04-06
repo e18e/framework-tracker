@@ -1,0 +1,18 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import SPAFPChart from './SPAFPChart.astro'
+import SPAFCPChart from './SPAFCPChart.astro'
+import SPAINPChart from './SPAINPChart.astro'
+---
+
+<ChartTabs
+  sectionId="spa"
+  label="SPA performance graphs"
+  tab1Label="First Paint"
+  tab2Label="First Contentful Paint"
+  tab3Label="Interaction to Next Paint"
+>
+  <SPAFPChart slot="panel-1" />
+  <SPAFCPChart slot="panel-2" />
+  <SPAINPChart slot="panel-3" />
+</ChartTabs>

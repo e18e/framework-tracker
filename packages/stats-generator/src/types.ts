@@ -4,6 +4,7 @@ export type MeasurementType =
   | 'test'
   | 'dependencies'
   | 'ssr'
+  | 'spa'
 
 export interface MeasurementConfig {
   type: MeasurementType
@@ -45,6 +46,11 @@ export interface CIStats {
   ssrSamples?: number
   ssrBodySizeKb?: number
   ssrDuplicationFactor?: number
+  // SPA stats (browser paint + interaction timings)
+  spaFirstPaintMs?: number
+  spaFCPMs?: number
+  spaINPMs?: number
+  spaRuns?: number
   // Core-js vendored polyfill stats
   vendoredCoreJsSize?: number
   vendoredCoreJsUnnecessaryModules?: string[]

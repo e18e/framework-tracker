@@ -6,6 +6,7 @@
   "scripts": {
     "collect": "node src/collect-stats.ts",
     "run:ssr": "node src/run-ssr-benchmark.ts",
+    "run:spa": "node src/run-spa-benchmark.ts",
     "run:install": "node src/run-install-benchmark.ts",
     "run:build": "node src/run-build-benchmark.ts",
     "run:corejs": "node src/run-corejs-scan.ts",
@@ -18,10 +19,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "react-router": "7.13.2",
-    "next": "16.2.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "lighthouse": "^12.0.0",
+    "puppeteer-core": "^24.0.0",
     "tinybench": "^6.0.0",
     "tinyglobby": "^0.2.15",
     "core-js-compat": "^3.48.0",

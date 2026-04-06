@@ -1,3 +1,9 @@
-import { type RouteConfig, index } from '@react-router/dev/routes'
+import { type RouteConfig, index, route } from '@react-router/dev/routes'
 
-export default [index('routes/home.tsx')] satisfies RouteConfig
+const isSpa = process.env.BUILD_MODE === 'spa'
+
+export default [
+  ...(isSpa ? [] : [index('routes/home.tsx')]),
+  route('/spa', 'routes/spa.tsx'),
+  route('/spa/detail', 'routes/spa.detail.tsx'),
+] satisfies RouteConfig

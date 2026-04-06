@@ -192,6 +192,29 @@ async function main() {
         console.info(`  ⚠ No SSR stats artifact found at ${ssrStatsPath}`)
       }
 
+      // Load SPA stats from artifact (run-spa-benchmark writes directly to ci-stats.json)
+      const spaStatsArtifactPath = join(
+        artifactsDir,
+        `spa-stats-${name}`,
+        'ci-stats.json',
+      )
+      const spaStats = readJsonFile<CIStats>(spaStatsArtifactPath)
+
+      if (spaStats) {
+        console.info(`  ✓ Found SPA stats artifact`)
+        stats = {
+          ...stats,
+          spaFirstPaintMs: spaStats.spaFirstPaintMs,
+          spaFCPMs: spaStats.spaFCPMs,
+          spaINPMs: spaStats.spaINPMs,
+          spaRuns: spaStats.spaRuns,
+        }
+      } else {
+        console.info(
+          `  ⚠ No SPA stats artifact found at ${spaStatsArtifactPath}`,
+        )
+      }
+
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
       writeJsonFile(ciStatsPath, stats)

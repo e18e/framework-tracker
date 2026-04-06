@@ -9,38 +9,65 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SpaRouteImport } from './routes/spa'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SpaDetailRouteImport } from './routes/spa_.detail'
 
+const SpaRoute = SpaRouteImport.update({
+  id: '/spa',
+  path: '/spa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SpaDetailRoute = SpaDetailRouteImport.update({
+  id: '/spa_/detail',
+  path: '/spa/detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/spa': typeof SpaRoute
+  '/spa/detail': typeof SpaDetailRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/spa': typeof SpaRoute
+  '/spa/detail': typeof SpaDetailRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/spa': typeof SpaRoute
+  '/spa_/detail': typeof SpaDetailRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/spa' | '/spa/detail'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/spa' | '/spa/detail'
+  id: '__root__' | '/' | '/spa' | '/spa_/detail'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SpaRoute: typeof SpaRoute
+  SpaDetailRoute: typeof SpaDetailRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/spa': {
+      id: '/spa'
+      path: '/spa'
+      fullPath: '/spa'
+      preLoaderRoute: typeof SpaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/spa_/detail': {
+      id: '/spa_/detail'
+      path: '/spa/detail'
+      fullPath: '/spa/detail'
+      preLoaderRoute: typeof SpaDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SpaRoute: SpaRoute,
+  SpaDetailRoute: SpaDetailRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

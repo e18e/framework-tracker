@@ -26,6 +26,7 @@ jobs:
       build-matrix: ${{ steps.set-matrix.outputs.build }}
       ssr-matrix: ${{ steps.set-matrix.outputs.ssr }}
       deps-matrix: ${{ steps.set-matrix.outputs.deps }}
+      spa-matrix: ${{ steps.set-matrix.outputs.spa }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -38,6 +39,7 @@ jobs:
           echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "ssr=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "deps=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
+          echo "spa=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["spa"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
 
   measure:
     needs: setup
@@ -47,6 +49,7 @@ jobs:
       build-matrix: ${{ needs.setup.outputs.build-matrix }}
       ssr-matrix: ${{ needs.setup.outputs.ssr-matrix }}
       deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
+      spa-matrix: ${{ needs.setup.outputs.spa-matrix }}
 
   generate-stats:
     needs: [setup, measure]

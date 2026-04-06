@@ -1,14 +1,25 @@
 import { join } from 'node:path'
-import next from 'next'
+import { pathToFileURL } from 'node:url'
 import { packagesDir } from '../../constants.ts'
 import type { SSRHandler } from '../types.ts'
 
 export async function buildNextJSHandler(): Promise<SSRHandler> {
+  const appDir = join(packagesDir, 'app-next-js')
+  const nextEntryPath = join(
+    appDir,
+    'node_modules',
+    'next',
+    'dist',
+    'server',
+    'next.js',
+  )
+  const { default: next } = await import(pathToFileURL(nextEntryPath).href)
+
   const app = next({
     dev: false,
     hostname: 'localhost',
     port: 3000,
-    dir: join(packagesDir, 'app-next-js'),
+    dir: appDir,
   })
   await app.prepare()
   return {

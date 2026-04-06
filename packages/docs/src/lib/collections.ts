@@ -50,6 +50,28 @@ export const chartDuplicateDependencyData = starterStats
     focused: f.isFocused,
   }))
 
+export const chartSPAFPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaFirstPaintMs))
+  .map((f) => ({
+    name: f.name,
+    value: f.spaFirstPaintMs!,
+    focused: f.isFocused,
+  }))
+
+export const chartSPAFCPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaFCPMs))
+  .map((f) => ({ name: f.name, value: f.spaFCPMs!, focused: f.isFocused }))
+
+export const chartSPAINPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaINPMs))
+  .map((f) => ({ name: f.name, value: f.spaINPMs!, focused: f.isFocused }))
+
 export const coreJsTableData = starterStats.map((f) => {
   const hasCorejs = (f.vendoredCoreJsUnnecessaryModules?.length ?? 0) > 0
   return {

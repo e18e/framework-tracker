@@ -1,0 +1,16 @@
+---
+import { ClientRouter } from 'astro:transitions'
+import SpaPage from '../components/SpaPage'
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro SPA Benchmark</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <SpaPage client:only="react" />
+  </body>
+</html>

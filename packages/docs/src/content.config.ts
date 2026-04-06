@@ -56,6 +56,11 @@ const runtimeCollection = defineCollection({
     ssrSamples: z.number(),
     ssrBodySizeKb: z.number(),
     ssrDuplicationFactor: z.number(),
+    // SPA paint + interaction metrics
+    spaFirstPaintMs: z.number().optional(),
+    spaFCPMs: z.number().optional(),
+    spaINPMs: z.number().optional(),
+    spaRuns: z.number().optional(),
   }),
 })
 

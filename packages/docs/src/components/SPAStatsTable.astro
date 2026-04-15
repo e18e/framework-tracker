@@ -1,0 +1,33 @@
+---
+import { spaStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import MethodologyTag from './MethodologyTag.astro'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      row.package !== 'app-baseline-html'
+        ? `/framework/${getFrameworkSlug(row.package as string)}`
+        : null,
+  },
+  { key: 'spaFirstPaintMs', header: 'First Paint' },
+  { key: 'spaFCPMs', header: 'FCP' },
+  { key: 'spaINPMs', header: 'INP' },
+]
+
+const tableData = spaStats
+---
+
+<MethodologyTag>
+  Measured on GitHub Actions (ubuntu-latest, Node 24) using Lighthouse flow with
+  Chromium.
+</MethodologyTag>
+<StatsTable
+  label="SPA performance by framework"
+  columns={columns}
+  data={tableData}
+/>

@@ -2,7 +2,7 @@ import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
-const runtimeEntries = await getCollection('runtime')
+export const runtimeEntries = await getCollection('runtime')
 
 export const starterStats = devtimeEntries
   .map((entry) => entry.data)
@@ -11,6 +11,19 @@ export const starterStats = devtimeEntries
 const ssrStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
+
+const spaStats = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.spaFirstPaintMs))
+  .map((f) => ({
+    name: f.name,
+    package: f.package,
+    isFocused: f.isFocused,
+    spaFirstPaintMs: `${f.spaFirstPaintMs}ms`,
+    spaFCPMs: `${f.spaFCPMs}ms`,
+    spaINPMs: `${f.spaINPMs}ms`,
+  }))
 
 const depsStats = starterStats.map((f) => ({
   name: f.name,
@@ -87,4 +100,4 @@ export const coreJsTableData = starterStats.map((f) => {
   }
 })
 
-export { ssrStats, depsStats, buildInstallData }
+export { ssrStats, spaStats, depsStats, buildInstallData }

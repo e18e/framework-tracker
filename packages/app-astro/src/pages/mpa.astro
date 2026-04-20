@@ -1,0 +1,31 @@
+---
+const entries = Array.from({ length: 1000 }, () => ({
+  id: crypto.randomUUID(),
+  name: crypto.randomUUID(),
+}))
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro MPA Benchmark</title>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        {
+          entries.map((entry) => (
+            <tr>
+              <td>{entry.id}</td>
+              <td>{entry.name}</td>
+              <td>
+                <a href={`/mpa/detail?id=${entry.id}`}>View →</a>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </body>
+</html>

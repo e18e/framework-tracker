@@ -1,8 +1,6 @@
 ---
-const entries = Array.from({ length: 1000 }, () => ({
-  id: crypto.randomUUID(),
-  name: crypto.randomUUID(),
-}))
+import { testData } from '../../../testdata/src/ssr'
+const entries = await testData()
 ---
 
 <html lang="en">

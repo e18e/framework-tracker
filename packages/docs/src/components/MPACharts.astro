@@ -1,0 +1,18 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import MPAFPChart from './MPAFPChart.astro'
+import MPAFCPChart from './MPAFCPChart.astro'
+import MPAINPChart from './MPAINPChart.astro'
+---
+
+<ChartTabs
+  sectionId="mpa"
+  label="MPA performance graphs"
+  tab1Label="First Paint"
+  tab2Label="First Contentful Paint"
+  tab3Label="Interaction to Next Paint"
+>
+  <MPAFPChart slot="panel-1" />
+  <MPAFCPChart slot="panel-2" />
+  <MPAINPChart slot="panel-3" />
+</ChartTabs>

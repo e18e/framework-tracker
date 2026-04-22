@@ -1,0 +1,28 @@
+---
+import MethodologyNotes from '../components/MethodologyNotes.astro'
+---
+
+<MethodologyNotes>
+  <li>Each framework renders a table of 1000 rows with two UUID columns</li>
+  <li>
+    Measured using Lighthouse flow with Chromium via Puppeteer for accurate
+    browser metrics
+  </li>
+  <li>
+    First Paint and First Contentful Paint are measured on initial navigation
+  </li>
+  <li>
+    Interaction to Next Paint is measured by clicking the first row's detail
+    link
+  </li>
+  <li>Benchmarks run 5 times and results are averaged</li>
+  <li>
+    Next.js, TanStack Start, and React Router default to SSR with no per-route
+    opt-out. Next.js wraps the SPA table in a <code>dynamic</code> import with <code
+      >ssr: false</code
+    > to prevent build-time prerendering. TanStack Start uses its built-in spa mode.
+    React Router disables SSR entirely via <code>ssr: false</code> in its config.
+    All other frameworks (Nuxt, SvelteKit, SolidStart, Astro) disable SSR per-route
+    without a separate build.
+  </li>
+</MethodologyNotes>

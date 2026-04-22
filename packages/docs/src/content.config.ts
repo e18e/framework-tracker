@@ -61,6 +61,11 @@ const runtimeCollection = defineCollection({
     spaFCPMs: z.number().optional(),
     spaINPMs: z.number().optional(),
     spaRuns: z.number().optional(),
+    // MPA paint + interaction metrics
+    mpaFirstPaintMs: z.number().optional(),
+    mpaFCPMs: z.number().optional(),
+    mpaINPMs: z.number().optional(),
+    mpaRuns: z.number().optional(),
   }),
 })
 

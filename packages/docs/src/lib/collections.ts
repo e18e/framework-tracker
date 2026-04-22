@@ -12,6 +12,19 @@ const ssrStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
 
+const mpaStats = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.mpaFirstPaintMs))
+  .map((f) => ({
+    name: f.name,
+    package: f.package,
+    isFocused: f.isFocused,
+    mpaFirstPaintMs: `${f.mpaFirstPaintMs}ms`,
+    mpaFCPMs: `${f.mpaFCPMs}ms`,
+    mpaINPMs: `${f.mpaINPMs}ms`,
+  }))
+
 const spaStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
@@ -63,6 +76,28 @@ export const chartDuplicateDependencyData = starterStats
     focused: f.isFocused,
   }))
 
+export const chartMPAFPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.mpaFirstPaintMs))
+  .map((f) => ({
+    name: f.name,
+    value: f.mpaFirstPaintMs!,
+    focused: f.isFocused,
+  }))
+
+export const chartMPAFCPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.mpaFCPMs))
+  .map((f) => ({ name: f.name, value: f.mpaFCPMs!, focused: f.isFocused }))
+
+export const chartMPAINPData = runtimeEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order)
+  .filter((f) => f?.name != null && Number.isFinite(f.mpaINPMs))
+  .map((f) => ({ name: f.name, value: f.mpaINPMs!, focused: f.isFocused }))
+
 export const chartSPAFPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
@@ -100,4 +135,4 @@ export const coreJsTableData = starterStats.map((f) => {
   }
 })
 
-export { ssrStats, spaStats, depsStats, buildInstallData }
+export { ssrStats, spaStats, mpaStats, depsStats, buildInstallData }

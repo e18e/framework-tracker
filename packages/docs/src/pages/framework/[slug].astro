@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
 import MethodologyTag from '../../components/MethodologyTag.astro'
+import MPAStatsMethodologyNotes from '../../components/MPAStatsMethodologyNotes.astro'
 import PageHeader from '../../components/PageHeader.astro'
 import SPAStatsMethodologyNotes from '../../components/SPAStatsMethodologyNotes.astro'
 import SSRStatsMethodologyNotes from '../../components/SSRStatsMethodologyNotes.astro'
@@ -183,6 +184,24 @@ const spaData = runtime
       },
     ]
   : []
+
+const mpaColumns = [
+  { key: 'name', header: 'Framework', nameCell: true },
+  { key: 'mpaFirstPaintMs', header: 'First Paint' },
+  { key: 'mpaFCPMs', header: 'FCP' },
+  { key: 'mpaINPMs', header: 'INP' },
+]
+
+const mpaData = runtime
+  ? [
+      {
+        name: runtime.name,
+        mpaFirstPaintMs: `${runtime.mpaFirstPaintMs}ms`,
+        mpaFCPMs: `${runtime.mpaFCPMs}ms`,
+        mpaINPMs: `${runtime.mpaINPMs}ms`,
+      },
+    ]
+  : []
 ---
 
 <Layout title={`${devtime.name} — Framework Tracker`}>
@@ -333,6 +352,17 @@ const spaData = runtime
           data={spaData}
         />
         <SPAStatsMethodologyNotes />
+        <h3>MPA Performance</h3>
+        <MethodologyTag>
+          Measured on GitHub Actions (ubuntu-latest, Node 24) using Lighthouse
+          flow with Chromium.
+        </MethodologyTag>
+        <StatsTable
+          label="MPA performance"
+          columns={mpaColumns}
+          data={mpaData}
+        />
+        <MPAStatsMethodologyNotes />
       </>
     )
   }

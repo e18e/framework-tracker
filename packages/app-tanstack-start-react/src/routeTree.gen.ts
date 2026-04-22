@@ -9,20 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as MpaRouteImport } from './routes/mpa'
 import { Route as SpaRouteImport } from './routes/spa'
+import { Route as MpaRouteImport } from './routes/mpa'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MpaDetailRouteImport } from './routes/mpa_.detail'
 import { Route as SpaDetailRouteImport } from './routes/spa_.detail'
+import { Route as MpaDetailRouteImport } from './routes/mpa_.detail'
 
-const MpaRoute = MpaRouteImport.update({
-  id: '/mpa',
-  path: '/mpa',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SpaRoute = SpaRouteImport.update({
   id: '/spa',
   path: '/spa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MpaRoute = MpaRouteImport.update({
+  id: '/mpa',
+  path: '/mpa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -30,14 +30,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MpaDetailRoute = MpaDetailRouteImport.update({
-  id: '/mpa_/detail',
-  path: '/mpa/detail',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SpaDetailRoute = SpaDetailRouteImport.update({
   id: '/spa_/detail',
   path: '/spa/detail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MpaDetailRoute = MpaDetailRouteImport.update({
+  id: '/mpa_/detail',
+  path: '/mpa/detail',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -81,18 +81,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/mpa': {
-      id: '/mpa'
-      path: '/mpa'
-      fullPath: '/mpa'
-      preLoaderRoute: typeof MpaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/spa': {
       id: '/spa'
       path: '/spa'
       fullPath: '/spa'
       preLoaderRoute: typeof SpaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mpa': {
+      id: '/mpa'
+      path: '/mpa'
+      fullPath: '/mpa'
+      preLoaderRoute: typeof MpaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -102,18 +102,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mpa_/detail': {
-      id: '/mpa_/detail'
-      path: '/mpa/detail'
-      fullPath: '/mpa/detail'
-      preLoaderRoute: typeof MpaDetailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/spa_/detail': {
       id: '/spa_/detail'
       path: '/spa/detail'
       fullPath: '/spa/detail'
       preLoaderRoute: typeof SpaDetailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mpa_/detail': {
+      id: '/mpa_/detail'
+      path: '/mpa/detail'
+      fullPath: '/mpa/detail'
+      preLoaderRoute: typeof MpaDetailRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

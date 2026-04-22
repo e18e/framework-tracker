@@ -60,9 +60,7 @@ async function main() {
         }
         frameworkVersion = installStats.frameworkVersion
       } else {
-        console.info(
-          `  ⚠ No install stats artifact found at ${installStatsPath}`,
-        )
+        console.warn(`No install stats artifact found at ${installStatsPath}`)
       }
 
       // Load build stats from artifact
@@ -82,7 +80,7 @@ async function main() {
           buildOutputSize: buildStats.buildOutputSize,
         }
       } else {
-        console.info(`  ⚠ No build stats artifact found at ${buildStatsPath}`)
+        console.warn(`No build stats artifact found at ${buildStatsPath}`)
       }
 
       // Load core-js stats from artifact
@@ -100,8 +98,8 @@ async function main() {
           vendoredCoreJsUnnecessaryModules: coreJsStats.unnecessaryModules,
         }
       } else {
-        console.info(
-          `  ⚠ No core-js stats artifact found at ${coreJsArtifactPath}`,
+        console.warn(
+          ` No core-js stats artifact found at ${coreJsArtifactPath}`,
         )
       }
 
@@ -129,7 +127,7 @@ async function main() {
           e18eMessages: e18eStats.messages,
         }
       } else {
-        console.info(`  ⚠ No e18e stats artifact found at ${e18eArtifactPath}`)
+        console.warn(`No e18e stats artifact found at ${e18eArtifactPath}`)
       }
 
       // Save to ci-stats.json
@@ -189,7 +187,7 @@ async function main() {
         }
         frameworkVersion = ssrStats.frameworkVersion
       } else {
-        console.info(`  ⚠ No SSR stats artifact found at ${ssrStatsPath}`)
+        console.warn(`No SSR stats artifact found at ${ssrStatsPath}`)
       }
 
       // Load SPA stats from artifact (run-spa-benchmark writes directly to ci-stats.json)
@@ -210,9 +208,30 @@ async function main() {
           spaRuns: spaStats.spaRuns,
         }
       } else {
-        console.info(
-          `  ⚠ No SPA stats artifact found at ${spaStatsArtifactPath}`,
-        )
+        console.warn(`No SPA stats artifact found at ${spaStatsArtifactPath}`)
+      }
+
+      // Load MPA stats from artifact (run-mpa-benchmark writes directly to ci-stats.json)
+      const mpaStatsArtifactPath = join(
+        artifactsDir,
+        `mpa-stats-${name}`,
+        'ci-stats.json',
+      )
+      const mpaStats = readJsonFile<CIStats>(mpaStatsArtifactPath)
+
+      if (mpaStats) {
+        console.info(`  ✓ Found MPA stats artifact`)
+        stats = {
+          ...stats,
+          frameworkVersion: mpaStats.frameworkVersion,
+          mpaFirstPaintMs: mpaStats.mpaFirstPaintMs,
+          mpaFCPMs: mpaStats.mpaFCPMs,
+          mpaINPMs: mpaStats.mpaINPMs,
+          mpaRuns: mpaStats.mpaRuns,
+        }
+        frameworkVersion = mpaStats.frameworkVersion ?? frameworkVersion
+      } else {
+        console.warn(`No MPA stats artifact found at ${mpaStatsArtifactPath}`)
       }
 
       // Save to ci-stats.json

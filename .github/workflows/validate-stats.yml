@@ -73,5 +73,27 @@ jobs:
           done
 
           echo ""
+          echo "=== Running SPA benchmarks ==="
+          FRAMEWORKS=$(cat .github/frameworks.json)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["spa"]))' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.starter.package')
+            echo "Building SPA for $PKG..."
+            (cd packages/$PKG && pnpm build)
+            echo "Running SPA benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:spa $PKG
+          done
+
+          echo ""
+          echo "=== Running MPA benchmarks ==="
+          FRAMEWORKS=$(cat .github/frameworks.json)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["mpa"]))' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.app.package')
+            echo "Building MPA for $PKG..."
+            (cd packages/$PKG && pnpm build)
+            echo "Running MPA benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:mpa $PKG
+          done
+
+          echo ""
           echo "=== Validating all outputs ==="
           pnpm --filter @framework-tracker/stats-generator validate

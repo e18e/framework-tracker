@@ -25,6 +25,11 @@ on:
         type: string
         required: false
         default: '[]'
+      mpa-matrix:
+        description: 'JSON array of frameworks to measure MPA paint and interaction performance'
+        type: string
+        required: false
+        default: '[]'
 
 jobs:
   measure-install:
@@ -205,13 +210,13 @@ jobs:
         framework: ${{ fromJson(inputs.spa-matrix) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: '24'
           cache: 'pnpm'
@@ -240,6 +245,55 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: spa-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/ci-stats.json
+          retention-days: 1
+          if-no-files-found: error
+
+  measure-mpa:
+    if: inputs.mpa-matrix != '[]'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.0-noble
+      options: --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.mpa-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile --ignore-workspace
+
+      - name: Build app
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm build
+
+      - name: Run MPA benchmark
+        run: pnpm --filter @framework-tracker/stats-generator run:mpa ${{ matrix.framework.package }}
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+          RUNNER_LABEL: ubuntu-latest
+
+      - name: Upload MPA stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: mpa-stats-${{ matrix.framework.name }}
           path: packages/${{ matrix.framework.package }}/ci-stats.json
           retention-days: 1
           if-no-files-found: error

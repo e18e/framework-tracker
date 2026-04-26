@@ -75,10 +75,10 @@ jobs:
           echo ""
           echo "=== Running SPA benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["spa"]))' | while read -r framework; do
-            PKG=$(echo "$framework" | jq -r '.starter.package')
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["spa"]))' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building SPA for $PKG..."
-            (cd packages/$PKG && pnpm build)
+            (cd packages/$PKG && BUILD_MODE=spa pnpm build)
             echo "Running SPA benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:spa $PKG
           done

@@ -11,7 +11,7 @@ export default defineConfig({
   },
   plugins: [
     ...(isSpa ? [] : [nitro({ preset: 'node-middleware' })]),
-    tanstackStart({ spa: { enabled: isSpa, maskPath: '/spa' } }),
+    tanstackStart({ spa: { enabled: isSpa } }),
     viteReact(),
   ],
 })

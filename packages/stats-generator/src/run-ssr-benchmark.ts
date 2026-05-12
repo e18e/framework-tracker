@@ -52,6 +52,7 @@ async function main() {
     frameworkVersion,
     ssrOpsPerSec: result.opsPerSec,
     ssrAvgLatencyMs: result.avgLatencyMs,
+    ssrMedianLatencyMs: result.medianLatencyMs,
     ssrSamples: result.samples,
     ssrBodySizeKb: result.bodySizeKb,
     ssrDuplicationFactor: result.duplicationFactor,

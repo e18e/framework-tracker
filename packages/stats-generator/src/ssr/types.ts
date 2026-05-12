@@ -17,6 +17,7 @@ export interface SSRBenchmarkResult {
   package: string
   opsPerSec: number
   avgLatencyMs: number
+  medianLatencyMs: number
   samples: number
   bodySizeKb: number
   duplicationFactor: number
@@ -28,6 +29,7 @@ export interface SSRStats {
   type: 'ssr-app'
   ssrOpsPerSec: number
   ssrAvgLatencyMs: number
+  ssrMedianLatencyMs?: number
   ssrSamples: number
   ssrBodySizeKb: number
   ssrDuplicationFactor: number

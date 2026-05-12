@@ -44,6 +44,7 @@ export interface CIStats {
   // SSR stats
   ssrOpsPerSec?: number
   ssrAvgLatencyMs?: number
+  ssrMedianLatencyMs?: number
   ssrSamples?: number
   ssrBodySizeKb?: number
   ssrDuplicationFactor?: number

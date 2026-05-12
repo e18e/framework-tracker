@@ -15,7 +15,7 @@ const columns = [
         : null,
   },
   { key: 'ssrOpsPerSec', header: 'Ops/sec' },
-  { key: 'ssrAvgLatencyMs', header: 'Avg Latency' },
+  { key: 'ssrLatencyMs', header: 'Median Latency' },
   { key: 'ssrBodySizeKb', header: 'Body Size' },
   { key: 'ssrDuplicationFactor', header: 'Duplication' },
 ]
@@ -25,7 +25,7 @@ const tableData = ssrStats.map((f) => ({
   package: f.package,
   isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
   ssrOpsPerSec: f.ssrOpsPerSec?.toLocaleString() ?? '',
-  ssrAvgLatencyMs: `${f.ssrAvgLatencyMs}ms`,
+  ssrLatencyMs: `${f.ssrMedianLatencyMs ?? f.ssrAvgLatencyMs}ms`,
   ssrBodySizeKb: `${f.ssrBodySizeKb}kb`,
   ssrDuplicationFactor: `${f.ssrDuplicationFactor}x`,
 }))

@@ -105,6 +105,7 @@ export function toSSRStats(result: SSRBenchmarkResult): SSRStats {
     type: 'ssr-app',
     ssrOpsPerSec: result.opsPerSec,
     ssrAvgLatencyMs: result.avgLatencyMs,
+    ssrMedianLatencyMs: result.medianLatencyMs,
     ssrSamples: result.samples,
     ssrBodySizeKb: result.bodySizeKb,
     ssrDuplicationFactor: result.duplicationFactor,

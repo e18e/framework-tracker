@@ -103,6 +103,7 @@ export async function runBenchmark(
       package: config.package,
       opsPerSec: Math.round(task.result.throughput.mean),
       avgLatencyMs: Number(task.result.latency.mean.toFixed(3)),
+      medianLatencyMs: Number(task.result.latency.p50.toFixed(3)),
       samples: task.result.throughput.samplesCount,
       bodySizeKb: Number((length / 1024).toFixed(2)),
       duplicationFactor: Number(duplicationFactor.toFixed(2)),

@@ -137,7 +137,7 @@ const buildData = [
 const ssrColumns = [
   { key: 'name', header: 'Framework', nameCell: true },
   { key: 'ssrOpsPerSec', header: 'Ops/sec' },
-  { key: 'ssrAvgLatencyMs', header: 'Avg Latency' },
+  { key: 'ssrLatencyMs', header: 'Median Latency' },
   { key: 'ssrBodySizeKb', header: 'Body Size' },
   { key: 'ssrDuplicationFactor', header: 'Duplication' },
 ]
@@ -148,7 +148,7 @@ const ssrData = [
         {
           name: baseline.name,
           ssrOpsPerSec: baseline.ssrOpsPerSec?.toLocaleString() ?? '',
-          ssrAvgLatencyMs: `${baseline.ssrAvgLatencyMs}ms`,
+          ssrLatencyMs: `${baseline.ssrMedianLatencyMs ?? baseline.ssrAvgLatencyMs}ms`,
           ssrBodySizeKb: `${baseline.ssrBodySizeKb}kb`,
           ssrDuplicationFactor: `${baseline.ssrDuplicationFactor}x`,
         },
@@ -159,7 +159,7 @@ const ssrData = [
         {
           name: runtime.name,
           ssrOpsPerSec: runtime.ssrOpsPerSec?.toLocaleString() ?? '',
-          ssrAvgLatencyMs: `${runtime.ssrAvgLatencyMs}ms`,
+          ssrLatencyMs: `${runtime.ssrMedianLatencyMs ?? runtime.ssrAvgLatencyMs}ms`,
           ssrBodySizeKb: `${runtime.ssrBodySizeKb}kb`,
           ssrDuplicationFactor: `${runtime.ssrDuplicationFactor}x`,
         },

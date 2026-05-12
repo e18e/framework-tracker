@@ -29,7 +29,7 @@ export interface SSRStats {
   type: 'ssr-app'
   ssrOpsPerSec: number
   ssrAvgLatencyMs: number
-  ssrMedianLatencyMs?: number
+  ssrMedianLatencyMs: number
   ssrSamples: number
   ssrBodySizeKb: number
   ssrDuplicationFactor: number

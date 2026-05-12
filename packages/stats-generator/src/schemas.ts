@@ -22,7 +22,7 @@ export const BuildStatsSchema = z.object({
 export const SSRStatsSchema = z.object({
   ssrOpsPerSec: z.number().positive(),
   ssrAvgLatencyMs: z.number().nonnegative(),
-  ssrMedianLatencyMs: z.number().nonnegative().optional(),
+  ssrMedianLatencyMs: z.number().nonnegative(),
   ssrSamples: z.number().positive(),
   ssrBodySizeKb: z.number().positive(),
   ssrDuplicationFactor: z.number().nonnegative(),

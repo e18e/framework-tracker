@@ -53,7 +53,7 @@ const runtimeCollection = defineCollection({
     order: z.number(),
     ssrOpsPerSec: z.number(),
     ssrAvgLatencyMs: z.number(),
-    ssrMedianLatencyMs: z.number().optional(),
+    ssrMedianLatencyMs: z.number(),
     ssrSamples: z.number(),
     ssrBodySizeKb: z.number(),
     ssrDuplicationFactor: z.number(),

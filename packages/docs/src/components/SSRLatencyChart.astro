@@ -5,7 +5,7 @@ import ComparisonBarChart from './ComparisonBarChart.astro'
 const data = ssrStats
   .map((f) => ({
     name: f.name,
-    value: f.ssrMedianLatencyMs ?? f.ssrAvgLatencyMs,
+    value: f.ssrMedianLatencyMs,
     focused: f.isFocused,
   }))
   .filter((f) => f?.name != null && Number.isFinite(f.value))

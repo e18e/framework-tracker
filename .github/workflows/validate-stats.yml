@@ -35,7 +35,7 @@ jobs:
           FRAMEWORKS=$(cat .github/frameworks.json)
           for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty, .[].app.package // empty'); do
             echo "Installing $PKG..."
-            (cd packages/$PKG && pnpm install --frozen-lockfile --ignore-workspace --config.only-built-dependencies=esbuild --config.only-built-dependencies=sharp)
+            (cd packages/$PKG && pnpm approve-builds esbuild sharp --ignore-workspace && pnpm install --frozen-lockfile --ignore-workspace)
           done
 
       - name: Run all benchmarks and validate

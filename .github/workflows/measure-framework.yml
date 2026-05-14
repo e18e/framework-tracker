@@ -92,7 +92,7 @@ jobs:
 
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace --config.only-built-dependencies=esbuild --config.only-built-dependencies=sharp
+        run: pnpm install --frozen-lockfile
 
       - name: Run build benchmark
         run: |
@@ -143,7 +143,7 @@ jobs:
 
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace --config.only-built-dependencies=esbuild --config.only-built-dependencies=sharp
+        run: pnpm install --frozen-lockfile
 
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
@@ -184,7 +184,7 @@ jobs:
 
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace --config.only-built-dependencies=esbuild --config.only-built-dependencies=sharp
+        run: pnpm install --frozen-lockfile
 
       - name: Run e18e analysis
         working-directory: ./packages/${{ matrix.framework.package }}
@@ -226,7 +226,7 @@ jobs:
 
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace --config.only-built-dependencies=esbuild --config.only-built-dependencies=sharp
+        run: pnpm install --frozen-lockfile
 
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
@@ -277,7 +277,7 @@ jobs:
 
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile --ignore-workspace --config.only-built-dependencies=esbuild --config.only-built-dependencies=sharp
+        run: pnpm install --frozen-lockfile
 
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}

@@ -5,15 +5,32 @@ interface Props {
   title: string
   data: ChartDatum[]
   valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
+  unitLabel?: string
 }
 
-const { title, data, valueFormat } = Astro.props
-const chartPayload = JSON.stringify({ data, valueFormat })
+const defaultUnitLabels = {
+  count: 'count',
+  mb: 'MB',
+  kb: 'KB',
+  ms: 'ms',
+  s: 'seconds',
+} as const
+
+const {
+  title,
+  data,
+  valueFormat,
+  unitLabel = defaultUnitLabels[valueFormat],
+} = Astro.props
+const chartPayload = JSON.stringify({ data, valueFormat, unitLabel })
 ---
 
 <div class="comparison-chart-container">
   <div class="comparison-chart-header">
-    <h3 class="comparison-chart-title">{title}</h3>
+    <div class="comparison-chart-title-group">
+      <h3 class="comparison-chart-title">{title}</h3>
+      <span class="comparison-chart-unit">Unit: {unitLabel}</span>
+    </div>
     <details class="sort-dropdown">
       <summary class="sort-trigger">
         <svg
@@ -86,6 +103,19 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     font-weight: 600;
     color: var(--ft-text);
     margin: 0;
+  }
+
+  .comparison-chart-title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    flex-wrap: wrap;
+  }
+
+  .comparison-chart-unit {
+    color: var(--ft-muted);
+    font-size: 12px;
+    font-weight: 500;
   }
 
   .sort-dropdown {
@@ -266,6 +296,12 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     font-size: 12px;
   }
 
+  .comparison-chart-wrapper :global(.comparison-y-axis-unit) {
+    fill: var(--ft-muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
   .comparison-chart-wrapper :global(.comparison-axis-domain) {
     stroke: var(--ft-border);
   }
@@ -341,7 +377,7 @@ const chartPayload = JSON.stringify({ data, valueFormat })
       return
     }
 
-    const { valueFormat } = payload
+    const { valueFormat, unitLabel } = payload
     const rawData = payload.data
     if (!rawData?.length) return
 
@@ -382,7 +418,7 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     d3.select(svg)
       .append('desc')
       .text(
-        `Bar chart comparing each framework by ${chartTitle}. See table for exact values.`,
+        `Bar chart comparing each framework by ${chartTitle}. Values are shown in ${unitLabel}. See table for exact values.`,
       )
 
     const gradientId = `comparisonBarGradient-${crypto.randomUUID()}`
@@ -448,6 +484,13 @@ const chartPayload = JSON.stringify({ data, valueFormat })
       .call((sel) =>
         sel.selectAll('text').attr('class', 'comparison-y-axis-text'),
       )
+
+    g.append('text')
+      .attr('class', 'comparison-y-axis-unit')
+      .attr('x', 0)
+      .attr('y', -8)
+      .attr('text-anchor', 'start')
+      .text(unitLabel)
 
     g.append('g')
       .attr('class', 'comparison-grid')

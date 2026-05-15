@@ -181,6 +181,7 @@ async function main() {
           frameworkVersion: ssrStats.frameworkVersion,
           ssrOpsPerSec: ssrStats.ssrOpsPerSec,
           ssrAvgLatencyMs: ssrStats.ssrAvgLatencyMs,
+          ssrMedianLatencyMs: ssrStats.ssrMedianLatencyMs,
           ssrSamples: ssrStats.ssrSamples,
           ssrBodySizeKb: ssrStats.ssrBodySizeKb,
           ssrDuplicationFactor: ssrStats.ssrDuplicationFactor,

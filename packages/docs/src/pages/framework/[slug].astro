@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
-import MethodologyTag from '../../components/MethodologyTag.astro'
 import MPAStatsMethodologyNotes from '../../components/MPAStatsMethodologyNotes.astro'
 import PageHeader from '../../components/PageHeader.astro'
 import SPAStatsMethodologyNotes from '../../components/SPAStatsMethodologyNotes.astro'
@@ -224,10 +223,6 @@ const mpaData = runtime
   </header>
 
   <h2>Dev Time Performance</h2>
-  <MethodologyTag>
-    Measured using pnpm on GitHub Actions (ubuntu-latest, Node 24) based on the
-    starter project set up by each framework's CLI.
-  </MethodologyTag>
   <StatsTable label="Dependency counts" columns={depsColumns} data={depsData} />
   <StatsTable
     label="Build and install times"
@@ -331,10 +326,6 @@ const mpaData = runtime
       <>
         <h2>Runtime Performance</h2>
         <h3>SSR Performance</h3>
-        <MethodologyTag>
-          Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR
-          benchmark apps.
-        </MethodologyTag>
         <StatsTable
           label="SSR performance"
           columns={ssrColumns}
@@ -342,10 +333,6 @@ const mpaData = runtime
         />
         <SSRStatsMethodologyNotes />
         <h3>SPA Performance</h3>
-        <MethodologyTag>
-          Measured on GitHub Actions (ubuntu-latest, Node 24) using Lighthouse
-          flow with Chromium.
-        </MethodologyTag>
         <StatsTable
           label="SPA performance"
           columns={spaColumns}
@@ -353,10 +340,6 @@ const mpaData = runtime
         />
         <SPAStatsMethodologyNotes />
         <h3>MPA Performance</h3>
-        <MethodologyTag>
-          Measured on GitHub Actions (ubuntu-latest, Node 24) using Lighthouse
-          flow with Chromium.
-        </MethodologyTag>
         <StatsTable
           label="MPA performance"
           columns={mpaColumns}

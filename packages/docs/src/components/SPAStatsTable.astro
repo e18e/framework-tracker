@@ -1,7 +1,6 @@
 ---
 import { spaStats } from '../lib/collections'
 import { getFrameworkSlug } from '../lib/utils'
-import MethodologyTag from './MethodologyTag.astro'
 import StatsTable from './StatsTable.astro'
 
 const columns = [
@@ -22,10 +21,6 @@ const columns = [
 const tableData = spaStats
 ---
 
-<MethodologyTag>
-  Measured on GitHub Actions (ubuntu-latest, Node 24) using Lighthouse flow with
-  Chromium.
-</MethodologyTag>
 <StatsTable
   label="SPA performance by framework"
   columns={columns}

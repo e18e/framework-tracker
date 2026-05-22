@@ -10,8 +10,7 @@ import PageHeader from '../components/PageHeader.astro'
 import SPACharts from '../components/SPACharts.astro'
 import SSRCharts from '../components/SSRCharts.astro'
 import Layout from '../layouts/Layout.astro'
-import DepotLogoDark from '../assets/depot-logo-horizontal-on-dark.svg'
-import DepotLogoLight from '../assets/depot-logo-horizontal-on-light.svg'
+import DepotLogo from '../assets/depot-logo-horizontal.svg'
 ---
 
 <Layout>
@@ -24,27 +23,27 @@ import DepotLogoLight from '../assets/depot-logo-horizontal-on-light.svg'
       rel="noopener noreferrer"
       class="roadmap-link"
     >
-      roadmap
-    </a>.
+      roadmap</a
+    >.
   </Description>
   <Description>
     Stats are currently in active development and may change as we refine our
     methodology and testing process.
   </Description>
 
-  <p class="depot-text">
-    All tests and stat generation is run on Depot runners to ensure fairer and
-    faster testing.
-  </p>
-  <div class="depot-logo">
+  <div class="depot">
+    <p>
+      All of the testing and stat generation is run by our Infrastructure
+      Partner Depot to ensure consistent, fairer, and faster testing.
+    </p>
+
     <a
       href="https://depot.dev/"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Depot"
     >
-      <DepotLogoLight class="logo logo-light" />
-      <DepotLogoDark class="logo logo-dark" />
+      <DepotLogo class="logo logo-light" />
     </a>
   </div>
 
@@ -90,29 +89,20 @@ import DepotLogoLight from '../assets/depot-logo-horizontal-on-light.svg'
     font-weight: 500;
   }
 
-  .depot-text {
-    color: var(--ft-muted);
-    display: inline;
-  }
+  .depot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 
-  .depot-logo {
-    display: inline;
-  }
+    p {
+      color: var(--ft-muted);
+      flex: 1 1 66%;
+    }
 
-  .depot-logo :global(svg) {
-    transform: scale(0.75);
-    transform-origin: left center;
-  }
-
-  .logo-dark {
-    display: none;
-  }
-
-  :global(html.dark) .logo-light {
-    display: none;
-  }
-
-  :global(html.dark) .logo-dark {
-    display: inline;
+    :global(svg) {
+      height: 42px;
+      width: auto;
+    }
   }
 </style>

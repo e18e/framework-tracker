@@ -34,7 +34,7 @@ on:
 jobs:
   measure-install:
     if: inputs.install-matrix != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -69,7 +69,7 @@ jobs:
 
   measure-build:
     if: inputs.build-matrix != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -120,7 +120,7 @@ jobs:
 
   measure-ssr:
     if: inputs.ssr-matrix != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -164,7 +164,7 @@ jobs:
 
   measure-dependencies:
     if: inputs.deps-matrix != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -200,7 +200,7 @@ jobs:
 
   measure-spa:
     if: inputs.spa-matrix != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     container:
       image: mcr.microsoft.com/playwright:v1.49.0-noble
       options: --ipc=host
@@ -251,7 +251,7 @@ jobs:
 
   measure-mpa:
     if: inputs.mpa-matrix != '[]'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     container:
       image: mcr.microsoft.com/playwright:v1.49.0-noble
       options: --ipc=host

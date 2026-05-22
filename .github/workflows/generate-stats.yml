@@ -20,7 +20,7 @@ on:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     outputs:
       install-matrix: ${{ steps.set-matrix.outputs.install }}
       build-matrix: ${{ steps.set-matrix.outputs.build }}
@@ -57,7 +57,7 @@ jobs:
   generate-stats:
     needs: [setup, measure]
     if: always() && needs.setup.result == 'success' && needs.measure.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-24.04
     permissions:
       contents: write
       pull-requests: write

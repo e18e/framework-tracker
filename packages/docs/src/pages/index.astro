@@ -6,15 +6,16 @@ import MPACharts from '../components/MPACharts.astro'
 import NodeModulesSizeCharts from '../components/NodeModulesSizeCharts.astro'
 import Description from '../components/Description.astro'
 import DetailsLink from '../components/DetailsLink.astro'
-import FocusedToggle from '../components/FocusedToggle.astro'
 import PageHeader from '../components/PageHeader.astro'
 import SPACharts from '../components/SPACharts.astro'
 import SSRCharts from '../components/SSRCharts.astro'
 import Layout from '../layouts/Layout.astro'
+import DepotLogoDark from '../assets/depot-logo-horizontal-on-dark.svg'
+import DepotLogoLight from '../assets/depot-logo-horizontal-on-light.svg'
 ---
 
 <Layout>
-  <PageHeader>Framework Tracker</PageHeader>
+  <PageHeader showToggle>Framework Tracker</PageHeader>
   <Description>
     For a full list of what we plan to track see{' '}
     <a
@@ -30,7 +31,23 @@ import Layout from '../layouts/Layout.astro'
     Stats are currently in active development and may change as we refine our
     methodology and testing process.
   </Description>
-  <FocusedToggle />
+
+  <p class="depot-text">
+    All tests and stat generation is run on Depot runners to ensure fairer and
+    faster testing.
+  </p>
+  <div class="depot-logo">
+    <a
+      href="https://depot.dev/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Depot"
+    >
+      <DepotLogoLight class="logo logo-light" />
+      <DepotLogoDark class="logo logo-dark" />
+    </a>
+  </div>
+
   <h2>Dev Time Performance</h2>
   <h3>Dependency Counts</h3>
   <DependencyCharts />
@@ -71,5 +88,31 @@ import Layout from '../layouts/Layout.astro'
 <style>
   .roadmap-link {
     font-weight: 500;
+  }
+
+  .depot-text {
+    color: var(--ft-muted);
+    display: inline;
+  }
+
+  .depot-logo {
+    display: inline;
+  }
+
+  .depot-logo :global(svg) {
+    transform: scale(0.75);
+    transform-origin: left center;
+  }
+
+  .logo-dark {
+    display: none;
+  }
+
+  :global(html.dark) .logo-light {
+    display: none;
+  }
+
+  :global(html.dark) .logo-dark {
+    display: inline;
   }
 </style>

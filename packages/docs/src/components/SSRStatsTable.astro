@@ -1,7 +1,6 @@
 ---
 import { ssrStats } from '../lib/collections'
 import { getFrameworkSlug } from '../lib/utils'
-import MethodologyTag from './MethodologyTag.astro'
 import StatsTable from './StatsTable.astro'
 
 const columns = [
@@ -31,10 +30,6 @@ const tableData = ssrStats.map((f) => ({
 }))
 ---
 
-<MethodologyTag>
-  Measured on GitHub Actions (ubuntu-latest, Node 24) using custom SSR benchmark
-  apps.
-</MethodologyTag>
 <StatsTable
   label="SSR performance by framework"
   columns={columns}

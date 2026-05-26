@@ -9,6 +9,7 @@ const data = ssrStats
     focused: f.isFocused,
   }))
   .filter((f) => f?.name != null && Number.isFinite(f.value))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
 <ComparisonBarChart
@@ -16,5 +17,4 @@ const data = ssrStats
   data={data}
   valueFormat="ms"
   yAxisLabel="Milliseconds"
-  sortDirection="asc"
 />

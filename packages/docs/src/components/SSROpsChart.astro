@@ -5,6 +5,7 @@ import ComparisonBarChart from './ComparisonBarChart.astro'
 const data = ssrStats
   .filter((f) => f?.name != null && Number.isFinite(f.ssrOpsPerSec))
   .map((f) => ({ name: f.name, value: f.ssrOpsPerSec, focused: f.isFocused }))
+  .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
 ---
 
 <ComparisonBarChart
@@ -12,5 +13,4 @@ const data = ssrStats
   data={data}
   valueFormat="count"
   yAxisLabel="Operations per second"
-  sortDirection="desc"
 />

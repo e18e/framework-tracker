@@ -1,12 +1,15 @@
 ---
 import { chartSPAFCPData } from '../lib/collections'
 import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = [...chartSPAFCPData].sort(
+  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+)
 ---
 
 <ComparisonBarChart
   title="First Contentful Paint (ms)"
-  data={chartSPAFCPData}
+  data={data}
   valueFormat="ms"
   yAxisLabel="Milliseconds"
-  sortDirection="asc"
 />

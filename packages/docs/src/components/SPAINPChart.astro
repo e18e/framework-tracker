@@ -1,12 +1,15 @@
 ---
 import { chartSPAINPData } from '../lib/collections'
 import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = [...chartSPAINPData].sort(
+  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+)
 ---
 
 <ComparisonBarChart
   title="Interaction to Next Paint (ms)"
-  data={chartSPAINPData}
+  data={data}
   valueFormat="ms"
   yAxisLabel="Milliseconds"
-  sortDirection="asc"
 />

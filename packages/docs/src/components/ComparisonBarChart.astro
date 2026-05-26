@@ -6,26 +6,19 @@ interface Props {
   data: ChartDatum[]
   valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
   yAxisLabel: string
-  sortDirection: 'asc' | 'desc'
 }
 
 const CHART_HEIGHT_PX = 400
 const MOBILE_CHART_HEIGHT_PX = 300
 
-const { title, data, valueFormat, yAxisLabel, sortDirection } = Astro.props
-const sortMultiplier = sortDirection === 'desc' ? -1 : 1
-const sortedData = data
-  .map((d) => ({
-    name: String(d?.name ?? ''),
-    value: Math.max(0, Number(d.value) || 0),
-    focused: d.focused,
-  }))
-  .sort(
-    (a, b) =>
-      (a.value - b.value) * sortMultiplier || a.name.localeCompare(b.name),
-  )
+const { title, data, valueFormat, yAxisLabel } = Astro.props
+const chartData = data.map((d) => ({
+  name: String(d?.name ?? ''),
+  value: Math.max(0, Number(d.value) || 0),
+  focused: d.focused,
+}))
 const chartPayload = JSON.stringify({
-  data: sortedData,
+  data: chartData,
   valueFormat,
   yAxisLabel,
 })
@@ -73,8 +66,25 @@ const chartPayload = JSON.stringify({
 </style>
 
 <script>
-  import Chart from 'chart.js/auto'
+  import {
+    BarController,
+    BarElement,
+    CategoryScale,
+    Chart,
+    Legend,
+    LinearScale,
+    Tooltip,
+  } from 'chart.js'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
+
+  Chart.register(
+    BarController,
+    BarElement,
+    CategoryScale,
+    Legend,
+    LinearScale,
+    Tooltip,
+  )
 
   const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
   const resizeObserverCache = new WeakMap<HTMLElement, ResizeObserver>()
@@ -227,12 +237,30 @@ const chartPayload = JSON.stringify({
     requestAnimationFrame(() => initCharts(root))
   }
 
+  function observeThemeClassChanges() {
+    if (typeof MutationObserver === 'undefined') return
+
+    let lastClassName = document.documentElement.className
+    const observer = new MutationObserver(() => {
+      const nextClassName = document.documentElement.className
+      if (nextClassName === lastClassName) return
+
+      lastClassName = nextClassName
+      scheduleInit()
+    })
+
+    observer.observe(document.documentElement, {
+      attributeFilter: ['class'],
+    })
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => initCharts())
   } else {
     initCharts()
   }
 
+  observeThemeClassChanges()
   window.addEventListener('focused-toggle', () => initCharts())
   document.addEventListener('chart-tabpanel-active', (event) => {
     const panel = (event as CustomEvent<{ panel?: ParentNode }>).detail?.panel

@@ -6,11 +6,13 @@ const validEntries = starterStats.filter(
   (f) => f?.name != null && Number.isFinite(f.coldBuildTime?.avgMs),
 )
 
-const data = validEntries.map((f) => ({
-  name: f.name,
-  value: f.coldBuildTime.avgMs / 1000,
-  focused: f.isFocused,
-}))
+const data = validEntries
+  .map((f) => ({
+    name: f.name,
+    value: f.coldBuildTime.avgMs / 1000,
+    focused: f.isFocused,
+  }))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
 <ComparisonBarChart
@@ -18,5 +20,4 @@ const data = validEntries.map((f) => ({
   data={data}
   valueFormat="s"
   yAxisLabel="Seconds"
-  sortDirection="asc"
 />

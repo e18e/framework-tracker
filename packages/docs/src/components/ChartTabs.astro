@@ -8,7 +8,8 @@ interface Props {
   tab4Label?: string
 }
 
-const { sectionId, label, tab1Label, tab2Label, tab3Label, tab4Label } = Astro.props
+const { sectionId, label, tab1Label, tab2Label, tab3Label, tab4Label } =
+  Astro.props
 
 const tab1Id = `${sectionId}-tab-1`
 const tab2Id = `${sectionId}-tab-2`
@@ -56,18 +57,20 @@ const panel4Id = `${sectionId}-panel-4`
         </button>
       )
     }
-    {tab4Label && (
-      <button
-        type="button"
-        role="tab"
-        id={tab4Id}
-        aria-selected="false"
-        aria-controls={panel4Id}
-        class="tab"
-      >
-        {tab4Label}
-      </button>
-    )}
+    {
+      tab4Label && (
+        <button
+          type="button"
+          role="tab"
+          id={tab4Id}
+          aria-selected="false"
+          aria-controls={panel4Id}
+          class="tab"
+        >
+          {tab4Label}
+        </button>
+      )
+    }
   </div>
   <div class="chart-tabpanels">
     <div
@@ -100,17 +103,19 @@ const panel4Id = `${sectionId}-panel-4`
         </div>
       )
     }
-    {tab4Label && (
-      <div
-        role="tabpanel"
-        id={panel4Id}
-        aria-labelledby={tab4Id}
-        class="chart-tabpanel"
-        hidden
-      >
-        <slot name="panel-4" />
-      </div>
-    )}
+    {
+      tab4Label && (
+        <div
+          role="tabpanel"
+          id={panel4Id}
+          aria-labelledby={tab4Id}
+          class="chart-tabpanel"
+          hidden
+        >
+          <slot name="panel-4" />
+        </div>
+      )
+    }
   </div>
 </div>
 

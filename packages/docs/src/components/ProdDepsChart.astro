@@ -6,11 +6,18 @@ const validEntries = starterStats.filter(
   (f) => f?.name != null && Number.isFinite(f.prodDependencies),
 )
 
-const data = validEntries.map((f) => ({
-  name: f.name,
-  value: f.prodDependencies,
-  focused: f.isFocused,
-}))
+const data = validEntries
+  .map((f) => ({
+    name: f.name,
+    value: f.prodDependencies,
+    focused: f.isFocused,
+  }))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
-<ComparisonBarChart title="Prod Deps" data={data} valueFormat="count" />
+<ComparisonBarChart
+  title="Prod Deps"
+  data={data}
+  valueFormat="count"
+  yAxisLabel="Dependency count"
+/>

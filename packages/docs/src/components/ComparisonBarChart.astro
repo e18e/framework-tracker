@@ -5,289 +5,94 @@ interface Props {
   title: string
   data: ChartDatum[]
   valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
+  yAxisLabel: string
 }
 
-const { title, data, valueFormat } = Astro.props
-const chartPayload = JSON.stringify({ data, valueFormat })
+const CHART_HEIGHT_PX = 400
+const MOBILE_CHART_HEIGHT_PX = 300
+
+const { title, data, valueFormat, yAxisLabel } = Astro.props
+const chartData = data.map((d) => ({
+  name: String(d?.name ?? ''),
+  value: Math.max(0, Number(d.value) || 0),
+  focused: d.focused,
+}))
+const chartPayload = JSON.stringify({
+  data: chartData,
+  valueFormat,
+  yAxisLabel,
+})
 ---
 
-<div class="comparison-chart-container">
-  <div class="comparison-chart-header">
-    <h3 class="comparison-chart-title">{title}</h3>
-    <details class="sort-dropdown">
-      <summary class="sort-trigger">
-        <svg
-          class="sort-icon"
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M10 5L7 2 4 5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-          <path
-            d="M4 9l3 3 3-3"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-        <span class="sort-label">Default</span>
-      </summary>
-      <menu class="sort-menu">
-        <li>
-          <button class="sort-option active" data-sort="default" type="button"
-            >Default</button
-          >
-        </li>
-        <li>
-          <button class="sort-option" data-sort="asc" type="button"
-            >↑ Low–High</button
-          >
-        </li>
-        <li>
-          <button class="sort-option" data-sort="desc" type="button"
-            >↓ High–Low</button
-          >
-        </li>
-      </menu>
-    </details>
-  </div>
+<div class="comparison-chart">
+  <h3 class="comparison-chart-title">{title}</h3>
   <div class="comparison-chart-wrapper" data-comparison={chartPayload}>
-    <svg class="comparison-bar-chart" role="img" aria-label={title}></svg>
+    <canvas aria-label={title} role="img">{title} chart</canvas>
   </div>
-  <div class="comparison-chart-tooltip"></div>
 </div>
 
-<style>
-  .comparison-chart-container {
-    position: relative;
+<style
+  define:vars={{
+    chartHeight: `${CHART_HEIGHT_PX}px`,
+    mobileChartHeight: `${MOBILE_CHART_HEIGHT_PX}px`,
+  }}
+>
+  .comparison-chart {
     width: 100%;
     margin-top: 0;
     margin-bottom: 2em;
-  }
-
-  .comparison-chart-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1em;
-    margin-bottom: 0.75em;
-    flex-wrap: wrap;
   }
 
   .comparison-chart-title {
     font-size: 16px;
     font-weight: 600;
     color: var(--ft-text);
-    margin: 0;
-  }
-
-  .sort-dropdown {
-    position: relative;
-  }
-
-  .sort-trigger {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--ft-muted);
-    background: transparent;
-    border: 1px solid var(--ft-border);
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-    list-style: none;
-    user-select: none;
-    transition:
-      color 0.2s,
-      border-color 0.2s;
-  }
-
-  .sort-trigger::-webkit-details-marker {
-    display: none;
-  }
-
-  .sort-trigger::marker {
-    display: none;
-  }
-
-  .sort-trigger:hover {
-    color: var(--ft-text);
-    border-color: var(--ft-accent);
-  }
-
-  .sort-trigger:focus-visible {
-    outline: 2px solid var(--ft-accent);
-    outline-offset: 2px;
-  }
-
-  .sort-dropdown[open] .sort-trigger {
-    color: var(--ft-accent);
-    border-color: var(--ft-accent);
-  }
-
-  .sort-icon {
-    flex-shrink: 0;
-  }
-
-  .sort-menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    z-index: 50;
-    min-width: 120px;
-    background: var(--ft-bg);
-    border: 1px solid var(--ft-border);
-    border-radius: 8px;
-    padding: 4px;
-    margin: 0;
-    list-style: none;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    opacity: 1;
-    transform: translateY(0);
-    transition:
-      opacity 0.15s ease,
-      transform 0.15s ease;
-  }
-
-  @starting-style {
-    .sort-dropdown[open] .sort-menu {
-      opacity: 0;
-      transform: translateY(-6px);
-    }
-  }
-
-  :global(html.dark) .sort-menu {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  }
-
-  .sort-option {
-    display: block;
-    width: 100%;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--ft-muted);
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: left;
-    transition:
-      color 0.15s,
-      background-color 0.15s;
-  }
-
-  .sort-option:hover {
-    color: var(--ft-text);
-    background: var(--ft-bg-muted);
-  }
-
-  .sort-option:focus-visible {
-    outline: 2px solid var(--ft-accent);
-    outline-offset: -2px;
-  }
-
-  .sort-option.active {
-    color: var(--ft-accent);
-    font-weight: 600;
+    margin: 0 0 0.75em;
   }
 
   .comparison-chart-wrapper {
+    position: relative;
     width: 100%;
     max-width: 1000px;
+    height: var(--chartHeight);
     margin: 0 auto;
   }
 
-  .comparison-bar-chart {
-    width: 100%;
-    height: 400px;
-    display: block;
-  }
-
   @media (max-width: 768px) {
-    .comparison-bar-chart {
-      height: 280px;
+    .comparison-chart-wrapper {
+      height: var(--mobileChartHeight);
     }
-  }
-
-  .comparison-chart-tooltip {
-    position: absolute;
-    pointer-events: none;
-    background: var(--ft-bg);
-    border: 1px solid var(--ft-border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    z-index: 100;
-    color: var(--ft-text);
-  }
-
-  .comparison-chart-tooltip.visible {
-    opacity: 1;
-  }
-
-  .comparison-chart-tooltip .tooltip-title {
-    font-weight: 600;
-    color: var(--ft-text);
-    margin-bottom: 4px;
-  }
-
-  .comparison-chart-tooltip .tooltip-value {
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) .comparison-chart-tooltip {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  }
-
-  .comparison-chart-wrapper :global(.comparison-x-axis-text) {
-    fill: var(--ft-text);
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .comparison-chart-wrapper :global(.comparison-y-axis-text) {
-    fill: var(--ft-muted);
-    font-size: 12px;
-  }
-
-  .comparison-chart-wrapper :global(.comparison-axis-domain) {
-    stroke: var(--ft-border);
-  }
-
-  .comparison-chart-wrapper :global(.comparison-axis-tick-line) {
-    stroke: var(--ft-border);
-  }
-
-  .comparison-chart-wrapper :global(.comparison-grid-line) {
-    stroke: var(--ft-chart-grid, var(--ft-border));
   }
 </style>
 
 <script>
-  import * as d3 from 'd3'
+  import {
+    BarController,
+    BarElement,
+    CategoryScale,
+    Chart,
+    Legend,
+    LinearScale,
+    Tooltip,
+  } from 'chart.js'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
 
-  const chartDimensionsCache = new WeakMap<
-    HTMLElement,
-    { width: number; height: number }
-  >()
-  const chartResizeObserverCache = new WeakMap<HTMLElement, ResizeObserver>()
+  Chart.register(
+    BarController,
+    BarElement,
+    CategoryScale,
+    Legend,
+    LinearScale,
+    Tooltip,
+  )
+
+  const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
+  const resizeObserverCache = new WeakMap<HTMLElement, ResizeObserver>()
+  const BAR_COLOR = '#c0b9dd'
+  const MIN_BAR_LENGTH = 4
+  const TEXT_COLOR_FALLBACK = '#1f2933'
+  const MUTED_COLOR_FALLBACK = '#697586'
+  const BORDER_COLOR_FALLBACK = '#d9dee7'
 
   function formatValue(
     value: number,
@@ -300,294 +105,166 @@ const chartPayload = JSON.stringify({ data, valueFormat })
     return `${value.toFixed(2)} ms`
   }
 
-  function setTooltipContent(
-    tooltip: HTMLElement,
-    name: string,
-    valueText: string,
-  ) {
-    const titleDiv = document.createElement('div')
-    titleDiv.className = 'tooltip-title'
-    titleDiv.textContent = name
-    const valueDiv = document.createElement('div')
-    valueDiv.className = 'tooltip-value'
-    valueDiv.textContent = valueText
-    tooltip.replaceChildren(titleDiv, valueDiv)
+  function getCssVar(element: Element, name: string, fallback: string) {
+    return getComputedStyle(element).getPropertyValue(name).trim() || fallback
   }
 
-  function getSortedData(data: ChartDatum[], sortMode: string): ChartDatum[] {
-    if (sortMode === 'asc') return [...data].sort((a, b) => a.value - b.value)
-    if (sortMode === 'desc') return [...data].sort((a, b) => b.value - a.value)
-    return data
-  }
-
-  function initComparisonChart(wrapper: HTMLElement) {
-    const svg = wrapper.querySelector('.comparison-bar-chart') as SVGSVGElement
-    const container = wrapper.closest<HTMLElement>(
-      '.comparison-chart-container',
-    )
-    const tooltip = container?.querySelector<HTMLElement>(
-      '.comparison-chart-tooltip',
-    )
-    if (!svg || !tooltip) return
-
+  function getData(wrapper: HTMLElement): {
+    payload: ComparisonChartPayload
+    data: ChartDatum[]
+  } | null {
     const dataAttr = wrapper.dataset.comparison
-    if (!dataAttr) return
+    if (!dataAttr) return null
 
     let payload: ComparisonChartPayload
     try {
       payload = JSON.parse(dataAttr) as ComparisonChartPayload
     } catch (e) {
       console.warn('[ComparisonBarChart] Invalid chart data:', e)
-      return
+      return null
     }
-
-    const { valueFormat } = payload
-    const rawData = payload.data
-    if (!rawData?.length) return
 
     const toggle = document.getElementById(
       'focused-toggle',
     ) as HTMLInputElement | null
     const focusedOnly = toggle ? toggle.checked : false
+    const data = payload.data.filter((d) => !focusedOnly || d.focused !== false)
 
-    const sortMode = container?.dataset.sortMode ?? 'default'
-    const data: ChartDatum[] = getSortedData(
-      rawData
-        .filter((d) => !focusedOnly || d.focused !== false)
-        .map((d) => ({
-          name: String(d?.name ?? ''),
-          value: Math.max(0, Number(d.value) || 0),
-          focused: d.focused,
-        })),
-      sortMode,
-    )
+    return { payload, data }
+  }
 
-    const margin = { top: 20, right: 40, bottom: 80, left: 50 }
-    const rect = wrapper.getBoundingClientRect()
-    const width = rect.width || 500
-    const height = rect.height || 300
-    const innerWidth = width - margin.left - margin.right
-    const innerHeight = height - margin.top - margin.bottom
+  function initChart(wrapper: HTMLElement) {
+    if (wrapper.offsetParent === null) return
 
-    d3.select(svg).selectAll('*').remove()
-    d3.select(svg).attr('viewBox', `0 0 ${width} ${height}`)
+    const canvas = wrapper.querySelector('canvas')
+    if (!canvas) return
+    const chartTitle = canvas.getAttribute('aria-label') ?? 'Comparison'
 
-    const titleEl = wrapper
-      .closest('.comparison-chart-container')
-      ?.querySelector('.comparison-chart-title')
-    const chartTitle = titleEl?.textContent ?? 'Comparison'
-    d3.select(svg)
-      .append('title')
-      .text(`${chartTitle}. Bar chart comparing frameworks.`)
-    d3.select(svg)
-      .append('desc')
-      .text(
-        `Bar chart comparing each framework by ${chartTitle}. See table for exact values.`,
-      )
+    const result = getData(wrapper)
+    if (!result || result.data.length === 0) return
 
-    const gradientId = `comparisonBarGradient-${crypto.randomUUID()}`
-    const g = d3
-      .select(svg)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`)
+    const { payload, data } = result
+    const values = data.map((d) => d.value)
+    const max = Math.max(...values)
+    const root = document.documentElement
+    const textColor = getCssVar(root, '--ft-text', TEXT_COLOR_FALLBACK)
+    const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
+    const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
+    const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
 
-    const defs = d3.select(svg).append('defs')
-    const gradient = defs
-      .append('linearGradient')
-      .attr('id', gradientId)
-      .attr('x1', '0%')
-      .attr('y1', '100%')
-      .attr('x2', '0%')
-      .attr('y2', '0%')
-    gradient.append('stop').attr('offset', '0%').attr('stop-color', '#7cb560')
-    gradient.append('stop').attr('offset', '100%').attr('stop-color', '#cf8c3c')
+    chartCache.get(canvas)?.destroy()
 
-    const xScale = d3
-      .scaleBand()
-      .domain(data.map((d) => d.name))
-      .range([0, innerWidth])
-      .padding(0.25)
+    const chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map((d) => d.name),
+        datasets: [
+          {
+            label: payload.yAxisLabel ?? chartTitle,
+            data: values,
+            borderRadius: 4,
+            borderSkipped: false,
+            minBarLength: MIN_BAR_LENGTH,
+            backgroundColor: BAR_COLOR,
+            hoverBackgroundColor: BAR_COLOR,
+          },
+        ],
+      },
+      options: {
+        animation: { duration: 500 },
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) =>
+                formatValue(Number(context.raw ?? 0), payload.valueFormat),
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: textColor,
+              maxRotation: 45,
+              minRotation: 45,
+              font: { size: 12, weight: 500 },
+            },
+          },
+          y: {
+            beginAtZero: true,
+            suggestedMax: max * 1.05,
+            border: { color: gridColor },
+            grid: { color: gridColor },
+            title: {
+              color: mutedColor,
+              display: Boolean(payload.yAxisLabel),
+              font: { size: 12, weight: 600 },
+              text: payload.yAxisLabel,
+            },
+            ticks: {
+              color: mutedColor,
+              font: { size: 12 },
+              callback: (value) =>
+                payload.valueFormat === 'count'
+                  ? String(Math.round(Number(value)))
+                  : formatValue(Number(value), payload.valueFormat),
+            },
+          },
+        },
+      },
+    })
 
-    const maxValue = d3.max(data, (d) => d.value) ?? 1
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, maxValue * 1.05])
-      .range([innerHeight, 0])
-
-    const minBarHeightPx = 4
-    function barY(d: ChartDatum) {
-      return d.value === 0 ? innerHeight - minBarHeightPx : yScale(d.value)
-    }
-    function barHeight(d: ChartDatum) {
-      return d.value === 0 ? minBarHeightPx : innerHeight - yScale(d.value)
-    }
-
-    g.append('g')
-      .attr('transform', `translate(0,${innerHeight})`)
-      .call(d3.axisBottom(xScale).tickSize(0))
-      .call((sel) =>
-        sel.select('.domain').attr('class', 'comparison-axis-domain'),
-      )
-      .call((sel) =>
-        sel
-          .selectAll('text')
-          .attr('class', 'comparison-x-axis-text')
-          .attr('dy', '1em')
-          .attr('transform', 'rotate(-45)')
-          .attr('text-anchor', 'end'),
-      )
-
-    g.append('g')
-      .call(d3.axisLeft(yScale).tickSize(0))
-      .call((sel) =>
-        sel.select('.domain').attr('class', 'comparison-axis-domain'),
-      )
-      .call((sel) =>
-        sel.selectAll('.tick line').attr('class', 'comparison-axis-tick-line'),
-      )
-      .call((sel) =>
-        sel.selectAll('text').attr('class', 'comparison-y-axis-text'),
-      )
-
-    g.append('g')
-      .attr('class', 'comparison-grid')
-      .call(
-        d3
-          .axisLeft(yScale)
-          .tickSize(-innerWidth)
-          .tickFormat(() => ''),
-      )
-      .call((sel) => sel.select('.domain').remove())
-      .call((sel) =>
-        sel.selectAll('.tick line').attr('class', 'comparison-grid-line'),
-      )
-
-    const bars = g
-      .selectAll('.comparison-bar')
-      .data(data)
-      .enter()
-      .append('g')
-      .attr('class', 'comparison-bar')
-      .attr('transform', (d) => `translate(${xScale(d.name) ?? 0},0)`)
-
-    bars
-      .append('rect')
-      .attr('x', 0)
-      .attr('y', innerHeight)
-      .attr('width', xScale.bandwidth())
-      .attr('height', 0)
-      .attr('fill', `url(#${gradientId})`)
-      .attr('rx', 4)
-      .attr('ry', 4)
-      .style('cursor', 'pointer')
-
-    bars
-      .on('mouseenter', function (_event: MouseEvent, d: ChartDatum) {
-        d3.select(this).select('rect').attr('opacity', 1)
-        setTooltipContent(tooltip, d.name, formatValue(d.value, valueFormat))
-        tooltip.classList.add('visible')
-      })
-      .on('mousemove', function (event: MouseEvent) {
-        const containerRect = container?.getBoundingClientRect()
-        if (!containerRect) return
-        const x = event.clientX - containerRect.left + 15
-        const y = event.clientY - containerRect.top - 10
-        tooltip.style.left = `${x}px`
-        tooltip.style.top = `${y}px`
-      })
-      .on('mouseleave', function () {
-        d3.select(this).select('rect').attr('opacity', 0.9)
-        tooltip.classList.remove('visible')
-      })
-
-    bars
-      .select('rect')
-      .transition()
-      .duration(500)
-      .ease(d3.easeCubicOut)
-      .attr('y', (d) => barY(d))
-      .attr('height', (d) => barHeight(d))
-      .attr('opacity', 0.9)
-
-    chartDimensionsCache.set(wrapper, { width, height })
+    chartCache.set(canvas, chart)
 
     if (typeof ResizeObserver !== 'undefined') {
-      chartResizeObserverCache.get(wrapper)?.disconnect()
-      const ro = new ResizeObserver(() => {
-        const r = wrapper.getBoundingClientRect()
-        const w = r.width || 0
-        const h = r.height || 0
-        const last = chartDimensionsCache.get(wrapper)
-        const lastW = last?.width ?? 0
-        const lastH = last?.height ?? 0
-        if (w > 0 && h > 0 && (w !== lastW || h !== lastH)) {
-          ro.disconnect()
-          chartResizeObserverCache.delete(wrapper)
-          initComparisonChart(wrapper)
-        }
-      })
+      resizeObserverCache.get(wrapper)?.disconnect()
+      const ro = new ResizeObserver(() => chart.resize())
       ro.observe(wrapper)
-      chartResizeObserverCache.set(wrapper, ro)
+      resizeObserverCache.set(wrapper, ro)
     }
   }
 
-  function initSortControls() {
-    document
-      .querySelectorAll<HTMLDetailsElement>('.sort-dropdown')
-      .forEach((dropdown) => {
-        const container = dropdown.closest<HTMLElement>(
-          '.comparison-chart-container',
-        )
-        const wrapper = container?.querySelector<HTMLElement>(
-          '.comparison-chart-wrapper',
-        )
-        if (!container || !wrapper) return
-
-        const label = dropdown.querySelector<HTMLElement>('.sort-label')
-        const options =
-          dropdown.querySelectorAll<HTMLButtonElement>('.sort-option')
-
-        options.forEach((btn) => {
-          btn.addEventListener('click', () => {
-            options.forEach((b) => b.classList.remove('active'))
-            btn.classList.add('active')
-            if (label) label.textContent = btn.textContent
-            container.dataset.sortMode = btn.dataset.sort ?? 'default'
-            dropdown.open = false
-            initComparisonChart(wrapper)
-          })
-        })
-
-        // Close on outside click
-        document.addEventListener('click', (e) => {
-          if (!dropdown.contains(e.target as Node)) dropdown.open = false
-        })
-
-        // Close on Escape
-        dropdown.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-            dropdown.open = false
-            dropdown.querySelector<HTMLElement>('.sort-trigger')?.focus()
-          }
-        })
-      })
+  function initCharts(root: ParentNode = document) {
+    root
+      .querySelectorAll<HTMLElement>('.comparison-chart-wrapper')
+      .forEach(initChart)
   }
 
-  function init() {
-    document.querySelectorAll('.comparison-chart-wrapper').forEach((el) => {
-      initComparisonChart(el as HTMLElement)
+  function scheduleInit(root?: ParentNode) {
+    requestAnimationFrame(() => initCharts(root))
+  }
+
+  function observeThemeClassChanges() {
+    if (typeof MutationObserver === 'undefined') return
+
+    let lastClassName = document.documentElement.className
+    const observer = new MutationObserver(() => {
+      const nextClassName = document.documentElement.className
+      if (nextClassName === lastClassName) return
+
+      lastClassName = nextClassName
+      scheduleInit()
     })
-    initSortControls()
-    window.addEventListener('focused-toggle', () => {
-      document.querySelectorAll('.comparison-chart-wrapper').forEach((el) => {
-        initComparisonChart(el as HTMLElement)
-      })
+
+    observer.observe(document.documentElement, {
+      attributeFilter: ['class'],
+      attributes: true,
     })
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init)
+    document.addEventListener('DOMContentLoaded', () => initCharts())
   } else {
-    init()
+    initCharts()
   }
+
+  observeThemeClassChanges()
+  window.addEventListener('focused-toggle', () => initCharts())
+  document.addEventListener('chart-tabpanel-active', (event) => {
+    const panel = (event as CustomEvent<{ panel?: ParentNode }>).detail?.panel
+    if (panel) scheduleInit(panel)
+  })
 </script>

@@ -5,6 +5,12 @@ import ComparisonBarChart from './ComparisonBarChart.astro'
 const data = ssrStats
   .filter((f) => f?.name != null && Number.isFinite(f.ssrBodySizeKb))
   .map((f) => ({ name: f.name, value: f.ssrBodySizeKb, focused: f.isFocused }))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
-<ComparisonBarChart title="Body Size" data={data} valueFormat="kb" />
+<ComparisonBarChart
+  title="Body Size"
+  data={data}
+  valueFormat="kb"
+  yAxisLabel="Kilobytes"
+/>

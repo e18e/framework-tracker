@@ -132,16 +132,16 @@ const panel3Id = `${sectionId}-panel-3`
   }
 
   .tab.active {
-    background: var(--ft-accent);
-    color: white;
-    border-color: var(--ft-accent);
+    background: #d4dcff;
+    color: var(--ft-text);
+    border-color: #d4dcff;
     /* covers the tablist border-bottom, merging tab into panel */
-    border-bottom: 1px solid var(--ft-bg);
+    border-bottom: 1px solid #d4dcff;
   }
 
   :global(html.dark) .tab.active {
-    color: var(--ft-bg);
-    border-bottom-color: var(--ft-bg);
+    color: #111827;
+    border-bottom-color: #d4dcff;
   }
 
   .chart-tabpanels {
@@ -186,6 +186,12 @@ const panel3Id = `${sectionId}-panel-3`
         panels.forEach((panel, i) => {
           panel.hidden = i !== index
         })
+        panels[index]?.dispatchEvent(
+          new CustomEvent('chart-tabpanel-active', {
+            bubbles: true,
+            detail: { panel: panels[index] },
+          }),
+        )
       }
 
       tabs.forEach((tab, index) => {

@@ -6,11 +6,18 @@ const validEntries = starterStats.filter(
   (f) => f?.name != null && Number.isFinite(f.warmBuildTime?.avgMs),
 )
 
-const data = validEntries.map((f) => ({
-  name: f.name,
-  value: f.warmBuildTime.avgMs / 1000,
-  focused: f.isFocused,
-}))
+const data = validEntries
+  .map((f) => ({
+    name: f.name,
+    value: f.warmBuildTime.avgMs / 1000,
+    focused: f.isFocused,
+  }))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
-<ComparisonBarChart title="Warm build time" data={data} valueFormat="s" />
+<ComparisonBarChart
+  title="Warm build time"
+  data={data}
+  valueFormat="s"
+  yAxisLabel="Seconds"
+/>

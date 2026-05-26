@@ -7,11 +7,18 @@ const validEntries = starterStats.filter(
   (f) => f?.name != null && Number.isFinite(f.buildOutputSize),
 )
 
-const data = validEntries.map((f) => ({
-  name: f.name,
-  value: f.buildOutputSize / BYTES_PER_MB,
-  focused: f.isFocused,
-}))
+const data = validEntries
+  .map((f) => ({
+    name: f.name,
+    value: f.buildOutputSize / BYTES_PER_MB,
+    focused: f.isFocused,
+  }))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
-<ComparisonBarChart title="Build output size" data={data} valueFormat="mb" />
+<ComparisonBarChart
+  title="Build output size"
+  data={data}
+  valueFormat="mb"
+  yAxisLabel="Megabytes"
+/>

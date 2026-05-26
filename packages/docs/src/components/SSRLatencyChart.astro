@@ -9,6 +9,12 @@ const data = ssrStats
     focused: f.isFocused,
   }))
   .filter((f) => f?.name != null && Number.isFinite(f.value))
+  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
-<ComparisonBarChart title="Median Latency" data={data} valueFormat="ms" />
+<ComparisonBarChart
+  title="Median Latency"
+  data={data}
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>

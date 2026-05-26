@@ -1,10 +1,15 @@
 ---
 import { chartDuplicateDependencyData } from '../lib/collections'
 import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = [...chartDuplicateDependencyData].sort(
+  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+)
 ---
 
 <ComparisonBarChart
   title="Duplicate Dependencies"
-  data={chartDuplicateDependencyData}
+  data={data}
   valueFormat="count"
+  yAxisLabel="Dependency count"
 />

@@ -7,4 +7,10 @@ const data = ssrStats
   .map((f) => ({ name: f.name, value: f.ssrOpsPerSec, focused: f.isFocused }))
 ---
 
-<ComparisonBarChart title="Ops/sec" data={data} valueFormat="count" />
+<ComparisonBarChart
+  title="Ops/sec"
+  data={data}
+  valueFormat="count"
+  yAxisLabel="Operations per second"
+  sortDirection="desc"
+/>

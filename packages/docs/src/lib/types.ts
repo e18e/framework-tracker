@@ -7,4 +7,5 @@ export interface ChartDatum {
 export interface ComparisonChartPayload {
   data: ChartDatum[]
   valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
+  yAxisLabel: string
 }

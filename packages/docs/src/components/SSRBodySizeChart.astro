@@ -7,4 +7,10 @@ const data = ssrStats
   .map((f) => ({ name: f.name, value: f.ssrBodySizeKb, focused: f.isFocused }))
 ---
 
-<ComparisonBarChart title="Body Size" data={data} valueFormat="kb" />
+<ComparisonBarChart
+  title="Body Size"
+  data={data}
+  valueFormat="kb"
+  yAxisLabel="Kilobytes"
+  sortDirection="asc"
+/>

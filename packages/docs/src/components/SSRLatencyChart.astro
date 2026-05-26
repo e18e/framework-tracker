@@ -11,4 +11,10 @@ const data = ssrStats
   .filter((f) => f?.name != null && Number.isFinite(f.value))
 ---
 
-<ComparisonBarChart title="Median Latency" data={data} valueFormat="ms" />
+<ComparisonBarChart
+  title="Median Latency"
+  data={data}
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+  sortDirection="asc"
+/>

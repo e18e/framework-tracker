@@ -1,4 +1,5 @@
 ---
+import InstallTimeAvgChart from './InstallTimeAvgChart.astro'
 import BuildOutputSizeChart from './BuildOutputSizeChart.astro'
 import BuildSizeChart from './BuildSizeChart.astro'
 import BuildSizeProdChart from './BuildSizeProdChart.astro'
@@ -7,12 +8,14 @@ import ChartTabs from './ChartTabs.astro'
 
 <ChartTabs
   sectionId="build"
-  label="Build time graphs"
-  tab1Label="Cold build time"
-  tab2Label="Warm build time"
-  tab3Label="Build output size"
+  label="Build and install time graphs"
+  tab1Label="Avg install time"
+  tab2Label="Cold build time"
+  tab3Label="Warm build time"
+  tab4Label="Build output size"
 >
-  <BuildSizeChart slot="panel-1" />
-  <BuildSizeProdChart slot="panel-2" />
-  <BuildOutputSizeChart slot="panel-3" />
+  <InstallTimeAvgChart slot="panel-1" />
+  <BuildSizeChart slot="panel-2" />
+  <BuildSizeProdChart slot="panel-3" />
+  <BuildOutputSizeChart slot="panel-4" />
 </ChartTabs>

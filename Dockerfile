@@ -14,6 +14,7 @@ FROM base AS cwv-stats
 ENV NODE_ENV=production
 COPY --from=build /prod/cwv-stats/node_modules /app/node_modules
 COPY --from=build /prod/cwv-stats/src /app/src
+RUN chown node:node /app
 USER node
 WORKDIR /app
 CMD [ "node", "src/cwv/index.ts" ]

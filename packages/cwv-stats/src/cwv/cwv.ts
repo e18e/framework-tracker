@@ -1,17 +1,18 @@
 import { type Framework, frameworks } from '../frameworks/frameworks.ts'
 import { type HTTPArchiveCWV, type HTTPArchiveCWVSnapshot, cwvResponseSchema } from "../httparchive/httparchive.ts"
 
+// httparchive allows us to pull FID but does not include any metrics at this current time so we can ignore it.
 type FrameworkCWV = {
   framework: Framework
   date: string
 } & {
-  [cwv in Lowercase<HTTPArchiveCWV>]: {
+  [cwv in Lowercase<Exclude<HTTPArchiveCWV, 'FID'>>]: {
     mobile: number
     desktop: number
   }
 }
 
-export async function getFrameworksCWV(): Promise<Array<FrameworkCWV>> {
+export async function getLatestFrameworksCWV(): Promise<Array<FrameworkCWV>> {
   console.info(`Running LCP Query for frameworks: [${frameworks.join(',')}]`)
 
   const cwv = await getHttpArchiveCWV()
@@ -67,10 +68,10 @@ function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
     overall: getCWV("overall", stat),
     lcp: getCWV("LCP", stat),
     cls: getCWV("CLS", stat),
-    fid: getCWV("FID", stat),
     fcp: getCWV("FCP", stat),
     ttfb: getCWV("TTFB", stat),
     inp: getCWV("INP", stat),
+    test: {}
   }))
 
   return frameworkVitals

@@ -1,9 +1,9 @@
 import { writeFileSync } from 'node:fs'
-import { getFrameworksCWV } from './cwv.ts'
+import { getLatestFrameworksCWV } from './cwv.ts'
 
 async function main() {
   console.info('Starting CWV Query')
-  const stats = await getFrameworksCWV()
+  const stats = await getLatestFrameworksCWV()
   const replacer = null
   const spacing = 2
   const json = JSON.stringify(stats, replacer, spacing)

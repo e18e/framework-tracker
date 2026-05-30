@@ -32,6 +32,6 @@ jobs:
         run: |
           container_id=$(docker run -d cwv-stats)
           docker wait "$container_id"
-          docker cp "$container_id:/app/cwv-stats.json" ./cwv-stats.json
+          docker cp "$container_id:/app/cwv-stats.json" ./packages/cwv-stats/cwv-stats.json
           cat ./cwv-stats.json
           docker rm "$container_id"

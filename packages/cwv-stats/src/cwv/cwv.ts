@@ -20,7 +20,7 @@ export async function getLatestFrameworksCWV(): Promise<Array<FrameworkCWV>> {
   console.info(`Running LCP Query for frameworks: [${frameworks.join(',')}]`)
 
   const cwv = await getHttpArchiveCWV()
-  console.log('Successfully retrieved cwv from httparchive')
+  console.info('Successfully retrieved cwv from httparchive')
 
   const latestFrameworkCWV = getLatestCWVForFrameworks(cwv)
   if (!validateAllCWVIsSameDate(latestFrameworkCWV)) {

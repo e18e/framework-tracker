@@ -71,7 +71,6 @@ function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
     fcp: getCWV("FCP", stat),
     ttfb: getCWV("TTFB", stat),
     inp: getCWV("INP", stat),
-    test: {}
   }))
 
   return frameworkVitals

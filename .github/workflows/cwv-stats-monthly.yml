@@ -35,3 +35,36 @@ jobs:
           docker cp "$container_id:/app/cwv-stats.json" ./packages/cwv-stats/cwv-stats.json
           cat ./cwv-stats.json
           docker rm "$container_id"
+
+      - name: Create Pull Request
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [[ -z $(git status -s) ]]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git checkout -B cwv-stats-update
+          git add packages/
+          git commit -m "Update CWV stats and generated stats"
+          git push --force-with-lease origin cwv-stats-update
+
+          if ! gh pr list --head cwv-stats-update --state open | grep -q .; then
+            gh pr create \
+              --title "Update CWV stats and generated stats" \
+              --body "Automated CWV stats update triggered by monthly job.
+
+          Includes:
+          - CWV stats for frameworks in packages/cwv-stats/src/frameworks/frameworks.ts
+          - Outputs stats to packages/cwv-stats/cwv-stats.json
+
+          This PR was automatically created and will auto-merge if all checks pass." \
+              --base main \
+              --head cwv-stats-update
+          else
+            echo "PR already exists, updated with new commits"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

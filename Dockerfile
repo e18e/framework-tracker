@@ -10,17 +10,14 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --filter @framework-tracker/cwv-stats... --prod --frozen-lockfile
 RUN pnpm deploy --filter=@framework-tracker/cwv-stats --prod /prod/cwv-stats --legacy
 
-FROM base AS cwv-stats-base
+FROM base AS cwv-stats
 ENV NODE_ENV=production
 COPY --from=build /prod/cwv-stats/node_modules /app/node_modules
 COPY --from=build /prod/cwv-stats/src /app/src
+RUN chown node:node /app
 USER node
 WORKDIR /app
-CMD [ "node", "src/lcp/index.ts" ]
-
-# LCP Stats
-FROM cwv-stats-base AS cwv-stats-lcp
-CMD [ "node", "src/lcp/index.ts" ]
+CMD [ "node", "src/cwv/index.ts" ]
 
 FROM mcr.microsoft.com/playwright:v1.49.0-noble AS spa-benchmark
 ENV PNPM_HOME="/pnpm"

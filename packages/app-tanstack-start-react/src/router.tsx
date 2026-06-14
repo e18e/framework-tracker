@@ -7,6 +7,7 @@ export const getRouter = () => {
     context: {},
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    defaultPendingMinMs: 0,
   })
 
   return router

@@ -16,7 +16,7 @@ const entries: Entry[] = Array.from({ length: 1000 }, () => ({
         <td>{{ entry.id }}</td>
         <td>{{ entry.name }}</td>
         <td>
-          <NuxtLink :to="`/spa/detail?id=${entry.id}`">View →</NuxtLink>
+          <NuxtLink :to="`/spa/${entry.id}`">View →</NuxtLink>
         </td>
       </tr>
     </tbody>

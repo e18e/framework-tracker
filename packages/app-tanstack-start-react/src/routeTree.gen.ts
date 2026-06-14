@@ -12,8 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SpaRouteImport } from './routes/spa'
 import { Route as MpaRouteImport } from './routes/mpa'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SpaDetailRouteImport } from './routes/spa_.detail'
-import { Route as MpaDetailRouteImport } from './routes/mpa_.detail'
+import { Route as SpaIdRouteImport } from './routes/spa_.$id'
+import { Route as MpaIdRouteImport } from './routes/mpa_.$id'
 
 const SpaRoute = SpaRouteImport.update({
   id: '/spa',
@@ -30,14 +30,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SpaDetailRoute = SpaDetailRouteImport.update({
-  id: '/spa_/detail',
-  path: '/spa/detail',
+const SpaIdRoute = SpaIdRouteImport.update({
+  id: '/spa_/$id',
+  path: '/spa/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MpaDetailRoute = MpaDetailRouteImport.update({
-  id: '/mpa_/detail',
-  path: '/mpa/detail',
+const MpaIdRoute = MpaIdRouteImport.update({
+  id: '/mpa_/$id',
+  path: '/mpa/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -45,38 +45,38 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mpa': typeof MpaRoute
   '/spa': typeof SpaRoute
-  '/mpa/detail': typeof MpaDetailRoute
-  '/spa/detail': typeof SpaDetailRoute
+  '/mpa/$id': typeof MpaIdRoute
+  '/spa/$id': typeof SpaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mpa': typeof MpaRoute
   '/spa': typeof SpaRoute
-  '/mpa/detail': typeof MpaDetailRoute
-  '/spa/detail': typeof SpaDetailRoute
+  '/mpa/$id': typeof MpaIdRoute
+  '/spa/$id': typeof SpaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mpa': typeof MpaRoute
   '/spa': typeof SpaRoute
-  '/mpa_/detail': typeof MpaDetailRoute
-  '/spa_/detail': typeof SpaDetailRoute
+  '/mpa_/$id': typeof MpaIdRoute
+  '/spa_/$id': typeof SpaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mpa' | '/spa' | '/mpa/detail' | '/spa/detail'
+  fullPaths: '/' | '/mpa' | '/spa' | '/mpa/$id' | '/spa/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mpa' | '/spa' | '/mpa/detail' | '/spa/detail'
-  id: '__root__' | '/' | '/mpa' | '/spa' | '/mpa_/detail' | '/spa_/detail'
+  to: '/' | '/mpa' | '/spa' | '/mpa/$id' | '/spa/$id'
+  id: '__root__' | '/' | '/mpa' | '/spa' | '/mpa_/$id' | '/spa_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MpaRoute: typeof MpaRoute
   SpaRoute: typeof SpaRoute
-  MpaDetailRoute: typeof MpaDetailRoute
-  SpaDetailRoute: typeof SpaDetailRoute
+  MpaIdRoute: typeof MpaIdRoute
+  SpaIdRoute: typeof SpaIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,18 +102,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/spa_/detail': {
-      id: '/spa_/detail'
-      path: '/spa/detail'
-      fullPath: '/spa/detail'
-      preLoaderRoute: typeof SpaDetailRouteImport
+    '/spa_/$id': {
+      id: '/spa_/$id'
+      path: '/spa/$id'
+      fullPath: '/spa/$id'
+      preLoaderRoute: typeof SpaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mpa_/detail': {
-      id: '/mpa_/detail'
-      path: '/mpa/detail'
-      fullPath: '/mpa/detail'
-      preLoaderRoute: typeof MpaDetailRouteImport
+    '/mpa_/$id': {
+      id: '/mpa_/$id'
+      path: '/mpa/$id'
+      fullPath: '/mpa/$id'
+      preLoaderRoute: typeof MpaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -123,8 +123,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MpaRoute: MpaRoute,
   SpaRoute: SpaRoute,
-  MpaDetailRoute: MpaDetailRoute,
-  SpaDetailRoute: SpaDetailRoute,
+  MpaIdRoute: MpaIdRoute,
+  SpaIdRoute: SpaIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

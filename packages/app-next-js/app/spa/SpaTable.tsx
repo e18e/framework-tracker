@@ -23,7 +23,7 @@ export default function SpaTable() {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <Link href={`/spa/detail?id=${entry.id}`}>View →</Link>
+              <Link href={`/spa/${entry.id}`}>View →</Link>
             </td>
           </tr>
         ))}

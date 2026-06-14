@@ -1,8 +1,7 @@
 import type { Route } from './+types/mpa.detail'
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url)
-  const id = url.searchParams.get('id')
+export async function loader({ params }: Route.LoaderArgs) {
+  const id = params.id
   return { id }
 }
 

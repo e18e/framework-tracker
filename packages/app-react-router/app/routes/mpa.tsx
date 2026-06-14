@@ -15,7 +15,7 @@ export default function MpaPage({ loaderData }: Route.ComponentProps) {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <a href={`/mpa/detail?id=${entry.id}`}>View →</a>
+              <a href={`/mpa/${entry.id}`}>View →</a>
             </td>
           </tr>
         ))}

@@ -13,7 +13,7 @@
       <tr>
         <td>{entry.id}</td>
         <td>{entry.name}</td>
-        <td><a href="/spa/detail?id={entry.id}">View →</a></td>
+        <td><a href="/spa/{entry.id}">View →</a></td>
       </tr>
     {/each}
   </tbody>

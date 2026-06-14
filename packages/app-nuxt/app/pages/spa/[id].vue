@@ -1,6 +1,8 @@
 <script setup lang="ts">
+definePageMeta({ ssr: false })
+
 const route = useRoute()
-const id = Array.isArray(route.query.id) ? route.query.id[0] : route.query.id
+const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
 </script>
 
 <template>

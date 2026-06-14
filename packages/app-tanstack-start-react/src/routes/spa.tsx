@@ -25,7 +25,7 @@ function SpaPage() {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <Link to="/spa/detail" search={{ id: entry.id }}>
+              <Link to="/spa/$id" params={{ id: entry.id }}>
                 View →
               </Link>
             </td>

@@ -1,8 +1,7 @@
-import { useSearchParams } from 'react-router'
+import { useParams } from 'react-router'
 
 export default function SpaDetailPage() {
-  const [searchParams] = useSearchParams()
-  const id = searchParams.get('id')
+  const { id } = useParams()
 
   return <p id="detail-id">{id}</p>
 }

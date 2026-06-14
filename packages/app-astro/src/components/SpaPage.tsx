@@ -20,7 +20,7 @@ export default function SpaPage() {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <a href={`/spa/detail?id=${entry.id}`}>View →</a>
+              <a href={`/spa/${entry.id}`}>View →</a>
             </td>
           </tr>
         ))}

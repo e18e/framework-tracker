@@ -1,4 +1,3 @@
-export default function SpaDetail() {
-  const id = new URLSearchParams(window.location.search).get('id')
+export default function SpaDetail({ id }: { id?: string }) {
   return <p id="detail-id">{id}</p>
 }

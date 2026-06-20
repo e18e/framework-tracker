@@ -9,7 +9,7 @@
         <td>{entry.id}</td>
         <td>{entry.name}</td>
         <td>
-          <a href="/mpa/{entry.id}" data-sveltekit-reload>View →</a>
+          <a href="/mpa/{entry.id}">View →</a>
         </td>
       </tr>
     {/each}

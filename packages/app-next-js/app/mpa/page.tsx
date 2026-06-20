@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { testData } from '../../../testdata/src/ssr'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +14,7 @@ export default async function MpaPage() {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <a href={`/mpa/${entry.id}`}>View →</a>
+              <Link href={`/mpa/${entry.id}`}>View →</Link>
             </td>
           </tr>
         ))}

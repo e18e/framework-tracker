@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { testData } from '../../../testdata/src/ssr'
 import type { Route } from './+types/mpa'
 
@@ -15,7 +16,7 @@ export default function MpaPage({ loaderData }: Route.ComponentProps) {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <a href={`/mpa/${entry.id}`}>View →</a>
+              <Link to={`/mpa/${entry.id}`}>View →</Link>
             </td>
           </tr>
         ))}

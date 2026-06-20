@@ -11,7 +11,7 @@ const { data } = await useAsyncData(() => testData(), { deep: false })
         <td>{{ entry.id }}</td>
         <td>{{ entry.name }}</td>
         <td>
-          <a :href="`/mpa/${entry.id}`">View →</a>
+          <NuxtLink :to="`/mpa/${entry.id}`">View →</NuxtLink>
         </td>
       </tr>
     </tbody>

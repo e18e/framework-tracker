@@ -8,11 +8,11 @@ export const starterStats = devtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
 
-const ssrStats = runtimeEntries
+export const ssrStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
 
-const mpaStats = runtimeEntries
+export const mpaStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
   .filter((f) => f?.name != null && Number.isFinite(f.mpaFirstPaintMs))
@@ -25,20 +25,24 @@ const mpaStats = runtimeEntries
     mpaINPMs: `${f.mpaINPMs}ms`,
   }))
 
-const spaStats = runtimeEntries
+export const clientSideRenderedStats = runtimeEntries
   .map((entry) => entry.data)
+  .filter(
+    (framework) =>
+      framework.clientSideRenderedTests != null &&
+      Number.isFinite(framework.clientSideRenderedTests.firstPaintMs),
+  )
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.spaFirstPaintMs))
-  .map((f) => ({
-    name: f.name,
-    package: f.package,
-    isFocused: f.isFocused,
-    spaFirstPaintMs: `${f.spaFirstPaintMs}ms`,
-    spaFCPMs: `${f.spaFCPMs}ms`,
-    spaINPMs: `${f.spaINPMs}ms`,
+  .map((framework) => ({
+    name: framework.name,
+    package: framework.package,
+    isFocused: framework.isFocused,
+    firstPaintMs: `${framework.clientSideRenderedTests!.firstPaintMs}ms`,
+    fcpMs: `${framework.clientSideRenderedTests!.fcpMs}ms`,
+    inpMs: `${framework.clientSideRenderedTests!.inpMs}ms`,
   }))
 
-const depsStats = starterStats.map((f) => ({
+export const depsStats = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
   isFocused: f.isFocused,
@@ -52,7 +56,7 @@ const depsStats = starterStats.map((f) => ({
   graph: 'View',
 }))
 
-const buildInstallData = starterStats.map((f) => ({
+export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
   isFocused: f.isFocused,
@@ -98,27 +102,47 @@ export const chartMPAINPData = runtimeEntries
   .filter((f) => f?.name != null && Number.isFinite(f.mpaINPMs))
   .map((f) => ({ name: f.name, value: f.mpaINPMs!, focused: f.isFocused }))
 
-export const chartSPAFPData = runtimeEntries
+export const chartClientSideRenderedFPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.spaFirstPaintMs))
+  .filter(
+    (f) =>
+      f.clientSideRenderedTests != null &&
+      Number.isFinite(f.clientSideRenderedTests.firstPaintMs),
+  )
   .map((f) => ({
     name: f.name,
-    value: f.spaFirstPaintMs!,
+    value: f.clientSideRenderedTests!.firstPaintMs,
     focused: f.isFocused,
   }))
 
-export const chartSPAFCPData = runtimeEntries
+export const chartClientSideRenderedFCPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.spaFCPMs))
-  .map((f) => ({ name: f.name, value: f.spaFCPMs!, focused: f.isFocused }))
+  .filter(
+    (f) =>
+      f.clientSideRenderedTests != null &&
+      Number.isFinite(f.clientSideRenderedTests.fcpMs),
+  )
+  .map((f) => ({
+    name: f.name,
+    value: f.clientSideRenderedTests!.fcpMs,
+    focused: f.isFocused,
+  }))
 
-export const chartSPAINPData = runtimeEntries
+export const chartClientSideRenderedINPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.spaINPMs))
-  .map((f) => ({ name: f.name, value: f.spaINPMs!, focused: f.isFocused }))
+  .filter(
+    (f) =>
+      f.clientSideRenderedTests != null &&
+      Number.isFinite(f.clientSideRenderedTests.inpMs),
+  )
+  .map((f) => ({
+    name: f.name,
+    value: f.clientSideRenderedTests!.inpMs,
+    focused: f.isFocused,
+  }))
 
 export const coreJsTableData = starterStats.map((f) => {
   const hasCorejs = (f.vendoredCoreJsUnnecessaryModules?.length ?? 0) > 0
@@ -134,5 +158,3 @@ export const coreJsTableData = starterStats.map((f) => {
       : '—',
   }
 })
-
-export { ssrStats, spaStats, mpaStats, depsStats, buildInstallData }

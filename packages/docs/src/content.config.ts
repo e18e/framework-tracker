@@ -57,11 +57,16 @@ const runtimeCollection = defineCollection({
     ssrSamples: z.number(),
     ssrBodySizeKb: z.number(),
     ssrDuplicationFactor: z.number(),
-    // SPA paint + interaction metrics
-    spaFirstPaintMs: z.number().optional(),
-    spaFCPMs: z.number().optional(),
-    spaINPMs: z.number().optional(),
-    spaRuns: z.number().optional(),
+    // Client-side rendered paint + interaction metrics
+    clientSideRenderedTests: z
+      .object({
+        firstPaintMs: z.number(),
+        fcpMs: z.number(),
+        inpMs: z.number(),
+        runs: z.number(),
+      })
+      .optional(),
+
     // MPA paint + interaction metrics
     mpaFirstPaintMs: z.number().optional(),
     mpaFCPMs: z.number().optional(),

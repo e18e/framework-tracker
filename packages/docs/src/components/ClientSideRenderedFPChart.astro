@@ -1,8 +1,8 @@
 ---
-import { chartSPAFPData } from '../lib/collections'
+import { chartClientSideRenderedFPData } from '../lib/collections'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = [...chartSPAFPData].sort(
+const data = [...chartClientSideRenderedFPData].sort(
   (a, b) => a.value - b.value || a.name.localeCompare(b.name),
 )
 ---

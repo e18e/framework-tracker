@@ -2,6 +2,7 @@ import { access, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { packagesDir } from './constants.ts'
 import type { FrameworkStats } from './types.ts'
+import { normalizeCIStats } from './utils.ts'
 
 export type StatsCollection = 'devtime' | 'runtime'
 
@@ -23,10 +24,12 @@ export async function saveStats(
   const fileName = `${packageName}.json`
   const filePath = join(outputDir, fileName)
 
-  let mergedStats = stats
+  let mergedStats = normalizeCIStats(stats)
   try {
     const existingContent = await readFile(filePath, 'utf-8')
-    const existingStats = JSON.parse(existingContent) as FrameworkStats
+    const existingStats = normalizeCIStats(
+      JSON.parse(existingContent) as FrameworkStats,
+    )
     mergedStats = { ...existingStats, ...stats }
   } catch (error) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {

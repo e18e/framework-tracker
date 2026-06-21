@@ -4,7 +4,7 @@ export type MeasurementType =
   | 'test'
   | 'dependencies'
   | 'ssr'
-  | 'spa'
+  | 'clientSideRendered'
   | 'mpa'
 
 export interface MeasurementConfig {
@@ -48,11 +48,13 @@ export interface CIStats {
   ssrSamples?: number
   ssrBodySizeKb?: number
   ssrDuplicationFactor?: number
-  // SPA stats (browser paint + interaction timings)
-  spaFirstPaintMs?: number
-  spaFCPMs?: number
-  spaINPMs?: number
-  spaRuns?: number
+  // Client-side rendered stats (browser paint + interaction timings)
+  clientSideRenderedTests?: {
+    firstPaintMs: number
+    fcpMs: number
+    inpMs: number
+    runs: number
+  }
   // MPA stats (browser paint + interaction timings)
   mpaFirstPaintMs?: number
   mpaFCPMs?: number

@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
-import type { FrameworkConfig, TestConfig } from './types.ts'
+import type { CIStats, FrameworkConfig, TestConfig } from './types.ts'
 
 /**
  * Get directory size in bytes using du command.
@@ -44,6 +44,41 @@ export function writeJsonFile(filePath: string, data: unknown): void {
     mkdirSync(dir, { recursive: true })
   }
   writeFileSync(filePath, JSON.stringify(data, null, 2))
+}
+
+/**
+ * Keep generated stats on the current nested client-side-rendered shape.
+ * This also cleans up older flat fields when merging existing stats files.
+ */
+export function normalizeCIStats<T extends CIStats>(stats: T): T {
+  const legacyStats = stats as T & {
+    clientSideRenderedFirstPaintMs?: unknown
+    clientSideRenderedFCPMs?: unknown
+    clientSideRenderedINPMs?: unknown
+    clientSideRenderedRuns?: unknown
+  }
+
+  if (
+    stats.clientSideRenderedTests == null &&
+    typeof legacyStats.clientSideRenderedFirstPaintMs === 'number' &&
+    typeof legacyStats.clientSideRenderedFCPMs === 'number' &&
+    typeof legacyStats.clientSideRenderedINPMs === 'number' &&
+    typeof legacyStats.clientSideRenderedRuns === 'number'
+  ) {
+    stats.clientSideRenderedTests = {
+      firstPaintMs: legacyStats.clientSideRenderedFirstPaintMs,
+      fcpMs: legacyStats.clientSideRenderedFCPMs,
+      inpMs: legacyStats.clientSideRenderedINPMs,
+      runs: legacyStats.clientSideRenderedRuns,
+    }
+  }
+
+  delete legacyStats.clientSideRenderedFirstPaintMs
+  delete legacyStats.clientSideRenderedFCPMs
+  delete legacyStats.clientSideRenderedINPMs
+  delete legacyStats.clientSideRenderedRuns
+
+  return stats
 }
 
 /**

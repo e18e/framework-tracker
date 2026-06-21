@@ -75,7 +75,7 @@ jobs:
           echo ""
           echo "=== Running SPA benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["spa"]))' | while read -r framework; do
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building SPA for $PKG..."
             (cd packages/$PKG && BUILD_MODE=spa pnpm build)

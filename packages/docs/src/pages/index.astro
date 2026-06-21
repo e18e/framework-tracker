@@ -7,7 +7,7 @@ import NodeModulesSizeCharts from '../components/NodeModulesSizeCharts.astro'
 import Description from '../components/Description.astro'
 import DetailsLink from '../components/DetailsLink.astro'
 import PageHeader from '../components/PageHeader.astro'
-import SPACharts from '../components/SPACharts.astro'
+import ClientSideRenderedCharts from '../components/ClientSideRenderedCharts.astro'
 import SSRCharts from '../components/SSRCharts.astro'
 import Layout from '../layouts/Layout.astro'
 import DepotLogo from '../assets/depot-logo-horizontal.svg'
@@ -76,9 +76,12 @@ import DepotLogo from '../assets/depot-logo-horizontal.svg'
   <h3>SSR Performance</h3>
   <SSRCharts />
   <DetailsLink href="/run-time#ssr-performance" label="SSR in Run Time Stats" />
-  <h3>SPA Performance</h3>
-  <SPACharts />
-  <DetailsLink href="/run-time#spa-performance" label="SPA in Run Time Stats" />
+  <h3>Client Side Performance</h3>
+  <ClientSideRenderedCharts />
+  <DetailsLink
+    href="/run-time#client-side-rendered-performance"
+    label="Client Side Rendered in Run Time Stats"
+  />
   <h3>MPA Performance</h3>
   <MPACharts />
   <DetailsLink href="/run-time#mpa-performance" label="MPA in Run Time Stats" />

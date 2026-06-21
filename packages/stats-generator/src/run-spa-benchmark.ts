@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { runSPABenchmark } from './spa/index.ts'
+import { runSPABenchmark } from './clientSideRendered/index.ts'
 import { packagesDir } from './constants.ts'
 import { getFrameworkByPackage, readJsonFile } from './utils.ts'
 import type { CIStats } from './types.ts'
@@ -58,10 +58,7 @@ async function main() {
     timingMeasuredAt: timestamp,
     runner,
     frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
-    spaFirstPaintMs: result.spaFirstPaintMs,
-    spaFCPMs: result.spaFCPMs,
-    spaINPMs: result.spaINPMs,
-    spaRuns: result.spaRuns,
+    clientSideRenderedTests: result.clientSideRenderedTests,
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
@@ -70,9 +67,11 @@ async function main() {
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
-  console.info(`  First Paint: ${result.spaFirstPaintMs}ms`)
-  console.info(`  FCP:         ${result.spaFCPMs}ms`)
-  console.info(`  INP:         ${result.spaINPMs}ms`)
+  console.info(
+    `  First Paint: ${result.clientSideRenderedTests.firstPaintMs}ms`,
+  )
+  console.info(`  FCP:         ${result.clientSideRenderedTests.fcpMs}ms`)
+  console.info(`  INP:         ${result.clientSideRenderedTests.inpMs}ms`)
 }
 
 main().catch(console.error)

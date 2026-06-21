@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
-import { readJsonFile, writeJsonFile } from './utils.ts'
+import { normalizeCIStats, readJsonFile, writeJsonFile } from './utils.ts'
 import type {
   CIStats,
   InstallStats,
@@ -34,7 +34,7 @@ async function main() {
       const existingStats = readJsonFile<CIStats>(existingStatsPath)
 
       let stats: CIStats = {
-        ...existingStats,
+        ...(existingStats ? normalizeCIStats(existingStats) : {}),
         timingMeasuredAt: timestamp,
         runner,
       }
@@ -159,7 +159,7 @@ async function main() {
       const existingStats = readJsonFile<CIStats>(existingStatsPath)
 
       let stats: CIStats = {
-        ...existingStats,
+        ...(existingStats ? normalizeCIStats(existingStats) : {}),
         timingMeasuredAt: timestamp,
         runner,
       }
@@ -172,7 +172,8 @@ async function main() {
         `ssr-stats-${name}`,
         'ci-stats.json',
       )
-      const ssrStats = readJsonFile<CIStats>(ssrStatsPath)
+      const rawSsrStats = readJsonFile<CIStats>(ssrStatsPath)
+      const ssrStats = rawSsrStats ? normalizeCIStats(rawSsrStats) : null
 
       if (ssrStats) {
         console.info(`  ✓ Found SSR stats artifact`)
@@ -197,16 +198,14 @@ async function main() {
         `spa-stats-${name}`,
         'ci-stats.json',
       )
-      const spaStats = readJsonFile<CIStats>(spaStatsArtifactPath)
+      const rawSpaStats = readJsonFile<CIStats>(spaStatsArtifactPath)
+      const spaStats = rawSpaStats ? normalizeCIStats(rawSpaStats) : null
 
       if (spaStats) {
         console.info(`  ✓ Found SPA stats artifact`)
         stats = {
           ...stats,
-          spaFirstPaintMs: spaStats.spaFirstPaintMs,
-          spaFCPMs: spaStats.spaFCPMs,
-          spaINPMs: spaStats.spaINPMs,
-          spaRuns: spaStats.spaRuns,
+          clientSideRenderedTests: spaStats.clientSideRenderedTests,
         }
       } else {
         console.warn(`No SPA stats artifact found at ${spaStatsArtifactPath}`)
@@ -218,7 +217,8 @@ async function main() {
         `mpa-stats-${name}`,
         'ci-stats.json',
       )
-      const mpaStats = readJsonFile<CIStats>(mpaStatsArtifactPath)
+      const rawMpaStats = readJsonFile<CIStats>(mpaStatsArtifactPath)
+      const mpaStats = rawMpaStats ? normalizeCIStats(rawMpaStats) : null
 
       if (mpaStats) {
         console.info(`  ✓ Found MPA stats artifact`)

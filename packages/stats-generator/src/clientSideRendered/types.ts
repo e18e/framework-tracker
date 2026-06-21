@@ -8,18 +8,22 @@ export interface SPABenchmarkResult {
   name: string
   displayName: string
   package: string
-  spaFirstPaintMs: number
-  spaFCPMs: number
-  spaINPMs: number
-  spaRuns: number
+  clientSideRenderedTests: {
+    firstPaintMs: number
+    fcpMs: number
+    inpMs: number
+    runs: number
+  }
 }
 
 export interface SPAStats {
   timingMeasuredAt: string
   runner: string
   frameworkVersion?: string
-  spaFirstPaintMs: number
-  spaFCPMs: number
-  spaINPMs: number
-  spaRuns: number
+  clientSideRenderedTests: {
+    firstPaintMs: number
+    fcpMs: number
+    inpMs: number
+    runs: number
+  }
 }

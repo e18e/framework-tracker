@@ -121,9 +121,11 @@ export async function runBenchmark(
     name: packageName,
     displayName,
     package: packageName,
-    spaFirstPaintMs: avg(fp),
-    spaFCPMs: avg(fcp),
-    spaINPMs: avg(inp),
-    spaRuns: results.length,
+    clientSideRenderedTests: {
+      firstPaintMs: avg(fp),
+      fcpMs: avg(fcp),
+      inpMs: avg(inp),
+      runs: results.length,
+    },
   }
 }

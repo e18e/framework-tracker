@@ -4,7 +4,7 @@ import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
 import MPAStatsMethodologyNotes from '../../components/MPAStatsMethodologyNotes.astro'
 import PageHeader from '../../components/PageHeader.astro'
-import SPAStatsMethodologyNotes from '../../components/SPAStatsMethodologyNotes.astro'
+import ClientSideRenderedStatsMethodologyNotes from '../../components/ClientSideRenderedStatsMethodologyNotes.astro'
 import SSRStatsMethodologyNotes from '../../components/SSRStatsMethodologyNotes.astro'
 import StatsTable from '../../components/StatsTable.astro'
 import Layout from '../../layouts/Layout.astro'
@@ -166,20 +166,20 @@ const ssrData = [
     : []),
 ]
 
-const spaColumns = [
+const clientSideRenderedColumns = [
   { key: 'name', header: 'Framework', nameCell: true },
-  { key: 'spaFirstPaintMs', header: 'First Paint' },
-  { key: 'spaFCPMs', header: 'FCP' },
-  { key: 'spaINPMs', header: 'INP' },
+  { key: 'firstPaintMs', header: 'First Paint' },
+  { key: 'fcpMs', header: 'FCP' },
+  { key: 'inpMs', header: 'INP' },
 ]
 
-const spaData = runtime
+const clientSideRenderedData = runtime?.clientSideRenderedTests
   ? [
       {
         name: runtime.name,
-        spaFirstPaintMs: `${runtime.spaFirstPaintMs}ms`,
-        spaFCPMs: `${runtime.spaFCPMs}ms`,
-        spaINPMs: `${runtime.spaINPMs}ms`,
+        firstPaintMs: `${runtime.clientSideRenderedTests.firstPaintMs}ms`,
+        fcpMs: `${runtime.clientSideRenderedTests.fcpMs}ms`,
+        inpMs: `${runtime.clientSideRenderedTests.inpMs}ms`,
       },
     ]
   : []
@@ -332,13 +332,13 @@ const mpaData = runtime
           data={ssrData}
         />
         <SSRStatsMethodologyNotes />
-        <h3>SPA Performance</h3>
+        <h3>Client Side Rendered Performance</h3>
         <StatsTable
-          label="SPA performance"
-          columns={spaColumns}
-          data={spaData}
+          label="Client side rendered performance"
+          columns={clientSideRenderedColumns}
+          data={clientSideRenderedData}
         />
-        <SPAStatsMethodologyNotes />
+        <ClientSideRenderedStatsMethodologyNotes />
         <h3>MPA Performance</h3>
         <StatsTable
           label="MPA performance"

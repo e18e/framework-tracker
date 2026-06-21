@@ -1,5 +1,5 @@
 ---
-import { spaStats } from '../lib/collections'
+import { clientSideRenderedStats } from '../lib/collections'
 import { getFrameworkSlug } from '../lib/utils'
 import StatsTable from './StatsTable.astro'
 
@@ -13,16 +13,16 @@ const columns = [
         ? `/framework/${getFrameworkSlug(row.package as string)}`
         : null,
   },
-  { key: 'spaFirstPaintMs', header: 'First Paint' },
-  { key: 'spaFCPMs', header: 'FCP' },
-  { key: 'spaINPMs', header: 'INP' },
+  { key: 'firstPaintMs', header: 'First Paint' },
+  { key: 'fcpMs', header: 'FCP' },
+  { key: 'inpMs', header: 'INP' },
 ]
 
-const tableData = spaStats
+const tableData = clientSideRenderedStats
 ---
 
 <StatsTable
-  label="SPA performance by framework"
+  label="Client side rendered performance by framework"
   columns={columns}
   data={tableData}
 />

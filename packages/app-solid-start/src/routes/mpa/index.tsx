@@ -1,5 +1,5 @@
 import { For } from 'solid-js'
-import { query, createAsync } from '@solidjs/router'
+import { A, query, createAsync } from '@solidjs/router'
 import { testData } from '../../../../testdata/src/ssr'
 
 const getData = query(async () => {
@@ -23,7 +23,7 @@ export default function MpaPage() {
               <td>{entry.id}</td>
               <td>{entry.name}</td>
               <td>
-                <a href={`/mpa/${entry.id}`}>View →</a>
+                <A href={`/mpa/${entry.id}`}>View →</A>
               </td>
             </tr>
           )}

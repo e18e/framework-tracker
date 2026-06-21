@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { testData } from '../../../testdata/src/ssr'
 
 export const Route = createFileRoute('/mpa')({
@@ -17,7 +17,9 @@ function MpaPage() {
             <td>{entry.id}</td>
             <td>{entry.name}</td>
             <td>
-              <a href={`/mpa/${entry.id}`}>View →</a>
+              <Link to="/mpa/$id" params={{ id: entry.id }}>
+                View →
+              </Link>
             </td>
           </tr>
         ))}

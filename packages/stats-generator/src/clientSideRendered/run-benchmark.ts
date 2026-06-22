@@ -1,9 +1,12 @@
 import { existsSync, readdirSync } from 'node:fs'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
-import type { SPABenchmarkResult, SPARunResult } from './types.ts'
+import type {
+  ClientSideRenderedBenchmarkResult,
+  ClientSideRenderedRunResult,
+} from './types.ts'
 
-const SPA_PATH = '/spa'
+const CLIENT_SIDE_RENDERED_PATH = '/client-side-rendered'
 
 function findChromium(): string {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH
@@ -36,7 +39,7 @@ function findChromium(): string {
 async function runOnce(
   url: string,
   chromiumPath: string,
-): Promise<SPARunResult> {
+): Promise<ClientSideRenderedRunResult> {
   const browser = await puppeteer.launch({
     executablePath: chromiumPath,
     headless: true,
@@ -47,7 +50,7 @@ async function runOnce(
     const page = await browser.newPage()
 
     const flow = await startFlow(page, {
-      name: 'SPA benchmark',
+      name: 'Client side rendered benchmark',
       flags: {
         throttlingMethod: 'provided',
         formFactor: 'desktop',
@@ -55,8 +58,8 @@ async function runOnce(
       },
     })
 
-    // FP + FCP: navigate to /spa, wait for the table to render
-    await flow.navigate(`${url}${SPA_PATH}`)
+    // FP + FCP: navigate to the client-rendered route and wait for the table.
+    await flow.navigate(`${url}${CLIENT_SIDE_RENDERED_PATH}`)
     await page.waitForSelector('table tbody tr', { timeout: 15_000 })
 
     // INP: click the first row's detail link
@@ -102,9 +105,9 @@ export async function runBenchmark(
   packageName: string,
   displayName: string,
   runs: number,
-): Promise<SPABenchmarkResult> {
+): Promise<ClientSideRenderedBenchmarkResult> {
   const chromiumPath = findChromium()
-  const results: SPARunResult[] = []
+  const results: ClientSideRenderedRunResult[] = []
 
   for (let i = 0; i < runs; i++) {
     console.log(`  Run ${i + 1}/${runs}...`)

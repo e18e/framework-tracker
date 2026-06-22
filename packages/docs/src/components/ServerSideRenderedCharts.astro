@@ -1,0 +1,18 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import ServerSideRenderedFPChart from './ServerSideRenderedFPChart.astro'
+import ServerSideRenderedFCPChart from './ServerSideRenderedFCPChart.astro'
+import ServerSideRenderedINPChart from './ServerSideRenderedINPChart.astro'
+---
+
+<ChartTabs
+  sectionId="server-side-rendered"
+  label="Server side rendered performance graphs"
+  tab1Label="First Paint"
+  tab2Label="First Contentful Paint"
+  tab3Label="Interaction to Next Paint"
+>
+  <ServerSideRenderedFPChart slot="panel-1" />
+  <ServerSideRenderedFCPChart slot="panel-2" />
+  <ServerSideRenderedINPChart slot="panel-3" />
+</ChartTabs>

@@ -15,11 +15,11 @@ const PORT = getPort()
 
 const spaDir = join(appDir, 'dist', 'client')
 const ssrPublicDir = join(appDir, '.output', 'public')
-const isSpa = existsSync(join(spaDir, '_shell.html'))
-const publicDir = isSpa ? spaDir : ssrPublicDir
+const isClientSideRendered = existsSync(join(spaDir, '_shell.html'))
+const publicDir = isClientSideRendered ? spaDir : ssrPublicDir
 
 let middleware: ((req: unknown, res: unknown) => void) | undefined
-if (!isSpa) {
+if (!isClientSideRendered) {
   const mod = await import(
     pathToFileURL(join(appDir, '.output', 'server', 'index.mjs')).href
   )
@@ -31,7 +31,7 @@ const server = createServer((req, res) => {
 
   if (tryServeFile(publicDir, pathname, req, res)) return
 
-  if (isSpa) {
+  if (isClientSideRendered) {
     serveFallback(join(spaDir, '_shell.html'), req, res)
     return
   }

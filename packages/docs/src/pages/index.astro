@@ -2,13 +2,13 @@
 import BuildSizeCharts from '../components/BuildSizeCharts.astro'
 import CoreJsTable from '../components/CoreJsTable.astro'
 import DependencyCharts from '../components/DependencyCharts.astro'
-import MPACharts from '../components/MPACharts.astro'
+import ServerSideRenderedCharts from '../components/ServerSideRenderedCharts.astro'
 import NodeModulesSizeCharts from '../components/NodeModulesSizeCharts.astro'
 import Description from '../components/Description.astro'
 import DetailsLink from '../components/DetailsLink.astro'
 import PageHeader from '../components/PageHeader.astro'
 import ClientSideRenderedCharts from '../components/ClientSideRenderedCharts.astro'
-import SSRCharts from '../components/SSRCharts.astro'
+import SSRRequestThroughputCharts from '../components/SSRRequestThroughputCharts.astro'
 import Layout from '../layouts/Layout.astro'
 import DepotLogo from '../assets/depot-logo-horizontal.svg'
 ---
@@ -73,18 +73,24 @@ import DepotLogo from '../assets/depot-logo-horizontal.svg'
     label="Core-JS Polyfills in Dev Time Stats"
   />
   <h2>Runtime Performance</h2>
-  <h3>SSR Performance</h3>
-  <SSRCharts />
-  <DetailsLink href="/run-time#ssr-performance" label="SSR in Run Time Stats" />
+  <h3>SSR Request Throughput</h3>
+  <SSRRequestThroughputCharts />
+  <DetailsLink
+    href="/run-time#ssr-request-throughput"
+    label="SSR Request Throughput in Run Time Stats"
+  />
   <h3>Client Side Performance</h3>
   <ClientSideRenderedCharts />
   <DetailsLink
     href="/run-time#client-side-rendered-performance"
     label="Client Side Rendered in Run Time Stats"
   />
-  <h3>MPA Performance</h3>
-  <MPACharts />
-  <DetailsLink href="/run-time#mpa-performance" label="MPA in Run Time Stats" />
+  <h3>Server Side Rendered Performance</h3>
+  <ServerSideRenderedCharts />
+  <DetailsLink
+    href="/run-time#server-side-rendered-performance"
+    label="Server Side Rendered in Run Time Stats"
+  />
 </Layout>
 
 <style>

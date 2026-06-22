@@ -1,0 +1,20 @@
+---
+import { ssrRequestThroughputStats } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = ssrRequestThroughputStats
+  .filter((f) => Number.isFinite(f.ssrRequestThroughputTests.opsPerSec))
+  .map((f) => ({
+    name: f.name,
+    value: f.ssrRequestThroughputTests.opsPerSec,
+    focused: f.isFocused,
+  }))
+  .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
+---
+
+<ComparisonBarChart
+  title="Ops/sec"
+  data={data}
+  valueFormat="count"
+  yAxisLabel="Operations per second"
+/>

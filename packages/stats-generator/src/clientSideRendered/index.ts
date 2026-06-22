@@ -3,11 +3,11 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { packagesDir } from '../constants.ts'
 import { runBenchmark } from './run-benchmark.ts'
-import type { SPABenchmarkResult } from './types.ts'
+import type { ClientSideRenderedBenchmarkResult } from './types.ts'
 
-const SPA_PORT = 3001
+const CLIENT_SIDE_RENDERED_PORT = 3001
 
-interface SPAFrameworkConfig {
+interface ClientSideRenderedFrameworkConfig {
   name: string
   displayName: string
   package: string
@@ -17,46 +17,46 @@ interface SPAFrameworkConfig {
   serveArgs?: string[]
 }
 
-const SPA_FRAMEWORKS: SPAFrameworkConfig[] = [
+const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
   {
-    name: 'astro-spa',
-    displayName: 'Astro SPA',
+    name: 'astro-client-side-rendered',
+    displayName: 'Astro Client Side Rendered',
     package: 'app-astro',
     serveScript: 'astro.ts',
   },
   {
-    name: 'next-spa',
-    displayName: 'Next.js SPA',
+    name: 'next-client-side-rendered',
+    displayName: 'Next.js Client Side Rendered',
     package: 'app-next-js',
     serveScript: 'next.ts',
   },
   {
-    name: 'nuxt-spa',
-    displayName: 'Nuxt SPA',
+    name: 'nuxt-client-side-rendered',
+    displayName: 'Nuxt Client Side Rendered',
     package: 'app-nuxt',
     serveScript: 'nitro.ts',
   },
   {
-    name: 'react-router-spa',
-    displayName: 'React Router SPA',
+    name: 'react-router-client-side-rendered',
+    displayName: 'React Router Client Side Rendered',
     package: 'app-react-router',
-    serveScript: 'static-spa.ts',
+    serveScript: 'static-client-side-rendered.ts',
   },
   {
-    name: 'solid-start-spa',
-    displayName: 'SolidStart SPA',
+    name: 'solid-start-client-side-rendered',
+    displayName: 'SolidStart Client Side Rendered',
     package: 'app-solid-start',
     serveScript: 'nitro.ts',
   },
   {
-    name: 'sveltekit-spa',
-    displayName: 'SvelteKit SPA',
+    name: 'sveltekit-client-side-rendered',
+    displayName: 'SvelteKit Client Side Rendered',
     package: 'app-sveltekit',
     serveScript: 'sveltekit.ts',
   },
   {
-    name: 'tanstack-start-spa',
-    displayName: 'TanStack Start SPA',
+    name: 'tanstack-start-client-side-rendered',
+    displayName: 'TanStack Start Client Side Rendered',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
   },
@@ -76,7 +76,9 @@ async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
   throw new Error(`Server at ${url} did not become ready within ${timeoutMs}ms`)
 }
 
-async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
+async function spawnServer(
+  config: ClientSideRenderedFrameworkConfig,
+): Promise<() => void> {
   const appDir = join(packagesDir, config.package)
   const scriptPath = fileURLToPath(
     new URL(`../serve/${config.serveScript}`, import.meta.url),
@@ -84,7 +86,7 @@ async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
   const scriptArgs = [scriptPath, appDir, ...(config.serveArgs ?? [])]
 
   const proc = spawn('node', scriptArgs, {
-    env: { ...process.env, PORT: String(SPA_PORT) },
+    env: { ...process.env, PORT: String(CLIENT_SIDE_RENDERED_PORT) },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 
@@ -112,7 +114,9 @@ async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
   })
 
   await Promise.race([
-    waitForServer(`http://localhost:${SPA_PORT}/spa`),
+    waitForServer(
+      `http://localhost:${CLIENT_SIDE_RENDERED_PORT}/client-side-rendered`,
+    ),
     exitPromise,
   ])
 
@@ -121,15 +125,17 @@ async function spawnServer(config: SPAFrameworkConfig): Promise<() => void> {
   }
 }
 
-export async function runSPABenchmark(
+export async function runClientSideRenderedBenchmark(
   packageName: string,
   runs = 5,
-): Promise<SPABenchmarkResult> {
-  const config = SPA_FRAMEWORKS.find((f) => f.package === packageName)
+): Promise<ClientSideRenderedBenchmarkResult> {
+  const config = CLIENT_SIDE_RENDERED_FRAMEWORKS.find(
+    (f) => f.package === packageName,
+  )
 
   if (!config) {
     throw new Error(
-      `Unknown SPA package: ${packageName}. Available: ${SPA_FRAMEWORKS.map((f) => f.package).join(', ')}`,
+      `Unknown client-side rendered package: ${packageName}. Available: ${CLIENT_SIDE_RENDERED_FRAMEWORKS.map((f) => f.package).join(', ')}`,
     )
   }
 
@@ -137,9 +143,11 @@ export async function runSPABenchmark(
   const killServer = await spawnServer(config)
 
   try {
-    console.info(`Running SPA benchmark for ${config.displayName}...`)
+    console.info(
+      `Running client-side rendered benchmark for ${config.displayName}...`,
+    )
     return await runBenchmark(
-      `http://localhost:${SPA_PORT}`,
+      `http://localhost:${CLIENT_SIDE_RENDERED_PORT}`,
       config.name,
       config.displayName,
       runs,

@@ -6,10 +6,10 @@ import { readJsonFile } from './utils.ts'
 import {
   InstallStatsSchema,
   BuildStatsSchema,
-  SSRStatsSchema,
+  SSRRequestThroughputStatsSchema,
 } from './schemas.ts'
 
-type BenchmarkType = 'install' | 'build' | 'ssr'
+type BenchmarkType = 'install' | 'build' | 'ssrRequestThroughput'
 
 interface BenchmarkConfig {
   type: BenchmarkType
@@ -23,7 +23,11 @@ const STARTER_BENCHMARKS: BenchmarkConfig[] = [
 ]
 
 const APP_BENCHMARKS: BenchmarkConfig[] = [
-  { type: 'ssr', file: 'ci-stats.json', schema: SSRStatsSchema },
+  {
+    type: 'ssrRequestThroughput',
+    file: 'ci-stats.json',
+    schema: SSRRequestThroughputStatsSchema,
+  },
 ]
 
 function validateFile(filePath: string, schema: z.ZodSchema): string[] {

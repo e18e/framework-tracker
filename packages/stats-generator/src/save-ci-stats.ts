@@ -166,73 +166,87 @@ async function main() {
 
       let frameworkVersion = existingStats?.frameworkVersion
 
-      // Load SSR stats from artifact
-      const ssrStatsPath = join(
+      // Load SSR request throughput stats from artifact
+      const ssrRequestThroughputStatsPath = join(
         artifactsDir,
-        `ssr-stats-${name}`,
+        `ssr-request-throughput-stats-${name}`,
         'ci-stats.json',
       )
-      const rawSsrStats = readJsonFile<CIStats>(ssrStatsPath)
-      const ssrStats = rawSsrStats ? normalizeCIStats(rawSsrStats) : null
+      const rawSSRRequestThroughputStats = readJsonFile<CIStats>(
+        ssrRequestThroughputStatsPath,
+      )
+      const ssrRequestThroughputStats = rawSSRRequestThroughputStats
+        ? normalizeCIStats(rawSSRRequestThroughputStats)
+        : null
 
-      if (ssrStats) {
-        console.info(`  ✓ Found SSR stats artifact`)
+      if (ssrRequestThroughputStats) {
+        console.info(`  ✓ Found SSR request throughput stats artifact`)
         stats = {
           ...stats,
-          frameworkVersion: ssrStats.frameworkVersion,
-          ssrOpsPerSec: ssrStats.ssrOpsPerSec,
-          ssrAvgLatencyMs: ssrStats.ssrAvgLatencyMs,
-          ssrMedianLatencyMs: ssrStats.ssrMedianLatencyMs,
-          ssrSamples: ssrStats.ssrSamples,
-          ssrBodySizeKb: ssrStats.ssrBodySizeKb,
-          ssrDuplicationFactor: ssrStats.ssrDuplicationFactor,
+          frameworkVersion: ssrRequestThroughputStats.frameworkVersion,
+          ssrRequestThroughputTests:
+            ssrRequestThroughputStats.ssrRequestThroughputTests,
         }
-        frameworkVersion = ssrStats.frameworkVersion
+        frameworkVersion = ssrRequestThroughputStats.frameworkVersion
       } else {
-        console.warn(`No SSR stats artifact found at ${ssrStatsPath}`)
+        console.warn(
+          `No SSR request throughput stats artifact found at ${ssrRequestThroughputStatsPath}`,
+        )
       }
 
-      // Load SPA stats from artifact (run-spa-benchmark writes directly to ci-stats.json)
-      const spaStatsArtifactPath = join(
+      // Load client-side rendered stats from artifact
+      const clientSideRenderedStatsArtifactPath = join(
         artifactsDir,
-        `spa-stats-${name}`,
+        `client-side-rendered-stats-${name}`,
         'ci-stats.json',
       )
-      const rawSpaStats = readJsonFile<CIStats>(spaStatsArtifactPath)
-      const spaStats = rawSpaStats ? normalizeCIStats(rawSpaStats) : null
+      const rawClientSideRenderedStats = readJsonFile<CIStats>(
+        clientSideRenderedStatsArtifactPath,
+      )
+      const clientSideRenderedStats = rawClientSideRenderedStats
+        ? normalizeCIStats(rawClientSideRenderedStats)
+        : null
 
-      if (spaStats) {
-        console.info(`  ✓ Found SPA stats artifact`)
+      if (clientSideRenderedStats) {
+        console.info(`  ✓ Found client-side rendered stats artifact`)
         stats = {
           ...stats,
-          clientSideRenderedTests: spaStats.clientSideRenderedTests,
+          clientSideRenderedTests:
+            clientSideRenderedStats.clientSideRenderedTests,
         }
       } else {
-        console.warn(`No SPA stats artifact found at ${spaStatsArtifactPath}`)
+        console.warn(
+          `No client-side rendered stats artifact found at ${clientSideRenderedStatsArtifactPath}`,
+        )
       }
 
-      // Load MPA stats from artifact (run-mpa-benchmark writes directly to ci-stats.json)
-      const mpaStatsArtifactPath = join(
+      // Load server-side rendered stats from artifact
+      const serverSideRenderedStatsArtifactPath = join(
         artifactsDir,
-        `mpa-stats-${name}`,
+        `server-side-rendered-stats-${name}`,
         'ci-stats.json',
       )
-      const rawMpaStats = readJsonFile<CIStats>(mpaStatsArtifactPath)
-      const mpaStats = rawMpaStats ? normalizeCIStats(rawMpaStats) : null
+      const rawServerSideRenderedStats = readJsonFile<CIStats>(
+        serverSideRenderedStatsArtifactPath,
+      )
+      const serverSideRenderedStats = rawServerSideRenderedStats
+        ? normalizeCIStats(rawServerSideRenderedStats)
+        : null
 
-      if (mpaStats) {
-        console.info(`  ✓ Found MPA stats artifact`)
+      if (serverSideRenderedStats) {
+        console.info(`  ✓ Found server-side rendered stats artifact`)
         stats = {
           ...stats,
-          frameworkVersion: mpaStats.frameworkVersion,
-          mpaFirstPaintMs: mpaStats.mpaFirstPaintMs,
-          mpaFCPMs: mpaStats.mpaFCPMs,
-          mpaINPMs: mpaStats.mpaINPMs,
-          mpaRuns: mpaStats.mpaRuns,
+          frameworkVersion: serverSideRenderedStats.frameworkVersion,
+          serverSideRenderedTests:
+            serverSideRenderedStats.serverSideRenderedTests,
         }
-        frameworkVersion = mpaStats.frameworkVersion ?? frameworkVersion
+        frameworkVersion =
+          serverSideRenderedStats.frameworkVersion ?? frameworkVersion
       } else {
-        console.warn(`No MPA stats artifact found at ${mpaStatsArtifactPath}`)
+        console.warn(
+          `No server-side rendered stats artifact found at ${serverSideRenderedStatsArtifactPath}`,
+        )
       }
 
       // Save to ci-stats.json

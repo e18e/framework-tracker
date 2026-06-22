@@ -1,0 +1,37 @@
+---
+import { ssrRequestThroughputStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      row.package !== 'app-baseline-html'
+        ? `/framework/${getFrameworkSlug(row.package as string)}`
+        : null,
+  },
+  { key: 'opsPerSec', header: 'Ops/sec' },
+  { key: 'medianLatencyMs', header: 'Median Latency' },
+  { key: 'bodySizeKb', header: 'Body Size' },
+  { key: 'duplicationFactor', header: 'Duplication' },
+]
+
+const tableData = ssrRequestThroughputStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
+  opsPerSec: f.ssrRequestThroughputTests.opsPerSec.toLocaleString(),
+  medianLatencyMs: `${f.ssrRequestThroughputTests.medianLatencyMs}ms`,
+  bodySizeKb: `${f.ssrRequestThroughputTests.bodySizeKb}kb`,
+  duplicationFactor: `${f.ssrRequestThroughputTests.duplicationFactor}x`,
+}))
+---
+
+<StatsTable
+  label="SSR request throughput by framework"
+  columns={columns}
+  data={tableData}
+/>

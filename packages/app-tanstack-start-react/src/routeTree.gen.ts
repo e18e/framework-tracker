@@ -9,20 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SpaRouteImport } from './routes/spa'
-import { Route as MpaRouteImport } from './routes/mpa'
+import { Route as ServerSideRenderedRouteImport } from './routes/server-side-rendered'
+import { Route as ClientSideRenderedRouteImport } from './routes/client-side-rendered'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SpaIdRouteImport } from './routes/spa_.$id'
-import { Route as MpaIdRouteImport } from './routes/mpa_.$id'
+import { Route as ServerSideRenderedIdRouteImport } from './routes/server-side-rendered_.$id'
+import { Route as ClientSideRenderedIdRouteImport } from './routes/client-side-rendered_.$id'
 
-const SpaRoute = SpaRouteImport.update({
-  id: '/spa',
-  path: '/spa',
+const ServerSideRenderedRoute = ServerSideRenderedRouteImport.update({
+  id: '/server-side-rendered',
+  path: '/server-side-rendered',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MpaRoute = MpaRouteImport.update({
-  id: '/mpa',
-  path: '/mpa',
+const ClientSideRenderedRoute = ClientSideRenderedRouteImport.update({
+  id: '/client-side-rendered',
+  path: '/client-side-rendered',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -30,69 +30,85 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SpaIdRoute = SpaIdRouteImport.update({
-  id: '/spa_/$id',
-  path: '/spa/$id',
+const ServerSideRenderedIdRoute = ServerSideRenderedIdRouteImport.update({
+  id: '/server-side-rendered_/$id',
+  path: '/server-side-rendered/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MpaIdRoute = MpaIdRouteImport.update({
-  id: '/mpa_/$id',
-  path: '/mpa/$id',
+const ClientSideRenderedIdRoute = ClientSideRenderedIdRouteImport.update({
+  id: '/client-side-rendered_/$id',
+  path: '/client-side-rendered/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/mpa': typeof MpaRoute
-  '/spa': typeof SpaRoute
-  '/mpa/$id': typeof MpaIdRoute
-  '/spa/$id': typeof SpaIdRoute
+  '/client-side-rendered': typeof ClientSideRenderedRoute
+  '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/client-side-rendered/$id': typeof ClientSideRenderedIdRoute
+  '/server-side-rendered/$id': typeof ServerSideRenderedIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/mpa': typeof MpaRoute
-  '/spa': typeof SpaRoute
-  '/mpa/$id': typeof MpaIdRoute
-  '/spa/$id': typeof SpaIdRoute
+  '/client-side-rendered': typeof ClientSideRenderedRoute
+  '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/client-side-rendered/$id': typeof ClientSideRenderedIdRoute
+  '/server-side-rendered/$id': typeof ServerSideRenderedIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/mpa': typeof MpaRoute
-  '/spa': typeof SpaRoute
-  '/mpa_/$id': typeof MpaIdRoute
-  '/spa_/$id': typeof SpaIdRoute
+  '/client-side-rendered': typeof ClientSideRenderedRoute
+  '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/client-side-rendered_/$id': typeof ClientSideRenderedIdRoute
+  '/server-side-rendered_/$id': typeof ServerSideRenderedIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/mpa' | '/spa' | '/mpa/$id' | '/spa/$id'
+  fullPaths:
+    | '/'
+    | '/client-side-rendered'
+    | '/server-side-rendered'
+    | '/client-side-rendered/$id'
+    | '/server-side-rendered/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/mpa' | '/spa' | '/mpa/$id' | '/spa/$id'
-  id: '__root__' | '/' | '/mpa' | '/spa' | '/mpa_/$id' | '/spa_/$id'
+  to:
+    | '/'
+    | '/client-side-rendered'
+    | '/server-side-rendered'
+    | '/client-side-rendered/$id'
+    | '/server-side-rendered/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/client-side-rendered'
+    | '/server-side-rendered'
+    | '/client-side-rendered_/$id'
+    | '/server-side-rendered_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  MpaRoute: typeof MpaRoute
-  SpaRoute: typeof SpaRoute
-  MpaIdRoute: typeof MpaIdRoute
-  SpaIdRoute: typeof SpaIdRoute
+  ClientSideRenderedRoute: typeof ClientSideRenderedRoute
+  ServerSideRenderedRoute: typeof ServerSideRenderedRoute
+  ClientSideRenderedIdRoute: typeof ClientSideRenderedIdRoute
+  ServerSideRenderedIdRoute: typeof ServerSideRenderedIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/spa': {
-      id: '/spa'
-      path: '/spa'
-      fullPath: '/spa'
-      preLoaderRoute: typeof SpaRouteImport
+    '/server-side-rendered': {
+      id: '/server-side-rendered'
+      path: '/server-side-rendered'
+      fullPath: '/server-side-rendered'
+      preLoaderRoute: typeof ServerSideRenderedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mpa': {
-      id: '/mpa'
-      path: '/mpa'
-      fullPath: '/mpa'
-      preLoaderRoute: typeof MpaRouteImport
+    '/client-side-rendered': {
+      id: '/client-side-rendered'
+      path: '/client-side-rendered'
+      fullPath: '/client-side-rendered'
+      preLoaderRoute: typeof ClientSideRenderedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -102,18 +118,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/spa_/$id': {
-      id: '/spa_/$id'
-      path: '/spa/$id'
-      fullPath: '/spa/$id'
-      preLoaderRoute: typeof SpaIdRouteImport
+    '/server-side-rendered_/$id': {
+      id: '/server-side-rendered_/$id'
+      path: '/server-side-rendered/$id'
+      fullPath: '/server-side-rendered/$id'
+      preLoaderRoute: typeof ServerSideRenderedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mpa_/$id': {
-      id: '/mpa_/$id'
-      path: '/mpa/$id'
-      fullPath: '/mpa/$id'
-      preLoaderRoute: typeof MpaIdRouteImport
+    '/client-side-rendered_/$id': {
+      id: '/client-side-rendered_/$id'
+      path: '/client-side-rendered/$id'
+      fullPath: '/client-side-rendered/$id'
+      preLoaderRoute: typeof ClientSideRenderedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -121,10 +137,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  MpaRoute: MpaRoute,
-  SpaRoute: SpaRoute,
-  MpaIdRoute: MpaIdRoute,
-  SpaIdRoute: SpaIdRoute,
+  ClientSideRenderedRoute: ClientSideRenderedRoute,
+  ServerSideRenderedRoute: ServerSideRenderedRoute,
+  ClientSideRenderedIdRoute: ClientSideRenderedIdRoute,
+  ServerSideRenderedIdRoute: ServerSideRenderedIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

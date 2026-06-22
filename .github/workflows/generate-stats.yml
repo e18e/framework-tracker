@@ -24,10 +24,10 @@ jobs:
     outputs:
       install-matrix: ${{ steps.set-matrix.outputs.install }}
       build-matrix: ${{ steps.set-matrix.outputs.build }}
-      ssr-matrix: ${{ steps.set-matrix.outputs.ssr }}
+      ssr-request-throughput-matrix: ${{ steps.set-matrix.outputs.ssr-request-throughput }}
       deps-matrix: ${{ steps.set-matrix.outputs.deps }}
-      spa-matrix: ${{ steps.set-matrix.outputs.spa }}
-      mpa-matrix: ${{ steps.set-matrix.outputs.mpa }}
+      client-side-rendered-matrix: ${{ steps.set-matrix.outputs.client-side-rendered }}
+      server-side-rendered-matrix: ${{ steps.set-matrix.outputs.server-side-rendered }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -38,10 +38,10 @@ jobs:
           FRAMEWORKS=$(cat .github/frameworks.json)
           echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
-          echo "ssr=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr-request-throughput=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "deps=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
-          echo "spa=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
-          echo "mpa=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["mpa"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "client-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "server-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["serverSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
 
   measure:
     needs: setup
@@ -49,10 +49,10 @@ jobs:
     with:
       install-matrix: ${{ needs.setup.outputs.install-matrix }}
       build-matrix: ${{ needs.setup.outputs.build-matrix }}
-      ssr-matrix: ${{ needs.setup.outputs.ssr-matrix }}
+      ssr-request-throughput-matrix: ${{ needs.setup.outputs.ssr-request-throughput-matrix }}
       deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
-      spa-matrix: ${{ needs.setup.outputs.spa-matrix }}
-      mpa-matrix: ${{ needs.setup.outputs.mpa-matrix }}
+      client-side-rendered-matrix: ${{ needs.setup.outputs.client-side-rendered-matrix }}
+      server-side-rendered-matrix: ${{ needs.setup.outputs.server-side-rendered-matrix }}
 
   generate-stats:
     needs: [setup, measure]

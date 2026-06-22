@@ -1,10 +1,10 @@
-export interface SPARunResult {
+export interface ClientSideRenderedRunResult {
   firstPaintMs: number | null
   fcpMs: number | null
   inpMs: number | null
 }
 
-export interface SPABenchmarkResult {
+export interface ClientSideRenderedBenchmarkResult {
   name: string
   displayName: string
   package: string
@@ -16,7 +16,7 @@ export interface SPABenchmarkResult {
   }
 }
 
-export interface SPAStats {
+export interface ClientSideRenderedStats {
   timingMeasuredAt: string
   runner: string
   frameworkVersion?: string

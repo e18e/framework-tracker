@@ -79,7 +79,7 @@ All frameworks are configured in `.github/frameworks.json`. Each entry specifies
     "package": "app-astro",
     "buildScript": "build:app-astro",
     "buildOutputDir": "dist",
-    "measurements": [{ "type": "ssr" }]
+    "measurements": [{ "type": "ssrRequestThroughput" }]
   }
 },
 ```

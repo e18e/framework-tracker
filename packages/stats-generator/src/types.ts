@@ -3,9 +3,9 @@ export type MeasurementType =
   | 'build'
   | 'test'
   | 'dependencies'
-  | 'ssr'
+  | 'ssrRequestThroughput'
   | 'clientSideRendered'
-  | 'mpa'
+  | 'serverSideRendered'
 
 export interface MeasurementConfig {
   type: MeasurementType
@@ -41,13 +41,15 @@ export interface CIStats {
   warmBuildTime?: TimeStat
   buildOutputSize?: number
   testTimeMs?: number
-  // SSR stats
-  ssrOpsPerSec?: number
-  ssrAvgLatencyMs?: number
-  ssrMedianLatencyMs?: number
-  ssrSamples?: number
-  ssrBodySizeKb?: number
-  ssrDuplicationFactor?: number
+  // Direct SSR request throughput stats
+  ssrRequestThroughputTests?: {
+    opsPerSec: number
+    avgLatencyMs: number
+    medianLatencyMs: number
+    samples: number
+    bodySizeKb: number
+    duplicationFactor: number
+  }
   // Client-side rendered stats (browser paint + interaction timings)
   clientSideRenderedTests?: {
     firstPaintMs: number
@@ -55,11 +57,13 @@ export interface CIStats {
     inpMs: number
     runs: number
   }
-  // MPA stats (browser paint + interaction timings)
-  mpaFirstPaintMs?: number
-  mpaFCPMs?: number
-  mpaINPMs?: number
-  mpaRuns?: number
+  // Server-side rendered route stats (browser paint + interaction timings)
+  serverSideRenderedTests?: {
+    firstPaintMs: number
+    fcpMs: number
+    inpMs: number
+    runs: number
+  }
   // Core-js vendored polyfill stats
   vendoredCoreJsSize?: number
   vendoredCoreJsUnnecessaryModules?: string[]

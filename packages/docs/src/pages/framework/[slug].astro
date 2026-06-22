@@ -2,10 +2,10 @@
 import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
-import MPAStatsMethodologyNotes from '../../components/MPAStatsMethodologyNotes.astro'
+import ServerSideRenderedStatsMethodologyNotes from '../../components/ServerSideRenderedStatsMethodologyNotes.astro'
 import PageHeader from '../../components/PageHeader.astro'
 import ClientSideRenderedStatsMethodologyNotes from '../../components/ClientSideRenderedStatsMethodologyNotes.astro'
-import SSRStatsMethodologyNotes from '../../components/SSRStatsMethodologyNotes.astro'
+import SSRRequestThroughputStatsMethodologyNotes from '../../components/SSRRequestThroughputStatsMethodologyNotes.astro'
 import StatsTable from '../../components/StatsTable.astro'
 import Layout from '../../layouts/Layout.astro'
 import { buildInstallData, depsStats } from '../../lib/collections'
@@ -133,23 +133,24 @@ const buildData = [
   },
 ]
 
-const ssrColumns = [
+const ssrRequestThroughputColumns = [
   { key: 'name', header: 'Framework', nameCell: true },
-  { key: 'ssrOpsPerSec', header: 'Ops/sec' },
-  { key: 'ssrLatencyMs', header: 'Median Latency' },
-  { key: 'ssrBodySizeKb', header: 'Body Size' },
-  { key: 'ssrDuplicationFactor', header: 'Duplication' },
+  { key: 'opsPerSec', header: 'Ops/sec' },
+  { key: 'medianLatencyMs', header: 'Median Latency' },
+  { key: 'bodySizeKb', header: 'Body Size' },
+  { key: 'duplicationFactor', header: 'Duplication' },
 ]
 
-const ssrData = [
+const ssrRequestThroughputData = [
   ...(baseline
     ? [
         {
           name: baseline.name,
-          ssrOpsPerSec: baseline.ssrOpsPerSec?.toLocaleString() ?? '',
-          ssrLatencyMs: `${baseline.ssrMedianLatencyMs}ms`,
-          ssrBodySizeKb: `${baseline.ssrBodySizeKb}kb`,
-          ssrDuplicationFactor: `${baseline.ssrDuplicationFactor}x`,
+          opsPerSec:
+            baseline.ssrRequestThroughputTests.opsPerSec.toLocaleString(),
+          medianLatencyMs: `${baseline.ssrRequestThroughputTests.medianLatencyMs}ms`,
+          bodySizeKb: `${baseline.ssrRequestThroughputTests.bodySizeKb}kb`,
+          duplicationFactor: `${baseline.ssrRequestThroughputTests.duplicationFactor}x`,
         },
       ]
     : []),
@@ -157,10 +158,11 @@ const ssrData = [
     ? [
         {
           name: runtime.name,
-          ssrOpsPerSec: runtime.ssrOpsPerSec?.toLocaleString() ?? '',
-          ssrLatencyMs: `${runtime.ssrMedianLatencyMs}ms`,
-          ssrBodySizeKb: `${runtime.ssrBodySizeKb}kb`,
-          ssrDuplicationFactor: `${runtime.ssrDuplicationFactor}x`,
+          opsPerSec:
+            runtime.ssrRequestThroughputTests.opsPerSec.toLocaleString(),
+          medianLatencyMs: `${runtime.ssrRequestThroughputTests.medianLatencyMs}ms`,
+          bodySizeKb: `${runtime.ssrRequestThroughputTests.bodySizeKb}kb`,
+          duplicationFactor: `${runtime.ssrRequestThroughputTests.duplicationFactor}x`,
         },
       ]
     : []),
@@ -184,20 +186,20 @@ const clientSideRenderedData = runtime?.clientSideRenderedTests
     ]
   : []
 
-const mpaColumns = [
+const serverSideRenderedColumns = [
   { key: 'name', header: 'Framework', nameCell: true },
-  { key: 'mpaFirstPaintMs', header: 'First Paint' },
-  { key: 'mpaFCPMs', header: 'FCP' },
-  { key: 'mpaINPMs', header: 'INP' },
+  { key: 'firstPaintMs', header: 'First Paint' },
+  { key: 'fcpMs', header: 'FCP' },
+  { key: 'inpMs', header: 'INP' },
 ]
 
-const mpaData = runtime
+const serverSideRenderedData = runtime?.serverSideRenderedTests
   ? [
       {
         name: runtime.name,
-        mpaFirstPaintMs: `${runtime.mpaFirstPaintMs}ms`,
-        mpaFCPMs: `${runtime.mpaFCPMs}ms`,
-        mpaINPMs: `${runtime.mpaINPMs}ms`,
+        firstPaintMs: `${runtime.serverSideRenderedTests.firstPaintMs}ms`,
+        fcpMs: `${runtime.serverSideRenderedTests.fcpMs}ms`,
+        inpMs: `${runtime.serverSideRenderedTests.inpMs}ms`,
       },
     ]
   : []
@@ -325,13 +327,13 @@ const mpaData = runtime
     runtime && (
       <>
         <h2>Runtime Performance</h2>
-        <h3>SSR Performance</h3>
+        <h3>SSR Request Throughput</h3>
         <StatsTable
-          label="SSR performance"
-          columns={ssrColumns}
-          data={ssrData}
+          label="SSR request throughput by framework"
+          columns={ssrRequestThroughputColumns}
+          data={ssrRequestThroughputData}
         />
-        <SSRStatsMethodologyNotes />
+        <SSRRequestThroughputStatsMethodologyNotes />
         <h3>Client Side Rendered Performance</h3>
         <StatsTable
           label="Client side rendered performance"
@@ -339,13 +341,13 @@ const mpaData = runtime
           data={clientSideRenderedData}
         />
         <ClientSideRenderedStatsMethodologyNotes />
-        <h3>MPA Performance</h3>
+        <h3>Server Side Rendered Performance</h3>
         <StatsTable
-          label="MPA performance"
-          columns={mpaColumns}
-          data={mpaData}
+          label="Server side rendered performance"
+          columns={serverSideRenderedColumns}
+          data={serverSideRenderedData}
         />
-        <MPAStatsMethodologyNotes />
+        <ServerSideRenderedStatsMethodologyNotes />
       </>
     )
   }

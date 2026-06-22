@@ -1,29 +1,31 @@
 ---
-import MPACharts from '../components/MPACharts.astro'
-import MPAStatsMethodologyNotes from '../components/MPAStatsMethodologyNotes.astro'
-import MPAStatsTable from '../components/MPAStatsTable.astro'
+import ServerSideRenderedCharts from '../components/ServerSideRenderedCharts.astro'
+import ServerSideRenderedStatsMethodologyNotes from '../components/ServerSideRenderedStatsMethodologyNotes.astro'
+import ServerSideRenderedStatsTable from '../components/ServerSideRenderedStatsTable.astro'
 import PageHeader from '../components/PageHeader.astro'
 import ClientSideRenderedCharts from '../components/ClientSideRenderedCharts.astro'
 import ClientSideRenderedStatsMethodologyNotes from '../components/ClientSideRenderedStatsMethodologyNotes.astro'
 import ClientSideRenderedStatsTable from '../components/ClientSideRenderedStatsTable.astro'
-import SSRStatsMethodologyNotes from '../components/SSRStatsMethodologyNotes.astro'
-import SSRStatsTable from '../components/SSRStatsTable.astro'
+import SSRRequestThroughputStatsMethodologyNotes from '../components/SSRRequestThroughputStatsMethodologyNotes.astro'
+import SSRRequestThroughputStatsTable from '../components/SSRRequestThroughputStatsTable.astro'
 import Layout from '../layouts/Layout.astro'
 ---
 
 <Layout>
   <PageHeader showToggle>Run Time Stats</PageHeader>
-  <h2 id="ssr-performance">SSR Performance</h2>
-  <SSRStatsTable />
-  <SSRStatsMethodologyNotes />
+  <h2 id="ssr-request-throughput">SSR Request Throughput</h2>
+  <SSRRequestThroughputStatsTable />
+  <SSRRequestThroughputStatsMethodologyNotes />
   <h2 id="client-side-rendered-performance">
     Client Side Rendered Performance
   </h2>
   <ClientSideRenderedCharts />
   <ClientSideRenderedStatsTable />
   <ClientSideRenderedStatsMethodologyNotes />
-  <h2 id="mpa-performance">MPA Performance</h2>
-  <MPACharts />
-  <MPAStatsTable />
-  <MPAStatsMethodologyNotes />
+  <h2 id="server-side-rendered-performance">
+    Server Side Rendered Performance
+  </h2>
+  <ServerSideRenderedCharts />
+  <ServerSideRenderedStatsTable />
+  <ServerSideRenderedStatsMethodologyNotes />
 </Layout>

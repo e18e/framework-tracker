@@ -42,14 +42,14 @@ jobs:
         run: |
           set -e
 
-          echo "=== Running SSR benchmarks ==="
+          echo "=== Running SSR request throughput benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app)' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
             (cd packages/$PKG && pnpm build)
-            echo "Running SSR benchmark for $PKG..."
-            pnpm --filter @framework-tracker/stats-generator run:ssr $PKG
+            echo "Running SSR request throughput benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:ssr-request-throughput $PKG
           done
 
           echo ""
@@ -73,25 +73,25 @@ jobs:
           done
 
           echo ""
-          echo "=== Running SPA benchmarks ==="
+          echo "=== Running client-side rendered benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
-            echo "Building SPA for $PKG..."
+            echo "Building client-side rendered app for $PKG..."
             (cd packages/$PKG && BUILD_MODE=spa pnpm build)
-            echo "Running SPA benchmark for $PKG..."
-            pnpm --filter @framework-tracker/stats-generator run:spa $PKG
+            echo "Running client-side rendered benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:client-side-rendered $PKG
           done
 
           echo ""
-          echo "=== Running MPA benchmarks ==="
+          echo "=== Running server-side rendered benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["mpa"]))' | while read -r framework; do
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["serverSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
-            echo "Building MPA for $PKG..."
+            echo "Building server-side rendered app for $PKG..."
             (cd packages/$PKG && pnpm build)
-            echo "Running MPA benchmark for $PKG..."
-            pnpm --filter @framework-tracker/stats-generator run:mpa $PKG
+            echo "Running server-side rendered benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:server-side-rendered $PKG
           done
 
           echo ""

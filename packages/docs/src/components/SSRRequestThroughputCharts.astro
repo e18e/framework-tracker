@@ -1,0 +1,18 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import SSRRequestThroughputBodySizeChart from './SSRRequestThroughputBodySizeChart.astro'
+import SSRRequestThroughputLatencyChart from './SSRRequestThroughputLatencyChart.astro'
+import SSRRequestThroughputOpsChart from './SSRRequestThroughputOpsChart.astro'
+---
+
+<ChartTabs
+  sectionId="ssr-request-throughput"
+  label="SSR request throughput by framework"
+  tab1Label="Ops/sec"
+  tab2Label="Body Size"
+  tab3Label="Avg Latency"
+>
+  <SSRRequestThroughputOpsChart slot="panel-1" />
+  <SSRRequestThroughputBodySizeChart slot="panel-2" />
+  <SSRRequestThroughputLatencyChart slot="panel-3" />
+</ChartTabs>

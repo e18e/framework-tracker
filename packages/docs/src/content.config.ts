@@ -51,12 +51,14 @@ const runtimeCollection = defineCollection({
     package: z.string(),
     isFocused: z.boolean(),
     order: z.number(),
-    ssrOpsPerSec: z.number(),
-    ssrAvgLatencyMs: z.number(),
-    ssrMedianLatencyMs: z.number(),
-    ssrSamples: z.number(),
-    ssrBodySizeKb: z.number(),
-    ssrDuplicationFactor: z.number(),
+    ssrRequestThroughputTests: z.object({
+      opsPerSec: z.number(),
+      avgLatencyMs: z.number(),
+      medianLatencyMs: z.number(),
+      samples: z.number(),
+      bodySizeKb: z.number(),
+      duplicationFactor: z.number(),
+    }),
     // Client-side rendered paint + interaction metrics
     clientSideRenderedTests: z
       .object({
@@ -67,11 +69,15 @@ const runtimeCollection = defineCollection({
       })
       .optional(),
 
-    // MPA paint + interaction metrics
-    mpaFirstPaintMs: z.number().optional(),
-    mpaFCPMs: z.number().optional(),
-    mpaINPMs: z.number().optional(),
-    mpaRuns: z.number().optional(),
+    // Server-side rendered route paint + interaction metrics
+    serverSideRenderedTests: z
+      .object({
+        firstPaintMs: z.number(),
+        fcpMs: z.number(),
+        inpMs: z.number(),
+        runs: z.number(),
+      })
+      .optional(),
   }),
 })
 

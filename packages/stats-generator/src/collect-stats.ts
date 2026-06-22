@@ -75,7 +75,7 @@ async function processApp(framework: FrameworkConfig, order: number) {
   const stats: FrameworkStats = {
     name: displayName,
     package: pkgDir,
-    type: 'ssr-app',
+    type: 'runtime-app',
     isFocused: framework.focusedFramework,
     order,
     ...ciStats,

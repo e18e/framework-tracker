@@ -9,7 +9,7 @@ jobs:
     outputs:
       install-matrix: ${{ steps.detect.outputs.install }}
       build-matrix: ${{ steps.detect.outputs.build }}
-      ssr-matrix: ${{ steps.detect.outputs.ssr }}
+      ssr-request-throughput-matrix: ${{ steps.detect.outputs.ssr-request-throughput }}
       deps-matrix: ${{ steps.detect.outputs.deps }}
       framework-names: ${{ steps.detect.outputs.framework-names }}
       has-changes: ${{ steps.detect.outputs.has-changes }}
@@ -45,7 +45,7 @@ jobs:
             echo "framework-names=[]" >> $GITHUB_OUTPUT
             echo "install=[]" >> $GITHUB_OUTPUT
             echo "build=[]" >> $GITHUB_OUTPUT
-            echo "ssr=[]" >> $GITHUB_OUTPUT
+            echo "ssr-request-throughput=[]" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -67,7 +67,7 @@ jobs:
 
           echo "install=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "build=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
-          echo "ssr=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | map(.type) | contains(["ssr"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr-request-throughput=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "deps=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
 
   measure:
@@ -77,7 +77,7 @@ jobs:
     with:
       install-matrix: ${{ needs.setup.outputs.install-matrix }}
       build-matrix: ${{ needs.setup.outputs.build-matrix }}
-      ssr-matrix: ${{ needs.setup.outputs.ssr-matrix }}
+      ssr-request-throughput-matrix: ${{ needs.setup.outputs.ssr-request-throughput-matrix }}
       deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
 
   preview-comment:

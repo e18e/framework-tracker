@@ -6,7 +6,7 @@ To make it clearer what we are actively working on, here is a breakdown of our c
 
 ## Current Focus Areas
 
-- **SPA**: Adding a SPA test and metrics for each metaframework.
+- **Client Side Rendered**: Adding a client-side rendered route test and metrics for each metaframework.
 - **In the Wild Data**: Pull in real world data for each framework from the HTTP Archive
 - **Bundle Analysis**: Scanning and checking output of each metaframework looking for things like use of modern web APIs and redundant dependencies or polyfills.
 

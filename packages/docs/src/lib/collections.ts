@@ -8,21 +8,25 @@ export const starterStats = devtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
 
-export const ssrStats = runtimeEntries
+export const ssrRequestThroughputStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
 
-export const mpaStats = runtimeEntries
+export const serverSideRenderedStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.mpaFirstPaintMs))
-  .map((f) => ({
-    name: f.name,
-    package: f.package,
-    isFocused: f.isFocused,
-    mpaFirstPaintMs: `${f.mpaFirstPaintMs}ms`,
-    mpaFCPMs: `${f.mpaFCPMs}ms`,
-    mpaINPMs: `${f.mpaINPMs}ms`,
+  .filter(
+    (framework) =>
+      framework.serverSideRenderedTests != null &&
+      Number.isFinite(framework.serverSideRenderedTests.firstPaintMs),
+  )
+  .map((framework) => ({
+    name: framework.name,
+    package: framework.package,
+    isFocused: framework.isFocused,
+    firstPaintMs: `${framework.serverSideRenderedTests!.firstPaintMs}ms`,
+    fcpMs: `${framework.serverSideRenderedTests!.fcpMs}ms`,
+    inpMs: `${framework.serverSideRenderedTests!.inpMs}ms`,
   }))
 
 export const clientSideRenderedStats = runtimeEntries
@@ -80,27 +84,47 @@ export const chartDuplicateDependencyData = starterStats
     focused: f.isFocused,
   }))
 
-export const chartMPAFPData = runtimeEntries
+export const chartServerSideRenderedFPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.mpaFirstPaintMs))
+  .filter(
+    (f) =>
+      f.serverSideRenderedTests != null &&
+      Number.isFinite(f.serverSideRenderedTests.firstPaintMs),
+  )
   .map((f) => ({
     name: f.name,
-    value: f.mpaFirstPaintMs!,
+    value: f.serverSideRenderedTests!.firstPaintMs,
     focused: f.isFocused,
   }))
 
-export const chartMPAFCPData = runtimeEntries
+export const chartServerSideRenderedFCPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.mpaFCPMs))
-  .map((f) => ({ name: f.name, value: f.mpaFCPMs!, focused: f.isFocused }))
+  .filter(
+    (f) =>
+      f.serverSideRenderedTests != null &&
+      Number.isFinite(f.serverSideRenderedTests.fcpMs),
+  )
+  .map((f) => ({
+    name: f.name,
+    value: f.serverSideRenderedTests!.fcpMs,
+    focused: f.isFocused,
+  }))
 
-export const chartMPAINPData = runtimeEntries
+export const chartServerSideRenderedINPData = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
-  .filter((f) => f?.name != null && Number.isFinite(f.mpaINPMs))
-  .map((f) => ({ name: f.name, value: f.mpaINPMs!, focused: f.isFocused }))
+  .filter(
+    (f) =>
+      f.serverSideRenderedTests != null &&
+      Number.isFinite(f.serverSideRenderedTests.inpMs),
+  )
+  .map((f) => ({
+    name: f.name,
+    value: f.serverSideRenderedTests!.inpMs,
+    focused: f.isFocused,
+  }))
 
 export const chartClientSideRenderedFPData = runtimeEntries
   .map((entry) => entry.data)

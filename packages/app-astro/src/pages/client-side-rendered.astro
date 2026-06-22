@@ -1,0 +1,16 @@
+---
+import { ClientRouter } from 'astro:transitions'
+import ClientSideRenderedPage from '../components/ClientSideRenderedPage'
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro Client Side Rendered Benchmark</title>
+    <ClientRouter />
+  </head>
+  <body>
+    <ClientSideRenderedPage client:only="react" />
+  </body>
+</html>

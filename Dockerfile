@@ -19,7 +19,7 @@ USER node
 WORKDIR /app
 CMD [ "node", "src/cwv/index.ts" ]
 
-FROM mcr.microsoft.com/playwright:v1.49.0-noble AS spa-benchmark
+FROM mcr.microsoft.com/playwright:v1.49.0-noble AS client-side-rendered-benchmark
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install -g pnpm

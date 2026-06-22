@@ -52,10 +52,47 @@ export function writeJsonFile(filePath: string, data: unknown): void {
  */
 export function normalizeCIStats<T extends CIStats>(stats: T): T {
   const legacyStats = stats as T & {
+    serverRenderThroughputTests?: CIStats['ssrRequestThroughputTests']
+    ssrOpsPerSec?: unknown
+    ssrAvgLatencyMs?: unknown
+    ssrMedianLatencyMs?: unknown
+    ssrSamples?: unknown
+    ssrBodySizeKb?: unknown
+    ssrDuplicationFactor?: unknown
     clientSideRenderedFirstPaintMs?: unknown
     clientSideRenderedFCPMs?: unknown
     clientSideRenderedINPMs?: unknown
     clientSideRenderedRuns?: unknown
+    mpaFirstPaintMs?: unknown
+    mpaFCPMs?: unknown
+    mpaINPMs?: unknown
+    mpaRuns?: unknown
+  }
+
+  if (
+    stats.ssrRequestThroughputTests == null &&
+    legacyStats.serverRenderThroughputTests != null
+  ) {
+    stats.ssrRequestThroughputTests = legacyStats.serverRenderThroughputTests
+  }
+
+  if (
+    stats.ssrRequestThroughputTests == null &&
+    typeof legacyStats.ssrOpsPerSec === 'number' &&
+    typeof legacyStats.ssrAvgLatencyMs === 'number' &&
+    typeof legacyStats.ssrMedianLatencyMs === 'number' &&
+    typeof legacyStats.ssrSamples === 'number' &&
+    typeof legacyStats.ssrBodySizeKb === 'number' &&
+    typeof legacyStats.ssrDuplicationFactor === 'number'
+  ) {
+    stats.ssrRequestThroughputTests = {
+      opsPerSec: legacyStats.ssrOpsPerSec,
+      avgLatencyMs: legacyStats.ssrAvgLatencyMs,
+      medianLatencyMs: legacyStats.ssrMedianLatencyMs,
+      samples: legacyStats.ssrSamples,
+      bodySizeKb: legacyStats.ssrBodySizeKb,
+      duplicationFactor: legacyStats.ssrDuplicationFactor,
+    }
   }
 
   if (
@@ -73,10 +110,36 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     }
   }
 
+  if (
+    stats.serverSideRenderedTests == null &&
+    typeof legacyStats.mpaFirstPaintMs === 'number' &&
+    typeof legacyStats.mpaFCPMs === 'number' &&
+    typeof legacyStats.mpaINPMs === 'number' &&
+    typeof legacyStats.mpaRuns === 'number'
+  ) {
+    stats.serverSideRenderedTests = {
+      firstPaintMs: legacyStats.mpaFirstPaintMs,
+      fcpMs: legacyStats.mpaFCPMs,
+      inpMs: legacyStats.mpaINPMs,
+      runs: legacyStats.mpaRuns,
+    }
+  }
+
+  delete legacyStats.ssrOpsPerSec
+  delete legacyStats.serverRenderThroughputTests
+  delete legacyStats.ssrAvgLatencyMs
+  delete legacyStats.ssrMedianLatencyMs
+  delete legacyStats.ssrSamples
+  delete legacyStats.ssrBodySizeKb
+  delete legacyStats.ssrDuplicationFactor
   delete legacyStats.clientSideRenderedFirstPaintMs
   delete legacyStats.clientSideRenderedFCPMs
   delete legacyStats.clientSideRenderedINPMs
   delete legacyStats.clientSideRenderedRuns
+  delete legacyStats.mpaFirstPaintMs
+  delete legacyStats.mpaFCPMs
+  delete legacyStats.mpaINPMs
+  delete legacyStats.mpaRuns
 
   return stats
 }

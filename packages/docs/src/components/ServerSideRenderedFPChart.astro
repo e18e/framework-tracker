@@ -1,0 +1,15 @@
+---
+import { chartServerSideRenderedFPData } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = [...chartServerSideRenderedFPData].sort(
+  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+)
+---
+
+<ComparisonBarChart
+  title="First Paint (ms)"
+  data={data}
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>

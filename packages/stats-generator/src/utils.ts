@@ -59,6 +59,13 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     ssrSamples?: unknown
     ssrBodySizeKb?: unknown
     ssrDuplicationFactor?: unknown
+    ssrLoadPeakWorkers?: unknown
+    ssrLoadPeakRequestsPerSec?: unknown
+    ssrLoadPeakAvgLatencyMs?: unknown
+    ssrLoadPeakP95LatencyMs?: unknown
+    ssrLoadTotalRequests?: unknown
+    ssrLoadTotalErrors?: unknown
+    ssrLoadStages?: unknown
     clientSideRenderedFirstPaintMs?: unknown
     clientSideRenderedFCPMs?: unknown
     clientSideRenderedINPMs?: unknown
@@ -111,6 +118,29 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   }
 
   if (
+    stats.ssrLoadTests == null &&
+    typeof legacyStats.ssrLoadPeakWorkers === 'number' &&
+    typeof legacyStats.ssrLoadPeakRequestsPerSec === 'number' &&
+    typeof legacyStats.ssrLoadPeakAvgLatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP95LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadTotalRequests === 'number' &&
+    typeof legacyStats.ssrLoadTotalErrors === 'number' &&
+    Array.isArray(legacyStats.ssrLoadStages)
+  ) {
+    stats.ssrLoadTests = {
+      peakWorkers: legacyStats.ssrLoadPeakWorkers,
+      peakRequestsPerSec: legacyStats.ssrLoadPeakRequestsPerSec,
+      peakAvgLatencyMs: legacyStats.ssrLoadPeakAvgLatencyMs,
+      peakP95LatencyMs: legacyStats.ssrLoadPeakP95LatencyMs,
+      totalRequests: legacyStats.ssrLoadTotalRequests,
+      totalErrors: legacyStats.ssrLoadTotalErrors,
+      stages: legacyStats.ssrLoadStages as NonNullable<
+        CIStats['ssrLoadTests']
+      >['stages'],
+    }
+  }
+
+  if (
     stats.serverSideRenderedTests == null &&
     typeof legacyStats.mpaFirstPaintMs === 'number' &&
     typeof legacyStats.mpaFCPMs === 'number' &&
@@ -132,6 +162,13 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   delete legacyStats.ssrSamples
   delete legacyStats.ssrBodySizeKb
   delete legacyStats.ssrDuplicationFactor
+  delete legacyStats.ssrLoadPeakWorkers
+  delete legacyStats.ssrLoadPeakRequestsPerSec
+  delete legacyStats.ssrLoadPeakAvgLatencyMs
+  delete legacyStats.ssrLoadPeakP95LatencyMs
+  delete legacyStats.ssrLoadTotalRequests
+  delete legacyStats.ssrLoadTotalErrors
+  delete legacyStats.ssrLoadStages
   delete legacyStats.clientSideRenderedFirstPaintMs
   delete legacyStats.clientSideRenderedFCPMs
   delete legacyStats.clientSideRenderedINPMs

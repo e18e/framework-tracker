@@ -59,6 +59,30 @@ const runtimeCollection = defineCollection({
       bodySizeKb: z.number(),
       duplicationFactor: z.number(),
     }),
+    ssrLoadTests: z
+      .object({
+        peakWorkers: z.number(),
+        peakRequestsPerSec: z.number(),
+        peakAvgLatencyMs: z.number(),
+        peakP95LatencyMs: z.number(),
+        totalRequests: z.number(),
+        totalErrors: z.number(),
+        stages: z.array(
+          z.object({
+            workers: z.number(),
+            durationMs: z.number(),
+            requests: z.number(),
+            errors: z.number(),
+            requestsPerSec: z.number(),
+            avgLatencyMs: z.number(),
+            medianLatencyMs: z.number(),
+            p95LatencyMs: z.number(),
+            maxLatencyMs: z.number(),
+            bytesPerSec: z.number(),
+          }),
+        ),
+      })
+      .optional(),
     // Client-side rendered paint + interaction metrics
     clientSideRenderedTests: z
       .object({

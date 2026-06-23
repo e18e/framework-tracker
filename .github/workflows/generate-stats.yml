@@ -25,6 +25,7 @@ jobs:
       install-matrix: ${{ steps.set-matrix.outputs.install }}
       build-matrix: ${{ steps.set-matrix.outputs.build }}
       ssr-request-throughput-matrix: ${{ steps.set-matrix.outputs.ssr-request-throughput }}
+      ssr-load-matrix: ${{ steps.set-matrix.outputs.ssr-load }}
       deps-matrix: ${{ steps.set-matrix.outputs.deps }}
       client-side-rendered-matrix: ${{ steps.set-matrix.outputs.client-side-rendered }}
       server-side-rendered-matrix: ${{ steps.set-matrix.outputs.server-side-rendered }}
@@ -39,6 +40,7 @@ jobs:
           echo "install=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "build=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
           echo "ssr-request-throughput=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr-load=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "deps=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
           echo "client-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "server-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | map(.type) | contains(["serverSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
@@ -50,6 +52,7 @@ jobs:
       install-matrix: ${{ needs.setup.outputs.install-matrix }}
       build-matrix: ${{ needs.setup.outputs.build-matrix }}
       ssr-request-throughput-matrix: ${{ needs.setup.outputs.ssr-request-throughput-matrix }}
+      ssr-load-matrix: ${{ needs.setup.outputs.ssr-load-matrix }}
       deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
       client-side-rendered-matrix: ${{ needs.setup.outputs.client-side-rendered-matrix }}
       server-side-rendered-matrix: ${{ needs.setup.outputs.server-side-rendered-matrix }}

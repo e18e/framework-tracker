@@ -4,6 +4,7 @@ export type MeasurementType =
   | 'test'
   | 'dependencies'
   | 'ssrRequestThroughput'
+  | 'ssrLoad'
   | 'clientSideRendered'
   | 'serverSideRendered'
 
@@ -49,6 +50,27 @@ export interface CIStats {
     samples: number
     bodySizeKb: number
     duplicationFactor: number
+  }
+  // Real server SSR load stats
+  ssrLoadTests?: {
+    peakWorkers: number
+    peakRequestsPerSec: number
+    peakAvgLatencyMs: number
+    peakP95LatencyMs: number
+    totalRequests: number
+    totalErrors: number
+    stages: Array<{
+      workers: number
+      durationMs: number
+      requests: number
+      errors: number
+      requestsPerSec: number
+      avgLatencyMs: number
+      medianLatencyMs: number
+      p95LatencyMs: number
+      maxLatencyMs: number
+      bytesPerSec: number
+    }>
   }
   // Client-side rendered stats (browser paint + interaction timings)
   clientSideRenderedTests?: {

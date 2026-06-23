@@ -7,9 +7,10 @@ import {
   InstallStatsSchema,
   BuildStatsSchema,
   SSRRequestThroughputStatsSchema,
+  SSRLoadStatsSchema,
 } from './schemas.ts'
 
-type BenchmarkType = 'install' | 'build' | 'ssrRequestThroughput'
+type BenchmarkType = 'install' | 'build' | 'ssrRequestThroughput' | 'ssrLoad'
 
 interface BenchmarkConfig {
   type: BenchmarkType
@@ -27,6 +28,11 @@ const APP_BENCHMARKS: BenchmarkConfig[] = [
     type: 'ssrRequestThroughput',
     file: 'ci-stats.json',
     schema: SSRRequestThroughputStatsSchema,
+  },
+  {
+    type: 'ssrLoad',
+    file: 'ci-stats.json',
+    schema: SSRLoadStatsSchema,
   },
 ]
 
@@ -94,6 +100,13 @@ async function main() {
       const errors: string[] = []
       for (const { type: benchType, file, schema } of APP_BENCHMARKS) {
         if (filterType && filterType !== benchType) continue
+        if (
+          !framework.app.measurements.some(
+            (measurement) => measurement.type === benchType,
+          )
+        ) {
+          continue
+        }
 
         const filePath = join(packagesDir, pkg, file)
         const fileErrors = validateFile(filePath, schema)

@@ -67,13 +67,15 @@ async function runOnce(
     await page.click('table tbody tr:first-child a')
     await page.waitForSelector('#detail-id', { timeout: 15_000 })
     // Double rAF ensures the paint entry is recorded before the timespan ends.
-    await page.evaluate(
-      (): Promise<void> =>
-        new Promise((r) => {
-          // @ts-expect-error — callback runs in browser context, not Node.js
-          requestAnimationFrame(() => requestAnimationFrame(r))
-        }),
-    )
+    await page.evaluate((): Promise<void> => {
+      const { requestAnimationFrame: nextFrame } = globalThis as unknown as {
+        requestAnimationFrame: (callback: () => void) => number
+      }
+
+      return new Promise((resolve) => {
+        nextFrame(() => nextFrame(resolve))
+      })
+    })
     await flow.endTimespan()
 
     const flowResult = await flow.createFlowResult()
@@ -110,7 +112,7 @@ export async function runBenchmark(
   const results: ServerSideRenderedRunResult[] = []
 
   for (let i = 0; i < runs; i++) {
-    console.log(`  Run ${i + 1}/${runs}...`)
+    console.info(`  Run ${i + 1}/${runs}...`)
     results.push(await runOnce(url, chromiumPath))
   }
 

@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
   runSSRLoadBenchmark,
@@ -7,48 +6,18 @@ import {
 import { packagesDir } from './constants.ts'
 import {
   getFrameworkByPackage,
+  getFrameworkVersion,
   normalizeCIStats,
+  parseArgs,
   readJsonFile,
   writeJsonFile,
 } from './utils.ts'
 import type { CIStats } from './types.ts'
 
-async function getFrameworkVersion(
-  packageName: string,
-  frameworkPackage: string,
-): Promise<string | undefined> {
-  if (frameworkPackage === 'node') {
-    return process.version.replace(/^v/, '')
-  }
-
-  try {
-    const pkgJsonPath = join(
-      packagesDir,
-      packageName,
-      'node_modules',
-      frameworkPackage,
-      'package.json',
-    )
-    const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8')) as {
-      version?: string
-    }
-    return pkgJson.version
-  } catch {
-    console.warn(
-      `Could not read version for ${frameworkPackage} in ${packageName}`,
-    )
-    return undefined
-  }
-}
-
 async function main() {
-  const packageName = process.argv[2]
-
-  if (!packageName) {
-    console.error('Usage: run-ssr-load-benchmark <package-name>')
-    console.error('Example: run-ssr-load-benchmark app-astro')
-    process.exit(1)
-  }
+  const { packageName } = parseArgs(
+    'Usage: run-ssr-load-benchmark <package-name>\nExample: run-ssr-load-benchmark app-astro',
+  )
 
   if (!supportsSSRLoadBenchmark(packageName)) {
     console.info(
@@ -68,15 +37,16 @@ async function main() {
   const timestamp = new Date().toISOString()
   const runner = process.env.RUNNER_LABEL || 'local'
 
-  const existingStats = readJsonFile<CIStats>(
-    join(packagesDir, packageName, 'ci-stats.json'),
+  const existingStats = normalizeCIStats(
+    readJsonFile<CIStats>(join(packagesDir, packageName, 'ci-stats.json')) ??
+      {},
   )
 
   const ciStats: CIStats = {
-    ...(existingStats ? normalizeCIStats(existingStats) : {}),
+    ...existingStats,
     timingMeasuredAt: timestamp,
     runner,
-    frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
+    frameworkVersion: frameworkVersion ?? existingStats.frameworkVersion,
     ssrLoadTests: result.ssrLoadTests,
   }
 
@@ -90,5 +60,5 @@ async function main() {
 
 main().catch((error) => {
   console.error(error)
-  process.exit(1)
+  process.exitCode = 1
 })

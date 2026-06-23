@@ -1,47 +1,21 @@
-import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { runClientSideRenderedBenchmark } from './clientSideRendered/index.ts'
 import { packagesDir } from './constants.ts'
 import {
   getFrameworkByPackage,
+  getFrameworkVersion,
   normalizeCIStats,
+  parseArgs,
   readJsonFile,
+  writeJsonFile,
 } from './utils.ts'
 import type { CIStats } from './types.ts'
 
-async function getFrameworkVersion(
-  packageName: string,
-  frameworkPackage: string,
-): Promise<string | undefined> {
-  try {
-    const pkgJsonPath = join(
-      packagesDir,
-      packageName,
-      'node_modules',
-      frameworkPackage,
-      'package.json',
-    )
-    const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'))
-    return pkgJson.version
-  } catch {
-    console.warn(
-      `Could not read version for ${frameworkPackage} in ${packageName}`,
-    )
-    return undefined
-  }
-}
-
 async function main() {
-  const packageName = process.argv[2]
-  const runs = process.argv[3] ? parseInt(process.argv[3], 10) : 5
-
-  if (!packageName) {
-    console.error(
-      'Usage: run-client-side-rendered-benchmark <package-name> [runs]',
-    )
-    console.error('Example: run-client-side-rendered-benchmark app-astro 5')
-    process.exit(1)
-  }
+  const { packageName, args } = parseArgs(
+    'Usage: run-client-side-rendered-benchmark <package-name> [runs]\nExample: run-client-side-rendered-benchmark app-astro 5',
+  )
+  const runs = args[0] ? Number.parseInt(args[0], 10) : 5
 
   console.info(
     `Running client-side rendered benchmark for ${packageName} (${runs} runs)...\n`,
@@ -71,7 +45,7 @@ async function main() {
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
-  await writeFile(outputPath, JSON.stringify(ciStats, null, 2), 'utf-8')
+  writeJsonFile(outputPath, ciStats)
 
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
@@ -83,4 +57,7 @@ async function main() {
   console.info(`  INP:         ${result.clientSideRenderedTests.inpMs}ms`)
 }
 
-main().catch(console.error)
+main().catch((error) => {
+  console.error(error)
+  process.exitCode = 1
+})

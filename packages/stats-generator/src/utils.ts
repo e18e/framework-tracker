@@ -1,6 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
+import { packagesDir } from './constants.ts'
 import { getFrameworks } from './get-frameworks.ts'
 import type { CIStats, FrameworkConfig, TestConfig } from './types.ts'
 
@@ -11,7 +13,7 @@ import type { CIStats, FrameworkConfig, TestConfig } from './types.ts'
 export function getDirectorySize(dirPath: string): number {
   try {
     const output = execFileSync('du', ['-sk', dirPath], { encoding: 'utf-8' })
-    const sizeKb = parseInt(output.split(/\s+/)[0], 10)
+    const sizeKb = Number.parseInt(output.split(/\s+/)[0], 10)
     return sizeKb * 1024
   } catch (error) {
     console.warn(`Warning: Could not get directory size for ${dirPath}:`, error)
@@ -44,6 +46,39 @@ export function writeJsonFile(filePath: string, data: unknown): void {
     mkdirSync(dir, { recursive: true })
   }
   writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`)
+}
+
+export async function getFrameworkVersion(
+  packageName: string,
+  frameworkPackage: string,
+): Promise<string | undefined> {
+  if (frameworkPackage === 'node') {
+    return process.version.replace(/^v/, '')
+  }
+
+  try {
+    const pkgJsonPath = join(
+      packagesDir,
+      packageName,
+      'node_modules',
+      frameworkPackage,
+      'package.json',
+    )
+    const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8')) as {
+      version?: unknown
+    }
+
+    if (typeof pkgJson.version === 'string') {
+      return pkgJson.version
+    }
+  } catch {
+    // Fall through to the warning below.
+  }
+
+  console.warn(
+    `Could not read version for ${frameworkPackage} in ${packageName}`,
+  )
+  return undefined
 }
 
 /**

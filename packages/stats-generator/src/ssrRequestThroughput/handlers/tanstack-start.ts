@@ -20,7 +20,7 @@ export async function buildTanStackStartHandler(): Promise<ServerRenderHandler> 
     type: 'node',
     handler: (req, res) => {
       if (!res.socket) {
-        res.socket = {} as any
+        res.socket = {}
       }
       return middleware(req, res)
     },

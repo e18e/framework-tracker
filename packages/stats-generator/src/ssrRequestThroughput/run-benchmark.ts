@@ -37,8 +37,7 @@ async function runNodeHandler(
   const request = new IncomingMessage()
   const response = new ServerResponse(request, collect)
 
-  handler(request, response)
-
+  await handler(request, response)
   await response.await
   return { body: response.body, length: response.length }
 }
@@ -75,7 +74,7 @@ export async function runBenchmark(
     time: 10_000,
     setup: async (task, mode) => {
       if (mode === 'run' && task !== undefined) {
-        console.log(`Running ${task.name} benchmark...`)
+        console.info(`Running ${task.name} benchmark...`)
       }
     },
   })
@@ -92,7 +91,9 @@ export async function runBenchmark(
 
   for (const config of handlers) {
     const task = bench.getTask(config.name)
-    if (!task || !task.result || task.result.state !== 'completed') continue
+    if (!task || !task.result || task.result.state !== 'completed') {
+      throw new Error(`Benchmark did not complete for ${config.name}`)
+    }
 
     const { body, length } = await runHandler(config.handler, true)
     const duplicationFactor = getDuplicationFactor(body)

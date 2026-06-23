@@ -1,44 +1,20 @@
-import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { runSSRRequestThroughputBenchmark } from './ssrRequestThroughput/index.ts'
 import { packagesDir } from './constants.ts'
 import {
   getFrameworkByPackage,
+  getFrameworkVersion,
   normalizeCIStats,
+  parseArgs,
   readJsonFile,
+  writeJsonFile,
 } from './utils.ts'
 import type { CIStats } from './types.ts'
 
-async function getFrameworkVersion(
-  packageName: string,
-  frameworkPackage: string,
-): Promise<string | undefined> {
-  try {
-    const pkgJsonPath = join(
-      packagesDir,
-      packageName,
-      'node_modules',
-      frameworkPackage,
-      'package.json',
-    )
-    const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8'))
-    return pkgJson.version
-  } catch {
-    console.warn(
-      `Could not read version for ${frameworkPackage} in ${packageName}`,
-    )
-    return undefined
-  }
-}
-
 async function main() {
-  const packageName = process.argv[2]
-
-  if (!packageName) {
-    console.error('Usage: run-ssr-request-throughput-benchmark <package-name>')
-    console.error('Example: run-ssr-request-throughput-benchmark app-astro')
-    process.exit(1)
-  }
+  const { packageName } = parseArgs(
+    'Usage: run-ssr-request-throughput-benchmark <package-name>\nExample: run-ssr-request-throughput-benchmark app-astro',
+  )
 
   console.info(
     `Running SSR request throughput benchmark for ${packageName}...\n`,
@@ -74,11 +50,14 @@ async function main() {
   }
 
   const outputPath = join(packagesDir, result.package, 'ci-stats.json')
-  await writeFile(outputPath, JSON.stringify(ciStats, null, 2), 'utf-8')
+  writeJsonFile(outputPath, ciStats)
 
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${result.package})`,
   )
 }
 
-main().catch(console.error)
+main().catch((error) => {
+  console.error(error)
+  process.exitCode = 1
+})

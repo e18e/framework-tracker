@@ -17,7 +17,7 @@ export const MIME: Record<string, string> = {
 }
 
 export function getPort(defaultPort = 3000): number {
-  return parseInt(process.env.PORT ?? String(defaultPort), 10)
+  return Number.parseInt(process.env.PORT ?? String(defaultPort), 10)
 }
 
 export function parseAppDir(): string {

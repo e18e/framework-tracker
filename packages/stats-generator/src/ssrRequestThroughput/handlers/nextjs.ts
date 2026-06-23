@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { packagesDir } from '../../constants.ts'
-import type { ServerRenderHandler } from '../types.ts'
+import type { NodeServerRenderHandler, ServerRenderHandler } from '../types.ts'
 
 export async function buildNextJSHandler(): Promise<ServerRenderHandler> {
   const appDir = join(packagesDir, 'app-next-js')
@@ -24,7 +24,6 @@ export async function buildNextJSHandler(): Promise<ServerRenderHandler> {
   await app.prepare()
   return {
     type: 'node',
-    handler:
-      app.getRequestHandler() as unknown as import('../types.ts').NodeServerRenderHandler,
+    handler: app.getRequestHandler() as unknown as NodeServerRenderHandler,
   }
 }

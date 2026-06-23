@@ -57,6 +57,7 @@ const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
     displayName: 'TanStack Start Server Side Rendered',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
+    serveArgs: ['server-side-rendered'],
   },
 ]
 

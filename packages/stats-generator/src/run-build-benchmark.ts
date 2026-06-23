@@ -33,7 +33,7 @@ async function main() {
 
   const fallbackFrequency = '5'
   const base = 10
-  const runFrequency = parseInt(args[0] || fallbackFrequency, base)
+  const runFrequency = Number.parseInt(args[0] || fallbackFrequency, base)
 
   const { framework, testConfig } = await getFrameworkByPackage(packageName)
 

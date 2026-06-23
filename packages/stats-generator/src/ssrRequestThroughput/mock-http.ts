@@ -64,7 +64,7 @@ export class ServerResponse extends Writable {
   headersSent = false
   strictContentLength = false
   connection = null
-  socket = null
+  socket: Record<string, unknown> | null = null
 
   req: IncomingMessage
 

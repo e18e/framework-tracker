@@ -194,6 +194,30 @@ async function main() {
         )
       }
 
+      // Load SSR load stats from artifact
+      const ssrLoadStatsPath = join(
+        artifactsDir,
+        `ssr-load-stats-${name}`,
+        'ci-stats.json',
+      )
+      const rawSSRLoadStats = readJsonFile<CIStats>(ssrLoadStatsPath)
+      const ssrLoadStats = rawSSRLoadStats
+        ? normalizeCIStats(rawSSRLoadStats)
+        : null
+
+      if (ssrLoadStats) {
+        console.info(`  ✓ Found SSR load stats artifact`)
+        stats = {
+          ...stats,
+          frameworkVersion:
+            ssrLoadStats.frameworkVersion ?? stats.frameworkVersion,
+          ssrLoadTests: ssrLoadStats.ssrLoadTests,
+        }
+        frameworkVersion = ssrLoadStats.frameworkVersion ?? frameworkVersion
+      } else {
+        console.warn(`No SSR load stats artifact found at ${ssrLoadStatsPath}`)
+      }
+
       // Load client-side rendered stats from artifact
       const clientSideRenderedStatsArtifactPath = join(
         artifactsDir,

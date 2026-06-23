@@ -12,10 +12,16 @@ import {
 
 const appDir = parseAppDir()
 const PORT = getPort()
+const mode = process.argv[3] as
+  | 'client-side-rendered'
+  | 'server-side-rendered'
+  | undefined
 
 const spaDir = join(appDir, 'dist', 'client')
 const ssrPublicDir = join(appDir, '.output', 'public')
-const isClientSideRendered = existsSync(join(spaDir, '_shell.html'))
+const isClientSideRendered =
+  mode === 'client-side-rendered' ||
+  (mode !== 'server-side-rendered' && existsSync(join(spaDir, '_shell.html')))
 const publicDir = isClientSideRendered ? spaDir : ssrPublicDir
 
 let middleware: ((req: unknown, res: unknown) => void) | undefined

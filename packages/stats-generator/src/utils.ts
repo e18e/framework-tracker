@@ -1,6 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
+import { packagesDir } from './constants.ts'
 import { getFrameworks } from './get-frameworks.ts'
 import type { CIStats, FrameworkConfig, TestConfig } from './types.ts'
 
@@ -11,7 +13,7 @@ import type { CIStats, FrameworkConfig, TestConfig } from './types.ts'
 export function getDirectorySize(dirPath: string): number {
   try {
     const output = execFileSync('du', ['-sk', dirPath], { encoding: 'utf-8' })
-    const sizeKb = parseInt(output.split(/\s+/)[0], 10)
+    const sizeKb = Number.parseInt(output.split(/\s+/)[0], 10)
     return sizeKb * 1024
   } catch (error) {
     console.warn(`Warning: Could not get directory size for ${dirPath}:`, error)
@@ -43,7 +45,40 @@ export function writeJsonFile(filePath: string, data: unknown): void {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
   }
-  writeFileSync(filePath, JSON.stringify(data, null, 2))
+  writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`)
+}
+
+export async function getFrameworkVersion(
+  packageName: string,
+  frameworkPackage: string,
+): Promise<string | undefined> {
+  if (frameworkPackage === 'node') {
+    return process.version.replace(/^v/, '')
+  }
+
+  try {
+    const pkgJsonPath = join(
+      packagesDir,
+      packageName,
+      'node_modules',
+      frameworkPackage,
+      'package.json',
+    )
+    const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8')) as {
+      version?: unknown
+    }
+
+    if (typeof pkgJson.version === 'string') {
+      return pkgJson.version
+    }
+  } catch {
+    // Fall through to the warning below.
+  }
+
+  console.warn(
+    `Could not read version for ${frameworkPackage} in ${packageName}`,
+  )
+  return undefined
 }
 
 /**
@@ -59,6 +94,18 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     ssrSamples?: unknown
     ssrBodySizeKb?: unknown
     ssrDuplicationFactor?: unknown
+    ssrLoadPeakWorkers?: unknown
+    ssrLoadPeakRequestsPerSec?: unknown
+    ssrLoadPeakAvgLatencyMs?: unknown
+    ssrLoadPeakP50LatencyMs?: unknown
+    ssrLoadPeakP75LatencyMs?: unknown
+    ssrLoadPeakP90LatencyMs?: unknown
+    ssrLoadPeakP99LatencyMs?: unknown
+    ssrLoadPeakP95LatencyMs?: unknown
+    ssrLoadPeakP97_5LatencyMs?: unknown
+    ssrLoadTotalRequests?: unknown
+    ssrLoadTotalErrors?: unknown
+    ssrLoadStages?: unknown
     clientSideRenderedFirstPaintMs?: unknown
     clientSideRenderedFCPMs?: unknown
     clientSideRenderedINPMs?: unknown
@@ -111,6 +158,35 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   }
 
   if (
+    stats.ssrLoadTests == null &&
+    typeof legacyStats.ssrLoadPeakWorkers === 'number' &&
+    typeof legacyStats.ssrLoadPeakRequestsPerSec === 'number' &&
+    typeof legacyStats.ssrLoadPeakAvgLatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP50LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP75LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP90LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP99LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadTotalRequests === 'number' &&
+    typeof legacyStats.ssrLoadTotalErrors === 'number' &&
+    Array.isArray(legacyStats.ssrLoadStages)
+  ) {
+    stats.ssrLoadTests = {
+      peakWorkers: legacyStats.ssrLoadPeakWorkers,
+      peakRequestsPerSec: legacyStats.ssrLoadPeakRequestsPerSec,
+      peakAvgLatencyMs: legacyStats.ssrLoadPeakAvgLatencyMs,
+      peakP50LatencyMs: legacyStats.ssrLoadPeakP50LatencyMs,
+      peakP75LatencyMs: legacyStats.ssrLoadPeakP75LatencyMs,
+      peakP90LatencyMs: legacyStats.ssrLoadPeakP90LatencyMs,
+      peakP99LatencyMs: legacyStats.ssrLoadPeakP99LatencyMs,
+      totalRequests: legacyStats.ssrLoadTotalRequests,
+      totalErrors: legacyStats.ssrLoadTotalErrors,
+      stages: legacyStats.ssrLoadStages as NonNullable<
+        CIStats['ssrLoadTests']
+      >['stages'],
+    }
+  }
+
+  if (
     stats.serverSideRenderedTests == null &&
     typeof legacyStats.mpaFirstPaintMs === 'number' &&
     typeof legacyStats.mpaFCPMs === 'number' &&
@@ -132,6 +208,18 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   delete legacyStats.ssrSamples
   delete legacyStats.ssrBodySizeKb
   delete legacyStats.ssrDuplicationFactor
+  delete legacyStats.ssrLoadPeakWorkers
+  delete legacyStats.ssrLoadPeakRequestsPerSec
+  delete legacyStats.ssrLoadPeakAvgLatencyMs
+  delete legacyStats.ssrLoadPeakP50LatencyMs
+  delete legacyStats.ssrLoadPeakP75LatencyMs
+  delete legacyStats.ssrLoadPeakP90LatencyMs
+  delete legacyStats.ssrLoadPeakP99LatencyMs
+  delete legacyStats.ssrLoadPeakP95LatencyMs
+  delete legacyStats.ssrLoadPeakP97_5LatencyMs
+  delete legacyStats.ssrLoadTotalRequests
+  delete legacyStats.ssrLoadTotalErrors
+  delete legacyStats.ssrLoadStages
   delete legacyStats.clientSideRenderedFirstPaintMs
   delete legacyStats.clientSideRenderedFCPMs
   delete legacyStats.clientSideRenderedINPMs

@@ -1,11 +1,8 @@
 import { testData } from '../../../../testdata/src/ssr.ts'
-import type { ServerRenderHandler } from '../types.ts'
+import type { NodeServerRenderHandler, ServerRenderHandler } from '../types.ts'
 
 export async function buildBaselineHtmlHandler(): Promise<ServerRenderHandler> {
-  const handler: import('../types.ts').NodeServerRenderHandler = async (
-    _req,
-    res,
-  ) => {
+  const handler: NodeServerRenderHandler = async (_req, res) => {
     const entries = await testData()
 
     const rows = entries

@@ -43,7 +43,7 @@ export function writeJsonFile(filePath: string, data: unknown): void {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
   }
-  writeFileSync(filePath, JSON.stringify(data, null, 2))
+  writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`)
 }
 
 /**
@@ -62,7 +62,12 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     ssrLoadPeakWorkers?: unknown
     ssrLoadPeakRequestsPerSec?: unknown
     ssrLoadPeakAvgLatencyMs?: unknown
+    ssrLoadPeakP50LatencyMs?: unknown
+    ssrLoadPeakP75LatencyMs?: unknown
+    ssrLoadPeakP90LatencyMs?: unknown
+    ssrLoadPeakP99LatencyMs?: unknown
     ssrLoadPeakP95LatencyMs?: unknown
+    ssrLoadPeakP97_5LatencyMs?: unknown
     ssrLoadTotalRequests?: unknown
     ssrLoadTotalErrors?: unknown
     ssrLoadStages?: unknown
@@ -122,7 +127,10 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.ssrLoadPeakWorkers === 'number' &&
     typeof legacyStats.ssrLoadPeakRequestsPerSec === 'number' &&
     typeof legacyStats.ssrLoadPeakAvgLatencyMs === 'number' &&
-    typeof legacyStats.ssrLoadPeakP95LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP50LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP75LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP90LatencyMs === 'number' &&
+    typeof legacyStats.ssrLoadPeakP99LatencyMs === 'number' &&
     typeof legacyStats.ssrLoadTotalRequests === 'number' &&
     typeof legacyStats.ssrLoadTotalErrors === 'number' &&
     Array.isArray(legacyStats.ssrLoadStages)
@@ -131,7 +139,10 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
       peakWorkers: legacyStats.ssrLoadPeakWorkers,
       peakRequestsPerSec: legacyStats.ssrLoadPeakRequestsPerSec,
       peakAvgLatencyMs: legacyStats.ssrLoadPeakAvgLatencyMs,
-      peakP95LatencyMs: legacyStats.ssrLoadPeakP95LatencyMs,
+      peakP50LatencyMs: legacyStats.ssrLoadPeakP50LatencyMs,
+      peakP75LatencyMs: legacyStats.ssrLoadPeakP75LatencyMs,
+      peakP90LatencyMs: legacyStats.ssrLoadPeakP90LatencyMs,
+      peakP99LatencyMs: legacyStats.ssrLoadPeakP99LatencyMs,
       totalRequests: legacyStats.ssrLoadTotalRequests,
       totalErrors: legacyStats.ssrLoadTotalErrors,
       stages: legacyStats.ssrLoadStages as NonNullable<
@@ -165,7 +176,12 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   delete legacyStats.ssrLoadPeakWorkers
   delete legacyStats.ssrLoadPeakRequestsPerSec
   delete legacyStats.ssrLoadPeakAvgLatencyMs
+  delete legacyStats.ssrLoadPeakP50LatencyMs
+  delete legacyStats.ssrLoadPeakP75LatencyMs
+  delete legacyStats.ssrLoadPeakP90LatencyMs
+  delete legacyStats.ssrLoadPeakP99LatencyMs
   delete legacyStats.ssrLoadPeakP95LatencyMs
+  delete legacyStats.ssrLoadPeakP97_5LatencyMs
   delete legacyStats.ssrLoadTotalRequests
   delete legacyStats.ssrLoadTotalErrors
   delete legacyStats.ssrLoadStages

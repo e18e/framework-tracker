@@ -5,10 +5,15 @@ import DevTimeChart from '../../components/DevTimeChart.astro'
 import ServerSideRenderedStatsMethodologyNotes from '../../components/ServerSideRenderedStatsMethodologyNotes.astro'
 import PageHeader from '../../components/PageHeader.astro'
 import ClientSideRenderedStatsMethodologyNotes from '../../components/ClientSideRenderedStatsMethodologyNotes.astro'
+import SSRLoadStatsMethodologyNotes from '../../components/SSRLoadStatsMethodologyNotes.astro'
 import SSRRequestThroughputStatsMethodologyNotes from '../../components/SSRRequestThroughputStatsMethodologyNotes.astro'
 import StatsTable from '../../components/StatsTable.astro'
 import Layout from '../../layouts/Layout.astro'
-import { buildInstallData, depsStats } from '../../lib/collections'
+import {
+  buildInstallData,
+  depsStats,
+  ssrLoadStats,
+} from '../../lib/collections'
 import { getFrameworkSlug } from '../../lib/utils'
 
 export async function getStaticPaths() {
@@ -166,6 +171,23 @@ const ssrRequestThroughputData = [
         },
       ]
     : []),
+]
+
+const ssrLoadColumns = [
+  { key: 'name', header: 'Framework', nameCell: true },
+  { key: 'peakRequestsPerSec', header: 'Peak req/s' },
+  { key: 'peakWorkers', header: 'Peak Connections' },
+  { key: 'worker25P99LatencyMs', header: 'P99 @ 25' },
+  { key: 'worker50P99LatencyMs', header: 'P99 @ 50' },
+  { key: 'worker100P99LatencyMs', header: 'P99 @ 100' },
+  { key: 'totalRequests', header: 'Total Req.' },
+]
+
+const ssrLoadData = [
+  ...ssrLoadStats.filter((entry) => entry.package === 'app-baseline-html'),
+  ...ssrLoadStats.filter(
+    (entry) => runtime && entry.package === runtime.package,
+  ),
 ]
 
 const clientSideRenderedColumns = [
@@ -327,6 +349,13 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
     runtime && (
       <>
         <h2>Runtime Performance</h2>
+        <h3>SSR Load Tests</h3>
+        <StatsTable
+          label="SSR load tests by framework"
+          columns={ssrLoadColumns}
+          data={ssrLoadData}
+        />
+        <SSRLoadStatsMethodologyNotes />
         <h3>SSR Request Throughput</h3>
         <StatsTable
           label="SSR request throughput by framework"

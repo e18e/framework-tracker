@@ -1,0 +1,29 @@
+---
+import { ssrLoadStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      row.package !== 'app-baseline-html'
+        ? `/framework/${getFrameworkSlug(row.package as string)}`
+        : null,
+  },
+  { key: 'peakRequestsPerSec', header: 'Peak req/s' },
+  { key: 'peakWorkers', header: 'Peak Connections' },
+  { key: 'worker25P99LatencyMs', header: 'P99 @ 25' },
+  { key: 'worker50P99LatencyMs', header: 'P99 @ 50' },
+  { key: 'worker100P99LatencyMs', header: 'P99 @ 100' },
+  { key: 'totalRequests', header: 'Total Req.' },
+]
+---
+
+<StatsTable
+  label="SSR load tests by framework"
+  columns={columns}
+  data={ssrLoadStats}
+/>

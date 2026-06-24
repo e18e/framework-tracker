@@ -12,6 +12,62 @@ export const ssrRequestThroughputStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
 
+type RuntimeData = (typeof runtimeEntries)[number]['data']
+
+function getSSRLoadLatencyStage(framework: RuntimeData, workers: number) {
+  return framework.ssrLoadTests?.stages.find(
+    (stage) => stage.workers === workers,
+  )
+}
+
+function getSSRLoadChartData(
+  workers: number,
+  percentile: 'p90LatencyMs' | 'p99LatencyMs',
+) {
+  return runtimeEntries
+    .map((entry) => entry.data)
+    .sort((a, b) => a.order - b.order)
+    .filter((f) => {
+      const stage = getSSRLoadLatencyStage(f, workers)
+      return stage != null && Number.isFinite(stage[percentile])
+    })
+    .map((f) => ({
+      name: f.name,
+      value: getSSRLoadLatencyStage(f, workers)![percentile],
+      focused: f.package === 'app-baseline-html' ? true : f.isFocused,
+    }))
+}
+
+export const ssrLoadStats = runtimeEntries
+  .map((entry) => entry.data)
+  .filter(
+    (framework) =>
+      framework.ssrLoadTests != null &&
+      Number.isFinite(framework.ssrLoadTests.peakRequestsPerSec) &&
+      getSSRLoadLatencyStage(framework, 25) != null &&
+      getSSRLoadLatencyStage(framework, 50) != null &&
+      getSSRLoadLatencyStage(framework, 100) != null,
+  )
+  .sort((a, b) => a.order - b.order)
+  .map((framework) => {
+    const worker25Stage = getSSRLoadLatencyStage(framework, 25)!
+    const worker50Stage = getSSRLoadLatencyStage(framework, 50)!
+    const worker100Stage = getSSRLoadLatencyStage(framework, 100)!
+    return {
+      name: framework.name,
+      package: framework.package,
+      isFocused:
+        framework.package === 'app-baseline-html' ? true : framework.isFocused,
+      peakRequestsPerSec:
+        framework.ssrLoadTests!.peakRequestsPerSec.toLocaleString(),
+      peakWorkers: framework.ssrLoadTests!.peakWorkers.toLocaleString(),
+      worker25P99LatencyMs: `${worker25Stage.p99LatencyMs}ms`,
+      worker50P99LatencyMs: `${worker50Stage.p99LatencyMs}ms`,
+      worker100P99LatencyMs: `${worker100Stage.p99LatencyMs}ms`,
+      totalRequests: framework.ssrLoadTests!.totalRequests.toLocaleString(),
+    }
+  })
+
 export const serverSideRenderedStats = runtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
@@ -83,6 +139,31 @@ export const chartDuplicateDependencyData = starterStats
     value: f.duplicateDependencies!,
     focused: f.isFocused,
   }))
+
+export const chartSSRLoadWorker25P99LatencyData = getSSRLoadChartData(
+  25,
+  'p99LatencyMs',
+)
+export const chartSSRLoadWorker50P99LatencyData = getSSRLoadChartData(
+  50,
+  'p99LatencyMs',
+)
+export const chartSSRLoadWorker100P99LatencyData = getSSRLoadChartData(
+  100,
+  'p99LatencyMs',
+)
+export const chartSSRLoadWorker25P90LatencyData = getSSRLoadChartData(
+  25,
+  'p90LatencyMs',
+)
+export const chartSSRLoadWorker50P90LatencyData = getSSRLoadChartData(
+  50,
+  'p90LatencyMs',
+)
+export const chartSSRLoadWorker100P90LatencyData = getSSRLoadChartData(
+  100,
+  'p90LatencyMs',
+)
 
 export const chartServerSideRenderedFPData = runtimeEntries
   .map((entry) => entry.data)

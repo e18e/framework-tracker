@@ -8,6 +8,7 @@ import Description from '../components/Description.astro'
 import DetailsLink from '../components/DetailsLink.astro'
 import PageHeader from '../components/PageHeader.astro'
 import ClientSideRenderedCharts from '../components/ClientSideRenderedCharts.astro'
+import SSRLoadP99Charts from '../components/SSRLoadP99Charts.astro'
 import SSRRequestThroughputCharts from '../components/SSRRequestThroughputCharts.astro'
 import Layout from '../layouts/Layout.astro'
 import DepotLogo from '../assets/depot-logo-horizontal.svg'
@@ -73,6 +74,12 @@ import DepotLogo from '../assets/depot-logo-horizontal.svg'
     label="Core-JS Polyfills in Dev Time Stats"
   />
   <h2>Runtime Performance</h2>
+  <h3>SSR Load Tests</h3>
+  <SSRLoadP99Charts />
+  <DetailsLink
+    href="/run-time#ssr-load"
+    label="SSR Load Tests in Run Time Stats"
+  />
   <h3>SSR Request Throughput</h3>
   <SSRRequestThroughputCharts />
   <DetailsLink

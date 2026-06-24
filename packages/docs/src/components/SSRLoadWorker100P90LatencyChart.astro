@@ -1,0 +1,15 @@
+---
+import { chartSSRLoadWorker100P90LatencyData } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+const data = [...chartSSRLoadWorker100P90LatencyData].sort(
+  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+)
+---
+
+<ComparisonBarChart
+  title="P90 Latency at 100 Connections"
+  data={data}
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>

@@ -1,0 +1,18 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import SSRLoadWorker25P99LatencyChart from './SSRLoadWorker25P99LatencyChart.astro'
+import SSRLoadWorker50P99LatencyChart from './SSRLoadWorker50P99LatencyChart.astro'
+import SSRLoadWorker100P99LatencyChart from './SSRLoadWorker100P99LatencyChart.astro'
+---
+
+<ChartTabs
+  sectionId="ssr-load-p99"
+  label="SSR load P99 latency graphs"
+  tab1Label="25 Connections"
+  tab2Label="50 Connections"
+  tab3Label="100 Connections"
+>
+  <SSRLoadWorker25P99LatencyChart slot="panel-1" />
+  <SSRLoadWorker50P99LatencyChart slot="panel-2" />
+  <SSRLoadWorker100P99LatencyChart slot="panel-3" />
+</ChartTabs>

@@ -1,5 +1,5 @@
 import { createReadStream, statSync } from 'node:fs'
-import { join, extname, resolve } from 'node:path'
+import { join, extname, isAbsolute, relative, resolve } from 'node:path'
 import type { IncomingMessage, ServerResponse, Server } from 'node:http'
 
 export const MIME: Record<string, string> = {
@@ -26,7 +26,7 @@ export function parseAppDir(): string {
     console.error(`Usage: node ${process.argv[1]} <app-dir>`)
     process.exit(1)
   }
-  return appDir
+  return resolve(appDir)
 }
 
 export function tryServeFile(
@@ -42,10 +42,14 @@ export function tryServeFile(
     return false
   }
 
-  const abs = resolve(join(staticDir, decoded))
+  const root = resolve(staticDir)
+  const abs = resolve(join(root, decoded))
 
   // Ensure resolved path stays within staticDir
-  if (abs !== staticDir && !abs.startsWith(staticDir + '/')) return false
+  const relativePath = relative(root, abs)
+  if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
+    return false
+  }
 
   try {
     const stat = statSync(abs)

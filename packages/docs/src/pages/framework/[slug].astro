@@ -349,34 +349,34 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
     runtime && (
       <>
         <h2>Runtime Performance</h2>
-        <h3>SSR Load Tests</h3>
-        <StatsTable
-          label="SSR load tests by framework"
-          columns={ssrLoadColumns}
-          data={ssrLoadData}
-        />
-        <SSRLoadStatsMethodologyNotes />
-        <h3>SSR Request Throughput</h3>
-        <StatsTable
-          label="SSR request throughput by framework"
-          columns={ssrRequestThroughputColumns}
-          data={ssrRequestThroughputData}
-        />
-        <SSRRequestThroughputStatsMethodologyNotes />
-        <h3>Client Side Rendered Performance</h3>
+        <h3>Client Side Rendered Tests</h3>
         <StatsTable
           label="Client side rendered performance"
           columns={clientSideRenderedColumns}
           data={clientSideRenderedData}
         />
         <ClientSideRenderedStatsMethodologyNotes />
-        <h3>Server Side Rendered Performance</h3>
+        <h3>Server Side Rendered Tests</h3>
         <StatsTable
           label="Server side rendered performance"
           columns={serverSideRenderedColumns}
           data={serverSideRenderedData}
         />
         <ServerSideRenderedStatsMethodologyNotes />
+        <h3>Server Side Throughput Tests</h3>
+        <StatsTable
+          label="Server side throughput by framework"
+          columns={ssrRequestThroughputColumns}
+          data={ssrRequestThroughputData}
+        />
+        <SSRRequestThroughputStatsMethodologyNotes />
+        <h3>Server Side Load Test</h3>
+        <StatsTable
+          label="Server side load test by framework"
+          columns={ssrLoadColumns}
+          data={ssrLoadData}
+        />
+        <SSRLoadStatsMethodologyNotes />
       </>
     )
   }

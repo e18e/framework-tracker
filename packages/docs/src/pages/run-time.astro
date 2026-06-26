@@ -18,27 +18,23 @@ import Layout from '../layouts/Layout.astro'
 
 <Layout>
   <PageHeader showToggle>Run Time Stats</PageHeader>
-  <h2 id="ssr-load">SSR Load Tests</h2>
+  <h2 id="client-side-rendered-tests">Client Side Rendered Tests</h2>
+  <ClientSideRenderedCharts />
+  <ClientSideRenderedStatsTable />
+  <ClientSideRenderedStatsMethodologyNotes />
+  <h2 id="server-side-rendered-tests">Server Side Rendered Tests</h2>
+  <ServerSideRenderedCharts />
+  <ServerSideRenderedStatsTable />
+  <ServerSideRenderedStatsMethodologyNotes />
+  <h2 id="server-side-throughput-tests">Server Side Throughput Tests</h2>
+  <SSRRequestThroughputCharts />
+  <SSRRequestThroughputStatsTable />
+  <SSRRequestThroughputStatsMethodologyNotes />
+  <h2 id="server-side-load-test">Server Side Load Test</h2>
   <h3>P99 Latency</h3>
   <SSRLoadP99Charts />
   <h3>P90 Latency</h3>
   <SSRLoadP90Charts />
   <SSRLoadStatsTable />
   <SSRLoadStatsMethodologyNotes />
-  <h2 id="ssr-request-throughput">SSR Request Throughput</h2>
-  <SSRRequestThroughputCharts />
-  <SSRRequestThroughputStatsTable />
-  <SSRRequestThroughputStatsMethodologyNotes />
-  <h2 id="client-side-rendered-performance">
-    Client Side Rendered Performance
-  </h2>
-  <ClientSideRenderedCharts />
-  <ClientSideRenderedStatsTable />
-  <ClientSideRenderedStatsMethodologyNotes />
-  <h2 id="server-side-rendered-performance">
-    Server Side Rendered Performance
-  </h2>
-  <ServerSideRenderedCharts />
-  <ServerSideRenderedStatsTable />
-  <ServerSideRenderedStatsMethodologyNotes />
 </Layout>

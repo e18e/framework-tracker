@@ -1,6 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ ssr: false })
-
 type Entry = { id: string; name: string }
 
 const entries: Entry[] = Array.from({ length: 1000 }, () => ({

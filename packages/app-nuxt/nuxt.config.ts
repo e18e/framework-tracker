@@ -6,4 +6,8 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'node',
   },
+  routeRules: {
+    '/client-side-rendered': { ssr: false },
+    '/client-side-rendered/**': { ssr: false },
+  },
 })

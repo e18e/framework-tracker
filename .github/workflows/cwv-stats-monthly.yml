@@ -5,7 +5,7 @@ on:
   # of the following month therefore we run the crawl on the 7th to give a full weeks buffer after the crawl finishes.
   # https://har.fyi/guides/release-cycle/#running-the-crawl
   schedule:
-    - cron: '0 0 7 * *' # At 00:00 on day-of-month 7 (UTC)
+    - cron: "0 0 7 * *" # At 00:00 on day-of-month 7 (UTC)
   workflow_dispatch: # Allow manual triggering
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         run: |
           container_id=$(docker run -d cwv-stats)
           docker wait "$container_id"
-          docker cp "$container_id:/app/cwv-stats.json" ./packages/cwv-stats/cwv-stats.json
+          docker cp "$container_id:/app/cwv-stats.json" ./packages/docs/src/content/cwv/cwv-stats.json
           cat ./packages/cwv-stats/cwv-stats.json
           docker rm "$container_id"
 

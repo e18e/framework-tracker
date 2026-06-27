@@ -1,5 +1,5 @@
 import { defineCollection } from 'astro:content'
-import { glob } from 'astro/loaders'
+import { file, glob } from 'astro/loaders'
 import { z } from 'astro/zod'
 
 const timeSchema = z.object({
@@ -111,7 +111,41 @@ const runtimeCollection = defineCollection({
   }),
 })
 
+const cwvCollection = defineCollection({
+  loader: file('src/content/cwv/cwv-stats.json'),
+  schema: z.object({
+    id: z.string(),
+    framework: z.string(),
+    date: z.string(),
+    overall: z.object({
+      mobile: z.number(),
+      desktop: z.number(),
+    }),
+    lcp: z.object({
+      mobile: z.number(),
+      desktop: z.number(),
+    }),
+    cls: z.object({
+      mobile: z.number(),
+      desktop: z.number(),
+    }),
+    fcp: z.object({
+      mobile: z.number(),
+      desktop: z.number(),
+    }),
+    ttfb: z.object({
+      mobile: z.number(),
+      desktop: z.number(),
+    }),
+    inp: z.object({
+      mobile: z.number(),
+      desktop: z.number(),
+    }),
+  }),
+})
+
 export const collections = {
   devtime: devtimeCollection,
   runtime: runtimeCollection,
+  cwv: cwvCollection,
 }

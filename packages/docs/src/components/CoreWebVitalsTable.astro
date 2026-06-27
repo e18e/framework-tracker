@@ -1,0 +1,25 @@
+---
+import { cwvStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'framework',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string,unknown>) =>`/framework/${getFrameworkSlug(row.id as string)}`
+  },
+  { key: 'lcpDesktopPercent', header: 'LCP%' },
+  { key: 'clsDesktopPercent', header: 'CLS%' },
+  { key: 'fcpDesktopPercent', header: 'FCP%' },
+  { key: 'ttfbDesktopPercent', header: 'TTFB%' },
+  { key: 'inpDesktopPercent', header: 'INP%' },
+]
+---
+
+<StatsTable
+  label="CWV by framework"
+  columns={columns}
+  data={cwvStats}
+/>

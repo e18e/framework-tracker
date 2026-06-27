@@ -1,0 +1,35 @@
+---
+import { getCWVDesktopStatsChartData } from '../lib/collections'
+import type { CWV } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+interface Props {
+  cwv: CWV
+}
+
+const { cwv } = Astro.props
+
+const cwvTitle: Record<CWV, string> = {
+  lcp: 'Good Largest Contentful Paint',
+  cls: 'Good Cumulative Layout Shift',
+  fcp: 'Good First Contentful Paint',
+  ttfb: 'Good Time To First Byte',
+  inp: 'Good Interaction to Next Paint',
+}
+
+const cwvDescription: Record<CWV, string> = {
+  lcp: `Measures how fast a page's main content loads. To provide a good user experience, the LCP should be 2.5 seconds or less.`,
+  cls: `Measures how much and how far content unexpectedly moves on a page. To provide a good user experience, sites should maintain a CLS score of 0.1 or less for at least 75% of page visits.`,
+  fcp: `Measures initial loading speed. To provide a good user experience, the FCP should be 1.8 seconds or less.`,
+  ttfb: `Measures the time between the request for a resource and when the first byte of a response begins to arrive. A good TTFB is less than or equal to 800ms.`,
+  inp: `Measures overall page responsiveness to user actions. To provide a good user experience, the INP should be 200ms or less.`,
+}
+---
+
+<ComparisonBarChart
+  title={cwvTitle[cwv]}
+  description={cwvDescription[cwv]}
+  data={getCWVDesktopStatsChartData(cwv)}
+  valueFormat="count"
+  yAxisLabel="%"
+/>

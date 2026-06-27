@@ -26,4 +26,13 @@ import MethodologyNotes from '../components/MethodologyNotes.astro'
     > in its config. All other frameworks (Nuxt, SvelteKit, SolidStart, Astro) disable
     SSR per-route without a separate build.
   </li>
+  <li>
+    Astro uses React for its client-side rendered test: the benchmark table and
+    detail components are React islands rendered with <code
+      >client:only="react"</code
+    >, which prevents Astro from server-rendering those components and lets them
+    render only in the browser. Astro's <code>ClientRouter</code> is not used for
+    this CSR test because it enables client-side transitions and soft navigation behavior
+    rather than client-only rendering.
+  </li>
 </MethodologyNotes>

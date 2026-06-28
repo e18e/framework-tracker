@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { testData } from '../../../testdata/src/ssr'
 import type { Route } from './+types/home'
 
@@ -14,6 +15,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <tr key={entry.id}>
             <td>{entry.id}</td>
             <td>{entry.name}</td>
+            <td>
+              <Link to={`/server-side-rendered/${entry.id}`}>View →</Link>
+            </td>
           </tr>
         ))}
       </tbody>

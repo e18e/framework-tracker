@@ -8,7 +8,8 @@ const columns = [
     key: 'framework',
     header: 'Framework',
     nameCell: true,
-    href: (row: Record<string,unknown>) =>`/framework/${getFrameworkSlug(row.id as string)}`
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.id as string)}`,
   },
   { key: 'lcpDesktopPercent', header: 'LCP%' },
   { key: 'clsDesktopPercent', header: 'CLS%' },
@@ -18,8 +19,4 @@ const columns = [
 ]
 ---
 
-<StatsTable
-  label="CWV by framework"
-  columns={columns}
-  data={cwvStats}
-/>
+<StatsTable label="CWV by framework" columns={columns} data={cwvStats} />

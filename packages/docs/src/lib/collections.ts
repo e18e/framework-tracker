@@ -6,9 +6,9 @@ export const runtimeEntries = await getCollection('runtime')
 const cwvEntries = await getCollection('cwv')
 
 export const cwvStats = cwvEntries
-  .map(entry => entry.data)
+  .map((entry) => entry.data)
   .sort((a, b) => b.overall.desktop - a.overall.desktop)
-  .map(stat => ({
+  .map((stat) => ({
     id: stat.id,
     framework: stat.framework,
     isFocused: true,
@@ -21,7 +21,7 @@ export const cwvStats = cwvEntries
     ttfbDesktopPercent: Math.floor(stat.ttfb.desktop * 100),
     ttfbMobilePercent: Math.floor(stat.ttfb.mobile * 100),
     inpDesktopPercent: Math.floor(stat.inp.desktop * 100),
-    inpMobilePercent: Math.floor(stat.inp.mobile * 100)
+    inpMobilePercent: Math.floor(stat.inp.mobile * 100),
   }))
 
 export type CWV = 'lcp' | 'cls' | 'fcp' | 'ttfb' | 'inp'
@@ -29,10 +29,10 @@ export type CWV = 'lcp' | 'cls' | 'fcp' | 'ttfb' | 'inp'
 export function getCWVDesktopStatsChartData(cwv: CWV) {
   return cwvStats
     .sort((a, b) => b[`${cwv}DesktopPercent`] - a[`${cwv}DesktopPercent`])
-    .map(stat => ({
+    .map((stat) => ({
       name: stat.framework,
       value: stat[`${cwv}DesktopPercent`],
-      focused: true
+      focused: true,
     }))
 }
 

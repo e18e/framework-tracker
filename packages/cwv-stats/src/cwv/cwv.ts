@@ -7,7 +7,7 @@ import {
 
 // httparchive allows us to pull FID but does not include any metrics at this current time so we can ignore it.
 type FrameworkCWV = {
-  id: string,
+  id: string
   framework: Framework
   date: string
 } & {
@@ -47,7 +47,7 @@ async function getHttpArchiveCWV() {
 }
 
 function buildFrameworkQueryParam(framework: Framework) {
-  return `technology=${framework.replace(" ", "+")}`
+  return `technology=${framework.replace(' ', '+')}`
 }
 
 function getLatestCWVForFrameworks(frameworksCWV: HTTPArchiveCWVSnapshot[]) {
@@ -72,7 +72,7 @@ function validateAllCWVIsSameDate(
 
 function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
   const frameworkVitals = latestFrameworkCWV.map((stat) => ({
-    id: stat.technology.toLowerCase().replace(/[.\s]/g, "-"),
+    id: stat.technology.toLowerCase().replace(/[.\s]/g, '-'),
     framework: stat.technology,
     date: stat.date,
     overall: getCWV('overall', stat),
@@ -96,14 +96,13 @@ function getCWV(cwv: HTTPArchiveCWV, stat: HTTPArchiveCWVSnapshot) {
 
   const vitalMobile = vital.mobile ?? {
     tested: 0,
-    good_number: 0
+    good_number: 0,
   }
 
   const vitalDesktop = vital.desktop ?? {
     tested: 0,
-    good_number: 0
+    good_number: 0,
   }
-
 
   const hasMobileVital = vitalMobile.tested > 0
   const hasDesktopVital = vitalDesktop.tested > 0

@@ -2,15 +2,9 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
-import { readJsonFile } from './utils.ts'
 import { saveStats } from './save-stats.ts'
 import { getCIStats } from './get-ci-stats.ts'
-import type {
-  FrameworkStats,
-  PackageJson,
-  FrameworkConfig,
-  CoreJsStats,
-} from './types.ts'
+import type { FrameworkStats, PackageJson, FrameworkConfig } from './types.ts'
 
 async function getDependencyCountsFromPackageJson(pkgDir: string) {
   const packageJsonPath = join(packagesDir, pkgDir, 'package.json')
@@ -38,16 +32,6 @@ async function processStarter(framework: FrameworkConfig, order: number) {
       ? await getDependencyCountsFromPackageJson(pkgDir)
       : {}
 
-  const coreJsStats = readJsonFile<CoreJsStats>(
-    join(packagesDir, pkgDir, 'corejs-stats.json'),
-  )
-  const coreJsFields = coreJsStats
-    ? {
-        vendoredCoreJsSize: coreJsStats.totalVendoredBytes,
-        vendoredCoreJsUnnecessaryModules: coreJsStats.unnecessaryModules,
-      }
-    : {}
-
   const stats: FrameworkStats = {
     name: displayName,
     package: pkgDir,
@@ -56,7 +40,6 @@ async function processStarter(framework: FrameworkConfig, order: number) {
     order,
     ...dependencyStats,
     ...ciStats,
-    ...coreJsFields,
   }
 
   await saveStats(pkgDir, stats, 'devtime')

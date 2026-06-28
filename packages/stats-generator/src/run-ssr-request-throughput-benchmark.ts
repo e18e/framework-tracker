@@ -1,5 +1,8 @@
 import { join } from 'node:path'
-import { runSSRRequestThroughputBenchmark } from './ssrRequestThroughput/index.ts'
+import {
+  runSSRRequestThroughputBenchmark,
+  supportsSSRRequestThroughputBenchmark,
+} from './ssrRequestThroughput/index.ts'
 import { packagesDir } from './constants.ts'
 import {
   getFrameworkByPackage,
@@ -19,6 +22,13 @@ async function main() {
   console.info(
     `Running SSR request throughput benchmark for ${packageName}...\n`,
   )
+
+  if (!supportsSSRRequestThroughputBenchmark(packageName)) {
+    console.info(
+      `SSR request throughput benchmark is not configured for ${packageName}; skipping.`,
+    )
+    return
+  }
 
   const { framework } = await getFrameworkByPackage(packageName)
 

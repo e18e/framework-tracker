@@ -72,6 +72,14 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
     },
   ]
 
+export function supportsSSRRequestThroughputBenchmark(
+  packageName: string,
+): boolean {
+  return SSR_REQUEST_THROUGHPUT_FRAMEWORKS.some(
+    (framework) => framework.package === packageName,
+  )
+}
+
 export async function runSSRRequestThroughputBenchmark(
   packageName: string,
 ): Promise<SSRRequestThroughputBenchmarkResult> {

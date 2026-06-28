@@ -44,7 +44,7 @@ jobs:
 
           echo "=== Running SSR request throughput benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app)' | while read -r framework; do
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
             (cd packages/$PKG && pnpm build)

@@ -16,9 +16,8 @@ export async function buildSolidStartHandler(): Promise<ServerRenderHandler> {
     'nitro.mjs',
   )
   const entryUrl = pathToFileURL(entryPath).href
-  const { server } = await importWithCapturedServer<Record<string, never>>(
-    entryUrl,
-  )
+  const { server } =
+    await importWithCapturedServer<Record<string, never>>(entryUrl)
   const handler = server?.listeners('request')[0]
 
   if (typeof handler !== 'function') {

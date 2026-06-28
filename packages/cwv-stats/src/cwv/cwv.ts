@@ -72,7 +72,7 @@ function validateAllCWVIsSameDate(
 
 function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
   const frameworkVitals = latestFrameworkCWV.map((stat) => ({
-    id: stat.technology.toLowerCase().replace(".", "-"),
+    id: stat.technology.toLowerCase().replace(/[.\s]/g, "-"),
     framework: stat.technology,
     date: stat.date,
     overall: getCWV('overall', stat),

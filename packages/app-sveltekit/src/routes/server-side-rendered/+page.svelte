@@ -9,7 +9,7 @@
         <td>{entry.id}</td>
         <td>{entry.name}</td>
         <td>
-          <a href="/server-side-rendered/{entry.id}">View →</a>
+          <a href={`/server-side-rendered/${entry.id}`}>View →</a>
         </td>
       </tr>
     {/each}

@@ -2,9 +2,11 @@ import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { packagesDir } from '../constants.ts'
+import { getHost } from '../serve/common.ts'
 import { runLoadTest } from './run-load-test.ts'
 import type { SSRLoadBenchmarkResult } from './types.ts'
 
+const SSR_LOAD_HOST = getHost()
 const SSR_LOAD_PORT = 3003
 const SSR_LOAD_PATH = '/server-side-rendered'
 
@@ -100,6 +102,7 @@ async function spawnServer(
   const proc = spawn('node', [scriptPath, appDir], {
     env: {
       ...process.env,
+      HOST: SSR_LOAD_HOST,
       NODE_ENV: 'production',
       PORT: String(SSR_LOAD_PORT),
     },
@@ -130,7 +133,7 @@ async function spawnServer(
   })
 
   await Promise.race([
-    waitForServer(`http://localhost:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`),
+    waitForServer(`http://${SSR_LOAD_HOST}:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`),
     exitPromise,
   ])
 
@@ -152,7 +155,7 @@ export async function runSSRLoadBenchmark(
     )
   }
 
-  const url = `http://localhost:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`
+  const url = `http://${SSR_LOAD_HOST}:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`
   console.info(`Starting server for ${config.displayName}...`)
   const killServer = await spawnServer(config)
 

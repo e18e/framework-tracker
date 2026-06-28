@@ -6,6 +6,10 @@ export function getPort(defaultPort = 3000): number {
   return Number.parseInt(process.env.PORT ?? String(defaultPort), 10)
 }
 
+export function getHost(defaultHost = '127.0.0.1'): string {
+  return process.env.HOST ?? defaultHost
+}
+
 export function parseAppDir(): string {
   const appDir = process.argv[2]
   if (!appDir) {

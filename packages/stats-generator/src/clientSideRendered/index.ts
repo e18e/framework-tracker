@@ -2,9 +2,11 @@ import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { packagesDir } from '../constants.ts'
+import { getHost } from '../serve/common.ts'
 import { runBenchmark } from './run-benchmark.ts'
 import type { ClientSideRenderedBenchmarkResult } from './types.ts'
 
+const CLIENT_SIDE_RENDERED_HOST = getHost()
 const CLIENT_SIDE_RENDERED_PORT = 3001
 
 interface ClientSideRenderedFrameworkConfig {
@@ -85,6 +87,7 @@ async function spawnServer(
   const proc = spawn('node', [scriptPath, appDir], {
     env: {
       ...process.env,
+      HOST: CLIENT_SIDE_RENDERED_HOST,
       NODE_ENV: 'production',
       PORT: String(CLIENT_SIDE_RENDERED_PORT),
     },
@@ -116,7 +119,7 @@ async function spawnServer(
 
   await Promise.race([
     waitForServer(
-      `http://localhost:${CLIENT_SIDE_RENDERED_PORT}/client-side-rendered`,
+      `http://${CLIENT_SIDE_RENDERED_HOST}:${CLIENT_SIDE_RENDERED_PORT}/client-side-rendered`,
     ),
     exitPromise,
   ])
@@ -148,7 +151,7 @@ export async function runClientSideRenderedBenchmark(
       `Running client-side rendered benchmark for ${config.displayName}...`,
     )
     return await runBenchmark(
-      `http://localhost:${CLIENT_SIDE_RENDERED_PORT}`,
+      `http://${CLIENT_SIDE_RENDERED_HOST}:${CLIENT_SIDE_RENDERED_PORT}`,
       config.name,
       config.displayName,
       runs,

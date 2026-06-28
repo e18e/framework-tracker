@@ -1,20 +1,6 @@
-import { createReadStream, statSync } from 'node:fs'
-import { join, extname, isAbsolute, relative, resolve } from 'node:path'
-import type { IncomingMessage, ServerResponse, Server } from 'node:http'
-
-export const MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'application/javascript',
-  '.mjs': 'application/javascript',
-  '.css': 'text/css',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-}
+import { spawn, type ChildProcess } from 'node:child_process'
+import { resolve } from 'node:path'
+import type { Server } from 'node:http'
 
 export function getPort(defaultPort = 3000): number {
   return Number.parseInt(process.env.PORT ?? String(defaultPort), 10)
@@ -29,58 +15,33 @@ export function parseAppDir(): string {
   return resolve(appDir)
 }
 
-export function tryServeFile(
-  staticDir: string,
-  pathname: string,
-  req: IncomingMessage,
-  res: ServerResponse,
-): boolean {
-  let decoded: string
-  try {
-    decoded = decodeURIComponent(pathname)
-  } catch {
-    return false
+export function spawnProductionServer(
+  args: string[],
+  appDir: string,
+  env: NodeJS.ProcessEnv = {},
+): ChildProcess {
+  const child = spawn(process.execPath, args, {
+    cwd: appDir,
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      ...env,
+    },
+    stdio: 'inherit',
+  })
+
+  const shutdown = () => {
+    child.kill('SIGTERM')
   }
 
-  const root = resolve(staticDir)
-  const abs = resolve(join(root, decoded))
+  process.on('SIGTERM', shutdown)
+  process.on('SIGINT', shutdown)
 
-  // Ensure resolved path stays within staticDir
-  const relativePath = relative(root, abs)
-  if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
-    return false
-  }
+  child.on('exit', (code, signal) => {
+    process.exit(signal ? 0 : (code ?? 0))
+  })
 
-  try {
-    const stat = statSync(abs)
-    if (!stat.isFile()) return false
-
-    const contentType = MIME[extname(abs)] ?? 'application/octet-stream'
-    res.setHeader('Content-Type', contentType)
-
-    if (req.method === 'HEAD') {
-      res.setHeader('Content-Length', stat.size)
-      res.end()
-    } else {
-      createReadStream(abs).pipe(res)
-    }
-    return true
-  } catch {
-    return false
-  }
-}
-
-export function serveFallback(
-  fallbackPath: string,
-  req: IncomingMessage,
-  res: ServerResponse,
-): void {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8')
-  if (req.method === 'HEAD') {
-    res.end()
-  } else {
-    createReadStream(fallbackPath).pipe(res)
-  }
+  return child
 }
 
 export function registerShutdown(server: Server): void {

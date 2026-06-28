@@ -280,8 +280,6 @@ jobs:
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm build
-        env:
-          BUILD_MODE: spa
 
       - name: Run client-side rendered benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:client-side-rendered ${{ matrix.framework.package }}

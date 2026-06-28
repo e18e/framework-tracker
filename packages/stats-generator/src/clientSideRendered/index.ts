@@ -13,8 +13,6 @@ interface ClientSideRenderedFrameworkConfig {
   package: string
   /** Filename of the serve script in src/serve/ */
   serveScript: string
-  /** Additional arguments passed to the serve script after <app-dir> */
-  serveArgs?: string[]
 }
 
 const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
@@ -40,7 +38,7 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     name: 'react-router-client-side-rendered',
     displayName: 'React Router Client Side Rendered',
     package: 'app-react-router',
-    serveScript: 'static-client-side-rendered.ts',
+    serveScript: 'react-router.ts',
   },
   {
     name: 'solid-start-client-side-rendered',
@@ -59,7 +57,6 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     displayName: 'TanStack Start Client Side Rendered',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
-    serveArgs: ['client-side-rendered'],
   },
 ]
 
@@ -84,10 +81,13 @@ async function spawnServer(
   const scriptPath = fileURLToPath(
     new URL(`../serve/${config.serveScript}`, import.meta.url),
   )
-  const scriptArgs = [scriptPath, appDir, ...(config.serveArgs ?? [])]
 
-  const proc = spawn('node', scriptArgs, {
-    env: { ...process.env, PORT: String(CLIENT_SIDE_RENDERED_PORT) },
+  const proc = spawn('node', [scriptPath, appDir], {
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      PORT: String(CLIENT_SIDE_RENDERED_PORT),
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 

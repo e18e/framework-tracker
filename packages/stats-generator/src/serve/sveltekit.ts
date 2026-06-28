@@ -1,7 +1,8 @@
 import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { parseAppDir } from './common.ts'
+import { getPort, parseAppDir, spawnProductionServer } from './common.ts'
 
 const appDir = parseAppDir()
+const PORT = getPort()
+const entryPath = join(appDir, 'build', 'index.js')
 
-await import(pathToFileURL(join(appDir, 'build', 'index.js')).href)
+spawnProductionServer([entryPath], appDir, { PORT: String(PORT) })

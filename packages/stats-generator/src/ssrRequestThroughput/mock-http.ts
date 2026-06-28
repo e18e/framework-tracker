@@ -11,15 +11,16 @@ export class IncomingMessage extends Readable {
   headers: Record<string, string> = {}
   trailers: Record<string, string> = {}
   method = 'GET'
-  url = '/'
+  url: string
   statusCode = 200
   statusMessage = ''
   closed = false
   errored: Error | null = null
   readable = false
 
-  constructor() {
+  constructor(url = '/') {
     super()
+    this.url = url
   }
 
   get rawHeaders(): string[] {

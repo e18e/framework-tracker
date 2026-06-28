@@ -1,6 +1,8 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { packagesDir } from '../../constants.ts'
+import { importWithCapturedServer } from './nitro.ts'
+import type { NodeServerRenderHandler } from '../types.ts'
 import type { ServerRenderHandler } from '../types.ts'
 
 export async function buildSolidStartHandler(): Promise<ServerRenderHandler> {
@@ -9,20 +11,26 @@ export async function buildSolidStartHandler(): Promise<ServerRenderHandler> {
     'app-solid-start',
     '.output',
     'server',
-    'index.mjs',
+    'chunks',
+    'nitro',
+    'nitro.mjs',
   )
   const entryUrl = pathToFileURL(entryPath).href
-  const { handler } = await import(entryUrl)
+  const { server } =
+    await importWithCapturedServer<Record<string, never>>(entryUrl)
+  const handler = server?.listeners('request')[0]
 
-  // h3's sendStream short-circuits when res.socket is falsy,
-  // so we wrap the handler to set a truthy socket on the mock response
+  if (typeof handler !== 'function') {
+    throw new Error('Unable to find SolidStart request handler')
+  }
+
   return {
     type: 'node',
     handler: (req, res) => {
       if (!res.socket) {
         res.socket = {}
       }
-      return handler(req, res)
+      return (handler as NodeServerRenderHandler)(req, res)
     },
   }
 }

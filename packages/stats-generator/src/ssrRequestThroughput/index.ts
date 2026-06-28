@@ -1,7 +1,6 @@
 import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
 import { buildBaselineHtmlHandler } from './handlers/baseline-html.ts'
-import { buildMastroHandler } from './handlers/mastro.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
 import { buildNextJSHandler } from './handlers/nextjs.ts'
@@ -25,59 +24,61 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
   [
     {
       name: 'baseline-html',
-      displayName: 'Baseline HTML',
+      displayName: 'Baseline HTML SSR Request Handler Throughput',
       package: 'app-baseline-html',
       buildHandler: buildBaselineHtmlHandler,
     },
     {
       name: 'astro-ssr-request-throughput',
-      displayName: 'Astro SSR Request Throughput',
+      displayName: 'Astro SSR Request Handler Throughput',
       package: 'app-astro',
       buildHandler: buildAstroHandler,
     },
     {
-      name: 'mastro-ssr-request-throughput',
-      displayName: 'Mastro SSR Request Throughput',
-      package: 'app-mastro',
-      buildHandler: buildMastroHandler,
-    },
-    {
       name: 'nuxt-ssr-request-throughput',
-      displayName: 'Nuxt SSR Request Throughput',
+      displayName: 'Nuxt SSR Request Handler Throughput',
       package: 'app-nuxt',
       buildHandler: buildNuxtHandler,
     },
     {
       name: 'sveltekit-ssr-request-throughput',
-      displayName: 'SvelteKit SSR Request Throughput',
+      displayName: 'SvelteKit SSR Request Handler Throughput',
       package: 'app-sveltekit',
       buildHandler: buildSvelteKitHandler,
     },
     {
       name: 'next-ssr-request-throughput',
-      displayName: 'Next.js SSR Request Throughput',
+      displayName: 'Next.js SSR Request Handler Throughput',
       package: 'app-next-js',
       buildHandler: buildNextJSHandler,
     },
     {
       name: 'react-router-ssr-request-throughput',
-      displayName: 'React Router SSR Request Throughput',
+      displayName: 'React Router SSR Request Handler Throughput',
       package: 'app-react-router',
       buildHandler: buildReactRouterHandler,
     },
     {
       name: 'solid-start-ssr-request-throughput',
-      displayName: 'SolidStart SSR Request Throughput',
+      displayName: 'SolidStart SSR Request Handler Throughput',
       package: 'app-solid-start',
       buildHandler: buildSolidStartHandler,
     },
     {
       name: 'tanstack-start-ssr-request-throughput',
-      displayName: 'TanStack Start SSR Request Throughput',
+      displayName: 'TanStack Start SSR Request Handler Throughput',
       package: 'app-tanstack-start-react',
       buildHandler: buildTanStackStartHandler,
     },
   ]
+
+export function supportsSSRRequestThroughputBenchmark(
+  packageName: string,
+): boolean {
+  return SSR_REQUEST_THROUGHPUT_FRAMEWORKS.some(
+    (framework) => framework.package === packageName,
+  )
+}
 
 export async function runSSRRequestThroughputBenchmark(
   packageName: string,
@@ -92,17 +93,28 @@ export async function runSSRRequestThroughputBenchmark(
     )
   }
 
-  const handler = await config.buildHandler()
-  const results = await runBenchmark([
-    {
-      name: config.name,
-      displayName: config.displayName,
-      package: config.package,
-      handler,
-    },
-  ])
+  const previousNodeEnv = process.env.NODE_ENV
+  process.env.NODE_ENV = 'production'
 
-  return results[0]
+  try {
+    const handler = await config.buildHandler()
+    const results = await runBenchmark([
+      {
+        name: config.name,
+        displayName: config.displayName,
+        package: config.package,
+        handler,
+      },
+    ])
+
+    return results[0]
+  } finally {
+    if (previousNodeEnv === undefined) {
+      delete process.env.NODE_ENV
+    } else {
+      process.env.NODE_ENV = previousNodeEnv
+    }
+  }
 }
 
 export function toSSRRequestThroughputStats(

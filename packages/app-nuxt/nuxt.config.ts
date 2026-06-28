@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   nitro: {
-    preset: 'node',
+    preset: 'node-server',
   },
   routeRules: {
     '/client-side-rendered': { ssr: false },

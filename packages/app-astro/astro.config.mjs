@@ -5,7 +5,7 @@ import react from '@astrojs/react'
 export default defineConfig({
   output: 'server',
   adapter: node({
-    mode: 'middleware',
+    mode: 'standalone',
   }),
   integrations: [react()],
 })

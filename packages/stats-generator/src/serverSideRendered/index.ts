@@ -12,7 +12,6 @@ interface ServerSideRenderedFrameworkConfig {
   displayName: string
   package: string
   serveScript: string
-  serveArgs?: string[]
 }
 
 const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
@@ -57,7 +56,6 @@ const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
     displayName: 'TanStack Start Server Side Rendered',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
-    serveArgs: ['server-side-rendered'],
   },
 ]
 
@@ -82,10 +80,13 @@ async function spawnServer(
   const scriptPath = fileURLToPath(
     new URL(`../serve/${config.serveScript}`, import.meta.url),
   )
-  const scriptArgs = [scriptPath, appDir, ...(config.serveArgs ?? [])]
 
-  const proc = spawn('node', scriptArgs, {
-    env: { ...process.env, PORT: String(SERVER_SIDE_RENDERED_PORT) },
+  const proc = spawn('node', [scriptPath, appDir], {
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      PORT: String(SERVER_SIDE_RENDERED_PORT),
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 

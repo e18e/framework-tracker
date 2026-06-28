@@ -52,7 +52,7 @@ jobs:
 
           echo "=== Running SSR request throughput benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app)' | while read -r framework; do
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
             (cd packages/$PKG && pnpm build)
@@ -97,7 +97,7 @@ jobs:
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building client-side rendered app for $PKG..."
-            (cd packages/$PKG && BUILD_MODE=spa pnpm build)
+            (cd packages/$PKG && pnpm build)
             echo "Running client-side rendered benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:client-side-rendered $PKG
           done

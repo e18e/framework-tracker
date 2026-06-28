@@ -8,7 +8,7 @@ const getData = query(async () => {
 }, 'test-data')
 
 export const route = {
-  load: () => getData(),
+  preload: () => getData(),
 }
 
 export default function Home() {

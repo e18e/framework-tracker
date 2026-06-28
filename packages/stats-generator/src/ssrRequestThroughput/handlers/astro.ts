@@ -12,6 +12,18 @@ export async function buildAstroHandler(): Promise<ServerRenderHandler> {
     'entry.mjs',
   )
   const entryUrl = pathToFileURL(entryPath).href
-  const { handler } = await import(entryUrl)
-  return { type: 'node', handler }
+
+  const previousAutostart = process.env.ASTRO_NODE_AUTOSTART
+  process.env.ASTRO_NODE_AUTOSTART = 'disabled'
+
+  try {
+    const { handler } = await import(entryUrl)
+    return { type: 'node', handler }
+  } finally {
+    if (previousAutostart === undefined) {
+      delete process.env.ASTRO_NODE_AUTOSTART
+    } else {
+      process.env.ASTRO_NODE_AUTOSTART = previousAutostart
+    }
+  }
 }

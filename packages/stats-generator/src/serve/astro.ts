@@ -12,21 +12,23 @@ const appDir = parseAppDir()
 const PORT = getPort(4321)
 const clientDir = join(appDir, 'dist', 'client')
 
-const { handler } = await import(
+const mod = await import(
   pathToFileURL(join(appDir, 'dist', 'server', 'entry.mjs')).href
 )
 
-const server = createServer((req, res) => {
-  const { pathname } = new URL(req.url ?? '/', `http://localhost:${PORT}`)
+if (typeof mod.handler === 'function') {
+  const server = createServer((req, res) => {
+    const { pathname } = new URL(req.url ?? '/', `http://localhost:${PORT}`)
 
-  if (tryServeFile(clientDir, pathname, req, res)) return
+    if (tryServeFile(clientDir, pathname, req, res)) return
 
-  handler(req, res, () => {
-    res.writeHead(404)
-    res.end('Not Found')
+    mod.handler(req, res, () => {
+      res.writeHead(404)
+      res.end('Not Found')
+    })
+  }).listen(PORT, () => {
+    console.log(`Ready at http://localhost:${PORT}`)
   })
-}).listen(PORT, () => {
-  console.log(`Ready at http://localhost:${PORT}`)
-})
 
-registerShutdown(server)
+  registerShutdown(server)
+}

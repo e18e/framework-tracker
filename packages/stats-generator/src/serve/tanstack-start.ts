@@ -7,6 +7,8 @@ import {
   parseAppDir,
   tryServeFile,
   serveFallback,
+  shouldServeHtmlFallback,
+  serveNotFound,
   registerShutdown,
 } from './common.ts'
 
@@ -24,27 +26,39 @@ const isClientSideRendered =
   (mode !== 'server-side-rendered' && existsSync(join(spaDir, '_shell.html')))
 const publicDir = isClientSideRendered ? spaDir : ssrPublicDir
 
-let middleware: ((req: unknown, res: unknown) => void) | undefined
-if (!isClientSideRendered) {
+if (isClientSideRendered) {
+  const server = createServer((req, res) => {
+    const { pathname } = new URL(req.url ?? '/', `http://localhost:${PORT}`)
+
+    if (tryServeFile(publicDir, pathname, req, res)) return
+
+    if (shouldServeHtmlFallback(pathname, req)) {
+      serveFallback(join(spaDir, '_shell.html'), req, res)
+      return
+    }
+
+    serveNotFound(res)
+  }).listen(PORT, () => {
+    console.log(`Ready at http://localhost:${PORT}`)
+  })
+
+  registerShutdown(server)
+} else {
   const mod = await import(
     pathToFileURL(join(appDir, '.output', 'server', 'index.mjs')).href
   )
-  middleware = mod.middleware
-}
 
-const server = createServer((req, res) => {
-  const { pathname } = new URL(req.url ?? '/', `http://localhost:${PORT}`)
+  if (typeof mod.middleware === 'function') {
+    const server = createServer((req, res) => {
+      const { pathname } = new URL(req.url ?? '/', `http://localhost:${PORT}`)
 
-  if (tryServeFile(publicDir, pathname, req, res)) return
+      if (tryServeFile(publicDir, pathname, req, res)) return
 
-  if (isClientSideRendered) {
-    serveFallback(join(spaDir, '_shell.html'), req, res)
-    return
+      mod.middleware(req, res)
+    }).listen(PORT, () => {
+      console.log(`Ready at http://localhost:${PORT}`)
+    })
+
+    registerShutdown(server)
   }
-
-  middleware!(req, res)
-}).listen(PORT, () => {
-  console.log(`Ready at http://localhost:${PORT}`)
-})
-
-registerShutdown(server)
+}

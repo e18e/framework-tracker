@@ -5,6 +5,8 @@ import {
   parseAppDir,
   tryServeFile,
   serveFallback,
+  shouldServeHtmlFallback,
+  serveNotFound,
   registerShutdown,
 } from './common.ts'
 
@@ -21,7 +23,12 @@ const server = createServer((req, res) => {
 
   if (tryServeFile(staticDir, pathname, req, res)) return
 
-  serveFallback(fallbackPath, req, res)
+  if (shouldServeHtmlFallback(pathname, req)) {
+    serveFallback(fallbackPath, req, res)
+    return
+  }
+
+  serveNotFound(res)
 }).listen(PORT, () => {
   console.log(`Ready at http://localhost:${PORT}`)
 })

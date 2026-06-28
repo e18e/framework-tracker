@@ -1,5 +1,12 @@
-import { createReadStream, statSync } from 'node:fs'
-import { join, extname, isAbsolute, relative, resolve } from 'node:path'
+import { createReadStream, existsSync, statSync } from 'node:fs'
+import {
+  join,
+  extname,
+  basename,
+  isAbsolute,
+  relative,
+  resolve,
+} from 'node:path'
 import type { IncomingMessage, ServerResponse, Server } from 'node:http'
 
 export const MIME: Record<string, string> = {
@@ -52,17 +59,23 @@ export function tryServeFile(
   }
 
   try {
-    const stat = statSync(abs)
+    const asset = pickAssetVariant(abs, req)
+    const stat = statSync(asset.path)
     if (!stat.isFile()) return false
 
     const contentType = MIME[extname(abs)] ?? 'application/octet-stream'
     res.setHeader('Content-Type', contentType)
+    res.setHeader('Content-Length', stat.size)
+    res.setHeader('Cache-Control', cacheControlFor(abs))
+    if (asset.encoding) {
+      res.setHeader('Content-Encoding', asset.encoding)
+      res.setHeader('Vary', 'Accept-Encoding')
+    }
 
     if (req.method === 'HEAD') {
-      res.setHeader('Content-Length', stat.size)
       res.end()
     } else {
-      createReadStream(abs).pipe(res)
+      createReadStream(asset.path).pipe(res)
     }
     return true
   } catch {
@@ -75,12 +88,71 @@ export function serveFallback(
   req: IncomingMessage,
   res: ServerResponse,
 ): void {
+  const stat = statSync(fallbackPath)
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  res.setHeader('Content-Length', stat.size)
+  res.setHeader('Cache-Control', 'no-cache')
   if (req.method === 'HEAD') {
     res.end()
   } else {
     createReadStream(fallbackPath).pipe(res)
   }
+}
+
+export function shouldServeHtmlFallback(
+  pathname: string,
+  req: IncomingMessage,
+): boolean {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return false
+
+  const accept = req.headers.accept ?? ''
+  if (accept.includes('text/html')) return true
+
+  return !extname(pathname) && (accept === '' || accept.includes('*/*'))
+}
+
+export function serveNotFound(res: ServerResponse): void {
+  res.writeHead(404, {
+    'Content-Type': 'text/plain; charset=utf-8',
+    'Cache-Control': 'no-cache',
+  })
+  res.end('Not Found')
+}
+
+function pickAssetVariant(
+  abs: string,
+  req: IncomingMessage,
+): { path: string; encoding?: 'br' | 'gzip' } {
+  const acceptEncoding = req.headers['accept-encoding'] ?? ''
+  const accepted = Array.isArray(acceptEncoding)
+    ? acceptEncoding.join(',')
+    : acceptEncoding
+
+  if (accepted.includes('br') && existsSync(`${abs}.br`)) {
+    return { path: `${abs}.br`, encoding: 'br' }
+  }
+
+  if (accepted.includes('gzip') && existsSync(`${abs}.gz`)) {
+    return { path: `${abs}.gz`, encoding: 'gzip' }
+  }
+
+  return { path: abs }
+}
+
+function cacheControlFor(abs: string): string {
+  const ext = extname(abs)
+  if (ext === '.html' || ext === '.json') return 'no-cache'
+
+  if (isFingerprintedAsset(abs)) {
+    return 'public, max-age=31536000, immutable'
+  }
+
+  return 'public, max-age=0, must-revalidate'
+}
+
+function isFingerprintedAsset(abs: string): boolean {
+  const name = basename(abs, extname(abs))
+  return /(?:^|[._-])[A-Za-z0-9_-]{8,}$/.test(name)
 }
 
 export function registerShutdown(server: Server): void {

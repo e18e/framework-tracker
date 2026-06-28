@@ -10,7 +10,7 @@ export default defineConfig({
     host: '127.0.0.1',
   },
   plugins: [
-    ...(isClientSideRendered ? [] : [nitro({ preset: 'node-middleware' })]),
+    ...(isClientSideRendered ? [] : [nitro({ preset: 'node-server' })]),
     tanstackStart({ spa: { enabled: isClientSideRendered } }),
     viteReact(),
   ],

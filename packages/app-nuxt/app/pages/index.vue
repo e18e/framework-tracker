@@ -10,6 +10,9 @@ const { data } = await useAsyncData(() => testData(), { deep: false })
       <tr v-for="entry in data" :key="entry.id">
         <td>{{ entry.id }}</td>
         <td>{{ entry.name }}</td>
+        <td>
+          <NuxtLink :to="`/server-side-rendered/${entry.id}`">View →</NuxtLink>
+        </td>
       </tr>
     </tbody>
   </table>

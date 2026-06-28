@@ -15,6 +15,9 @@ export const GET = async () => {
                 <tr>
                   <td>${entry.id}</td>
                   <td>${entry.name}</td>
+                  <td>
+                    <a href="/server-side-rendered/${entry.id}">View →</a>
+                  </td>
                 </tr>
               `,
             )}

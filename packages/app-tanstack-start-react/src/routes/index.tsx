@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { testData } from '../../../testdata/src/ssr'
 
 export const Route = createFileRoute('/')({
@@ -16,6 +16,11 @@ function Home() {
           <tr key={entry.id}>
             <td>{entry.id}</td>
             <td>{entry.name}</td>
+            <td>
+              <Link to="/server-side-rendered/$id" params={{ id: entry.id }}>
+                View →
+              </Link>
+            </td>
           </tr>
         ))}
       </tbody>

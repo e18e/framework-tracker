@@ -1,30 +1,15 @@
-import { createServer } from 'node:http'
+import { createRequire } from 'node:module'
 import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { getPort, parseAppDir, registerShutdown } from './common.ts'
+import { getPort, parseAppDir, spawnProductionServer } from './common.ts'
 
 const appDir = parseAppDir()
 const PORT = getPort()
 
-const nextEntry = join(
+const appRequire = createRequire(join(appDir, 'package.json'))
+const nextBinPath = appRequire.resolve('next/dist/bin/next')
+
+spawnProductionServer(
+  [nextBinPath, 'start', '--port', String(PORT), '--hostname', 'localhost'],
   appDir,
-  'node_modules',
-  'next',
-  'dist',
-  'server',
-  'next.js',
+  { PORT: String(PORT) },
 )
-const { default: next } = await import(pathToFileURL(nextEntry).href)
-
-const app = next({ dev: false, hostname: 'localhost', port: PORT, dir: appDir })
-await app.prepare()
-const handler = app.getRequestHandler()
-
-const server = createServer((req, res) => handler(req, res)).listen(
-  PORT,
-  () => {
-    console.log(`Ready at http://localhost:${PORT}`)
-  },
-)
-
-registerShutdown(server)

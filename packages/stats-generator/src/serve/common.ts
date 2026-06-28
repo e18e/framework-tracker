@@ -1,3 +1,4 @@
+import { spawn, type ChildProcess } from 'node:child_process'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import {
   join,
@@ -34,6 +35,35 @@ export function parseAppDir(): string {
     process.exit(1)
   }
   return resolve(appDir)
+}
+
+export function spawnProductionServer(
+  args: string[],
+  appDir: string,
+  env: NodeJS.ProcessEnv = {},
+): ChildProcess {
+  const child = spawn(process.execPath, args, {
+    cwd: appDir,
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      ...env,
+    },
+    stdio: 'inherit',
+  })
+
+  const shutdown = () => {
+    child.kill('SIGTERM')
+  }
+
+  process.on('SIGTERM', shutdown)
+  process.on('SIGINT', shutdown)
+
+  child.on('exit', (code, signal) => {
+    process.exit(signal ? 0 : (code ?? 0))
+  })
+
+  return child
 }
 
 export function tryServeFile(

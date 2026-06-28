@@ -7,6 +7,8 @@ import type {
   WebServerRenderHandler,
 } from './types.ts'
 
+const SSR_REQUEST_HANDLER_THROUGHPUT_PATH = '/server-side-rendered'
+
 interface HandlerConfig {
   name: string
   displayName: string
@@ -23,7 +25,9 @@ async function runWebHandler(
   handler: WebServerRenderHandler,
   collect = false,
 ): Promise<HandlerResult> {
-  const request = new Request('http://localhost/')
+  const request = new Request(
+    `http://localhost${SSR_REQUEST_HANDLER_THROUGHPUT_PATH}`,
+  )
   const response = await handler(request)
   const buffer = await response.arrayBuffer()
   const body = collect ? new TextDecoder().decode(buffer) : ''
@@ -34,7 +38,7 @@ async function runNodeHandler(
   handler: NodeServerRenderHandler,
   collect = false,
 ): Promise<HandlerResult> {
-  const request = new IncomingMessage()
+  const request = new IncomingMessage(SSR_REQUEST_HANDLER_THROUGHPUT_PATH)
   const response = new ServerResponse(request, collect)
 
   await handler(request, response)

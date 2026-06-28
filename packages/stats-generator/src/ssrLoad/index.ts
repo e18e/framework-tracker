@@ -98,7 +98,11 @@ async function spawnServer(
   )
 
   const proc = spawn('node', [scriptPath, appDir], {
-    env: { ...process.env, PORT: String(SSR_LOAD_PORT) },
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      PORT: String(SSR_LOAD_PORT),
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
 

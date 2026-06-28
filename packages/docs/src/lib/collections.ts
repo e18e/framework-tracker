@@ -7,7 +7,7 @@ const cwvEntries = await getCollection('cwv')
 
 export const cwvStats = cwvEntries
   .map(entry => entry.data)
-  .sort((a, b) => a.overall.desktop - b.overall.desktop)
+  .sort((a, b) => b.overall.desktop - a.overall.desktop)
   .map(stat => ({
     id: stat.id,
     framework: stat.framework,
@@ -28,7 +28,7 @@ export type CWV = 'lcp' | 'cls' | 'fcp' | 'ttfb' | 'inp'
 
 export function getCWVDesktopStatsChartData(cwv: CWV) {
   return cwvStats
-    .sort((a, b) => a[`${cwv}DesktopPercent`] - b[`${cwv}DesktopPercent`])
+    .sort((a, b) => b[`${cwv}DesktopPercent`] - a[`${cwv}DesktopPercent`])
     .map(stat => ({
       name: stat.framework,
       value: stat[`${cwv}DesktopPercent`],

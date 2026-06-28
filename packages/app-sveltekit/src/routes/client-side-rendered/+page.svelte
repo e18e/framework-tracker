@@ -13,7 +13,7 @@
       <tr>
         <td>{entry.id}</td>
         <td>{entry.name}</td>
-        <td><a href="/client-side-rendered/{entry.id}">View →</a></td>
+        <td><a href={`/client-side-rendered/${entry.id}`}>View →</a></td>
       </tr>
     {/each}
   </tbody>

@@ -1,5 +1,5 @@
 import { For } from 'solid-js'
-import { query, createAsync } from '@solidjs/router'
+import { A, query, createAsync } from '@solidjs/router'
 import { testData } from '../../../testdata/src/ssr'
 
 const getData = query(async () => {
@@ -8,7 +8,7 @@ const getData = query(async () => {
 }, 'test-data')
 
 export const route = {
-  load: () => getData(),
+  preload: () => getData(),
 }
 
 export default function Home() {
@@ -22,6 +22,9 @@ export default function Home() {
             <tr>
               <td>{entry.id}</td>
               <td>{entry.name}</td>
+              <td>
+                <A href={`/server-side-rendered/${entry.id}`}>View →</A>
+              </td>
             </tr>
           )}
         </For>

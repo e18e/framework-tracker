@@ -7,6 +7,7 @@ import {
 
 // httparchive allows us to pull FID but does not include any metrics at this current time so we can ignore it.
 type FrameworkCWV = {
+  id: string
   framework: Framework
   date: string
 } & {
@@ -31,12 +32,9 @@ export async function getLatestFrameworksCWV(): Promise<Array<FrameworkCWV>> {
 }
 
 async function getHttpArchiveCWV() {
-  const url = new URL('https://cdn.httparchive.org/v1/cwv')
-  frameworks.forEach((framework) =>
-    url.searchParams.append('technology', framework),
-  )
-  url.searchParams.append('geo', 'ALL')
-  url.searchParams.append('rank', 'ALL')
+  const baseUrl = 'https://cdn.httparchive.org/v1/cwv'
+  const queryString = frameworks.map(buildFrameworkQueryParam).join('&')
+  const url = `${baseUrl}?${queryString}&geo=ALL&rank=ALL`
 
   const response = await fetch(url)
   if (!response.ok) {
@@ -46,6 +44,10 @@ async function getHttpArchiveCWV() {
   const data = cwvResponseSchema.parse(await response.json())
 
   return data
+}
+
+function buildFrameworkQueryParam(framework: Framework) {
+  return `technology=${framework.replace(' ', '+')}`
 }
 
 function getLatestCWVForFrameworks(frameworksCWV: HTTPArchiveCWVSnapshot[]) {
@@ -70,6 +72,7 @@ function validateAllCWVIsSameDate(
 
 function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
   const frameworkVitals = latestFrameworkCWV.map((stat) => ({
+    id: stat.technology.toLowerCase().replace(/[.\s]/g, '-'),
     framework: stat.technology,
     date: stat.date,
     overall: getCWV('overall', stat),
@@ -91,13 +94,23 @@ function getCWV(cwv: HTTPArchiveCWV, stat: HTTPArchiveCWVSnapshot) {
     )
   }
 
-  const hasMobileVital = vital.mobile.tested > 0
-  const hasDesktopVital = vital.desktop.tested > 0
+  const vitalMobile = vital.mobile ?? {
+    tested: 0,
+    good_number: 0,
+  }
+
+  const vitalDesktop = vital.desktop ?? {
+    tested: 0,
+    good_number: 0,
+  }
+
+  const hasMobileVital = vitalMobile.tested > 0
+  const hasDesktopVital = vitalDesktop.tested > 0
 
   return {
-    mobile: hasMobileVital ? vital.mobile.good_number / vital.mobile.tested : 0,
+    mobile: hasMobileVital ? vitalMobile.good_number / vitalMobile.tested : 0,
     desktop: hasDesktopVital
-      ? vital.desktop.good_number / vital.desktop.tested
+      ? vitalDesktop.good_number / vitalDesktop.tested
       : 0,
   }
 }

@@ -6,19 +6,29 @@ interface Props {
   tab2Label: string
   tab3Label?: string
   tab4Label?: string
+  tab5Label?: string
 }
 
-const { sectionId, label, tab1Label, tab2Label, tab3Label, tab4Label } =
-  Astro.props
+const {
+  sectionId,
+  label,
+  tab1Label,
+  tab2Label,
+  tab3Label,
+  tab4Label,
+  tab5Label,
+} = Astro.props
 
 const tab1Id = `${sectionId}-tab-1`
 const tab2Id = `${sectionId}-tab-2`
 const tab3Id = `${sectionId}-tab-3`
 const tab4Id = `${sectionId}-tab-4`
+const tab5Id = `${sectionId}-tab-5`
 const panel1Id = `${sectionId}-panel-1`
 const panel2Id = `${sectionId}-panel-2`
 const panel3Id = `${sectionId}-panel-3`
 const panel4Id = `${sectionId}-panel-4`
+const panel5Id = `${sectionId}-panel-5`
 ---
 
 <div class="chart-tabs-container" data-tab-section={sectionId}>
@@ -71,6 +81,20 @@ const panel4Id = `${sectionId}-panel-4`
         </button>
       )
     }
+    {
+      tab5Label && (
+        <button
+          type="button"
+          role="tab"
+          id={tab5Id}
+          aria-selected="false"
+          aria-controls={panel5Id}
+          class="tab"
+        >
+          {tab5Label}
+        </button>
+      )
+    }
   </div>
   <div class="chart-tabpanels">
     <div
@@ -113,6 +137,19 @@ const panel4Id = `${sectionId}-panel-4`
           hidden
         >
           <slot name="panel-4" />
+        </div>
+      )
+    }
+    {
+      tab5Label && (
+        <div
+          role="tabpanel"
+          id={panel5Id}
+          aria-labelledby={tab5Id}
+          class="chart-tabpanel"
+          hidden
+        >
+          <slot name="panel-5" />
         </div>
       )
     }

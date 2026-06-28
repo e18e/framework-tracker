@@ -3,6 +3,7 @@ import type { ChartDatum } from '../lib/types'
 
 interface Props {
   title: string
+  description?: string
   data: ChartDatum[]
   valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
   yAxisLabel: string
@@ -11,7 +12,7 @@ interface Props {
 const CHART_HEIGHT_PX = 400
 const MOBILE_CHART_HEIGHT_PX = 300
 
-const { title, data, valueFormat, yAxisLabel } = Astro.props
+const { title, description, data, valueFormat, yAxisLabel } = Astro.props
 const chartData = data.map((d) => ({
   name: String(d?.name ?? ''),
   value: Math.max(0, Number(d.value) || 0),
@@ -26,6 +27,7 @@ const chartPayload = JSON.stringify({
 
 <div class="comparison-chart">
   <h3 class="comparison-chart-title">{title}</h3>
+  {description ? <p>{description}</p> : null}
   <div class="comparison-chart-wrapper" data-comparison={chartPayload}>
     <canvas aria-label={title} role="img">{title} chart</canvas>
   </div>

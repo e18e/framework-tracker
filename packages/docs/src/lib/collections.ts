@@ -3,6 +3,38 @@ import { formatBytesToMB, formatTimeMs } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
 export const runtimeEntries = await getCollection('runtime')
+const cwvEntries = await getCollection('cwv')
+
+export const cwvStats = cwvEntries
+  .map((entry) => entry.data)
+  .sort((a, b) => b.overall.desktop - a.overall.desktop)
+  .map((stat) => ({
+    id: stat.id,
+    framework: stat.framework,
+    isFocused: true,
+    lcpDesktopPercent: Math.floor(stat.lcp.desktop * 100),
+    lcpMobilePercent: Math.floor(stat.lcp.mobile * 100),
+    clsDesktopPercent: Math.floor(stat.cls.desktop * 100),
+    clsMobilePercent: Math.floor(stat.cls.mobile * 100),
+    fcpDesktopPercent: Math.floor(stat.fcp.desktop * 100),
+    fcpMobilePercent: Math.floor(stat.fcp.mobile * 100),
+    ttfbDesktopPercent: Math.floor(stat.ttfb.desktop * 100),
+    ttfbMobilePercent: Math.floor(stat.ttfb.mobile * 100),
+    inpDesktopPercent: Math.floor(stat.inp.desktop * 100),
+    inpMobilePercent: Math.floor(stat.inp.mobile * 100),
+  }))
+
+export type CWV = 'lcp' | 'cls' | 'fcp' | 'ttfb' | 'inp'
+
+export function getCWVDesktopStatsChartData(cwv: CWV) {
+  return cwvStats
+    .sort((a, b) => b[`${cwv}DesktopPercent`] - a[`${cwv}DesktopPercent`])
+    .map((stat) => ({
+      name: stat.framework,
+      value: stat[`${cwv}DesktopPercent`],
+      focused: true,
+    }))
+}
 
 export const starterStats = devtimeEntries
   .map((entry) => entry.data)

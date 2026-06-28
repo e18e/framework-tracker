@@ -20,8 +20,8 @@ export type HTTPArchiveCWV = z.infer<typeof httpArchiveCWVSchema>
 
 const httpArchiveVitalSchema = z.object({
   name: httpArchiveCWVSchema,
-  desktop: httpArchiveDeviceSchema,
-  mobile: httpArchiveDeviceSchema,
+  desktop: httpArchiveDeviceSchema.nullish(),
+  mobile: httpArchiveDeviceSchema.nullish(),
 })
 
 const httpArchiveCWVSnapshot = z.object({

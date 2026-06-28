@@ -1,0 +1,20 @@
+---
+import ChartTabs from './ChartTabs.astro'
+import CoreWebVitalChart from './CoreWebVitalChart.astro'
+---
+
+<ChartTabs
+  sectionId="client-side-rendered"
+  label="Core Web Vitals Desktop"
+  tab1Label="LCP"
+  tab2Label="CLS"
+  tab3Label="FCP"
+  tab4Label="TTFB"
+  tab5Label="INP"
+>
+  <CoreWebVitalChart slot="panel-1" cwv="lcp" />
+  <CoreWebVitalChart slot="panel-2" cwv="cls" />
+  <CoreWebVitalChart slot="panel-3" cwv="fcp" />
+  <CoreWebVitalChart slot="panel-4" cwv="ttfb" />
+  <CoreWebVitalChart slot="panel-5" cwv="inp" />
+</ChartTabs>

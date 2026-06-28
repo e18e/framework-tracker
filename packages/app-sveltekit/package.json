@@ -10,8 +10,8 @@
     "serve": "node build/index.js",
     "prepare": "svelte-kit sync || echo ''",
     "type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "pnpm --dir ../.. exec eslint --config packages/app-sveltekit/eslint.config.js packages/app-sveltekit",
+    "lint:fix": "pnpm --dir ../.. exec eslint --config packages/app-sveltekit/eslint.config.js packages/app-sveltekit --fix"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "5.5.0",

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/client-side-rendered')({
+  ssr: false,
   component: ClientSideRenderedPage,
 })
 

@@ -13,7 +13,6 @@ interface SSRLoadFrameworkConfig {
   displayName: string
   package: string
   serveScript: string
-  serveArgs?: string[]
 }
 
 const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
@@ -64,7 +63,6 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     displayName: 'TanStack Start SSR Load',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
-    serveArgs: ['server-side-rendered'],
   },
 ]
 
@@ -98,9 +96,8 @@ async function spawnServer(
   const scriptPath = fileURLToPath(
     new URL(`../serve/${config.serveScript}`, import.meta.url),
   )
-  const scriptArgs = [scriptPath, appDir, ...(config.serveArgs ?? [])]
 
-  const proc = spawn('node', scriptArgs, {
+  const proc = spawn('node', [scriptPath, appDir], {
     env: { ...process.env, PORT: String(SSR_LOAD_PORT) },
     stdio: ['ignore', 'pipe', 'pipe'],
   })

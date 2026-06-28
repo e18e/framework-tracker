@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { Link } from 'react-router'
+import type { Route } from './+types/client-side-rendered'
 
 type Entry = { id: string; name: string }
 
@@ -10,13 +10,23 @@ function generateData(): Entry[] {
   }))
 }
 
-export default function ClientSideRenderedPage() {
-  const [entries] = useState(generateData)
+export async function clientLoader() {
+  return { data: generateData() }
+}
 
+clientLoader.hydrate = true as const
+
+export function HydrateFallback() {
+  return null
+}
+
+export default function ClientSideRenderedPage({
+  loaderData,
+}: Route.ComponentProps) {
   return (
     <table>
       <tbody>
-        {entries.map((entry) => (
+        {loaderData.data.map((entry) => (
           <tr key={entry.id}>
             <td>{entry.id}</td>
             <td>{entry.name}</td>

@@ -8,7 +8,7 @@ const getData = query(async () => {
 }, 'server-side-rendered-data')
 
 export const route = {
-  load: () => getData(),
+  preload: () => getData(),
 }
 
 export default function ServerSideRenderedPage() {

@@ -1,9 +1,9 @@
-import { useParams } from '@solidjs/router'
+import { clientOnly } from '@solidjs/start'
 
-export const ssr = false
+const ClientSideRenderedDetail = clientOnly(
+  () => import('../../components/ClientSideRenderedDetail'),
+)
 
 export default function ClientSideRenderedDetailPage() {
-  const params = useParams()
-
-  return <p id="detail-id">{params.id}</p>
+  return <ClientSideRenderedDetail />
 }

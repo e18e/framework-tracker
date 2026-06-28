@@ -1,7 +1,17 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { packagesDir } from '../../constants.ts'
+import { importWithoutListening } from './nitro.ts'
 import type { ServerRenderHandler } from '../types.ts'
+
+interface NitroGlobal {
+  __nitro__?: Record<
+    string,
+    {
+      fetch: (request: Request) => Promise<Response>
+    }
+  >
+}
 
 export async function buildTanStackStartHandler(): Promise<ServerRenderHandler> {
   const entryPath = join(
@@ -12,17 +22,16 @@ export async function buildTanStackStartHandler(): Promise<ServerRenderHandler> 
     'index.mjs',
   )
   const entryUrl = pathToFileURL(entryPath).href
-  const { middleware } = await import(entryUrl)
+  await importWithoutListening<Record<string, never>>(entryUrl)
+  const nitroApp = (globalThis as typeof globalThis & NitroGlobal).__nitro__
+    ?.default
 
-  // srvx's toNodeHandler checks res.socket and short-circuits when falsy,
-  // so we wrap the handler to set a truthy socket on the mock response
+  if (!nitroApp) {
+    throw new Error('Unable to find TanStack Start Nitro app')
+  }
+
   return {
-    type: 'node',
-    handler: (req, res) => {
-      if (!res.socket) {
-        res.socket = {}
-      }
-      return middleware(req, res)
-    },
+    type: 'web',
+    handler: (request) => nitroApp.fetch(request),
   }
 }

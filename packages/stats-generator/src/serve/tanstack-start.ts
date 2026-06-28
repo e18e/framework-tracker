@@ -55,8 +55,9 @@ function getRequestHeaders(req: IncomingMessage): Headers {
 
 const appDir = parseAppDir()
 const PORT = getPort()
-const entryUrl = pathToFileURL(join(appDir, '.output', 'server', 'index.mjs'))
-  .href
+const entryUrl = pathToFileURL(
+  join(appDir, '.output', 'server', 'index.mjs'),
+).href
 
 await importWithoutListening(entryUrl)
 const nitroApp = (globalThis as typeof globalThis & NitroGlobal).__nitro__

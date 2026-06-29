@@ -14,9 +14,10 @@ export async function importWithCapturedServer<T>(
   let server: HttpServer | HttpsServer | undefined
 
   const listen: typeof HttpServer.prototype.listen = function (
-    this: HttpServer,
+    this: HttpServer | HttpsServer,
   ) {
     server = this
+    // Do not invoke listen callbacks here; no socket is bound, so server.address() is null.
     return this
   } as typeof HttpServer.prototype.listen
 

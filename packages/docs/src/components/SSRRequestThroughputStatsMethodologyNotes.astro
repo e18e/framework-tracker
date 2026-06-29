@@ -3,9 +3,19 @@ import MethodologyNotes from '../components/MethodologyNotes.astro'
 ---
 
 <MethodologyNotes>
-  <li>Each framework renders a table of 1000 rows with two UUID columns</li>
   <li>
-    Mock HTTP requests bypass TCP overhead for accurate rendering measurement
+    Each framework renders the dedicated <code>/ssr-throughput</code> route with a
+    table of 1000 rows and UUID id/name columns
+  </li>
+  <li>
+    This route intentionally does not render the exact same table as the browser
+    SSR and load tests: it omits detail links and framework link components so
+    router, prefetch, and navigation metadata do not dominate the
+    request-handler throughput measurement
+  </li>
+  <li>
+    Mock HTTP requests bypass TCP overhead so this measures request-handler
+    rendering throughput rather than full server throughput
   </li>
   <li>Data is loaded asynchronously to simulate real-world data fetching</li>
   <li>
@@ -20,17 +30,17 @@ import MethodologyNotes from '../components/MethodologyNotes.astro'
     >
   </li>
   <li>
-    Astro, Nuxt, and SvelteKit handle Node.js HTTP requests natively. React
-    Router, SolidStart, and TanStack Start use Web APIs internally, so
-    benchmarks include the cost of their Node.js adapter layers (<code
-      >@react-router/node</code
-    >, h3, and srvx respectively)
+    Frameworks are invoked through their production request handlers where
+    possible. Web API handlers are called with <code>Request</code> objects; Node.js
+    handlers are called with mock <code>IncomingMessage</code> and <code
+      >ServerResponse</code
+    > objects.
   </li>
   <li>
-    Next.js defaults to React Server Components (RSC), a different rendering
-    model than traditional server-rendered React. To keep the comparison fair,
-    Next.js uses <code>"use client"</code> to opt out of RSC and use traditional server
-    rendering + hydration like most of the other frameworks
+    Next.js renders the throughput table as a client component, matching the
+    setup from PR #94, so the benchmark compares traditional server-rendered
+    React + hydration work instead of making Next.js render every table row as
+    React Server Components
   </li>
   <li>
     Inspired by <a

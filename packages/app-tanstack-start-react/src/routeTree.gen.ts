@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SsrThroughputRouteImport } from './routes/ssr-throughput'
 import { Route as ServerSideRenderedRouteImport } from './routes/server-side-rendered'
 import { Route as ClientSideRenderedRouteImport } from './routes/client-side-rendered'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServerSideRenderedIdRouteImport } from './routes/server-side-rendered_.$id'
 import { Route as ClientSideRenderedIdRouteImport } from './routes/client-side-rendered_.$id'
 
+const SsrThroughputRoute = SsrThroughputRouteImport.update({
+  id: '/ssr-throughput',
+  path: '/ssr-throughput',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServerSideRenderedRoute = ServerSideRenderedRouteImport.update({
   id: '/server-side-rendered',
   path: '/server-side-rendered',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/ssr-throughput': typeof SsrThroughputRoute
   '/client-side-rendered/$id': typeof ClientSideRenderedIdRoute
   '/server-side-rendered/$id': typeof ServerSideRenderedIdRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/ssr-throughput': typeof SsrThroughputRoute
   '/client-side-rendered/$id': typeof ClientSideRenderedIdRoute
   '/server-side-rendered/$id': typeof ServerSideRenderedIdRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/ssr-throughput': typeof SsrThroughputRoute
   '/client-side-rendered_/$id': typeof ClientSideRenderedIdRoute
   '/server-side-rendered_/$id': typeof ServerSideRenderedIdRoute
 }
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-side-rendered'
     | '/server-side-rendered'
+    | '/ssr-throughput'
     | '/client-side-rendered/$id'
     | '/server-side-rendered/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-side-rendered'
     | '/server-side-rendered'
+    | '/ssr-throughput'
     | '/client-side-rendered/$id'
     | '/server-side-rendered/$id'
   id:
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-side-rendered'
     | '/server-side-rendered'
+    | '/ssr-throughput'
     | '/client-side-rendered_/$id'
     | '/server-side-rendered_/$id'
   fileRoutesById: FileRoutesById
@@ -91,12 +103,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientSideRenderedRoute: typeof ClientSideRenderedRoute
   ServerSideRenderedRoute: typeof ServerSideRenderedRoute
+  SsrThroughputRoute: typeof SsrThroughputRoute
   ClientSideRenderedIdRoute: typeof ClientSideRenderedIdRoute
   ServerSideRenderedIdRoute: typeof ServerSideRenderedIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/ssr-throughput': {
+      id: '/ssr-throughput'
+      path: '/ssr-throughput'
+      fullPath: '/ssr-throughput'
+      preLoaderRoute: typeof SsrThroughputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/server-side-rendered': {
       id: '/server-side-rendered'
       path: '/server-side-rendered'
@@ -139,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientSideRenderedRoute: ClientSideRenderedRoute,
   ServerSideRenderedRoute: ServerSideRenderedRoute,
+  SsrThroughputRoute: SsrThroughputRoute,
   ClientSideRenderedIdRoute: ClientSideRenderedIdRoute,
   ServerSideRenderedIdRoute: ServerSideRenderedIdRoute,
 }

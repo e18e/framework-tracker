@@ -1,0 +1,26 @@
+---
+import { testData } from '../../../testdata/src/ssr'
+const entries = await testData()
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Astro SSR Throughput Benchmark</title>
+  </head>
+  <body>
+    <table>
+      <tbody>
+        {
+          entries.map((entry) => (
+            <tr>
+              <td>{entry.id}</td>
+              <td>{entry.name}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </body>
+</html>

@@ -29,8 +29,7 @@ function extractVersion(
 ): { version: string; isDevDep: boolean } | null {
   const deps = packageJson.dependencies as Record<string, string> | undefined
   const devDeps = packageJson.devDependencies as
-    | Record<string, string>
-    | undefined
+    Record<string, string> | undefined
 
   if (deps?.[frameworkPackage]) {
     return { version: deps[frameworkPackage], isDevDep: false }

@@ -2,11 +2,8 @@
 import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
-import ServerSideRenderedStatsMethodologyNotes from '../../components/ServerSideRenderedStatsMethodologyNotes.astro'
 import PageHeader from '../../components/PageHeader.astro'
-import ClientSideRenderedStatsMethodologyNotes from '../../components/ClientSideRenderedStatsMethodologyNotes.astro'
-import SSRLoadStatsMethodologyNotes from '../../components/SSRLoadStatsMethodologyNotes.astro'
-import SSRRequestThroughputStatsMethodologyNotes from '../../components/SSRRequestThroughputStatsMethodologyNotes.astro'
+import DetailsLink from '../../components/DetailsLink.astro'
 import StatsTable from '../../components/StatsTable.astro'
 import Layout from '../../layouts/Layout.astro'
 import {
@@ -248,6 +245,14 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
 
   <h2>Dev Time Performance</h2>
   <StatsTable label="Dependency counts" columns={depsColumns} data={depsData} />
+  <DetailsLink
+    href="/methodology#dependency-counts"
+    label="Dependency Counts"
+  />
+  <DetailsLink
+    href="/methodology#node-modules-size"
+    label="Node Modules Size"
+  />
   <StatsTable
     label="Build and install times"
     columns={buildColumns}
@@ -262,6 +267,10 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
     <strong>Build output size:</strong>
     {buildEntry.buildOutput}
   </p>
+  <DetailsLink
+    href="/methodology#build-and-install-times"
+    label="Build and Install Times"
+  />
 
   {
     coreJsModules.length > 0 && (
@@ -296,6 +305,10 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
             </>
           )}
         </p>
+        <DetailsLink
+          href="/methodology#core-js-polyfills"
+          label="Core-JS Polyfills"
+        />
         <details class="corejs-details">
           <summary>
             View {coreJsModules.length} unnecessary{' '}
@@ -325,6 +338,10 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
             : 'dependencies'}{' '}
           detected across this starter's node_modules.
         </p>
+        <DetailsLink
+          href="/methodology#duplicate-dependencies"
+          label="Duplicate Dependencies"
+        />
         <details class="dupe-deps-details">
           <summary>
             View {duplicateDependencyMessages.length} duplicate{' '}
@@ -350,33 +367,45 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
       <>
         <h2>Runtime Performance</h2>
         <h3>Client Side Rendered Tests</h3>
+        <DetailsLink
+          href="/methodology#client-side-rendered-tests"
+          label="Client Side Rendered Tests"
+        />
         <StatsTable
           label="Client side rendered performance"
           columns={clientSideRenderedColumns}
           data={clientSideRenderedData}
         />
-        <ClientSideRenderedStatsMethodologyNotes />
         <h3>Server Side Rendered Tests</h3>
+        <DetailsLink
+          href="/methodology#server-side-rendered-tests"
+          label="Server Side Rendered Tests"
+        />
         <StatsTable
           label="Server side rendered performance"
           columns={serverSideRenderedColumns}
           data={serverSideRenderedData}
         />
-        <ServerSideRenderedStatsMethodologyNotes />
         <h3>Server Side Throughput Tests</h3>
+        <DetailsLink
+          href="/methodology#server-side-throughput-tests"
+          label="Server Side Throughput Tests"
+        />
         <StatsTable
           label="Server side throughput by framework"
           columns={ssrRequestThroughputColumns}
           data={ssrRequestThroughputData}
         />
-        <SSRRequestThroughputStatsMethodologyNotes />
         <h3>Server Side Load Test</h3>
+        <DetailsLink
+          href="/methodology#server-side-load-test"
+          label="Server Side Load Test"
+        />
         <StatsTable
           label="Server side load test by framework"
           columns={ssrLoadColumns}
           data={ssrLoadData}
         />
-        <SSRLoadStatsMethodologyNotes />
       </>
     )
   }

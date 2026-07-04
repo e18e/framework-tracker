@@ -21,6 +21,11 @@ const pathname = Astro.url.pathname
           >Run Time</a
         >
         <a
+          href="/methodology"
+          class={`nav-link${pathname === '/methodology' ? ' nav-link--active' : ''}`}
+          >Methodology</a
+        >
+        <a
           href="/glossary"
           class={`nav-link${pathname === '/glossary' ? ' nav-link--active' : ''}`}
           >Glossary</a
@@ -191,6 +196,16 @@ const pathname = Astro.url.pathname
       href="/run-time"
       class={`mobile-nav-link${pathname === '/run-time' ? ' mobile-nav-link--active' : ''}`}
       >Run Time</a
+    >
+    <a
+      href="/methodology"
+      class={`mobile-nav-link${pathname === '/methodology' ? ' mobile-nav-link--active' : ''}`}
+      >Methodology</a
+    >
+    <a
+      href="/glossary"
+      class={`mobile-nav-link${pathname === '/glossary' ? ' mobile-nav-link--active' : ''}`}
+      >Glossary</a
     >
     <a href="https://e18e.dev" class="mobile-nav-link">e18e.dev</a>
     <a href="https://e18e.dev/blog" class="mobile-nav-link">Blog</a>

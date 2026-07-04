@@ -5,33 +5,31 @@ const devtimeEntries = await getCollection('devtime')
 export const runtimeEntries = await getCollection('runtime')
 const cwvEntries = await getCollection('cwv')
 
-export const cwvStats = cwvEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => b.overall.desktop - a.overall.desktop)
-  .map((stat) => ({
-    id: stat.id,
-    framework: stat.framework,
-    isFocused: true,
-    lcpDesktopPercent: Math.floor(stat.lcp.desktop * 100),
-    lcpMobilePercent: Math.floor(stat.lcp.mobile * 100),
-    clsDesktopPercent: Math.floor(stat.cls.desktop * 100),
-    clsMobilePercent: Math.floor(stat.cls.mobile * 100),
-    fcpDesktopPercent: Math.floor(stat.fcp.desktop * 100),
-    fcpMobilePercent: Math.floor(stat.fcp.mobile * 100),
-    ttfbDesktopPercent: Math.floor(stat.ttfb.desktop * 100),
-    ttfbMobilePercent: Math.floor(stat.ttfb.mobile * 100),
-    inpDesktopPercent: Math.floor(stat.inp.desktop * 100),
-    inpMobilePercent: Math.floor(stat.inp.mobile * 100),
-  }))
+export type Device = 'desktop' | 'mobile'
+
+export const cwvStats = (device: Device) =>
+  cwvEntries
+    .map(({ data }) => ({
+      id: data.id,
+      framework: data.framework,
+      isFocused: true,
+      overallPercent: Math.floor(data.overall[device] * 100),
+      lcpPercent: Math.floor(data.lcp[device] * 100),
+      clsPercent: Math.floor(data.cls[device] * 100),
+      fcpPercent: Math.floor(data.fcp[device] * 100),
+      ttfbPercent: Math.floor(data.ttfb[device] * 100),
+      inpPercent: Math.floor(data.inp[device] * 100),
+    }))
+    .sort((a, b) => b.overallPercent - a.overallPercent)
 
 export type CWV = 'lcp' | 'cls' | 'fcp' | 'ttfb' | 'inp'
 
-export function getCWVDesktopStatsChartData(cwv: CWV) {
-  return cwvStats
-    .sort((a, b) => b[`${cwv}DesktopPercent`] - a[`${cwv}DesktopPercent`])
+export function getCWVStatsChartData(cwv: CWV, device: Device) {
+  return cwvStats(device)
+    .sort((a, b) => b[`${cwv}Percent`] - a[`${cwv}Percent`])
     .map((stat) => ({
       name: stat.framework,
-      value: stat[`${cwv}DesktopPercent`],
+      value: stat[`${cwv}Percent`],
       focused: true,
     }))
 }

@@ -1,13 +1,14 @@
 ---
-import { getCWVDesktopStatsChartData } from '../lib/collections'
-import type { CWV } from '../lib/collections'
+import { getCWVStatsChartData } from '../lib/collections'
+import type { CWV, Device } from '../lib/collections'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
 interface Props {
   cwv: CWV
+  device: Device
 }
 
-const { cwv } = Astro.props
+const { cwv, device } = Astro.props
 
 const cwvTitle: Record<CWV, string> = {
   lcp: 'Good Largest Contentful Paint',
@@ -29,7 +30,7 @@ const cwvDescription: Record<CWV, string> = {
 <ComparisonBarChart
   title={cwvTitle[cwv]}
   description={cwvDescription[cwv]}
-  data={getCWVDesktopStatsChartData(cwv)}
+  data={getCWVStatsChartData(cwv, device)}
   valueFormat="count"
   yAxisLabel="%"
 />

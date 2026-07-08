@@ -123,6 +123,43 @@ import Layout from '../layouts/Layout.astro'
     </ul>
   </section>
 
+  <section id="browser-baseline">
+    <h3>Browser Baseline</h3>
+    <ul>
+      <li>
+        The scanner uses <a
+          href="https://github.com/43081j/baseline-detector"
+          target="_blank"
+          rel="noopener noreferrer">baseline-detector</a
+        > to statically analyze JavaScript from each starter package's browser-facing
+        production build output.
+      </li>
+      <li>
+        The scan includes source-like files that baseline-detector supports from
+        the production build output, including JavaScript, TypeScript, Vue, and
+        Svelte files. Known server, cache, trace, type, and build-tool output is
+        excluded.
+      </li>
+      <li>
+        Baseline is baseline-detector's overall target result: <code>high</code
+        >, <code>low</code>, or <code>limited</code>. When the result is not <code
+          >high</code
+        >, baseline-detector also reports the feature ID that determined it.
+      </li>
+      <li>
+        Feature is the feature ID that determined a non-high Baseline result.
+      </li>
+      <li>
+        Year is the Baseline year the project targets: the newest feature it
+        relies on, or blank if any detected feature is not yet Baseline.
+      </li>
+      <li>
+        Features is the number of unique web platform feature IDs detected in
+        the browser-facing build output.
+      </li>
+    </ul>
+  </section>
+
   <section id="duplicate-dependencies">
     <h3>Duplicate Dependencies</h3>
     <ul>

@@ -19,6 +19,18 @@ export const BuildStatsSchema = z.object({
   buildOutputSize: z.number().nonnegative(),
 })
 
+export const BrowserBaselineStatsSchema = z.object({
+  baselineStatus: z.union([
+    z.literal('high'),
+    z.literal('low'),
+    z.literal(false),
+    z.null(),
+  ]),
+  baselineYear: z.number().nullable(),
+  baselineReason: z.string().nullable(),
+  baselineFeatureCount: z.number().nonnegative(),
+})
+
 export const SSRRequestThroughputStatsSchema = z.object({
   ssrRequestThroughputTests: z.object({
     opsPerSec: z.number().positive(),
@@ -71,6 +83,7 @@ export const SSRLoadStatsSchema = z.object({
 
 export type InstallStats = z.infer<typeof InstallStatsSchema>
 export type BuildStats = z.infer<typeof BuildStatsSchema>
+export type BrowserBaselineStats = z.infer<typeof BrowserBaselineStatsSchema>
 export type SSRRequestThroughputStats = z.infer<
   typeof SSRRequestThroughputStatsSchema
 >

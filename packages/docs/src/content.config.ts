@@ -37,6 +37,19 @@ const devtimeCollection = defineCollection({
       .optional(),
     vendoredCoreJsSize: z.number().optional(),
     vendoredCoreJsUnnecessaryModules: z.array(z.string()).optional(),
+    browserBaselineTests: z
+      .object({
+        baselineStatus: z.union([
+          z.literal('high'),
+          z.literal('low'),
+          z.literal(false),
+          z.null(),
+        ]),
+        baselineYear: z.number().nullable(),
+        baselineReason: z.string().nullable(),
+        baselineFeatureCount: z.number(),
+      })
+      .optional(),
     timingMeasuredAt: z.string(),
     runner: z.string(),
     frameworkVersion: z.string().optional(),

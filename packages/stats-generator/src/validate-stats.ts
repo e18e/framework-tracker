@@ -6,11 +6,13 @@ import { readJsonFile } from './utils.ts'
 import {
   InstallStatsSchema,
   BuildStatsSchema,
+  BrowserBaselineStatsSchema,
   SSRRequestThroughputStatsSchema,
   SSRLoadStatsSchema,
 } from './schemas.ts'
 
-type BenchmarkType = 'install' | 'build' | 'ssrRequestThroughput' | 'ssrLoad'
+type BenchmarkType =
+  'install' | 'build' | 'browserBaseline' | 'ssrRequestThroughput' | 'ssrLoad'
 
 interface BenchmarkConfig {
   type: BenchmarkType
@@ -21,6 +23,11 @@ interface BenchmarkConfig {
 const STARTER_BENCHMARKS: BenchmarkConfig[] = [
   { type: 'install', file: 'install-stats.json', schema: InstallStatsSchema },
   { type: 'build', file: 'build-stats.json', schema: BuildStatsSchema },
+  {
+    type: 'browserBaseline',
+    file: 'browser-baseline-stats.json',
+    schema: BrowserBaselineStatsSchema,
+  },
 ]
 
 const APP_BENCHMARKS: BenchmarkConfig[] = [
@@ -73,6 +80,13 @@ async function main() {
       const errors: string[] = []
       for (const { type: benchType, file, schema } of STARTER_BENCHMARKS) {
         if (filterType && filterType !== benchType) continue
+        if (
+          !framework.starter.measurements.some(
+            (measurement) => measurement.type === benchType,
+          )
+        ) {
+          continue
+        }
 
         const filePath = join(packagesDir, pkg, file)
         const fileErrors = validateFile(filePath, schema)

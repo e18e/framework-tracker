@@ -107,6 +107,10 @@ jobs:
       - name: Scan build output for vendored core-js
         run: pnpm --filter @framework-tracker/stats-generator run:corejs ${{ matrix.framework.package }}
 
+      - name: Scan build output for browser baseline requirements
+        if: contains(toJson(matrix.framework.measurements), 'browserBaseline')
+        run: pnpm --filter @framework-tracker/stats-generator run:browser-baseline ${{ matrix.framework.package }}
+
       - name: Upload build stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -122,6 +126,15 @@ jobs:
           path: packages/${{ matrix.framework.package }}/corejs-stats.json
           retention-days: 1
           if-no-files-found: warn
+
+      - name: Upload browser baseline stats
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: contains(toJson(matrix.framework.measurements), 'browserBaseline')
+        with:
+          name: browser-baseline-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/browser-baseline-stats.json
+          retention-days: 1
+          if-no-files-found: error
 
   measure-ssr-request-throughput:
     if: inputs.ssr-request-throughput-matrix != '[]'

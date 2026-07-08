@@ -4,7 +4,12 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { saveStats } from './save-stats.ts'
 import { getCIStats } from './get-ci-stats.ts'
-import type { FrameworkStats, PackageJson, FrameworkConfig } from './types.ts'
+import type {
+  BrowserBaselineStats,
+  FrameworkStats,
+  PackageJson,
+  FrameworkConfig,
+} from './types.ts'
 
 async function getDependencyCountsFromPackageJson(pkgDir: string) {
   const packageJsonPath = join(packagesDir, pkgDir, 'package.json')
@@ -14,6 +19,24 @@ async function getDependencyCountsFromPackageJson(pkgDir: string) {
   return {
     prodDependencies: Object.keys(packageJson.dependencies ?? {}).length,
     devDependencies: Object.keys(packageJson.devDependencies ?? {}).length,
+  }
+}
+
+async function getBrowserBaselineStats(pkgDir: string) {
+  const browserBaselineStatsPath = join(
+    packagesDir,
+    pkgDir,
+    'browser-baseline-stats.json',
+  )
+
+  try {
+    const content = await readFile(browserBaselineStatsPath, 'utf-8')
+    const stats = JSON.parse(content) as BrowserBaselineStats
+    return {
+      browserBaselineTests: stats,
+    }
+  } catch {
+    return {}
   }
 }
 
@@ -31,6 +54,13 @@ async function processStarter(framework: FrameworkConfig, order: number) {
     hasDependencies && ciStats.prodDependencies === undefined
       ? await getDependencyCountsFromPackageJson(pkgDir)
       : {}
+  const hasBrowserBaseline = measurements.some(
+    (m) => m.type === 'browserBaseline',
+  )
+  const browserBaselineStats =
+    hasBrowserBaseline && ciStats.browserBaselineTests === undefined
+      ? await getBrowserBaselineStats(pkgDir)
+      : {}
 
   const stats: FrameworkStats = {
     name: displayName,
@@ -39,6 +69,7 @@ async function processStarter(framework: FrameworkConfig, order: number) {
     isFocused: framework.focusedFramework,
     order,
     ...dependencyStats,
+    ...browserBaselineStats,
     ...ciStats,
   }
 

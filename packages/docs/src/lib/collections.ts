@@ -293,3 +293,45 @@ export const coreJsTableData = starterStats.map((f) => {
       : '—',
   }
 })
+
+function formatBaselineStatus(
+  status: 'high' | 'low' | false | null | undefined,
+  featureCount: number | undefined,
+) {
+  if (featureCount === 0) return '—'
+  if (status === 'high') return 'High'
+  if (status === 'low') return 'Low'
+  if (status === false) return 'Limited'
+  return '—'
+}
+
+function formatBaselineReason(
+  reason: string | string[] | null | undefined,
+): string {
+  if (Array.isArray(reason)) return reason.length > 0 ? reason.join(', ') : '—'
+  return reason ?? '—'
+}
+
+export const browserBaselineTableData = starterStats.map((f) => {
+  const baseline = f.browserBaselineTests
+  return {
+    name: f.name,
+    package: f.package,
+    isFocused: f.isFocused,
+    status: formatBaselineStatus(
+      baseline?.baselineStatus,
+      baseline?.baselineFeatureCount,
+    ),
+    feature: formatBaselineReason(baseline?.baselineReason),
+    year:
+      baseline?.baselineFeatureCount === 0
+        ? '—'
+        : baseline?.baselineYear != null
+          ? String(baseline.baselineYear)
+          : '—',
+    features:
+      baseline?.baselineFeatureCount != null
+        ? baseline.baselineFeatureCount.toLocaleString()
+        : '—',
+  }
+})

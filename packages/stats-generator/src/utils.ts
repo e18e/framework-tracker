@@ -110,6 +110,10 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     clientSideRenderedFCPMs?: unknown
     clientSideRenderedINPMs?: unknown
     clientSideRenderedRuns?: unknown
+    baselineStatus?: unknown
+    baselineYear?: unknown
+    baselineReason?: unknown
+    baselineFeatureCount?: unknown
     mpaFirstPaintMs?: unknown
     mpaFCPMs?: unknown
     mpaINPMs?: unknown
@@ -201,6 +205,26 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     }
   }
 
+  if (
+    stats.browserBaselineTests == null &&
+    (legacyStats.baselineStatus === 'high' ||
+      legacyStats.baselineStatus === 'low' ||
+      legacyStats.baselineStatus === false ||
+      legacyStats.baselineStatus === null) &&
+    (typeof legacyStats.baselineYear === 'number' ||
+      legacyStats.baselineYear === null) &&
+    (typeof legacyStats.baselineReason === 'string' ||
+      legacyStats.baselineReason === null) &&
+    typeof legacyStats.baselineFeatureCount === 'number'
+  ) {
+    stats.browserBaselineTests = {
+      baselineStatus: legacyStats.baselineStatus,
+      baselineYear: legacyStats.baselineYear,
+      baselineReason: legacyStats.baselineReason,
+      baselineFeatureCount: legacyStats.baselineFeatureCount,
+    }
+  }
+
   delete legacyStats.ssrOpsPerSec
   delete legacyStats.serverRenderThroughputTests
   delete legacyStats.ssrAvgLatencyMs
@@ -224,6 +248,10 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   delete legacyStats.clientSideRenderedFCPMs
   delete legacyStats.clientSideRenderedINPMs
   delete legacyStats.clientSideRenderedRuns
+  delete legacyStats.baselineStatus
+  delete legacyStats.baselineYear
+  delete legacyStats.baselineReason
+  delete legacyStats.baselineFeatureCount
   delete legacyStats.mpaFirstPaintMs
   delete legacyStats.mpaFCPMs
   delete legacyStats.mpaINPMs

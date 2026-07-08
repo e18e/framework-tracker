@@ -1,0 +1,33 @@
+---
+import { browserBaselineTableData } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+interface Props {
+  packageName?: string
+  label?: string
+}
+
+const { packageName, label = 'Browser baseline by framework' } = Astro.props
+
+const data =
+  packageName == null
+    ? browserBaselineTableData
+    : browserBaselineTableData.filter((row) => row.package === packageName)
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'status', header: 'Baseline' },
+  { key: 'feature', header: 'Feature' },
+  { key: 'year', header: 'Year' },
+  { key: 'features', header: 'Features' },
+]
+---
+
+<StatsTable label={label} columns={columns} data={data} />

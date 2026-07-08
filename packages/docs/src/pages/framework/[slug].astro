@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
 import BackLink from '../../components/BackLink.astro'
+import BrowserBaselineTable from '../../components/BrowserBaselineTable.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
 import PageHeader from '../../components/PageHeader.astro'
 import DetailsLink from '../../components/DetailsLink.astro'
@@ -271,6 +272,12 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
     href="/methodology#build-and-install-times"
     label="Build and Install Times"
   />
+  <h2>Browser Baseline</h2>
+  <BrowserBaselineTable
+    packageName={devtime.package}
+    label={`${devtime.name} browser baseline`}
+  />
+  <DetailsLink href="/methodology#browser-baseline" label="Browser Baseline" />
 
   {
     coreJsModules.length > 0 && (

@@ -17,6 +17,7 @@ on:
       - '!packages/starter-*/install-stats.json'
       - '!packages/starter-*/build-stats.json'
       - '!packages/starter-*/corejs-stats.json'
+      - '!packages/starter-*/browser-baseline-stats.json'
       - '!packages/starter-*/e18e-stats.json'
 
 jobs:
@@ -89,6 +90,15 @@ jobs:
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Running e18e analysis for $PKG..."
             (cd packages/$PKG && npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json || true)
+          done
+
+          echo ""
+          echo "=== Running browser baseline scans ==="
+          FRAMEWORKS=$(cat .github/frameworks.json)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["browserBaseline"]))' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.starter.package')
+            echo "Scanning browser baseline requirements for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:browser-baseline $PKG
           done
 
           echo ""

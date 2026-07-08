@@ -7,6 +7,7 @@ import type {
   InstallStats,
   BuildStats,
   CoreJsStats,
+  BrowserBaselineStats,
   E18eStats,
 } from './types.ts'
 
@@ -100,6 +101,27 @@ async function main() {
       } else {
         console.warn(
           ` No core-js stats artifact found at ${coreJsArtifactPath}`,
+        )
+      }
+
+      // Load browser baseline stats from artifact
+      const browserBaselineArtifactPath = join(
+        artifactsDir,
+        `browser-baseline-stats-${name}`,
+        'browser-baseline-stats.json',
+      )
+      const browserBaselineStats = readJsonFile<BrowserBaselineStats>(
+        browserBaselineArtifactPath,
+      )
+      if (browserBaselineStats) {
+        console.info(`  ✓ Found browser baseline stats artifact`)
+        stats = {
+          ...stats,
+          browserBaselineTests: browserBaselineStats,
+        }
+      } else {
+        console.warn(
+          `No browser baseline stats artifact found at ${browserBaselineArtifactPath}`,
         )
       }
 

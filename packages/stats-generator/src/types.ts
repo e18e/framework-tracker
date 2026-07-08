@@ -3,6 +3,7 @@ export type MeasurementType =
   | 'build'
   | 'test'
   | 'dependencies'
+  | 'browserBaseline'
   | 'ssrRequestThroughput'
   | 'ssrLoad'
   | 'clientSideRendered'
@@ -95,6 +96,8 @@ export interface CIStats {
   // Core-js vendored polyfill stats
   vendoredCoreJsSize?: number
   vendoredCoreJsUnnecessaryModules?: string[]
+  // Browser baseline stats
+  browserBaselineTests?: BrowserBaselineStats
   // Dependency stats (from e18e analysis)
   prodDependencies?: number
   devDependencies?: number
@@ -129,6 +132,13 @@ export interface CoreJsStats {
   }>
   totalVendoredBytes: number
   unnecessaryModules: string[]
+}
+
+export interface BrowserBaselineStats {
+  baselineStatus: 'high' | 'low' | false | null
+  baselineYear: number | null
+  baselineReason: string | null
+  baselineFeatureCount: number
 }
 
 export interface TimeStat {

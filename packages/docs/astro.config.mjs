@@ -1,5 +1,30 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
+import mdx from '@astrojs/mdx'
+import starlight from '@astrojs/starlight'
 
 // https://astro.build/config
-export default defineConfig({})
+export default defineConfig({
+  site: 'https://framework-tracker.pages.dev',
+  integrations: [
+    starlight({
+      title: 'Framework Tracker',
+      description:
+        'Track and compare framework performance metrics across popular meta-frameworks.',
+      favicon: '/favicon.svg',
+      customCss: ['./src/styles/starlight.css'],
+      pagefind: false,
+      disable404Route: true,
+      tableOfContents: false,
+      sidebar: [
+        { label: 'Overview', link: '/' },
+        { label: 'Dev Time', link: '/dev-time/' },
+        { label: 'Run Time', link: '/run-time/' },
+        { label: 'All Frameworks', link: '/all-frameworks/' },
+        { label: 'Methodology', link: '/methodology/' },
+        { label: 'Glossary', link: '/glossary/' },
+      ],
+    }),
+    mdx(),
+  ],
+})

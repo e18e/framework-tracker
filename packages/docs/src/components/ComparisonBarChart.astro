@@ -89,8 +89,8 @@ const chartPayload = JSON.stringify({
   )
 
   const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
-  const resizeObserverCache = new WeakMap<HTMLElement, ResizeObserver>()
   const BAR_COLOR = '#c0b9dd'
+  const BAR_HOVER_COLOR = '#b2a8d8'
   const MIN_BAR_LENGTH = 4
   const TEXT_COLOR_FALLBACK = '#1f2933'
   const MUTED_COLOR_FALLBACK = '#697586'
@@ -126,18 +126,14 @@ const chartPayload = JSON.stringify({
       return null
     }
 
-    const toggle = document.getElementById(
-      'focused-toggle',
-    ) as HTMLInputElement | null
-    const focusedOnly = toggle ? toggle.checked : false
+    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
+    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
     const data = payload.data.filter((d) => !focusedOnly || d.focused !== false)
 
     return { payload, data }
   }
 
   function initChart(wrapper: HTMLElement) {
-    if (wrapper.offsetParent === null) return
-
     const canvas = wrapper.querySelector('canvas')
     if (!canvas) return
     const chartTitle = canvas.getAttribute('aria-label') ?? 'Comparison'
@@ -153,6 +149,12 @@ const chartPayload = JSON.stringify({
     const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
     const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
     const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
+    const barColor = getCssVar(root, '--ft-chart-bar', BAR_COLOR)
+    const barHoverColor = getCssVar(
+      root,
+      '--ft-chart-bar-hover',
+      BAR_HOVER_COLOR,
+    )
 
     chartCache.get(canvas)?.destroy()
 
@@ -167,8 +169,8 @@ const chartPayload = JSON.stringify({
             borderRadius: 4,
             borderSkipped: false,
             minBarLength: MIN_BAR_LENGTH,
-            backgroundColor: BAR_COLOR,
-            hoverBackgroundColor: BAR_COLOR,
+            backgroundColor: barColor,
+            hoverBackgroundColor: barHoverColor,
           },
         ],
       },
@@ -220,39 +222,32 @@ const chartPayload = JSON.stringify({
     })
 
     chartCache.set(canvas, chart)
-
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserverCache.get(wrapper)?.disconnect()
-      const ro = new ResizeObserver(() => chart.resize())
-      ro.observe(wrapper)
-      resizeObserverCache.set(wrapper, ro)
-    }
   }
 
-  function initCharts(root: ParentNode = document) {
-    root
+  function initCharts() {
+    document
       .querySelectorAll<HTMLElement>('.comparison-chart-wrapper')
       .forEach(initChart)
   }
 
-  function scheduleInit(root?: ParentNode) {
-    requestAnimationFrame(() => initCharts(root))
+  function scheduleInit() {
+    requestAnimationFrame(initCharts)
   }
 
-  function observeThemeClassChanges() {
+  function observeThemeChanges() {
     if (typeof MutationObserver === 'undefined') return
 
-    let lastClassName = document.documentElement.className
+    let lastThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
     const observer = new MutationObserver(() => {
-      const nextClassName = document.documentElement.className
-      if (nextClassName === lastClassName) return
+      const nextThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
+      if (nextThemeState === lastThemeState) return
 
-      lastClassName = nextClassName
+      lastThemeState = nextThemeState
       scheduleInit()
     })
 
     observer.observe(document.documentElement, {
-      attributeFilter: ['class'],
+      attributeFilter: ['class', 'data-theme'],
       attributes: true,
     })
   }
@@ -263,10 +258,5 @@ const chartPayload = JSON.stringify({
     initCharts()
   }
 
-  observeThemeClassChanges()
-  window.addEventListener('focused-toggle', () => initCharts())
-  document.addEventListener('chart-tabpanel-active', (event) => {
-    const panel = (event as CustomEvent<{ panel?: ParentNode }>).detail?.panel
-    if (panel) scheduleInit(panel)
-  })
+  observeThemeChanges()
 </script>

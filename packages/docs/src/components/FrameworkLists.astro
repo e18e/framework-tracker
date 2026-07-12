@@ -1,0 +1,61 @@
+---
+import { CardGrid, LinkCard } from '@astrojs/starlight/components'
+import { starterStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+
+const frameworkRows = starterStats.map((framework) => ({
+  name: framework.name,
+  slug: getFrameworkSlug(framework.package),
+  version:
+    framework.frameworkVersion != null &&
+    framework.frameworkVersion.trim() !== '' &&
+    framework.frameworkVersion.toLowerCase() !== 'unknown'
+      ? framework.frameworkVersion
+      : 'Unknown',
+  isFocused: framework.isFocused,
+}))
+
+const focusedFrameworks = frameworkRows.filter(
+  (framework) => framework.isFocused,
+)
+const additionalFrameworks = frameworkRows.filter(
+  (framework) => !framework.isFocused,
+)
+---
+
+<section>
+  <h2>Focused frameworks</h2>
+  <p>
+    These are the frameworks shown by default on the focused comparison pages.
+  </p>
+  <CardGrid>
+    {
+      focusedFrameworks.map((framework) => (
+        <LinkCard
+          title={framework.name}
+          href={`/framework/${framework.slug}/`}
+          description={`Version ${framework.version}`}
+        />
+      ))
+    }
+  </CardGrid>
+</section>
+
+<section>
+  <h2>All tracked frameworks</h2>
+  <p>
+    These are the additional frameworks included on the all-frameworks page
+    alongside the focused set.
+  </p>
+  <CardGrid>
+    {
+      additionalFrameworks.map((framework) => (
+        <LinkCard
+          title={framework.name}
+          href={`/framework/${framework.slug}/`}
+          description={`Version ${framework.version}`}
+        />
+      ))
+    }
+  </CardGrid>
+</section>

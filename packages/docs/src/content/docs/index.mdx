@@ -1,0 +1,68 @@
+---
+title: Framework Tracker
+description: Compare the practical cost of building with modern web frameworks.
+---
+
+import DepotLogo from '../../assets/depot-logo-horizontal.svg'
+import FrameworkLists from '../../components/FrameworkLists.astro'
+
+Framework Tracker compares the practical cost of building with modern web
+frameworks. It looks at what developers inherit when starting a project, and
+what users and servers experience when that project runs.
+
+The goal is not to crown one universal winner. It is to make tradeoffs easier
+to see: dependency footprint, install and build cost, browser support, rendering
+performance, server behavior, throughput, load handling, and real-world Core Web
+Vitals signals.
+
+## What we include
+
+The tracker currently covers two kinds of comparable projects: starter projects
+for developer-time measurements, and small implemented apps for runtime
+measurements. Each framework is measured with the same benchmark intent wherever
+the framework model allows it.
+
+- Dependency counts, duplicate dependencies, and install size.
+- Clean install time, cold build time, warm build time, and output size.
+- Core-JS usage and browser baseline support.
+- Client-rendered and server-rendered browser performance metrics.
+- Server-side request throughput and staged load-test results.
+- Desktop and Mobile Core Web Vitals data sourced from HTTP Archive.
+
+<FrameworkLists />
+
+## What we are doing
+
+These stats are intended to be repeatable, inspectable, and useful for framework
+discussions that otherwise tend to become anecdotal. The data is still in active
+development, and the methodology will continue to tighten as more frameworks,
+versions, and benchmark cases are added.
+
+For the full list of planned comparison areas, see the
+[roadmap](https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md).
+
+## How it works
+
+Stats are collected from the repository's framework packages, normalized into
+JSON, and published into the docs site. The comparison pages then use that data
+to render charts, tables, and framework detail pages.
+
+Start with [Dev Time](/dev-time/) for project footprint and build costs, or
+[Run Time](/run-time/) for browser and server behavior. The
+[Methodology](/methodology/) page explains how each metric is collected.
+
+<div className="depot">
+  <p>
+    All of the testing and stat generation is run by our Infrastructure Partner
+    Depot to ensure consistent, fairer, and faster testing.
+  </p>
+
+  <a
+    href="https://depot.dev/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Depot"
+  >
+    <DepotLogo className="logo logo-light" />
+  </a>
+</div>

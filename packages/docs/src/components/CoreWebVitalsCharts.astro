@@ -1,5 +1,4 @@
 ---
-import ChartTabs from './ChartTabs.astro'
 import CoreWebVitalChart from './CoreWebVitalChart.astro'
 import type { Device } from '../lib/collections'
 
@@ -8,25 +7,10 @@ interface Props {
 }
 
 const { device } = Astro.props
-
-const deviceLabel: Record<Device, string> = {
-  desktop: 'Core Web Vitals Desktop',
-  mobile: 'Core Web Vitals Mobile',
-}
 ---
 
-<ChartTabs
-  sectionId="core-web-vitals"
-  label={deviceLabel[device]}
-  tab1Label="LCP"
-  tab2Label="CLS"
-  tab3Label="FCP"
-  tab4Label="TTFB"
-  tab5Label="INP"
->
-  <CoreWebVitalChart slot="panel-1" cwv="lcp" device={device} />
-  <CoreWebVitalChart slot="panel-2" cwv="cls" device={device} />
-  <CoreWebVitalChart slot="panel-3" cwv="fcp" device={device} />
-  <CoreWebVitalChart slot="panel-4" cwv="ttfb" device={device} />
-  <CoreWebVitalChart slot="panel-5" cwv="inp" device={device} />
-</ChartTabs>
+<CoreWebVitalChart cwv="lcp" device={device} />
+<CoreWebVitalChart cwv="cls" device={device} />
+<CoreWebVitalChart cwv="fcp" device={device} />
+<CoreWebVitalChart cwv="ttfb" device={device} />
+<CoreWebVitalChart cwv="inp" device={device} />

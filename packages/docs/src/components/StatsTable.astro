@@ -58,12 +58,16 @@ const { label, columns, data } = Astro.props
 <style>
   .wrapper {
     width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     margin-top: 16px;
     margin-bottom: 2em;
   }
 
   table {
     width: 100%;
+    min-width: max-content;
     border-collapse: collapse;
     background: var(--ft-bg);
     border-radius: 8px;
@@ -72,7 +76,7 @@ const { label, columns, data } = Astro.props
   }
 
   thead {
-    background: #f3f4f6;
+    background: var(--ft-bg-muted);
     color: var(--ft-text);
   }
 
@@ -82,7 +86,8 @@ const { label, columns, data } = Astro.props
     font-weight: 600;
     font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0;
+    white-space: nowrap;
   }
 
   th:not(.name-cell) {
@@ -94,6 +99,7 @@ const { label, columns, data } = Astro.props
     border-bottom: 1px solid var(--ft-border);
     font-size: 15px;
     color: var(--ft-muted);
+    white-space: nowrap;
   }
 
   td:not(.name-cell) {
@@ -110,7 +116,7 @@ const { label, columns, data } = Astro.props
   }
 
   tbody tr:hover {
-    background: rgba(207, 140, 60, 0.05);
+    background: color-mix(in srgb, var(--ft-accent), transparent 92%);
   }
 
   .table-link {
@@ -125,36 +131,8 @@ const { label, columns, data } = Astro.props
     text-decoration: underline;
   }
 
-  /* Dark mode */
-  :global(html.dark) thead {
-    background: #374151;
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) table {
-    background: var(--ft-bg);
-    border-color: var(--ft-border);
-  }
-
-  :global(html.dark) td {
-    border-bottom-color: var(--ft-border);
-    color: var(--ft-muted);
-  }
-
-  :global(html.dark) td.name-cell {
-    color: var(--ft-text);
-  }
-
-  :global(html.dark) tbody tr:hover {
-    background: rgba(124, 181, 96, 0.1);
-  }
-
-  :global(html.dark) .table-link {
-    color: var(--ft-accent);
-  }
-
-  :global(html.dark) .table-link:hover {
-    color: var(--ft-accent-hover);
+  :global([data-framework-scope='focused']) tr[data-focused='false'] {
+    display: none;
   }
 
   /* Responsive */

@@ -172,7 +172,6 @@ const chartData = JSON.stringify([
     HTMLCanvasElement,
     Chart<'bar', [number, number][], string>
   >()
-  const resizeObserverCache = new WeakMap<HTMLElement, ResizeObserver>()
 
   function getData(wrapper: HTMLElement): DataInSeconds[] | null {
     const dataAttr = wrapper.dataset.timings
@@ -195,8 +194,6 @@ const chartData = JSON.stringify([
   }
 
   function initChart(wrapper: HTMLElement) {
-    if (wrapper.offsetParent === null) return
-
     const canvas = wrapper.querySelector('canvas')
     if (!canvas) return
 
@@ -215,6 +212,7 @@ const chartData = JSON.stringify([
     const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
     const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
     const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
+    const chartColor = getCssVar(root, '--ft-chart-bar', CHART_COLOR)
 
     chartCache.get(canvas)?.destroy()
 
@@ -222,13 +220,13 @@ const chartData = JSON.stringify([
       label: 'Duration range',
       data: data.map((d) => [d.min, d.max]),
       devTimeData: data,
-      backgroundColor: CHART_COLOR,
+      backgroundColor: chartColor,
       borderColor: 'rgba(0, 0, 0, 0.3)',
       borderRadius: 4,
       borderSkipped: false,
       borderWidth: 1,
       categoryPercentage: 0.6,
-      hoverBackgroundColor: CHART_COLOR,
+      hoverBackgroundColor: chartColor,
     }
 
     const chart = new Chart<'bar', [number, number][], string>(canvas, {
@@ -289,39 +287,32 @@ const chartData = JSON.stringify([
     })
 
     chartCache.set(canvas, chart)
-
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserverCache.get(wrapper)?.disconnect()
-      const ro = new ResizeObserver(() => chart.resize())
-      ro.observe(wrapper)
-      resizeObserverCache.set(wrapper, ro)
-    }
   }
 
-  function initCharts(root: ParentNode = document) {
-    root
+  function initCharts() {
+    document
       .querySelectorAll<HTMLElement>('.dev-time-chart-wrapper')
       .forEach(initChart)
   }
 
-  function scheduleInit(root?: ParentNode) {
-    requestAnimationFrame(() => initCharts(root))
+  function scheduleInit() {
+    requestAnimationFrame(initCharts)
   }
 
-  function observeThemeClassChanges() {
+  function observeThemeChanges() {
     if (typeof MutationObserver === 'undefined') return
 
-    let lastClassName = document.documentElement.className
+    let lastThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
     const observer = new MutationObserver(() => {
-      const nextClassName = document.documentElement.className
-      if (nextClassName === lastClassName) return
+      const nextThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
+      if (nextThemeState === lastThemeState) return
 
-      lastClassName = nextClassName
+      lastThemeState = nextThemeState
       scheduleInit()
     })
 
     observer.observe(document.documentElement, {
-      attributeFilter: ['class'],
+      attributeFilter: ['class', 'data-theme'],
       attributes: true,
     })
   }
@@ -332,9 +323,5 @@ const chartData = JSON.stringify([
     initCharts()
   }
 
-  observeThemeClassChanges()
-  document.addEventListener('chart-tabpanel-active', (event) => {
-    const panel = (event as CustomEvent<{ panel?: ParentNode }>).detail?.panel
-    if (panel) scheduleInit(panel)
-  })
+  observeThemeChanges()
 </script>

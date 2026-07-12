@@ -1,12 +1,9 @@
 ---
 import { getCollection } from 'astro:content'
-import BackLink from '../../components/BackLink.astro'
 import BrowserBaselineTable from '../../components/BrowserBaselineTable.astro'
 import DevTimeChart from '../../components/DevTimeChart.astro'
-import PageHeader from '../../components/PageHeader.astro'
-import DetailsLink from '../../components/DetailsLink.astro'
 import StatsTable from '../../components/StatsTable.astro'
-import Layout from '../../layouts/Layout.astro'
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
 import {
   buildInstallData,
   depsStats,
@@ -225,10 +222,13 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
   : []
 ---
 
-<Layout title={`${devtime.name} — Framework Tracker`}>
-  <BackLink />
+<StarlightPage
+  frontmatter={{
+    title: devtime.name,
+    description: `${devtime.name} benchmark detail page.`,
+  }}
+>
   <header>
-    <PageHeader>{devtime.name}</PageHeader>
     {
       (devtime.frameworkVersion ?? devtime.timingMeasuredAt) && (
         <p class="detail-meta">
@@ -246,14 +246,11 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
 
   <h2>Dev Time Performance</h2>
   <StatsTable label="Dependency counts" columns={depsColumns} data={depsData} />
-  <DetailsLink
-    href="/methodology#dependency-counts"
-    label="Dependency Counts"
-  />
-  <DetailsLink
-    href="/methodology#node-modules-size"
-    label="Node Modules Size"
-  />
+  <p>
+    Methodology:
+    <a href="/methodology#dependency-counts">Dependency Counts</a> and
+    <a href="/methodology#node-modules-size">Node Modules Size</a>.
+  </p>
   <StatsTable
     label="Build and install times"
     columns={buildColumns}
@@ -268,16 +265,19 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
     <strong>Build output size:</strong>
     {buildEntry.buildOutput}
   </p>
-  <DetailsLink
-    href="/methodology#build-and-install-times"
-    label="Build and Install Times"
-  />
+  <p>
+    Methodology: <a href="/methodology#build-and-install-times"
+      >Build and Install Times</a
+    >.
+  </p>
   <h2>Browser Baseline</h2>
   <BrowserBaselineTable
     packageName={devtime.package}
     label={`${devtime.name} browser baseline`}
   />
-  <DetailsLink href="/methodology#browser-baseline" label="Browser Baseline" />
+  <p>
+    Methodology: <a href="/methodology#browser-baseline">Browser Baseline</a>.
+  </p>
 
   {
     coreJsModules.length > 0 && (
@@ -312,10 +312,10 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
             </>
           )}
         </p>
-        <DetailsLink
-          href="/methodology#core-js-polyfills"
-          label="Core-JS Polyfills"
-        />
+        <p>
+          Methodology:{' '}
+          <a href="/methodology#core-js-polyfills">Core-JS Polyfills</a>.
+        </p>
         <details class="corejs-details">
           <summary>
             View {coreJsModules.length} unnecessary{' '}
@@ -345,10 +345,13 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
             : 'dependencies'}{' '}
           detected across this starter's node_modules.
         </p>
-        <DetailsLink
-          href="/methodology#duplicate-dependencies"
-          label="Duplicate Dependencies"
-        />
+        <p>
+          Methodology:{' '}
+          <a href="/methodology#duplicate-dependencies">
+            Duplicate Dependencies
+          </a>
+          .
+        </p>
         <details class="dupe-deps-details">
           <summary>
             View {duplicateDependencyMessages.length} duplicate{' '}
@@ -374,40 +377,50 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
       <>
         <h2>Runtime Performance</h2>
         <h3>Client Side Rendered Tests</h3>
-        <DetailsLink
-          href="/methodology#client-side-rendered-tests"
-          label="Client Side Rendered Tests"
-        />
+        <p>
+          Methodology:{' '}
+          <a href="/methodology#client-side-rendered-tests">
+            Client Side Rendered Tests
+          </a>
+          .
+        </p>
         <StatsTable
           label="Client side rendered performance"
           columns={clientSideRenderedColumns}
           data={clientSideRenderedData}
         />
         <h3>Server Side Rendered Tests</h3>
-        <DetailsLink
-          href="/methodology#server-side-rendered-tests"
-          label="Server Side Rendered Tests"
-        />
+        <p>
+          Methodology:{' '}
+          <a href="/methodology#server-side-rendered-tests">
+            Server Side Rendered Tests
+          </a>
+          .
+        </p>
         <StatsTable
           label="Server side rendered performance"
           columns={serverSideRenderedColumns}
           data={serverSideRenderedData}
         />
         <h3>Server Side Throughput Tests</h3>
-        <DetailsLink
-          href="/methodology#server-side-throughput-tests"
-          label="Server Side Throughput Tests"
-        />
+        <p>
+          Methodology:{' '}
+          <a href="/methodology#server-side-throughput-tests">
+            Server Side Throughput Tests
+          </a>
+          .
+        </p>
         <StatsTable
           label="Server side throughput by framework"
           columns={ssrRequestThroughputColumns}
           data={ssrRequestThroughputData}
         />
         <h3>Server Side Load Test</h3>
-        <DetailsLink
-          href="/methodology#server-side-load-test"
-          label="Server Side Load Test"
-        />
+        <p>
+          Methodology:{' '}
+          <a href="/methodology#server-side-load-test">Server Side Load Test</a>
+          .
+        </p>
         <StatsTable
           label="Server side load test by framework"
           columns={ssrLoadColumns}
@@ -416,7 +429,7 @@ const serverSideRenderedData = runtime?.serverSideRenderedTests
       </>
     )
   }
-</Layout>
+</StarlightPage>
 
 <style>
   .detail-meta {

@@ -1,7 +1,12 @@
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
-import { normalizeCIStats, readJsonFile, writeJsonFile } from './utils.ts'
+import {
+  getDependencyCountsFromPackageMetadata,
+  normalizeCIStats,
+  readJsonFile,
+  writeJsonFile,
+} from './utils.ts'
 import type {
   CIStats,
   InstallStats,
@@ -134,13 +139,19 @@ async function main() {
       const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
       if (e18eStats) {
         console.info(`  ✓ Found e18e stats artifact`)
+        const packageDependencyCounts =
+          getDependencyCountsFromPackageMetadata(packageName)
         const duplicateEntry = e18eStats.stats.extraStats?.find(
           (s) => s.name === 'duplicateDependencyCount',
         )
-        stats = {
-          ...stats,
+        const dependencyCounts = {
           prodDependencies: e18eStats.stats.dependencyCount.production,
           devDependencies: e18eStats.stats.dependencyCount.development,
+          allDependencies: packageDependencyCounts.allDependencies,
+        }
+        stats = {
+          ...stats,
+          ...dependencyCounts,
           duplicateDependencies:
             typeof duplicateEntry?.value === 'number'
               ? duplicateEntry.value

@@ -20,6 +20,7 @@ const devtimeCollection = defineCollection({
     order: z.number(),
     prodDependencies: z.number(),
     devDependencies: z.number(),
+    allDependencies: z.number(),
     installTime: timeSchema,
     coldBuildTime: timeSchema,
     warmBuildTime: timeSchema,

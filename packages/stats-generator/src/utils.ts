@@ -4,7 +4,12 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { packagesDir } from './constants.ts'
 import { getFrameworks } from './get-frameworks.ts'
-import type { CIStats, FrameworkConfig, TestConfig } from './types.ts'
+import type {
+  CIStats,
+  FrameworkConfig,
+  PackageJson,
+  TestConfig,
+} from './types.ts'
 
 /**
  * Get directory size in bytes using du command.
@@ -46,6 +51,46 @@ export function writeJsonFile(filePath: string, data: unknown): void {
     mkdirSync(dir, { recursive: true })
   }
   writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`)
+}
+
+function countPnpmLockPackages(lockfileContent: string): number {
+  const packageEntryPattern = /^ {2}\S.*:\s*$/
+  const lines = lockfileContent.split(/\r?\n/)
+  const packagesIndex = lines.findIndex((line) => line === 'packages:')
+  if (packagesIndex === -1) {
+    return 0
+  }
+
+  let count = 0
+  for (const line of lines.slice(packagesIndex + 1)) {
+    if (/^\S/.test(line)) {
+      break
+    }
+
+    if (packageEntryPattern.test(line)) {
+      count += 1
+    }
+  }
+
+  return count
+}
+
+export function getDependencyCountsFromPackageMetadata(packageName: string) {
+  const packageJsonPath = join(packagesDir, packageName, 'package.json')
+  const packageJson = JSON.parse(
+    readFileSync(packageJsonPath, 'utf-8'),
+  ) as PackageJson
+
+  const lockfilePath = join(packagesDir, packageName, 'pnpm-lock.yaml')
+  const allDependencies = existsSync(lockfilePath)
+    ? countPnpmLockPackages(readFileSync(lockfilePath, 'utf-8'))
+    : undefined
+
+  return {
+    prodDependencies: Object.keys(packageJson.dependencies ?? {}).length,
+    devDependencies: Object.keys(packageJson.devDependencies ?? {}).length,
+    allDependencies,
+  }
 }
 
 export async function getFrameworkVersion(

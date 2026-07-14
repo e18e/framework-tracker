@@ -87,6 +87,9 @@ of a typical new project.
 
 - Duplicate dependency details come from e18e dependency analysis messages
   collected for each starter package.
+- All dependency counts come from the starter package's `pnpm-lock.yaml`
+  `packages` entries, which include direct and transitive resolved package
+  instances.
 - A duplicate dependency means multiple installed versions of the same package
   were found in the starter's dependency tree.
 - Framework detail pages show the package name, installed versions, and the

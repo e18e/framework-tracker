@@ -99,6 +99,13 @@ implement the same small benchmark routes and data shape wherever possible, so
 the stats focus on browser rendering, server rendering, request-handler
 throughput, and load behavior for comparable production apps.
 
+### Framework Specific Notes
+
+- These runtime apps are not currently intended to measure static-site output. Astro's
+  runtime benchmark app uses the Node adapter so the benchmark harness can serve
+  on-demand routes in production; Astro's default static output is represented
+  by the starter app measurements.
+
 ### Client Side Rendered Tests
 
 - Each framework renders a table of 1000 rows with two UUID columns.
@@ -131,6 +138,10 @@ throughput, and load behavior for comparable production apps.
 - Interaction to Next Paint is measured by clicking the first row's detail link
   and waiting for `/server-side-rendered/:id`.
 - Benchmarks run 5 times by default and average successful metrics.
+- Astro keeps the default static output mode, but the measured
+  `/server-side-rendered` route and its detail route use
+  `export const prerender = false` so they are rendered on demand by the
+  production server instead of measured as prerendered static HTML.
 
 ### Server Side Throughput Tests
 
@@ -156,6 +167,8 @@ throughput, and load behavior for comparable production apps.
   Components.
 - The test is inspired by
   [eknkc/ssr-benchmark](https://github.com/eknkc/ssr-benchmark).
+- Astro's `/ssr-throughput` route uses `export const prerender = false` so this
+  test measures request-time rendering rather than prerendered static HTML.
 
 ### Server Side Load Test
 

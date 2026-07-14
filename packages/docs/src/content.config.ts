@@ -1,5 +1,7 @@
 import { defineCollection } from 'astro:content'
 import { file, glob } from 'astro/loaders'
+import { docsLoader } from '@astrojs/starlight/loaders'
+import { docsSchema } from '@astrojs/starlight/schema'
 import { z } from 'astro/zod'
 
 const timeSchema = z.object({
@@ -157,7 +159,13 @@ const cwvCollection = defineCollection({
   }),
 })
 
+const docsCollection: ReturnType<typeof defineCollection> = defineCollection({
+  loader: docsLoader(),
+  schema: docsSchema(),
+})
+
 export const collections = {
+  docs: docsCollection,
   devtime: devtimeCollection,
   runtime: runtimeCollection,
   cwv: cwvCollection,

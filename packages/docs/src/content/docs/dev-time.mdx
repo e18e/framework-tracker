@@ -1,0 +1,48 @@
+---
+title: Dev Time Stats
+description: Focused framework project footprint and build cost metrics.
+---
+
+import BuildInstallStatsTable from '../../components/BuildInstallStatsTable.astro'
+import BrowserBaselineTable from '../../components/BrowserBaselineTable.astro'
+import BuildSizeCharts from '../../components/BuildSizeCharts.astro'
+import CoreJsTable from '../../components/CoreJsTable.astro'
+import DependencyCharts from '../../components/DependencyCharts.astro'
+import DependencyStatsTable from '../../components/DependencyStatsTable.astro'
+import NodeModulesSizeCharts from '../../components/NodeModulesSizeCharts.astro'
+
+<div className="benchmark-page" data-framework-scope="focused">
+
+## Dependency Counts
+
+Methodology: [Dependency Counts](/methodology/#dependency-counts).
+
+<DependencyStatsTable />
+<DependencyCharts />
+
+## Node Modules Size
+
+Methodology: [Node Modules Size](/methodology/#node-modules-size).
+
+<NodeModulesSizeCharts />
+
+## Build and Install Times
+
+Methodology: [Build and Install Times](/methodology/#build-and-install-times).
+
+<BuildInstallStatsTable />
+<BuildSizeCharts />
+
+## Core-JS Polyfills
+
+Methodology: [Core-JS Polyfills](/methodology/#core-js-polyfills).
+
+<CoreJsTable />
+
+## Browser Baseline
+
+Methodology: [Browser Baseline](/methodology/#browser-baseline).
+
+<BrowserBaselineTable />
+
+</div>

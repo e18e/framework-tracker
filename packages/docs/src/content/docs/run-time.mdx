@@ -1,0 +1,69 @@
+---
+title: Run Time Stats
+description: Focused framework browser and server runtime metrics.
+---
+
+import ClientSideRenderedCharts from '../../components/ClientSideRenderedCharts.astro'
+import ClientSideRenderedStatsTable from '../../components/ClientSideRenderedStatsTable.astro'
+import CoreWebVitalsCharts from '../../components/CoreWebVitalsCharts.astro'
+import CoreWebVitalsTable from '../../components/CoreWebVitalsTable.astro'
+import ServerSideRenderedCharts from '../../components/ServerSideRenderedCharts.astro'
+import ServerSideRenderedStatsTable from '../../components/ServerSideRenderedStatsTable.astro'
+import SSRLoadP90Charts from '../../components/SSRLoadP90Charts.astro'
+import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
+import SSRLoadStatsTable from '../../components/SSRLoadStatsTable.astro'
+import SSRRequestThroughputCharts from '../../components/SSRRequestThroughputCharts.astro'
+import SSRRequestThroughputStatsTable from '../../components/SSRRequestThroughputStatsTable.astro'
+
+<div className="benchmark-page" data-framework-scope="focused">
+
+## Client Side Rendered Tests
+
+Methodology: [Client Side Rendered Tests](/methodology/#client-side-rendered-tests).
+
+<ClientSideRenderedStatsTable />
+<ClientSideRenderedCharts />
+
+## Server Side Rendered Tests
+
+Methodology: [Server Side Rendered Tests](/methodology/#server-side-rendered-tests).
+
+<ServerSideRenderedStatsTable />
+<ServerSideRenderedCharts />
+
+## Server Side Throughput Tests
+
+Methodology: [Server Side Throughput Tests](/methodology/#server-side-throughput-tests).
+
+<SSRRequestThroughputStatsTable />
+<SSRRequestThroughputCharts />
+
+## Server Side Load Test
+
+Methodology: [Server Side Load Test](/methodology/#server-side-load-test).
+
+<SSRLoadStatsTable />
+
+### P99 Latency
+
+<SSRLoadP99Charts />
+
+### P90 Latency
+
+<SSRLoadP90Charts />
+
+## Core Web Vitals
+
+### CWV Desktop
+
+<CoreWebVitalsTable device="desktop" />
+<CoreWebVitalsCharts device="desktop" />
+
+### CWV Mobile
+
+<CoreWebVitalsTable device="mobile" />
+<CoreWebVitalsCharts device="mobile" />
+
+Methodology: [Core Web Vitals](/methodology/#core-web-vitals).
+
+</div>

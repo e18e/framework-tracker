@@ -1,0 +1,108 @@
+---
+title: All Frameworks
+description: All tracked framework benchmark charts and JSON-driven tables.
+---
+
+import BrowserBaselineTable from '../../components/BrowserBaselineTable.astro'
+import BuildInstallStatsTable from '../../components/BuildInstallStatsTable.astro'
+import BuildSizeCharts from '../../components/BuildSizeCharts.astro'
+import ClientSideRenderedCharts from '../../components/ClientSideRenderedCharts.astro'
+import ClientSideRenderedStatsTable from '../../components/ClientSideRenderedStatsTable.astro'
+import CoreJsTable from '../../components/CoreJsTable.astro'
+import CoreWebVitalsCharts from '../../components/CoreWebVitalsCharts.astro'
+import CoreWebVitalsTable from '../../components/CoreWebVitalsTable.astro'
+import DependencyCharts from '../../components/DependencyCharts.astro'
+import DependencyStatsTable from '../../components/DependencyStatsTable.astro'
+import NodeModulesSizeCharts from '../../components/NodeModulesSizeCharts.astro'
+import ServerSideRenderedCharts from '../../components/ServerSideRenderedCharts.astro'
+import ServerSideRenderedStatsTable from '../../components/ServerSideRenderedStatsTable.astro'
+import SSRLoadP90Charts from '../../components/SSRLoadP90Charts.astro'
+import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
+import SSRLoadStatsTable from '../../components/SSRLoadStatsTable.astro'
+import SSRRequestThroughputCharts from '../../components/SSRRequestThroughputCharts.astro'
+import SSRRequestThroughputStatsTable from '../../components/SSRRequestThroughputStatsTable.astro'
+
+<div className="benchmark-page" data-framework-scope="all">
+
+## Dependency Counts
+
+Methodology: [Dependency Counts](/methodology/#dependency-counts).
+
+<DependencyStatsTable />
+<DependencyCharts />
+
+## Node Modules Size
+
+Methodology: [Node Modules Size](/methodology/#node-modules-size).
+
+<NodeModulesSizeCharts />
+
+## Build and Install Times
+
+Methodology: [Build and Install Times](/methodology/#build-and-install-times).
+
+<BuildInstallStatsTable />
+<BuildSizeCharts />
+
+## Core-JS Polyfills
+
+Methodology: [Core-JS Polyfills](/methodology/#core-js-polyfills).
+
+<CoreJsTable />
+
+## Browser Baseline
+
+Methodology: [Browser Baseline](/methodology/#browser-baseline).
+
+<BrowserBaselineTable />
+
+## Client Side Rendered Tests
+
+Methodology: [Client Side Rendered Tests](/methodology/#client-side-rendered-tests).
+
+<ClientSideRenderedStatsTable />
+<ClientSideRenderedCharts />
+
+## Server Side Rendered Tests
+
+Methodology: [Server Side Rendered Tests](/methodology/#server-side-rendered-tests).
+
+<ServerSideRenderedStatsTable />
+<ServerSideRenderedCharts />
+
+## Server Side Throughput Tests
+
+Methodology: [Server Side Throughput Tests](/methodology/#server-side-throughput-tests).
+
+<SSRRequestThroughputStatsTable />
+<SSRRequestThroughputCharts />
+
+## Server Side Load Test
+
+Methodology: [Server Side Load Test](/methodology/#server-side-load-test).
+
+<SSRLoadStatsTable />
+
+### P99 Latency
+
+<SSRLoadP99Charts />
+
+### P90 Latency
+
+<SSRLoadP90Charts />
+
+## Core Web Vitals
+
+### CWV Desktop
+
+<CoreWebVitalsTable device="desktop" />
+<CoreWebVitalsCharts device="desktop" />
+
+### CWV Mobile
+
+<CoreWebVitalsTable device="mobile" />
+<CoreWebVitalsCharts device="mobile" />
+
+Methodology: [Core Web Vitals](/methodology/#core-web-vitals).
+
+</div>

@@ -1,0 +1,52 @@
+:root {
+  --ft-accent: var(--sl-color-accent);
+  --ft-accent-hover: var(--sl-color-accent-high);
+  --ft-text: var(--sl-color-text);
+  --ft-muted: var(--sl-color-gray-3);
+  --ft-border: var(--sl-color-gray-5);
+  --ft-bg: var(--sl-color-bg);
+  --ft-bg-muted: var(--sl-color-gray-6);
+  --ft-chart-bar: var(--sl-color-accent);
+  --ft-chart-bar-hover: var(--sl-color-accent-high);
+  --ft-chart-grid: color-mix(in srgb, var(--sl-color-gray-3), transparent 68%);
+}
+
+:root[data-theme='light'] {
+  --ft-muted: var(--sl-color-gray-2);
+  --ft-border: var(--sl-color-gray-5);
+  --ft-bg-muted: var(--sl-color-gray-6);
+  --ft-chart-grid: color-mix(in srgb, var(--sl-color-gray-4), transparent 45%);
+}
+
+.main-pane .sl-container {
+  max-width: 1120px;
+}
+
+.sl-markdown-content :where(.full-width, .wrapper) {
+  max-width: none;
+}
+
+.sl-markdown-content table {
+  display: table;
+}
+
+.benchmark-page {
+  width: 100%;
+}
+
+.depot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.depot p {
+  color: var(--ft-muted);
+  flex: 1 1 66%;
+}
+
+.depot svg {
+  height: 42px;
+  width: auto;
+}

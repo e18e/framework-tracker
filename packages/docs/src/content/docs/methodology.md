@@ -115,19 +115,19 @@ throughput, and load behavior for comparable production apps.
 - Interaction to Next Paint is measured by clicking the first row's detail link
   and waiting for the detail view.
 - Benchmarks run 5 times by default and average successful metrics.
+- Client-side rendered tests use each framework's normal production build
+  because SPA-only build modes are not supported consistently across the
+  compared frameworks.
 - Next.js wraps the client-side rendered table in a `dynamic` import with
   `ssr: false` to prevent build-time prerendering.
 - TanStack Start, Nuxt, SvelteKit, and SolidStart disable SSR per route.
 - React Router uses route-level `clientLoader` functions with `HydrateFallback`
   so the client-rendered routes are not server-rendered.
-- Astro uses client-only React islands for client-side rendered routes.
-- Client-side rendered tests use each framework's normal production build
-  because SPA-only build modes are not supported consistently across the
-  compared frameworks.
 - Astro's benchmark table and detail components are React islands rendered with
   `client:only="react"`. Astro's `ClientRouter` is not used for this test
   because it changes navigation behavior rather than making components
-  client-only.
+  client-only. Using `client:only` is often considered an anti pattern in Astro but needed to make the tests fair and measure just client side performance.
+- We also chose React for Astro as its the currently the most popular. 23% of projects according to the Astro team as of writing this (15/07/2026).
 
 ### Server Side Rendered Tests
 

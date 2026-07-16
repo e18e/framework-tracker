@@ -136,8 +136,13 @@ export const depsStats = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
   isFocused: f.isFocused,
+  directDependencies: [
+    f.devDependencies.toLocaleString(),
+    f.prodDependencies.toLocaleString(),
+  ].join(' / '),
   prodDependencies: f.prodDependencies,
   devDependencies: f.devDependencies,
+  allDependencies: f.allDependencies.toLocaleString(),
   duplicateDependencies: f.duplicateDependencies,
   nodeModulesSize: formatBytesToMB(f.nodeModulesSize),
   nodeModulesSizeProdOnly: formatBytesToMB(f.nodeModulesSizeProdOnly),

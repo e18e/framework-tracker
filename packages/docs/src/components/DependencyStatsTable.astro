@@ -11,8 +11,8 @@ const depsColumns = [
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
   },
-  { key: 'prodDependencies', header: 'Prod Deps' },
-  { key: 'devDependencies', header: 'Dev Deps' },
+  { key: 'directDependencies', header: 'Deps Dev / Prod' },
+  { key: 'allDependencies', header: 'All Deps' },
   { key: 'duplicateDependencies', header: 'Dup. Deps' },
   { key: 'nodeModulesSize', header: 'node_modules' },
   { key: 'nodeModulesSizeProdOnly', header: 'node_modules (prod)' },

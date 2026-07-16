@@ -101,6 +101,7 @@ export interface CIStats {
   // Dependency stats (from e18e analysis)
   prodDependencies?: number
   devDependencies?: number
+  allDependencies?: number
   duplicateDependencies?: number
   depInstallSize?: number
   e18eMessages?: Array<{

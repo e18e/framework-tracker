@@ -75,8 +75,8 @@ const depsEntry = depsStats.find((e) => e.package === devtime.package)!
 const buildEntry = buildInstallData.find((e) => e.package === devtime.package)!
 
 const depsColumns = [
-  { key: 'prodDependencies', header: 'Prod Deps' },
-  { key: 'devDependencies', header: 'Dev Deps' },
+  { key: 'directDependencies', header: 'Deps Dev / Prod' },
+  { key: 'allDependencies', header: 'All Deps' },
   ...(devtime.duplicateDependencies != null
     ? [{ key: 'duplicateDependencies', header: 'Dup. Deps' }]
     : []),
@@ -92,8 +92,8 @@ const depsColumns = [
 
 const depsData = [
   {
-    prodDependencies: String(depsEntry.prodDependencies),
-    devDependencies: String(depsEntry.devDependencies),
+    directDependencies: depsEntry.directDependencies,
+    allDependencies: depsEntry.allDependencies,
     ...(devtime.duplicateDependencies != null
       ? { duplicateDependencies: String(devtime.duplicateDependencies) }
       : {}),

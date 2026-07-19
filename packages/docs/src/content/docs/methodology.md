@@ -20,6 +20,18 @@ represent each framework's default setup as closely as possible, so the stats
 capture the dependency footprint, install cost, build cost, and generated output
 of a typical new project.
 
+### Project Setups
+
+#### Astro
+
+Installed using the CLI
+
+- Step 1: `pnpm create astro@latest`
+- Step 2: Where should we create your new project?: `.`
+- Step 3: How would you like to start your new project?: `A basic, helpful starter project`
+- Step 4: Install dependencies?: `yes`
+- Step 5: Initialize a new git repository?: `No`
+
 ### Dependency Counts
 
 - Production and development dependency counts come from each starter package's

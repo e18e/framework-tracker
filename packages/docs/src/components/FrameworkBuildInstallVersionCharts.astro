@@ -1,0 +1,42 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Average Install Time"
+  versions={versions}
+  metric="installTime.avgMs"
+  transform="msToSeconds"
+  valueFormat="s"
+  yAxisLabel="Seconds"
+/>
+<VersionLineChart
+  title="Average Cold Build Time"
+  versions={versions}
+  metric="coldBuildTime.avgMs"
+  transform="msToSeconds"
+  valueFormat="s"
+  yAxisLabel="Seconds"
+/>
+<VersionLineChart
+  title="Average Warm Build Time"
+  versions={versions}
+  metric="warmBuildTime.avgMs"
+  transform="msToSeconds"
+  valueFormat="s"
+  yAxisLabel="Seconds"
+/>
+<VersionLineChart
+  title="Build Output Size"
+  versions={versions}
+  metric="buildOutputSize"
+  transform="bytesToKb"
+  valueFormat="kb"
+  yAxisLabel="KB"
+/>

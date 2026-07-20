@@ -1,0 +1,38 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Production Dependencies"
+  versions={versions}
+  metric="prodDependencies"
+  valueFormat="count"
+  yAxisLabel="Dependencies"
+/>
+<VersionLineChart
+  title="Development Dependencies"
+  versions={versions}
+  metric="devDependencies"
+  valueFormat="count"
+  yAxisLabel="Dependencies"
+/>
+<VersionLineChart
+  title="All Dependencies"
+  versions={versions}
+  metric="allDependencies"
+  valueFormat="count"
+  yAxisLabel="Dependencies"
+/>
+<VersionLineChart
+  title="Duplicate Dependencies"
+  versions={versions}
+  metric="duplicateDependencies"
+  valueFormat="count"
+  yAxisLabel="Duplicates"
+/>

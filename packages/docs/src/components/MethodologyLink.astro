@@ -1,0 +1,18 @@
+---
+interface Props {
+  title: string
+  slug: string
+}
+
+const { title, slug } = Astro.props
+---
+
+<p class="methodology-link">
+  Methodology: <a href={`/methodology/#${slug}`}>{title}</a>.
+</p>
+
+<style>
+  .methodology-link {
+    margin-bottom: 1.5em;
+  }
+</style>

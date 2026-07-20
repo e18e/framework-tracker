@@ -1,0 +1,31 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Server First Paint"
+  versions={versions}
+  metric="serverSideRenderedTests.firstPaintMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="Server FCP"
+  versions={versions}
+  metric="serverSideRenderedTests.fcpMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="Server INP"
+  versions={versions}
+  metric="serverSideRenderedTests.inpMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>

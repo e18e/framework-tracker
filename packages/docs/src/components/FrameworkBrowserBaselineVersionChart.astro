@@ -1,0 +1,17 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Browser Baseline Feature Count"
+  versions={versions}
+  metric="browserBaselineTests.baselineFeatureCount"
+  valueFormat="count"
+  yAxisLabel="Features"
+/>

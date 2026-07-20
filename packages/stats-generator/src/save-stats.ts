@@ -1,10 +1,78 @@
-import { access, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { packagesDir } from './constants.ts'
 import type { FrameworkStats } from './types.ts'
 import { normalizeCIStats } from './utils.ts'
 
 export type StatsCollection = 'devtime' | 'runtime'
+
+function getDocsStats(stats: FrameworkStats): FrameworkStats {
+  const { packageJson: _packageJson, ...docsStats } = stats
+  return docsStats
+}
+
+function getStatsMetadata(stats: FrameworkStats): FrameworkStats {
+  return {
+    name: stats.name,
+    package: stats.package,
+    type: stats.type,
+    isFocused: stats.isFocused,
+    order: stats.order,
+  }
+}
+
+async function saveVersionedStats(
+  packageName: string,
+  stats: FrameworkStats,
+  collection: StatsCollection,
+) {
+  const sourceDir = join(packagesDir, packageName, 'stats')
+  const outputDir = join(
+    packagesDir,
+    'docs',
+    'src',
+    'content',
+    collection,
+    'versions',
+    packageName,
+  )
+
+  let files: string[]
+  try {
+    files = (await readdir(sourceDir, { withFileTypes: true }))
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+      .map((entry) => entry.name)
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      return
+    }
+    throw new Error(
+      `Failed to read versioned stats for ${packageName}: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+
+  await mkdir(outputDir, { recursive: true })
+
+  const metadata = getStatsMetadata(getDocsStats(stats))
+  await Promise.all(
+    files.map(async (fileName) => {
+      const sourcePath = join(sourceDir, fileName)
+      const fileStats = normalizeCIStats(
+        JSON.parse(await readFile(sourcePath, 'utf-8')) as FrameworkStats,
+      )
+      const outputPath = join(outputDir, fileName)
+      const versionedStats = {
+        ...metadata,
+        ...getDocsStats(fileStats),
+      }
+      await writeFile(
+        outputPath,
+        `${JSON.stringify(versionedStats, null, 2)}\n`,
+        'utf-8',
+      )
+    }),
+  )
+}
 
 export async function saveStats(
   packageName: string,
@@ -41,7 +109,8 @@ export async function saveStats(
     }
   }
 
-  const { packageJson: _packageJson, ...docsStats } = mergedStats
+  const docsStats = getDocsStats(mergedStats)
 
-  await writeFile(filePath, JSON.stringify(docsStats, null, 2), 'utf-8')
+  await writeFile(filePath, `${JSON.stringify(docsStats, null, 2)}\n`, 'utf-8')
+  await saveVersionedStats(packageName, docsStats, collection)
 }

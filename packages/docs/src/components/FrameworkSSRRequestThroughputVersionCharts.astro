@@ -1,0 +1,31 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="SSR Request Throughput"
+  versions={versions}
+  metric="ssrRequestThroughputTests.opsPerSec"
+  valueFormat="count"
+  yAxisLabel="Ops/sec"
+/>
+<VersionLineChart
+  title="SSR Median Latency"
+  versions={versions}
+  metric="ssrRequestThroughputTests.medianLatencyMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="SSR Body Size"
+  versions={versions}
+  metric="ssrRequestThroughputTests.bodySizeKb"
+  valueFormat="kb"
+  yAxisLabel="KB"
+/>

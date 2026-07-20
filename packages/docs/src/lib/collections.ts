@@ -2,8 +2,51 @@ import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
+const devtimeVersionEntries = await getCollection('devtimeVersions')
 export const runtimeEntries = await getCollection('runtime')
+const runtimeVersionEntries = await getCollection('runtimeVersions')
 const cwvEntries = await getCollection('cwv')
+
+type DevtimeVersionData = (typeof devtimeVersionEntries)[number]['data']
+type RuntimeVersionData = (typeof runtimeVersionEntries)[number]['data']
+
+function getVersionSortOrder(versions: string[]) {
+  return new Map(versions.map((version, index) => [version, index]))
+}
+
+function getVersionedStats<
+  T extends { package: string; frameworkVersion?: string },
+>(entries: Array<{ data: T }>, packageName: string, versions: string[]) {
+  const versionSortOrder = getVersionSortOrder(versions)
+
+  return entries
+    .map((entry) => entry.data)
+    .filter(
+      (entry) =>
+        entry.package === packageName &&
+        entry.frameworkVersion != null &&
+        versionSortOrder.has(entry.frameworkVersion),
+    )
+    .sort(
+      (a, b) =>
+        versionSortOrder.get(a.frameworkVersion!)! -
+        versionSortOrder.get(b.frameworkVersion!)!,
+    )
+}
+
+export function getStarterVersionStats(
+  packageName: string,
+  versions: string[],
+): DevtimeVersionData[] {
+  return getVersionedStats(devtimeVersionEntries, packageName, versions)
+}
+
+export function getRuntimeVersionStats(
+  packageName: string,
+  versions: string[],
+): RuntimeVersionData[] {
+  return getVersionedStats(runtimeVersionEntries, packageName, versions)
+}
 
 export type Device = 'desktop' | 'mobile'
 

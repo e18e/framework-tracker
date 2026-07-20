@@ -1,0 +1,34 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Node Modules Size"
+  versions={versions}
+  metric="nodeModulesSize"
+  transform="bytesToMb"
+  valueFormat="mb"
+  yAxisLabel="MB"
+/>
+<VersionLineChart
+  title="Production Node Modules Size"
+  versions={versions}
+  metric="nodeModulesSizeProdOnly"
+  transform="bytesToMb"
+  valueFormat="mb"
+  yAxisLabel="MB"
+/>
+<VersionLineChart
+  title="Dependency Install Size"
+  versions={versions}
+  metric="depInstallSize"
+  transform="bytesToMb"
+  valueFormat="mb"
+  yAxisLabel="MB"
+/>

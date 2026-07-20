@@ -8,6 +8,7 @@ export interface ServerSideRenderedBenchmarkResult {
   name: string
   displayName: string
   package: string
+  browserVersion?: string
   serverSideRenderedTests: {
     firstPaintMs: number
     fcpMs: number
@@ -19,6 +20,7 @@ export interface ServerSideRenderedBenchmarkResult {
 export interface ServerSideRenderedStats {
   timingMeasuredAt: string
   runner: string
+  browserVersion?: string
   frameworkVersion?: string
   serverSideRenderedTests: {
     firstPaintMs: number

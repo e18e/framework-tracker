@@ -274,6 +274,8 @@ async function main() {
         console.info(`  ✓ Found client-side rendered stats artifact`)
         stats = {
           ...stats,
+          browserVersion:
+            clientSideRenderedStats.browserVersion ?? stats.browserVersion,
           clientSideRenderedTests:
             clientSideRenderedStats.clientSideRenderedTests,
         }
@@ -300,6 +302,8 @@ async function main() {
         console.info(`  ✓ Found server-side rendered stats artifact`)
         stats = {
           ...stats,
+          browserVersion:
+            serverSideRenderedStats.browserVersion ?? stats.browserVersion,
           frameworkVersion: serverSideRenderedStats.frameworkVersion,
           serverSideRenderedTests:
             serverSideRenderedStats.serverSideRenderedTests,

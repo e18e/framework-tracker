@@ -1,4 +1,5 @@
 import { existsSync, readdirSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
 import type {
@@ -34,6 +35,16 @@ function findChromium(): string {
   throw new Error(
     'Could not find Chromium/Chrome. Set the CHROME_PATH env var.',
   )
+}
+
+function getBrowserVersion(chromiumPath: string): string | undefined {
+  try {
+    return execFileSync(chromiumPath, ['--version'], {
+      encoding: 'utf-8',
+    }).trim()
+  } catch {
+    return undefined
+  }
 }
 
 async function runOnce(
@@ -109,6 +120,7 @@ export async function runBenchmark(
   runs: number,
 ): Promise<ServerSideRenderedBenchmarkResult> {
   const chromiumPath = findChromium()
+  const browserVersion = getBrowserVersion(chromiumPath)
   const results: ServerSideRenderedRunResult[] = []
 
   for (let i = 0; i < runs; i++) {
@@ -126,6 +138,7 @@ export async function runBenchmark(
     name: packageName,
     displayName,
     package: packageName,
+    browserVersion,
     serverSideRenderedTests: {
       firstPaintMs: avg(fp),
       fcpMs: avg(fcp),

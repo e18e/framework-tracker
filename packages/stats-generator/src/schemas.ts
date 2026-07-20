@@ -43,6 +43,7 @@ export const SSRRequestThroughputStatsSchema = z.object({
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
+  browserVersion: z.string().optional(),
 })
 
 export const SSRLoadStatsSchema = z.object({
@@ -79,6 +80,7 @@ export const SSRLoadStatsSchema = z.object({
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
+  browserVersion: z.string().optional(),
 })
 
 export type InstallStats = z.infer<typeof InstallStatsSchema>

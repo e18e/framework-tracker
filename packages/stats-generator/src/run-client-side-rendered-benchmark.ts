@@ -40,6 +40,7 @@ async function main() {
     ...existingStats,
     timingMeasuredAt: timestamp,
     runner,
+    browserVersion: result.browserVersion,
     frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
     clientSideRenderedTests: result.clientSideRenderedTests,
   }

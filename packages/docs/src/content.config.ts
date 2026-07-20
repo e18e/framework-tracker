@@ -53,6 +53,7 @@ const devtimeSchema = z.object({
     .optional(),
   timingMeasuredAt: z.string(),
   runner: z.string(),
+  browserVersion: z.string().optional(),
   frameworkVersion: z.string().optional(),
 })
 
@@ -118,6 +119,7 @@ const runtimeSchema = z.object({
     .optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
+  browserVersion: z.string().optional(),
   frameworkVersion: z.string().optional(),
 })
 

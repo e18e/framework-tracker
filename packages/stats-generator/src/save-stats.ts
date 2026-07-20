@@ -6,6 +6,11 @@ import { normalizeCIStats } from './utils.ts'
 
 export type StatsCollection = 'devtime' | 'runtime'
 
+function getDocsStats(stats: FrameworkStats): FrameworkStats {
+  const { packageJson: _packageJson, ...docsStats } = stats
+  return docsStats
+}
+
 function getStatsMetadata(stats: FrameworkStats): FrameworkStats {
   return {
     name: stats.name,
@@ -48,7 +53,7 @@ async function saveVersionedStats(
 
   await mkdir(outputDir, { recursive: true })
 
-  const metadata = getStatsMetadata(stats)
+  const metadata = getStatsMetadata(getDocsStats(stats))
   await Promise.all(
     files.map(async (fileName) => {
       const sourcePath = join(sourceDir, fileName)
@@ -58,7 +63,7 @@ async function saveVersionedStats(
       const outputPath = join(outputDir, fileName)
       const versionedStats = {
         ...metadata,
-        ...fileStats,
+        ...getDocsStats(fileStats),
       }
       await writeFile(
         outputPath,
@@ -104,8 +109,8 @@ export async function saveStats(
     }
   }
 
+  const docsStats = getDocsStats(mergedStats)
 
-  const { packageJson: _packageJson, ...docsStats } = mergedStats
-
-  await writeFile(filePath, JSON.stringify(docsStats, null, 2), 'utf-8')
+  await writeFile(filePath, `${JSON.stringify(docsStats, null, 2)}\n`, 'utf-8')
+  await saveVersionedStats(packageName, docsStats, collection)
 }

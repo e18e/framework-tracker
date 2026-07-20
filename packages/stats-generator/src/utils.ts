@@ -75,11 +75,20 @@ function countPnpmLockPackages(lockfileContent: string): number {
   return count
 }
 
-export function getDependencyCountsFromPackageMetadata(packageName: string) {
+export function getPackageJsonDeps(packageName: string) {
   const packageJsonPath = join(packagesDir, packageName, 'package.json')
   const packageJson = JSON.parse(
     readFileSync(packageJsonPath, 'utf-8'),
   ) as PackageJson
+
+  return {
+    dependencies: packageJson.dependencies ?? {},
+    devDependencies: packageJson.devDependencies ?? {},
+  }
+}
+
+export function getDependencyCountsFromPackageMetadata(packageName: string) {
+  const { dependencies, devDependencies } = getPackageJsonDeps(packageName)
 
   const lockfilePath = join(packagesDir, packageName, 'pnpm-lock.yaml')
   const allDependencies = existsSync(lockfilePath)
@@ -87,8 +96,8 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
     : undefined
 
   return {
-    prodDependencies: Object.keys(packageJson.dependencies ?? {}).length,
-    devDependencies: Object.keys(packageJson.devDependencies ?? {}).length,
+    prodDependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
     allDependencies,
   }
 }

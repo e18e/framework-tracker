@@ -109,6 +109,11 @@ export interface CIStats {
     message: string
     fixableBy?: string
   }>
+  // Snapshot of the package.json dependencies at measurement time
+  packageJson?: {
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+  }
 }
 
 export interface InstallStats {

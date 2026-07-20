@@ -3,6 +3,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDependencyCountsFromPackageMetadata,
+  getPackageJsonDeps,
   normalizeCIStats,
   readJsonFile,
   writeJsonFile,
@@ -163,6 +164,11 @@ async function main() {
         console.warn(`No e18e stats artifact found at ${e18eArtifactPath}`)
       }
 
+      stats = {
+        ...stats,
+        packageJson: getPackageJsonDeps(packageName),
+      }
+
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
       writeJsonFile(ciStatsPath, stats)
@@ -304,6 +310,11 @@ async function main() {
         console.warn(
           `No server-side rendered stats artifact found at ${serverSideRenderedStatsArtifactPath}`,
         )
+      }
+
+      stats = {
+        ...stats,
+        packageJson: getPackageJsonDeps(packageName),
       }
 
       // Save to ci-stats.json

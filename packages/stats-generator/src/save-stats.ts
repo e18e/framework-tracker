@@ -104,10 +104,8 @@ export async function saveStats(
     }
   }
 
-  await writeFile(
-    filePath,
-    `${JSON.stringify(mergedStats, null, 2)}\n`,
-    'utf-8',
-  )
-  await saveVersionedStats(packageName, mergedStats, collection)
+
+  const { packageJson: _packageJson, ...docsStats } = mergedStats
+
+  await writeFile(filePath, JSON.stringify(docsStats, null, 2), 'utf-8')
 }

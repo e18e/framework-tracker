@@ -1,0 +1,18 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Vendored Core-JS Size"
+  versions={versions}
+  metric="vendoredCoreJsSize"
+  transform="bytesToKb"
+  valueFormat="kb"
+  yAxisLabel="KB"
+/>

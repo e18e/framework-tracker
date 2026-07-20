@@ -1,0 +1,333 @@
+---
+import type { ChartDatum } from '../lib/types'
+
+type ValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
+type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
+
+interface Props {
+  title: string
+  description?: string
+  versions?: unknown[]
+  metric?: string
+  transform?: ValueTransform
+  stageWorkers?: number
+  stageMetric?: string
+  valueFormat: ValueFormat
+  yAxisLabel: string
+}
+
+const CHART_HEIGHT_PX = 400
+const MOBILE_CHART_HEIGHT_PX = 300
+
+const {
+  title,
+  description,
+  versions = [],
+  metric,
+  transform,
+  stageWorkers,
+  stageMetric,
+  valueFormat,
+  yAxisLabel,
+} = Astro.props
+
+function getRecord(value: unknown) {
+  return value != null && typeof value === 'object'
+    ? (value as Record<string, unknown>)
+    : null
+}
+
+function readPath(source: unknown, path: string) {
+  return path.split('.').reduce<unknown>((current, key) => {
+    const record = getRecord(current)
+    return record?.[key]
+  }, source)
+}
+
+function getStageMetricValue(stats: unknown) {
+  if (stageWorkers == null || stageMetric == null) return undefined
+
+  const ssrLoadTests = getRecord(readPath(stats, 'ssrLoadTests'))
+  const stages = ssrLoadTests?.stages
+  if (!Array.isArray(stages)) return undefined
+
+  const stage = stages.find(
+    (stage) => getRecord(stage)?.workers === stageWorkers,
+  )
+  return readPath(stage, stageMetric)
+}
+
+function transformValue(value: number) {
+  if (transform === 'bytesToKb') return value / 1024
+  if (transform === 'bytesToMb') return value / 1024 / 1024
+  if (transform === 'msToSeconds') return value / 1000
+  return value
+}
+
+function getVersionChartData(): ChartDatum[] {
+  return versions.flatMap((stats) => {
+    const rawValue =
+      stageWorkers != null && stageMetric != null
+        ? getStageMetricValue(stats)
+        : metric != null
+          ? readPath(stats, metric)
+          : undefined
+
+    if (typeof rawValue !== 'number' || !Number.isFinite(rawValue)) return []
+
+    return {
+      name: String(readPath(stats, 'frameworkVersion') ?? 'Unknown'),
+      value: transformValue(rawValue),
+    }
+  })
+}
+
+const chartData = getVersionChartData().map((d) => ({
+  name: String(d?.name ?? ''),
+  value: Math.max(0, Number(d.value) || 0),
+}))
+const chartPayload = JSON.stringify({
+  data: chartData,
+  valueFormat,
+  yAxisLabel,
+})
+const hasChartData = chartData.length > 0
+---
+
+{
+  hasChartData ? (
+    <div class="version-line-chart">
+      <h3 class="version-line-chart-title">{title}</h3>
+      {description ? <p>{description}</p> : null}
+      <div class="version-line-chart-wrapper" data-version-line={chartPayload}>
+        <canvas aria-label={title} role="img">
+          {title} chart
+        </canvas>
+      </div>
+    </div>
+  ) : null
+}
+
+<style
+  define:vars={{
+    chartHeight: `${CHART_HEIGHT_PX}px`,
+    mobileChartHeight: `${MOBILE_CHART_HEIGHT_PX}px`,
+  }}
+>
+  .version-line-chart {
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: 2em;
+  }
+
+  .version-line-chart-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ft-text);
+    margin: 0 0 0.75em;
+  }
+
+  .version-line-chart-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: var(--chartHeight);
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .version-line-chart-wrapper {
+      height: var(--mobileChartHeight);
+    }
+  }
+</style>
+
+<script>
+  import {
+    CategoryScale,
+    Chart,
+    Legend,
+    LineController,
+    LineElement,
+    LinearScale,
+    PointElement,
+    Tooltip,
+  } from 'chart.js'
+  import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
+
+  Chart.register(
+    CategoryScale,
+    Legend,
+    LineController,
+    LineElement,
+    LinearScale,
+    PointElement,
+    Tooltip,
+  )
+
+  const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
+  const LINE_COLOR = '#8f7bd1'
+  const POINT_COLOR = '#6f5ab8'
+  const TEXT_COLOR_FALLBACK = '#1f2933'
+  const MUTED_COLOR_FALLBACK = '#697586'
+  const BORDER_COLOR_FALLBACK = '#d9dee7'
+
+  function formatValue(
+    value: number,
+    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
+  ): string {
+    if (format === 'count') return String(Math.round(value))
+    if (format === 'mb') return `${value.toFixed(2)} MB`
+    if (format === 'kb') return `${value.toFixed(2)} KB`
+    if (format === 's') return `${value.toFixed(2)}s`
+    return `${value.toFixed(2)} ms`
+  }
+
+  function getCssVar(element: Element, name: string, fallback: string) {
+    return getComputedStyle(element).getPropertyValue(name).trim() || fallback
+  }
+
+  function getData(wrapper: HTMLElement): {
+    payload: ComparisonChartPayload
+    data: ChartDatum[]
+  } | null {
+    const dataAttr = wrapper.dataset.versionLine
+    if (!dataAttr) return null
+
+    let payload: ComparisonChartPayload
+    try {
+      payload = JSON.parse(dataAttr) as ComparisonChartPayload
+    } catch (e) {
+      console.warn('[VersionLineChart] Invalid chart data:', e)
+      return null
+    }
+
+    return { payload, data: payload.data }
+  }
+
+  function initChart(wrapper: HTMLElement) {
+    const canvas = wrapper.querySelector('canvas')
+    if (!canvas) return
+    const chartTitle = canvas.getAttribute('aria-label') ?? 'Version trend'
+
+    const result = getData(wrapper)
+    if (!result || result.data.length === 0) return
+
+    const { payload, data } = result
+    const values = data.map((d) => d.value)
+    const max = Math.max(...values)
+    const root = document.documentElement
+    const textColor = getCssVar(root, '--ft-text', TEXT_COLOR_FALLBACK)
+    const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
+    const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
+    const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
+    const lineColor = getCssVar(root, '--ft-chart-bar', LINE_COLOR)
+    const pointColor = getCssVar(root, '--ft-chart-bar-hover', POINT_COLOR)
+
+    chartCache.get(canvas)?.destroy()
+
+    const chart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: data.map((d) => d.name),
+        datasets: [
+          {
+            label: payload.yAxisLabel ?? chartTitle,
+            data: values,
+            borderColor: lineColor,
+            backgroundColor: lineColor,
+            borderWidth: 2,
+            pointBackgroundColor: pointColor,
+            pointBorderColor: pointColor,
+            pointHoverRadius: 6,
+            pointRadius: 4,
+            tension: 0.25,
+          },
+        ],
+      },
+      options: {
+        animation: { duration: 500 },
+        maintainAspectRatio: false,
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) =>
+                formatValue(Number(context.raw ?? 0), payload.valueFormat),
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: textColor,
+              font: { size: 12, weight: 500 },
+              maxRotation: 0,
+              minRotation: 0,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            suggestedMax: max * 1.05,
+            border: { color: gridColor },
+            grid: { color: gridColor },
+            title: {
+              color: mutedColor,
+              display: Boolean(payload.yAxisLabel),
+              font: { size: 12, weight: 600 },
+              text: payload.yAxisLabel,
+            },
+            ticks: {
+              color: mutedColor,
+              font: { size: 12 },
+              callback: (value) =>
+                payload.valueFormat === 'count'
+                  ? String(Math.round(Number(value)))
+                  : formatValue(Number(value), payload.valueFormat),
+            },
+          },
+        },
+      },
+    })
+
+    chartCache.set(canvas, chart)
+  }
+
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('.version-line-chart-wrapper')
+      .forEach(initChart)
+  }
+
+  function scheduleInit() {
+    requestAnimationFrame(initCharts)
+  }
+
+  function observeThemeChanges() {
+    if (typeof MutationObserver === 'undefined') return
+
+    let lastThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
+    const observer = new MutationObserver(() => {
+      const nextThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
+      if (nextThemeState === lastThemeState) return
+
+      lastThemeState = nextThemeState
+      scheduleInit()
+    })
+
+    observer.observe(document.documentElement, {
+      attributeFilter: ['class', 'data-theme'],
+      attributes: true,
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initCharts())
+  } else {
+    initCharts()
+  }
+
+  observeThemeChanges()
+</script>

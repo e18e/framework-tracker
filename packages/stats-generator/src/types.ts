@@ -33,6 +33,7 @@ export interface FrameworkConfig {
 export interface CIStats {
   timingMeasuredAt?: string
   runner?: string
+  browserVersion?: string
   frameworkVersion?: string
   // Install stats
   installTime?: TimeStat

@@ -1,5 +1,8 @@
 name: Preview Stats
 
+env:
+  RUNNER_LABEL: 'Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)'
+
 on:
   workflow_dispatch:
 
@@ -113,8 +116,6 @@ jobs:
 
       - name: Save CI stats
         run: pnpm --filter @framework-tracker/stats-generator save:ci-stats $GITHUB_WORKSPACE/artifacts
-        env:
-          RUNNER_LABEL: ubuntu-latest
 
       - name: Collect stats for docs
         run: pnpm collect:stats

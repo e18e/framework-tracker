@@ -13,6 +13,14 @@ starting a framework and the runtime cost of serving and hydrating a comparable
 app. Timing results are run multiple times and averaged, and generated JSON is
 published into the docs package.
 
+Benchmarks run on Depot GitHub Actions runners using
+[`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
+which Depot documents as an Intel runner with 2 CPUs, 8 GB RAM, 100 GB disk,
+and a 2 GB disk accelerator. Browser rendering benchmarks run directly on the
+Depot runner host and use the host Chrome installation rather than a job-level
+browser container. The generated runtime stats record the Chrome version used
+for browser rendering benchmarks.
+
 ## Dev Time
 
 Dev Time measurements use the repository's `starter-*` packages. These projects

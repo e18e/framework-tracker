@@ -55,6 +55,7 @@ const devtimeCollection = defineCollection({
       .optional(),
     timingMeasuredAt: z.string(),
     runner: z.string(),
+    browserVersion: z.string().optional(),
     frameworkVersion: z.string().optional(),
   }),
 })
@@ -124,6 +125,10 @@ const runtimeCollection = defineCollection({
         runs: z.number(),
       })
       .optional(),
+    timingMeasuredAt: z.string().optional(),
+    runner: z.string().optional(),
+    browserVersion: z.string().optional(),
+    frameworkVersion: z.string().optional(),
   }),
 })
 

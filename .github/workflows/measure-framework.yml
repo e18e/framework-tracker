@@ -1,5 +1,8 @@
 name: Measure Framework
 
+env:
+  RUNNER_LABEL: 'Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)'
+
 on:
   workflow_call:
     inputs:
@@ -169,8 +172,6 @@ jobs:
 
       - name: Run SSR request throughput benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:ssr-request-throughput ${{ matrix.framework.package }}
-        env:
-          RUNNER_LABEL: ubuntu-latest
 
       - name: Upload SSR request throughput stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -249,8 +250,6 @@ jobs:
 
       - name: Run SSR load benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:ssr-load ${{ matrix.framework.package }}
-        env:
-          RUNNER_LABEL: ubuntu-latest
 
       - name: Upload SSR load stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -263,9 +262,6 @@ jobs:
   measure-client-side-rendered:
     if: inputs.client-side-rendered-matrix != '[]'
     runs-on: depot-ubuntu-24.04
-    container:
-      image: mcr.microsoft.com/playwright:v1.49.0-noble
-      options: --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -294,12 +290,11 @@ jobs:
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm build
 
+      - name: Verify runner Chrome
+        run: google-chrome --version
+
       - name: Run client-side rendered benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:client-side-rendered ${{ matrix.framework.package }}
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-          RUNNER_LABEL: ubuntu-latest
 
       - name: Upload client-side rendered stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -312,9 +307,6 @@ jobs:
   measure-server-side-rendered:
     if: inputs.server-side-rendered-matrix != '[]'
     runs-on: depot-ubuntu-24.04
-    container:
-      image: mcr.microsoft.com/playwright:v1.49.0-noble
-      options: --ipc=host
     strategy:
       fail-fast: false
       matrix:
@@ -343,12 +335,11 @@ jobs:
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm build
 
+      - name: Verify runner Chrome
+        run: google-chrome --version
+
       - name: Run server-side rendered benchmark
         run: pnpm --filter @framework-tracker/stats-generator run:server-side-rendered ${{ matrix.framework.package }}
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
-          RUNNER_LABEL: ubuntu-latest
 
       - name: Upload server-side rendered stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

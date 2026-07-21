@@ -14,10 +14,15 @@ function getVersionSortOrder(versions: string[]) {
   return new Map(versions.map((version, index) => [version, index]))
 }
 
+function compareVersionLabels(a: string, b: string) {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+}
+
 function getVersionedStats<
   T extends { package: string; frameworkVersion?: string },
->(entries: Array<{ data: T }>, packageName: string, versions: string[]) {
-  const versionSortOrder = getVersionSortOrder(versions)
+>(entries: Array<{ data: T }>, packageName: string, versions?: string[]) {
+  const versionSortOrder =
+    versions != null ? getVersionSortOrder(versions) : undefined
 
   return entries
     .map((entry) => entry.data)
@@ -25,25 +30,27 @@ function getVersionedStats<
       (entry) =>
         entry.package === packageName &&
         entry.frameworkVersion != null &&
-        versionSortOrder.has(entry.frameworkVersion),
+        (versionSortOrder == null ||
+          versionSortOrder.has(entry.frameworkVersion)),
     )
-    .sort(
-      (a, b) =>
-        versionSortOrder.get(a.frameworkVersion!)! -
-        versionSortOrder.get(b.frameworkVersion!)!,
+    .sort((a, b) =>
+      versionSortOrder != null
+        ? versionSortOrder.get(a.frameworkVersion!)! -
+          versionSortOrder.get(b.frameworkVersion!)!
+        : compareVersionLabels(a.frameworkVersion!, b.frameworkVersion!),
     )
 }
 
 export function getStarterVersionStats(
   packageName: string,
-  versions: string[],
+  versions?: string[],
 ): DevtimeVersionData[] {
   return getVersionedStats(devtimeVersionEntries, packageName, versions)
 }
 
 export function getRuntimeVersionStats(
   packageName: string,
-  versions: string[],
+  versions?: string[],
 ): RuntimeVersionData[] {
   return getVersionedStats(runtimeVersionEntries, packageName, versions)
 }

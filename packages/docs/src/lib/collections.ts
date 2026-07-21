@@ -102,7 +102,7 @@ function getSSRLoadLatencyStage(framework: RuntimeData, workers: number) {
 
 function getSSRLoadChartData(
   workers: number,
-  percentile: 'p90LatencyMs' | 'p99LatencyMs',
+  percentile: 'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs',
 ) {
   return runtimeEntries
     .map((entry) => entry.data)
@@ -248,6 +248,18 @@ export const chartSSRLoadWorker50P90LatencyData = getSSRLoadChartData(
 export const chartSSRLoadWorker100P90LatencyData = getSSRLoadChartData(
   100,
   'p90LatencyMs',
+)
+export const chartSSRLoadWorker25P75LatencyData = getSSRLoadChartData(
+  25,
+  'p75LatencyMs',
+)
+export const chartSSRLoadWorker50P75LatencyData = getSSRLoadChartData(
+  50,
+  'p75LatencyMs',
+)
+export const chartSSRLoadWorker100P75LatencyData = getSSRLoadChartData(
+  100,
+  'p75LatencyMs',
 )
 
 export const chartServerSideRenderedFPData = runtimeEntries

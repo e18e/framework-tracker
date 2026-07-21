@@ -9,23 +9,23 @@ const { versions } = Astro.props
 ---
 
 <VersionLineChart
-  title="SSR Request Throughput"
+  title="Ops/sec"
   versions={versions}
   metric="ssrRequestThroughputTests.opsPerSec"
   valueFormat="count"
-  yAxisLabel="Ops/sec"
+  yAxisLabel="Operations per second"
 />
 <VersionLineChart
-  title="SSR Median Latency"
+  title="Body Size"
+  versions={versions}
+  metric="ssrRequestThroughputTests.bodySizeKb"
+  valueFormat="kb"
+  yAxisLabel="Kilobytes"
+/>
+<VersionLineChart
+  title="Median Latency"
   versions={versions}
   metric="ssrRequestThroughputTests.medianLatencyMs"
   valueFormat="ms"
   yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="SSR Body Size"
-  versions={versions}
-  metric="ssrRequestThroughputTests.bodySizeKb"
-  valueFormat="kb"
-  yAxisLabel="KB"
 />

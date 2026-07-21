@@ -20,11 +20,7 @@ function compareVersionLabels(a: string, b: string) {
 
 function getVersionedStats<
   T extends { package: string; frameworkVersion?: string },
->(
-  entries: Array<{ data: T }>,
-  packageName: string,
-  versions?: string[],
-) {
+>(entries: Array<{ data: T }>, packageName: string, versions?: string[]) {
   const versionSortOrder =
     versions != null ? getVersionSortOrder(versions) : undefined
 

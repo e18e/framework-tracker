@@ -9,9 +9,11 @@ This project aims to provide objective, data-driven comparisons of meta-framewor
 - **Dev Time Performance**: Dependencies, build times, CI/CD performance, and developer experience
 - **Runtime Performance**: Core Web Vitals, bundle sizes, hydration strategies, and end-user experience
 
+Methodology and tests can be found inside the docs. You can run locally with `pnpm run dev:docs` or find the deployed version at [framework-tracker](https://framework-tracker.pages.dev)
+
 ## Getting Involved
 
-We welcome contributions from the community! Whether you're interested in adding new frameworks, improving existing metrics, or enhancing the documentation site, your help is appreciated. Check out [CONTRIBUTING.md](./CONTRIBUTING.md) for more details on how to get started, our current roadmap, areas where we need help, and how the metrics collection process works.
+We welcome contributions from the community! Whether you're interested in adding new frameworks, improving existing metrics, or enhancing the documentation site, your help is appreciated. Check out [CONTRIBUTING.md](./CONTRIBUTING.md) for more details on how to get started, our current roadmap, project structure, data flows, areas where we need help, and how the metrics collection process works.
 
 ## Data and Metrics
 

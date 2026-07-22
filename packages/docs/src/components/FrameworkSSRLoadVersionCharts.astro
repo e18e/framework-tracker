@@ -9,57 +9,15 @@ const { versions } = Astro.props
 ---
 
 <VersionLineChart
-  title="Peak Requests Per Second"
-  versions={versions}
-  metric="ssrLoadTests.peakRequestsPerSec"
-  valueFormat="count"
-  yAxisLabel="Req/s"
-/>
-<VersionLineChart
-  title="Peak Connections"
-  versions={versions}
-  metric="ssrLoadTests.peakWorkers"
-  valueFormat="count"
-  yAxisLabel="Connections"
-/>
-<VersionLineChart
-  title="Peak Average Latency"
-  versions={versions}
-  metric="ssrLoadTests.peakAvgLatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="Peak P90 Latency"
-  versions={versions}
-  metric="ssrLoadTests.peakP90LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="Peak P99 Latency"
-  versions={versions}
-  metric="ssrLoadTests.peakP99LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
   title="Total Requests"
   versions={versions}
   metric="ssrLoadTests.totalRequests"
   valueFormat="count"
   yAxisLabel="Requests"
 />
+
 <VersionLineChart
-  title="P90 Latency @ 25 Connections"
-  versions={versions}
-  stageWorkers={25}
-  stageMetric="p90LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P99 Latency @ 25 Connections"
+  title="P99 Latency at 25 Connections"
   versions={versions}
   stageWorkers={25}
   stageMetric="p99LatencyMs"
@@ -67,15 +25,7 @@ const { versions } = Astro.props
   yAxisLabel="Milliseconds"
 />
 <VersionLineChart
-  title="P90 Latency @ 50 Connections"
-  versions={versions}
-  stageWorkers={50}
-  stageMetric="p90LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P99 Latency @ 50 Connections"
+  title="P99 Latency at 50 Connections"
   versions={versions}
   stageWorkers={50}
   stageMetric="p99LatencyMs"
@@ -83,18 +33,60 @@ const { versions } = Astro.props
   yAxisLabel="Milliseconds"
 />
 <VersionLineChart
-  title="P90 Latency @ 100 Connections"
+  title="P99 Latency at 100 Connections"
+  versions={versions}
+  stageWorkers={100}
+  stageMetric="p99LatencyMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+
+<VersionLineChart
+  title="P90 Latency at 25 Connections"
+  versions={versions}
+  stageWorkers={25}
+  stageMetric="p90LatencyMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="P90 Latency at 50 Connections"
+  versions={versions}
+  stageWorkers={50}
+  stageMetric="p90LatencyMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="P90 Latency at 100 Connections"
   versions={versions}
   stageWorkers={100}
   stageMetric="p90LatencyMs"
   valueFormat="ms"
   yAxisLabel="Milliseconds"
 />
+
 <VersionLineChart
-  title="P99 Latency @ 100 Connections"
+  title="P75 Latency at 25 Connections"
+  versions={versions}
+  stageWorkers={25}
+  stageMetric="p75LatencyMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="P75 Latency at 50 Connections"
+  versions={versions}
+  stageWorkers={50}
+  stageMetric="p75LatencyMs"
+  valueFormat="ms"
+  yAxisLabel="Milliseconds"
+/>
+<VersionLineChart
+  title="P75 Latency at 100 Connections"
   versions={versions}
   stageWorkers={100}
-  stageMetric="p99LatencyMs"
+  stageMetric="p75LatencyMs"
   valueFormat="ms"
   yAxisLabel="Milliseconds"
 />

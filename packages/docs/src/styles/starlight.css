@@ -18,20 +18,17 @@
   --ft-chart-grid: color-mix(in srgb, var(--sl-color-gray-4), transparent 45%);
 }
 
-.main-pane .sl-container {
-  max-width: 1120px;
+:root {
+  --sl-content-width: 70rem;
+  --sl-sidebar-width: 16rem;
 }
 
-.sl-markdown-content :where(.full-width, .wrapper) {
-  max-width: none;
+.sl-markdown-content :where(p, blockquote, li) {
+  max-width: 45rem;
 }
 
 .sl-markdown-content table {
   display: table;
-}
-
-.benchmark-page {
-  width: 100%;
 }
 
 .depot {
@@ -49,4 +46,8 @@
 .depot svg {
   height: 42px;
   width: auto;
+}
+
+.depot p:empty {
+  display: none;
 }

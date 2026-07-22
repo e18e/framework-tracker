@@ -5,7 +5,7 @@ import starlight from '@astrojs/starlight'
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://framework-tracker.pages.dev',
+  site: 'https://frameworks.e18e.dev',
   integrations: [
     starlight({
       title: 'Framework Tracker',

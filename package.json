@@ -11,6 +11,8 @@
     "dev:docs": "pnpm --filter @framework-tracker/docs dev",
     "build:docs": "pnpm --filter @framework-tracker/docs build",
     "preview:docs": "pnpm --filter @framework-tracker/docs preview",
+    "deploy:prod": "pnpm build:docs && wrangler deploy",
+    "deploy:preview": "pnpm build:docs && wrangler versions upload",
     "collect:stats": "pnpm --filter @framework-tracker/stats-generator collect",
     "lint": "pnpm -r --parallel lint",
     "lint:fix": "pnpm -r --parallel lint:fix",
@@ -32,6 +34,7 @@
     "prettier": "^3.9.4",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.62.1"
+    "typescript-eslint": "^8.62.1",
+    "wrangler": "^4.113.0"
   }
 }

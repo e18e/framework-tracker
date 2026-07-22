@@ -15,7 +15,6 @@ export default defineConfig({
       customCss: ['./src/styles/starlight.css'],
       pagefind: false,
       disable404Route: true,
-      tableOfContents: false,
       sidebar: [
         { label: 'Overview', link: '/' },
         { label: 'Dev Time', link: '/dev-time/' },

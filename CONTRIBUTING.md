@@ -35,7 +35,7 @@ framework-tracker/
 ├── app-*/           # Metaframeworks configured for run time tests
 ```
 
-Any project marked with `starter` in the name should be a direct setup of the meta-framework's recommended default configuration. For most of these, we have followed the official getting started guide and used the CLI to set up the project with the recommended path. We often use these to measure dev time performance metrics like build times, dependency counts, and CI performance. It's hard to compare meta-frameworks, so sometimes it's easier to compare the default setup of each framework, as this is what most users will start with and gives a good baseline for comparison. Full details on each `starter` set up can be found in our docs site [methodologies page](https://framework-tracker.pages.dev/methodology/#project-setups).
+Any project marked with `starter` in the name should be a direct setup of the meta-framework's recommended default configuration. For most of these, we have followed the official getting started guide and used the CLI to set up the project with the recommended path. We often use these to measure dev time performance metrics like build times, dependency counts, and CI performance. It's hard to compare meta-frameworks, so sometimes it's easier to compare the default setup of each framework, as this is what most users will start with and gives a good baseline for comparison. Full details on each `starter` set up can be found in our docs site [methodologies page](https://frameworks.e18e.dev/methodology/#project-setups).
 
 Any project marked with `app` in the name is a more complex setup on which we often run runtime performance tests. These are often more customized and have more features added on top of the default starter set up. This is because we want to test the performance of each framework under more real world conditions and with more complex features implemented. For example, we might add a blog page with dynamic routing, or a dashboard page with client side interactivity. This allows us to test the performance of each framework under more realistic conditions and see how they perform as the complexity of the app increases.
 
@@ -53,7 +53,7 @@ The current flow for collecting metrics is as follows:
 
 1. A PR is merged which triggers the CI Pipeline: `generate-stats` which uses functions from `packages/stats-generator` to run measurements for each framework
 2. The CI Pipeline reads the framework config from `.github/frameworks.json` and runs measurements based on each framework's `app` and `starter` config
-3. All test currently run on Depot you can find the full details in our [Methodology intro](https://framework-tracker.pages.dev/methodology/#project-setups).
+3. All test currently run on Depot you can find the full details in our [Methodology intro](https://frameworks.e18e.dev/methodology/#project-setups).
 4. The collected metrics are passed into the final step which runs the scripts from `packages/stats-generator`
 5. The `stats-generator` reads `frameworks.json` and generates stats only for the configured measurements
 6. Stats are then saved into each package and passed into `packages/docs`

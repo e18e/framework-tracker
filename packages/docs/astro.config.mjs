@@ -9,6 +9,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Framework Tracker',
+      logo: { src: './src/assets/e18e.svg', alt: 'e18e' },
       description:
         'Track and compare framework performance metrics across popular meta-frameworks.',
       favicon: '/favicon.svg',

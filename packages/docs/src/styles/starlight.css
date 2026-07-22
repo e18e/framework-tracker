@@ -37,6 +37,79 @@
   }
 }
 
+/* Use the same background colour for sidebar and navigation as rest of page. */
+:root {
+  --sl-color-bg-nav: var(--sl-color-bg);
+  --sl-color-bg-sidebar: var(--sl-color-bg);
+}
+/* Remove borders around various UI elements. */
+.header {
+  border-bottom: 0;
+}
+.sidebar-pane {
+  border-inline-end: 0;
+}
+.right-sidebar {
+  border-inline-start: 0;
+}
+mobile-starlight-toc summary {
+  border-bottom: 0;
+}
+.content-panel {
+  padding-block: 0.5rem;
+  & + .content-panel {
+    border-top: 0;
+  }
+}
+
+/* Use less prominent current-page styling in sidebar navigation. */
+.sidebar-content [aria-current='page'] {
+  color: var(--sl-color-text-accent);
+  background-color: transparent;
+}
+
+/* Make table of contents heading smaller. */
+.right-sidebar h2 {
+  font-size: var(--sl-text-sm);
+}
+/* Align left edge of table of contents with “On this page” heading. */
+.right-sidebar-panel a {
+  --pad-inline: 0px;
+}
+
+/* Customize mobile table of contents display. */
+mobile-starlight-toc {
+  details {
+    height: var(--sl-mobile-toc-height);
+  }
+  [open]::details-content {
+    width: max-content;
+    min-width: min(17rem, 100%);
+  }
+  [open] .toggle {
+    background-color: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    border-color: var(--sl-color-gray-5);
+  }
+  .dropdown {
+    margin-inline: 1rem;
+    margin-bottom: -0.5rem;
+    border-color: var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background-color: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  }
+  .isMobile a {
+    --pad-inline: 0.75rem;
+    border-top: 0;
+    padding-block: 0.4375rem;
+  }
+  .isMobile > :first-child a {
+    padding-top: 0.625rem;
+  }
+  .isMobile > :last-child a {
+    padding-bottom: 0.625rem;
+  }
+}
+
 .sl-markdown-content :where(p, blockquote, li) {
   max-width: 45rem;
 }

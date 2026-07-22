@@ -23,6 +23,13 @@ export default defineConfig({
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
       ],
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/e18e/framework-tracker',
+        },
+      ],
     }),
     mdx(),
   ],

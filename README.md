@@ -9,7 +9,7 @@ This project aims to provide objective, data-driven comparisons of meta-framewor
 - **Dev Time Performance**: Dependencies, build times, CI/CD performance, and developer experience
 - **Runtime Performance**: Core Web Vitals, bundle sizes, hydration strategies, and end-user experience
 
-Methodology and tests can be found inside the docs. You can run locally with `pnpm run dev:docs` or find the deployed version at [framework-tracker](https://framework-tracker.pages.dev)
+Methodology and tests can be found inside the docs. You can run locally with `pnpm run dev:docs` or find the deployed version at [framework-tracker](https://frameworks.e18e.dev)
 
 ## Getting Involved
 

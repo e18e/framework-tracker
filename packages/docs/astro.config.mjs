@@ -9,6 +9,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Framework Tracker',
+      logo: { src: './src/assets/e18e.svg', alt: 'e18e' },
       description:
         'Track and compare framework performance metrics across popular meta-frameworks.',
       favicon: '/favicon.svg',
@@ -22,6 +23,13 @@ export default defineConfig({
         { label: 'All Frameworks', link: '/all-frameworks/' },
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
+      ],
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/e18e/framework-tracker',
+        },
       ],
     }),
     mdx(),

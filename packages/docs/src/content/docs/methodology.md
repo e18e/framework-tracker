@@ -138,19 +138,35 @@ throughput, and load behavior for comparable production apps.
 - Interaction to Next Paint is measured by clicking the first row's detail link
   and waiting for the detail view.
 - Benchmarks run 5 times by default and average successful metrics.
-- Client-side rendered tests use each framework's normal production build
-  because SPA-only build modes are not supported consistently across the
-  compared frameworks.
+- These are route-based client-side rendering tests, not full-app SPA mode
+  tests. Each app uses its normal production build and configures the benchmark
+  routes so the measured table and detail content are rendered in the browser.
+- Full-app SPA modes are not supported consistently across the compared
+  frameworks. Many of the frameworks are designed around hybrid or
+  server-capable production builds, so forcing an SPA-specific build would also
+  introduce different deployment models and framework-specific configuration.
+- A framework may statically generate or prerender an application shell,
+  including an SPA fallback shell, provided the generated HTML does not contain
+  the measured table, UUID data, or detail content. Shell delivery may therefore
+  use the framework's normal static or server path, while all measured content
+  must be generated and rendered in the browser.
 - Next.js wraps the client-side rendered table in a `dynamic` import with
-  `ssr: false` to prevent build-time prerendering.
-- TanStack Start, Nuxt, SvelteKit, and SolidStart disable SSR per route.
+  `ssr: false` to prevent the table from being rendered into the initial HTML.
+- TanStack Start, Nuxt, and SvelteKit disable SSR for the benchmark routes.
+- SvelteKit prerenders the main route's empty application shell so adapter-node
+  can serve it as a static asset. The dynamic detail route remains
+  non-prerendered because its IDs are generated in the browser.
+- SolidStart uses `clientOnly` components for the table and detail content.
 - React Router uses route-level `clientLoader` functions with `HydrateFallback`
   so the client-rendered routes are not server-rendered.
 - Astro's benchmark table and detail components are React islands rendered with
   `client:only="react"`. Astro's `ClientRouter` is not used for this test
   because it changes navigation behavior rather than making components
-  client-only. Using `client:only` is often considered an anti pattern in Astro but needed to make the tests fair and measure just client side performance.
-- We also chose React for Astro as its the currently the most popular. 23% of projects according to the Astro team as of writing this (15/07/2026).
+  client-only. Using `client:only` is generally discouraged for typical Astro
+  sites, but it keeps the measured content client-rendered for this comparison.
+- The Astro islands use React because it was Astro's most popular UI framework
+  integration at the time this methodology was written, representing 23% of
+  projects according to the Astro team (15/07/2026).
 
 ### Server Side Rendered Tests
 

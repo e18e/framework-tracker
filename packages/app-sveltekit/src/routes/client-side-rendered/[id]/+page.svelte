@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { page } from '$app/state'
+  import type { PageProps } from './$types'
 
-  const id = $derived(page.params.id)
+  let { params }: PageProps = $props()
 </script>
 
-<p id="detail-id">{id}</p>
+<p id="detail-id">{params.id}</p>

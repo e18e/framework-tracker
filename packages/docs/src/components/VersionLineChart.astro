@@ -3,6 +3,7 @@ import type { ChartDatum } from '../lib/types'
 
 type ValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
 type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
+type SeriesStyle = 'line' | 'points'
 
 interface Props {
   title: string
@@ -10,6 +11,7 @@ interface Props {
   versions?: unknown[]
   metric?: string
   transform?: ValueTransform
+  seriesStyle?: SeriesStyle
   stageWorkers?: number
   stageMetric?: string
   valueFormat: ValueFormat
@@ -25,6 +27,7 @@ const {
   versions = [],
   metric,
   transform,
+  seriesStyle = 'line',
   stageWorkers,
   stageMetric,
   valueFormat,
@@ -88,6 +91,7 @@ const chartData = getVersionChartData().map((d) => ({
 }))
 const chartPayload = JSON.stringify({
   data: chartData,
+  seriesStyle,
   valueFormat,
   yAxisLabel,
 })
@@ -149,7 +153,7 @@ const hasChartData = chartData.length > 0
     PointElement,
     Tooltip,
   } from 'chart.js'
-  import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
+  import type { ChartDatum, VersionLineChartPayload } from '../lib/types'
 
   Chart.register(
     CategoryScale,
@@ -179,20 +183,33 @@ const hasChartData = chartData.length > 0
     return `${value.toFixed(2)} ms`
   }
 
+  function formatAxisTick(
+    value: string | number,
+    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
+  ): string {
+    const numericValue = Number(value)
+
+    if (!Number.isFinite(numericValue)) return ''
+    if (format !== 'count') return formatValue(numericValue, format)
+    if (!Number.isInteger(numericValue)) return ''
+
+    return String(numericValue)
+  }
+
   function getCssVar(element: Element, name: string, fallback: string) {
     return getComputedStyle(element).getPropertyValue(name).trim() || fallback
   }
 
   function getData(wrapper: HTMLElement): {
-    payload: ComparisonChartPayload
+    payload: VersionLineChartPayload
     data: ChartDatum[]
   } | null {
     const dataAttr = wrapper.dataset.versionLine
     if (!dataAttr) return null
 
-    let payload: ComparisonChartPayload
+    let payload: VersionLineChartPayload
     try {
-      payload = JSON.parse(dataAttr) as ComparisonChartPayload
+      payload = JSON.parse(dataAttr) as VersionLineChartPayload
     } catch (e) {
       console.warn('[VersionLineChart] Invalid chart data:', e)
       return null
@@ -212,6 +229,9 @@ const hasChartData = chartData.length > 0
     const { payload, data } = result
     const values = data.map((d) => d.value)
     const max = Math.max(...values)
+    const seriesStyle = payload.seriesStyle ?? 'line'
+    const suggestedMax =
+      payload.valueFormat === 'count' ? Math.max(1, Math.ceil(max)) : max * 1.05
     const root = document.documentElement
     const textColor = getCssVar(root, '--ft-text', TEXT_COLOR_FALLBACK)
     const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
@@ -235,9 +255,10 @@ const hasChartData = chartData.length > 0
             borderWidth: 2,
             pointBackgroundColor: pointColor,
             pointBorderColor: pointColor,
-            pointHoverRadius: 6,
-            pointRadius: 4,
-            tension: 0.25,
+            pointHoverRadius: seriesStyle === 'points' ? 7 : 6,
+            pointRadius: seriesStyle === 'points' ? 5 : 4,
+            showLine: seriesStyle === 'line',
+            tension: seriesStyle === 'line' ? 0.25 : 0,
           },
         ],
       },
@@ -266,7 +287,7 @@ const hasChartData = chartData.length > 0
           },
           y: {
             beginAtZero: true,
-            suggestedMax: max * 1.05,
+            suggestedMax,
             border: { color: gridColor },
             grid: { color: gridColor },
             title: {
@@ -278,10 +299,8 @@ const hasChartData = chartData.length > 0
             ticks: {
               color: mutedColor,
               font: { size: 12 },
-              callback: (value) =>
-                payload.valueFormat === 'count'
-                  ? String(Math.round(Number(value)))
-                  : formatValue(Number(value), payload.valueFormat),
+              precision: payload.valueFormat === 'count' ? 0 : undefined,
+              callback: (value) => formatAxisTick(value, payload.valueFormat),
             },
           },
         },

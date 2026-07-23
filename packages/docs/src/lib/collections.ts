@@ -361,7 +361,7 @@ export const coreJsTableData = starterStats.map((f) => {
   }
 })
 
-function formatBaselineStatus(
+export function formatBaselineStatus(
   status: 'high' | 'low' | false | null | undefined,
   featureCount: number | undefined,
 ) {
@@ -372,7 +372,7 @@ function formatBaselineStatus(
   return '—'
 }
 
-function formatBaselineReason(
+export function formatBaselineReason(
   reason: string | string[] | null | undefined,
 ): string {
   if (Array.isArray(reason)) return reason.length > 0 ? reason.join(', ') : '—'

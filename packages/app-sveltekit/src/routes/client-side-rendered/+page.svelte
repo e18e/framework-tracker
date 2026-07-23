@@ -1,15 +1,10 @@
 <script lang="ts">
-  type Entry = { id: string; name: string }
-
-  const entries: Entry[] = Array.from({ length: 1000 }, () => ({
-    id: crypto.randomUUID(),
-    name: crypto.randomUUID(),
-  }))
+  let { data } = $props()
 </script>
 
 <table>
   <tbody>
-    {#each entries as entry (entry.id)}
+    {#each data.entries as entry (entry.id)}
       <tr>
         <td>{entry.id}</td>
         <td>{entry.name}</td>

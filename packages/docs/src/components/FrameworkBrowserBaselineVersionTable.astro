@@ -1,0 +1,56 @@
+---
+import { formatBaselineReason, formatBaselineStatus } from '../lib/collections'
+import StatsTable from './StatsTable.astro'
+
+interface BrowserBaselineTests {
+  baselineStatus?: 'high' | 'low' | false | null
+  baselineYear?: number | null
+  baselineReason?: string | string[] | null
+  baselineFeatureCount?: number
+}
+
+interface VersionStats {
+  frameworkVersion?: string
+  browserBaselineTests?: BrowserBaselineTests
+}
+
+interface Props {
+  versions: VersionStats[]
+}
+
+const { versions } = Astro.props
+
+const columns = [
+  { key: 'version', header: 'Version', nameCell: true },
+  { key: 'status', header: 'Baseline' },
+  { key: 'feature', header: 'Feature' },
+  { key: 'year', header: 'Year' },
+  { key: 'features', header: 'Features' },
+]
+
+const data = versions.flatMap((version) => {
+  const baseline = version.browserBaselineTests
+  if (baseline == null) return []
+
+  const featureCount = baseline.baselineFeatureCount
+
+  return {
+    version: version.frameworkVersion ?? 'Unknown',
+    status: formatBaselineStatus(baseline.baselineStatus, featureCount),
+    feature: formatBaselineReason(baseline.baselineReason),
+    year:
+      featureCount === 0
+        ? '—'
+        : baseline.baselineYear != null
+          ? String(baseline.baselineYear)
+          : '—',
+    features: featureCount != null ? featureCount.toLocaleString() : '—',
+  }
+})
+---
+
+<StatsTable
+  label="Browser baseline by framework version"
+  columns={columns}
+  data={data}
+/>

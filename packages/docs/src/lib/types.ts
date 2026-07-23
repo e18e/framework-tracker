@@ -9,3 +9,7 @@ export interface ComparisonChartPayload {
   valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
   yAxisLabel: string
 }
+
+export interface VersionLineChartPayload extends ComparisonChartPayload {
+  seriesStyle?: 'line' | 'points'
+}

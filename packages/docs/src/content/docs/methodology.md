@@ -160,6 +160,11 @@ throughput, and load behavior for comparable production apps.
   `/server-side-rendered`.
 - Interaction to Next Paint is measured by clicking the first row's detail link
   and waiting for `/server-side-rendered/:id`.
+- Detail links use each framework's default production navigation component or
+  idiomatic anchor behavior. Default meta-framework route prefetching or
+  preloading is allowed when it is part of the framework's default link
+  behavior, but the measured SSR routes are still rendered on demand rather than
+  converted to prerendered static output.
 - Benchmarks run 5 times by default and average successful metrics.
 - Astro keeps the default static output mode, but the measured
   `/server-side-rendered` route and its detail route use
@@ -199,6 +204,10 @@ throughput, and load behavior for comparable production apps.
   server.
 - The measured route is `/server-side-rendered`, using the same 1000-row UUID
   table as the SSR request throughput and browser rendering tests.
+- This route keeps the same framework link components or idiomatic anchors used
+  by the browser-rendered SSR test. The load test only makes HTTP requests to
+  the table route; it does not run a browser or click detail links, so
+  browser-only link prefetch behavior is not exercised during the load test.
 - Load is applied with [autocannon](https://github.com/mcollina/autocannon) in
   staged connection counts: 1, 5, 10, 25, 50, 100, and 200 concurrent
   connections.

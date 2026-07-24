@@ -1,7 +1,6 @@
 ---
-import type { ChartDatum } from '../lib/types'
+import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
-type ValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
 type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
 type SeriesStyle = 'line' | 'points'
 
@@ -14,7 +13,7 @@ interface Props {
   seriesStyle?: SeriesStyle
   stageWorkers?: number
   stageMetric?: string
-  valueFormat: ValueFormat
+  valueFormat: ChartValueFormat
   yAxisLabel: string
 }
 
@@ -153,7 +152,12 @@ const hasChartData = chartData.length > 0
     PointElement,
     Tooltip,
   } from 'chart.js'
-  import type { ChartDatum, VersionLineChartPayload } from '../lib/types'
+  import { formatChartValue } from '../lib/chart'
+  import type {
+    ChartDatum,
+    ChartValueFormat,
+    VersionLineChartPayload,
+  } from '../lib/types'
 
   Chart.register(
     CategoryScale,
@@ -172,25 +176,14 @@ const hasChartData = chartData.length > 0
   const MUTED_COLOR_FALLBACK = '#697586'
   const BORDER_COLOR_FALLBACK = '#d9dee7'
 
-  function formatValue(
-    value: number,
-    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
-  ): string {
-    if (format === 'count') return String(Math.round(value))
-    if (format === 'mb') return `${value.toFixed(2)} MB`
-    if (format === 'kb') return `${value.toFixed(2)} KB`
-    if (format === 's') return `${value.toFixed(2)}s`
-    return `${value.toFixed(2)} ms`
-  }
-
   function formatAxisTick(
     value: string | number,
-    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
+    format: ChartValueFormat,
   ): string {
     const numericValue = Number(value)
 
     if (!Number.isFinite(numericValue)) return ''
-    if (format !== 'count') return formatValue(numericValue, format)
+    if (format !== 'count') return formatChartValue(numericValue, format)
     if (!Number.isInteger(numericValue)) return ''
 
     return String(numericValue)
@@ -271,7 +264,7 @@ const hasChartData = chartData.length > 0
           tooltip: {
             callbacks: {
               label: (context) =>
-                formatValue(Number(context.raw ?? 0), payload.valueFormat),
+                formatChartValue(Number(context.raw ?? 0), payload.valueFormat),
             },
           },
         },

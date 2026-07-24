@@ -1,3 +1,5 @@
+export type ChartValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
+
 export interface ChartDatum {
   name: string
   value: number
@@ -6,7 +8,7 @@ export interface ChartDatum {
 
 export interface ComparisonChartPayload {
   data: ChartDatum[]
-  valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
+  valueFormat: ChartValueFormat
   yAxisLabel: string
 }
 

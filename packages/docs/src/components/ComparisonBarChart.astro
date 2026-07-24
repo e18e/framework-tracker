@@ -121,7 +121,9 @@ const chartPayload = JSON.stringify({
   const MUTED_COLOR_FALLBACK = '#697586'
   const LOGO_SIZE = 20
   const BAR_RADIUS = 8
-  const MEDIAN_LABEL_PADDING = 24
+  const MEDIAN_LABEL_PADDING = 20
+  const LOGO_AXIS_PADDING = LOGO_SIZE + 12
+  const VALUE_LABEL_PADDING = 16
   const MEDIAN_COLORS = ['#ec8f5e', '#f2ca60', '#bece57', '#7bb560']
   const FRAMEWORK_LOGO_SOURCES: Record<string, string> = {
     Astro: '/framework-logos/astro.svg',
@@ -280,10 +282,10 @@ const chartPayload = JSON.stringify({
     mutedColor: string,
     valueOnBarColor: string,
   ) {
-    const { left, right } = chart.chartArea
+    const { left } = chart.chartArea
     const label = formatChartValue(value, valueFormat)
     const labelMinimumX = left + 12
-    const labelRightLimit = right + 12
+    const labelRightLimit = chart.width - 8
     const outsideLabelX = Math.max(
       labelMinimumX,
       Math.min(x + 10, labelRightLimit),
@@ -402,7 +404,11 @@ const chartPayload = JSON.stringify({
         animation: { duration: 500 },
         indexAxis: 'y',
         layout: {
-          padding: { top: MEDIAN_LABEL_PADDING, right: 56 },
+          padding: {
+            top: MEDIAN_LABEL_PADDING,
+            right: VALUE_LABEL_PADDING,
+            left: LOGO_AXIS_PADDING,
+          },
         },
         maintainAspectRatio: false,
         responsive: true,
@@ -425,9 +431,7 @@ const chartPayload = JSON.stringify({
             border: { display: false },
             grid: { display: false },
             ticks: {
-              color: textColor,
-              font: { size: 13, weight: 600 },
-              padding: LOGO_SIZE + 12,
+              display: false,
             },
           },
         },

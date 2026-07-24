@@ -1,23 +1,32 @@
 ---
-import type { ChartDatum } from '../lib/types'
+import {
+  formatChartValue,
+  getComparisonChartHeight,
+} from '../lib/chart'
+import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 interface Props {
   title: string
   description?: string
   data: ChartDatum[]
-  valueFormat: 'count' | 'mb' | 'kb' | 'ms' | 's'
+  valueFormat: ChartValueFormat
   yAxisLabel: string
 }
 
-const CHART_HEIGHT_PX = 400
-const MOBILE_CHART_HEIGHT_PX = 300
-
-const { title, description, data, valueFormat, yAxisLabel } = Astro.props
+const {
+  title,
+  description,
+  data,
+  valueFormat,
+  yAxisLabel,
+} = Astro.props
 const chartData = data.map((d) => ({
   name: String(d?.name ?? ''),
   value: Math.max(0, Number(d.value) || 0),
   focused: d.focused,
 }))
+const chartHeight = getComparisonChartHeight(chartData.length)
+
 const chartPayload = JSON.stringify({
   data: chartData,
   valueFormat,
@@ -28,17 +37,46 @@ const chartPayload = JSON.stringify({
 <div class="comparison-chart">
   <h3 class="comparison-chart-title">{title}</h3>
   {description ? <p>{description}</p> : null}
-  <div class="comparison-chart-wrapper" data-comparison={chartPayload}>
-    <canvas aria-label={title} role="img">{title} chart</canvas>
+  <div
+    class="comparison-chart-wrapper"
+    data-comparison={chartPayload}
+    style={`--comparison-chart-height: ${chartHeight}px`}
+  >
+    <canvas
+      aria-label={`${title}. Horizontal bar chart; a data table follows.`}
+      role="img"
+    >
+      {title} chart
+    </canvas>
+    <div class="comparison-chart-data sr-only">
+      <table aria-label={`${title} data`}>
+        <caption>{title} data</caption>
+        <thead>
+          <tr>
+            <th scope="col">Framework</th>
+            <th scope="col">{yAxisLabel}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            chartData.map((datum) => (
+              <tr data-focused={datum.focused === false ? 'false' : 'true'}>
+                <th scope="row">{datum.name}</th>
+                <td>{formatChartValue(datum.value, valueFormat)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p>
+        The chart includes a dotted median reference line calculated from the
+        visible framework values.
+      </p>
+    </div>
   </div>
 </div>
 
-<style
-  define:vars={{
-    chartHeight: `${CHART_HEIGHT_PX}px`,
-    mobileChartHeight: `${MOBILE_CHART_HEIGHT_PX}px`,
-  }}
->
+<style>
   .comparison-chart {
     width: 100%;
     margin-bottom: 2em;
@@ -52,14 +90,13 @@ const chartPayload = JSON.stringify({
     position: relative;
     width: 100%;
     max-width: 1000px;
-    height: var(--chartHeight);
+    height: var(--comparison-chart-height);
     margin-inline: auto;
   }
 
-  @media (max-width: 768px) {
-    .comparison-chart-wrapper {
-      height: var(--mobileChartHeight);
-    }
+  :global([data-framework-scope='focused'])
+    .comparison-chart-data tr[data-focused='false'] {
+    display: none;
   }
 </style>
 
@@ -73,6 +110,10 @@ const chartPayload = JSON.stringify({
     LinearScale,
     Tooltip,
   } from 'chart.js'
+  import {
+    formatChartValue,
+    getComparisonChartHeight,
+  } from '../lib/chart'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
 
   Chart.register(
@@ -87,37 +128,57 @@ const chartPayload = JSON.stringify({
   const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
   const BAR_COLOR = '#c0b9dd'
   const BAR_HOVER_COLOR = '#b2a8d8'
-  const MIN_BAR_LENGTH = 4
   const TEXT_COLOR_FALLBACK = '#1f2933'
   const MUTED_COLOR_FALLBACK = '#697586'
-  const BORDER_COLOR_FALLBACK = '#d9dee7'
-
-  function formatValue(
-    value: number,
-    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
-  ): string {
-    if (format === 'count') return String(Math.round(value))
-    if (format === 'mb') return `${value.toFixed(2)} MB`
-    if (format === 'kb') return `${value.toFixed(2)} KB`
-    if (format === 's') return `${value.toFixed(2)}s`
-    return `${value.toFixed(2)} ms`
+  const LOGO_SIZE = 20
+  const BAR_RADIUS = 8
+  const MEDIAN_LABEL_PADDING = 24
+  const MEDIAN_COLORS = ['#ec8f5e', '#f2ca60', '#bece57', '#7bb560']
+  const FRAMEWORK_LOGO_SOURCES: Record<string, string> = {
+    Astro: '/framework-logos/astro.svg',
+    'Baseline HTML': '/framework-logos/html5.svg',
+    Gatsby: '/framework-logos/gatsby.svg',
+    'Next.js': '/framework-logos/nextdotjs.svg',
+    Nuxt: '/framework-logos/nuxt.svg',
+    'Nuxt.js': '/framework-logos/nuxt.svg',
+    'React Router': '/framework-logos/reactrouter.svg',
+    SolidStart: '/framework-logos/solid.svg',
+    SvelteKit: '/framework-logos/svelte.svg',
+    'TanStack Start': '/tanstack-circle-logo.png',
+    WordPress: '/framework-logos/wordpress.svg',
   }
-
-  function formatAxisTick(
-    value: string | number,
-    format: 'count' | 'mb' | 'kb' | 'ms' | 's',
-  ): string {
-    const numericValue = Number(value)
-
-    if (!Number.isFinite(numericValue)) return ''
-    if (format !== 'count') return formatValue(numericValue, format)
-    if (!Number.isInteger(numericValue)) return ''
-
-    return String(numericValue)
-  }
+  const logoCache = new Map<string, Promise<HTMLImageElement | null>>()
 
   function getCssVar(element: Element, name: string, fallback: string) {
     return getComputedStyle(element).getPropertyValue(name).trim() || fallback
+  }
+
+  function getFrameworkLogoSource(name: string) {
+    if (
+      name === 'Next.js' &&
+      document.documentElement.dataset.theme !== 'light'
+    ) {
+      return '/framework-logos/nextdotjs-light.svg'
+    }
+
+    return FRAMEWORK_LOGO_SOURCES[name]
+  }
+
+  function loadFrameworkLogo(source: string | undefined) {
+    if (source == null) return Promise.resolve(null)
+
+    const cachedLogo = logoCache.get(source)
+    if (cachedLogo != null) return cachedLogo
+
+    const logo = new Image()
+    const loadPromise = new Promise<HTMLImageElement | null>((resolve) => {
+      logo.addEventListener('load', () => resolve(logo), { once: true })
+      logo.addEventListener('error', () => resolve(null), { once: true })
+    })
+
+    logo.src = source
+    logoCache.set(source, loadPromise)
+    return loadPromise
   }
 
   function getData(wrapper: HTMLElement): {
@@ -142,51 +203,218 @@ const chartPayload = JSON.stringify({
     return { payload, data }
   }
 
+  function getMedian(values: number[]) {
+    const sortedValues = [...values].sort((a, b) => a - b)
+    const middleIndex = Math.floor(sortedValues.length / 2)
+
+    return sortedValues.length % 2 === 0
+      ? (sortedValues[middleIndex - 1]! + sortedValues[middleIndex]!) / 2
+      : sortedValues[middleIndex]!
+  }
+
+  function drawMedianReference(
+    chart: Chart<'bar'>,
+    median: number,
+    valueFormat: ComparisonChartPayload['valueFormat'],
+    titleColor: string,
+  ) {
+    const { chartArea, ctx } = chart
+    const medianX = chart.scales.x!.getPixelForValue(median)
+    const gradient = ctx.createLinearGradient(
+      medianX,
+      chartArea.top,
+      medianX,
+      chartArea.bottom,
+    )
+
+    MEDIAN_COLORS.forEach((_, index) => {
+      gradient.addColorStop(
+        index / (MEDIAN_COLORS.length - 1),
+        MEDIAN_COLORS[MEDIAN_COLORS.length - 1 - index]!,
+      )
+    })
+
+    ctx.strokeStyle = gradient
+    ctx.lineWidth = 3
+    ctx.setLineDash([5, 4])
+    ctx.beginPath()
+    ctx.moveTo(medianX, chartArea.top)
+    ctx.lineTo(medianX, chartArea.bottom)
+    ctx.stroke()
+    ctx.setLineDash([])
+
+    const label = `Median: ${formatChartValue(median, valueFormat)}`
+    const labelWidth = ctx.measureText(label).width
+    const labelX = Math.max(
+      chartArea.left + labelWidth / 2,
+      Math.min(medianX, chartArea.right - labelWidth / 2),
+    )
+
+    ctx.fillStyle = titleColor
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'bottom'
+    ctx.fillText(label, labelX, chartArea.top - 6)
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'middle'
+  }
+
+  function drawAxisLogo(
+    ctx: CanvasRenderingContext2D,
+    chart: Chart<'bar'>,
+    logo: HTMLImageElement | null,
+    frameworkName: string,
+    y: number,
+    textColor: string,
+  ) {
+    const logoX = chart.chartArea.left - LOGO_SIZE - 8
+
+    if (logo != null) {
+      ctx.drawImage(logo, logoX, y - LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE)
+      return
+    }
+
+    ctx.save()
+    ctx.fillStyle = textColor
+    ctx.font = '700 12px system-ui, sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(frameworkName.slice(0, 1) || '?', logoX + 10, y)
+    ctx.restore()
+  }
+
+  function drawValueLabel(
+    ctx: CanvasRenderingContext2D,
+    chart: Chart<'bar'>,
+    value: number,
+    valueFormat: ComparisonChartPayload['valueFormat'],
+    x: number,
+    y: number,
+    mutedColor: string,
+    valueOnBarColor: string,
+  ) {
+    const { left, right } = chart.chartArea
+    const label = formatChartValue(value, valueFormat)
+    const labelMinimumX = left + 12
+    const labelRightLimit = right + 12
+    const outsideLabelX = Math.max(
+      labelMinimumX,
+      Math.min(x + 10, labelRightLimit),
+    )
+    const placeLabelInsideBar =
+      outsideLabelX + ctx.measureText(label).width > labelRightLimit
+
+    ctx.fillStyle = placeLabelInsideBar ? valueOnBarColor : mutedColor
+    ctx.textAlign = placeLabelInsideBar ? 'right' : 'left'
+    ctx.fillText(
+      label,
+      placeLabelInsideBar
+        ? Math.max(labelMinimumX, Math.min(x - 10, labelRightLimit))
+        : outsideLabelX,
+      y,
+    )
+  }
+
   function initChart(wrapper: HTMLElement) {
     const canvas = wrapper.querySelector('canvas')
     if (!canvas) return
-    const chartTitle = canvas.getAttribute('aria-label') ?? 'Comparison'
-
     const result = getData(wrapper)
     if (!result || result.data.length === 0) return
 
     const { payload, data } = result
+    wrapper.style.setProperty(
+      '--comparison-chart-height',
+      `${getComparisonChartHeight(data.length)}px`,
+    )
     const values = data.map((d) => d.value)
     const max = Math.max(...values)
-    const suggestedMax =
-      payload.valueFormat === 'count' ? Math.max(1, Math.ceil(max)) : max * 1.05
     const root = document.documentElement
     const textColor = getCssVar(root, '--ft-text', TEXT_COLOR_FALLBACK)
+    const titleColor = getCssVar(root, '--sl-color-text-accent', textColor)
     const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
-    const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
-    const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
+    const valueOnBarColor = getCssVar(
+      root,
+      '--ft-chart-value-on-bar',
+      '#ffffff',
+    )
     const barColor = getCssVar(root, '--ft-chart-bar', BAR_COLOR)
     const barHoverColor = getCssVar(
       root,
       '--ft-chart-bar-hover',
       BAR_HOVER_COLOR,
     )
+    const axisLogos: Array<HTMLImageElement | null> = data.map(() => null)
+
+    const comparisonLabelsPlugin = {
+      id: 'comparisonLabels',
+      afterDatasetsDraw(chart: Chart<'bar'>) {
+        const { ctx } = chart
+        const elements = chart.getDatasetMeta(0).data
+
+        ctx.save()
+        ctx.font = '600 13px system-ui, sans-serif'
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'middle'
+
+        drawMedianReference(
+          chart,
+          getMedian(values),
+          payload.valueFormat,
+          titleColor,
+        )
+
+        elements.forEach((element, index) => {
+          const { x, y } = element.getProps(['x', 'y'], true) as {
+            x: number
+            y: number
+          }
+          drawAxisLogo(
+            ctx,
+            chart,
+            axisLogos[index] ?? null,
+            data[index]?.name ?? '',
+            y,
+            textColor,
+          )
+          drawValueLabel(
+            ctx,
+            chart,
+            values[index] ?? 0,
+            payload.valueFormat,
+            x,
+            y,
+            mutedColor,
+            valueOnBarColor,
+          )
+        })
+        ctx.restore()
+      },
+    }
 
     chartCache.get(canvas)?.destroy()
 
-    const chart = new Chart(canvas, {
+    const chart = new Chart<'bar'>(canvas, {
       type: 'bar',
       data: {
         labels: data.map((d) => d.name),
         datasets: [
           {
-            label: payload.yAxisLabel ?? chartTitle,
+            label: payload.yAxisLabel,
             data: values,
-            borderRadius: 4,
-            borderSkipped: 'bottom',
-            minBarLength: MIN_BAR_LENGTH,
             backgroundColor: barColor,
+            borderRadius: BAR_RADIUS,
+            borderSkipped: false,
+            borderWidth: 0,
+            categoryPercentage: 0.82,
+            barPercentage: 1,
             hoverBackgroundColor: barHoverColor,
           },
         ],
       },
       options: {
         animation: { duration: 500 },
+        indexAxis: 'y',
+        layout: {
+          padding: { top: MEDIAN_LABEL_PADDING, right: 56 },
+        },
         maintainAspectRatio: false,
         responsive: true,
         plugins: {
@@ -194,43 +422,41 @@ const chartPayload = JSON.stringify({
           tooltip: {
             callbacks: {
               label: (context) =>
-                formatValue(Number(context.raw ?? 0), payload.valueFormat),
+                formatChartValue(Number(context.raw ?? 0), payload.valueFormat),
             },
           },
         },
         scales: {
           x: {
+            beginAtZero: true,
+            display: false,
+            max: max > 0 ? max * 1.06 : 1,
+          },
+          y: {
+            border: { display: false },
             grid: { display: false },
             ticks: {
               color: textColor,
-              maxRotation: 45,
-              minRotation: 45,
-              font: { size: 12, weight: 500 },
-            },
-          },
-          y: {
-            beginAtZero: true,
-            suggestedMax,
-            border: { color: gridColor },
-            grid: { color: gridColor },
-            title: {
-              color: mutedColor,
-              display: Boolean(payload.yAxisLabel),
-              font: { size: 12, weight: 600 },
-              text: payload.yAxisLabel,
-            },
-            ticks: {
-              color: mutedColor,
-              font: { size: 12 },
-              precision: payload.valueFormat === 'count' ? 0 : undefined,
-              callback: (value) => formatAxisTick(value, payload.valueFormat),
+              font: { size: 13, weight: 600 },
+              padding: LOGO_SIZE + 12,
             },
           },
         },
       },
+      plugins: [comparisonLabelsPlugin],
     })
 
     chartCache.set(canvas, chart)
+
+    data.forEach((datum, index) => {
+      void loadFrameworkLogo(getFrameworkLogoSource(datum.name)).then(
+        (axisLogo) => {
+          axisLogos[index] = axisLogo
+
+          if (chartCache.get(canvas) === chart) chart.draw()
+        },
+      )
+    })
   }
 
   function initCharts() {

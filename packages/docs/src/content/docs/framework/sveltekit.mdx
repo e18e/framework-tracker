@@ -1,0 +1,95 @@
+---
+title: SvelteKit
+description: SvelteKit version comparison page.
+---
+
+import FrameworkBrowserBaselineVersionTable from '../../../components/FrameworkBrowserBaselineVersionTable.astro'
+import FrameworkBuildInstallVersionCharts from '../../../components/FrameworkBuildInstallVersionCharts.astro'
+import FrameworkClientRenderedVersionCharts from '../../../components/FrameworkClientRenderedVersionCharts.astro'
+import FrameworkCoreJsVersionChart from '../../../components/FrameworkCoreJsVersionChart.astro'
+import FrameworkDependencyVersionCharts from '../../../components/FrameworkDependencyVersionCharts.astro'
+import FrameworkNodeModulesSizeVersionCharts from '../../../components/FrameworkNodeModulesSizeVersionCharts.astro'
+import FrameworkServerRenderedVersionCharts from '../../../components/FrameworkServerRenderedVersionCharts.astro'
+import FrameworkSSRLoadVersionCharts from '../../../components/FrameworkSSRLoadVersionCharts.astro'
+import FrameworkSSRRequestThroughputVersionCharts from '../../../components/FrameworkSSRRequestThroughputVersionCharts.astro'
+import MethodologyLink from '../../../components/MethodologyLink.astro'
+import {
+  getRuntimeVersionStats,
+  getStarterVersionStats,
+} from '../../../lib/collections'
+
+export const sveltekitStarterVersions =
+  getStarterVersionStats('starter-sveltekit')
+export const sveltekitRuntimeVersions = getRuntimeVersionStats('app-sveltekit')
+
+## Dev Time
+
+### Dependency Counts
+
+<MethodologyLink title="Dependency Counts" slug="dependency-counts" />
+
+<FrameworkDependencyVersionCharts versions={sveltekitStarterVersions} />
+
+### Node Modules Size
+
+<MethodologyLink title="Node Modules Size" slug="node-modules-size" />
+
+<FrameworkNodeModulesSizeVersionCharts versions={sveltekitStarterVersions} />
+
+### Build and Install Times
+
+<MethodologyLink
+  title="Build and Install Times"
+  slug="build-and-install-times"
+/>
+
+<FrameworkBuildInstallVersionCharts versions={sveltekitStarterVersions} />
+
+### Core-JS Polyfills
+
+<MethodologyLink title="Core-JS Polyfills" slug="core-js-polyfills" />
+
+<FrameworkCoreJsVersionChart versions={sveltekitStarterVersions} />
+
+### Browser Baseline
+
+<MethodologyLink title="Browser Baseline" slug="browser-baseline" />
+
+<FrameworkBrowserBaselineVersionTable versions={sveltekitStarterVersions} />
+
+## Run Time
+
+### Client Side Rendered Tests
+
+<MethodologyLink
+  title="Client Side Rendered Tests"
+  slug="client-side-rendered-tests"
+/>
+
+<FrameworkClientRenderedVersionCharts versions={sveltekitRuntimeVersions} />
+
+### Server Side Rendered Tests
+
+<MethodologyLink
+  title="Server Side Rendered Tests"
+  slug="server-side-rendered-tests"
+/>
+
+<FrameworkServerRenderedVersionCharts versions={sveltekitRuntimeVersions} />
+
+### Server Side Throughput Tests
+
+<MethodologyLink
+  title="Server Side Throughput Tests"
+  slug="server-side-throughput-tests"
+/>
+
+<FrameworkSSRRequestThroughputVersionCharts
+  versions={sveltekitRuntimeVersions}
+/>
+
+### Server Side Load Test
+
+<MethodologyLink title="Server Side Load Test" slug="server-side-load-test" />
+
+<FrameworkSSRLoadVersionCharts versions={sveltekitRuntimeVersions} />

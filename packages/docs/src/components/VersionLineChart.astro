@@ -2,7 +2,6 @@
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
-type SeriesStyle = 'line' | 'points'
 
 interface Props {
   title: string
@@ -10,7 +9,6 @@ interface Props {
   versions?: unknown[]
   metric?: string
   transform?: ValueTransform
-  seriesStyle?: SeriesStyle
   stageWorkers?: number
   stageMetric?: string
   valueFormat: ChartValueFormat
@@ -26,7 +24,6 @@ const {
   versions = [],
   metric,
   transform,
-  seriesStyle = 'line',
   stageWorkers,
   stageMetric,
   valueFormat,
@@ -90,7 +87,6 @@ const chartData = getVersionChartData().map((d) => ({
 }))
 const chartPayload = JSON.stringify({
   data: chartData,
-  seriesStyle,
   valueFormat,
   yAxisLabel,
 })
@@ -222,7 +218,6 @@ const hasChartData = chartData.length > 0
     const { payload, data } = result
     const values = data.map((d) => d.value)
     const max = Math.max(...values)
-    const seriesStyle = payload.seriesStyle ?? 'line'
     const suggestedMax =
       payload.valueFormat === 'count' ? Math.max(1, Math.ceil(max)) : max * 1.05
     const root = document.documentElement
@@ -248,10 +243,10 @@ const hasChartData = chartData.length > 0
             borderWidth: 2,
             pointBackgroundColor: pointColor,
             pointBorderColor: pointColor,
-            pointHoverRadius: seriesStyle === 'points' ? 7 : 6,
-            pointRadius: seriesStyle === 'points' ? 5 : 4,
-            showLine: seriesStyle === 'line',
-            tension: seriesStyle === 'line' ? 0.25 : 0,
+            pointHoverRadius: 6,
+            pointRadius: 4,
+            showLine: true,
+            tension: 0.25,
           },
         ],
       },

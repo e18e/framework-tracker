@@ -12,6 +12,4 @@ export interface ComparisonChartPayload {
   yAxisLabel: string
 }
 
-export interface VersionLineChartPayload extends ComparisonChartPayload {
-  seriesStyle?: 'line' | 'points'
-}
+export type VersionLineChartPayload = ComparisonChartPayload

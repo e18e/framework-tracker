@@ -3,9 +3,40 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components'
 import { starterStats } from '../lib/collections'
 import { getFrameworkSlug } from '../lib/utils'
 
+const frameworkLogos: Record<
+  string,
+  { src?: string; symbol?: string; className?: string }
+> = {
+  'starter-astro': {
+    src: '/framework-logos/astro-gradient.svg',
+    className: 'framework-card-logo--astro',
+  },
+  'starter-mastro': { symbol: '👨‍🍳' },
+  'starter-next-js': {
+    src: '/framework-logos/nextdotjs-light.svg',
+    className: 'framework-card-logo--next',
+  },
+  'starter-nuxt': { src: '/framework-logos/nuxt.svg' },
+  'starter-react-router': { src: '/framework-logos/reactrouter.svg' },
+  'starter-solid-start': { src: '/framework-logos/solid.svg' },
+  'starter-sveltekit': { src: '/framework-logos/svelte.svg' },
+  'starter-tanstack-start-react': { src: '/tanstack-circle-logo.png' },
+}
+
+function getFrameworkTitle(name: string, packageName: string) {
+  const logo = frameworkLogos[packageName]
+  const visual =
+    logo?.src != null
+      ? `<img class="framework-card-logo ${logo.className ?? ''}" src="${logo.src}" alt="" />`
+      : `<span class="framework-card-symbol" aria-hidden="true">${logo?.symbol ?? '◼'}</span>`
+
+  return `<span class="framework-card-title">${visual}<span>${name}</span></span>`
+}
+
 const frameworkRows = starterStats.map((framework) => ({
   name: framework.name,
   slug: getFrameworkSlug(framework.package),
+  title: getFrameworkTitle(framework.name, framework.package),
   version:
     framework.frameworkVersion != null &&
     framework.frameworkVersion.trim() !== '' &&
@@ -32,7 +63,7 @@ const additionalFrameworks = frameworkRows.filter(
     {
       focusedFrameworks.map((framework) => (
         <LinkCard
-          title={framework.name}
+          title={framework.title}
           href={`/framework/${framework.slug}/`}
           description={`Version ${framework.version}`}
         />
@@ -51,7 +82,7 @@ const additionalFrameworks = frameworkRows.filter(
     {
       additionalFrameworks.map((framework) => (
         <LinkCard
-          title={framework.name}
+          title={framework.title}
           href={`/framework/${framework.slug}/`}
           description={`Version ${framework.version}`}
         />
@@ -59,3 +90,37 @@ const additionalFrameworks = frameworkRows.filter(
     }
   </CardGrid>
 </section>
+
+<style>
+  :global(.framework-card-title) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  :global(.framework-card-logo),
+  :global(.framework-card-symbol) {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: none;
+  }
+
+  :global(.framework-card-logo) {
+    object-fit: contain;
+  }
+
+  :global(.framework-card-symbol) {
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  :global(:root[data-theme='light'] .framework-card-logo--next) {
+    filter: invert(1);
+  }
+
+  :global(:root[data-theme='light'] .framework-card-logo--astro) {
+    content: url('/framework-logos/astro-dark.svg');
+  }
+</style>

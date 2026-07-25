@@ -1,19 +1,19 @@
-/* Use an e18e-style orange-y accent colour */
+/* Match e18e.dev's link colour in dark and light mode. */
 :root {
   --sl-color-accent-low: #371c00;
-  --sl-color-accent: #995800;
-  --sl-color-accent-high: #f0bd90;
+  --sl-color-accent: #cc7d24;
+  --sl-color-accent-high: #cf8c3c;
 }
 :root[data-theme='light'] {
   --sl-color-accent-low: #f5cfad;
-  --sl-color-accent: #9b5900;
+  --sl-color-accent: #c37822;
   --sl-color-accent-high: #4b2800;
 }
 
 /* Colours used in the benchmark charts. */
 :root {
   --ft-accent: var(--sl-color-text-accent);
-  --ft-accent-hover: var(--sl-color-white);
+  --ft-accent-hover: #cc7d24;
   --ft-text: var(--sl-color-text);
   --ft-muted: var(--sl-color-gray-3);
   --ft-border: var(--sl-color-gray-5);
@@ -42,9 +42,21 @@
 /* Tweak site title lock-up with e18e logo. */
 .site-title {
   --sl-nav-gap: 0.5em;
+  color: #dfdfd6;
+
   img {
     height: 1.25em;
   }
+}
+:root[data-theme='light'] .site-title {
+  color: #3c3c43;
+}
+
+.sl-markdown-content a:visited:not(:where(.not-content *)) {
+  color: var(--sl-color-text-accent);
+}
+.sl-markdown-content a:hover:not(:where(.not-content *)) {
+  color: #cc7d24;
 }
 
 /* Use the same background colour for sidebar and navigation as rest of page. */

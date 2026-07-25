@@ -124,7 +124,7 @@ const chartPayload = JSON.stringify({
   const VALUE_LABEL_PADDING = 16
   const MEDIAN_COLORS = ['#ec8f5e', '#f2ca60', '#bece57', '#7bb560']
   const FRAMEWORK_LOGO_SOURCES: Record<string, string> = {
-    Astro: '/framework-logos/astro.svg',
+    Astro: '/framework-logos/astro-gradient.svg',
     'Baseline HTML': '/framework-logos/html5.svg',
     Gatsby: '/framework-logos/gatsby.svg',
     'Next.js': '/framework-logos/nextdotjs.svg',
@@ -143,6 +143,13 @@ const chartPayload = JSON.stringify({
   }
 
   function getFrameworkLogoSource(name: string) {
+    if (
+      name === 'Astro' &&
+      document.documentElement.dataset.theme === 'light'
+    ) {
+      return '/framework-logos/astro-dark.svg'
+    }
+
     if (
       name === 'Next.js' &&
       document.documentElement.dataset.theme !== 'light'

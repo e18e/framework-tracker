@@ -1,4 +1,5 @@
 ---
+import { formatChartValue } from '../lib/chart'
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
@@ -15,8 +16,8 @@ interface Props {
   yAxisLabel: string
 }
 
-const CHART_HEIGHT_PX = 400
-const MOBILE_CHART_HEIGHT_PX = 300
+const CHART_HEIGHT_PX = 340
+const MOBILE_CHART_HEIGHT_PX = 260
 
 const {
   title,
@@ -63,6 +64,14 @@ function transformValue(value: number) {
   return value
 }
 
+function formatLatestChange(value: number | null) {
+  if (value == null) return null
+  if (value === 0) return 'No change'
+
+  const sign = value > 0 ? '+' : '−'
+  return `${sign}${formatChartValue(Math.abs(value), valueFormat)}`
+}
+
 function getVersionChartData(): ChartDatum[] {
   return versions.flatMap((stats) => {
     const rawValue =
@@ -91,19 +100,69 @@ const chartPayload = JSON.stringify({
   yAxisLabel,
 })
 const hasChartData = chartData.length > 0
+const latestDatum = chartData.at(-1)
+const previousDatum = chartData.at(-2)
+const latestChange =
+  latestDatum != null && previousDatum != null
+    ? latestDatum.value - previousDatum.value
+    : null
+const latestChangeLabel = formatLatestChange(latestChange)
 ---
 
 {
   hasChartData ? (
-    <div class="version-line-chart">
-      <h3 class="version-line-chart-title">{title}</h3>
-      {description ? <p>{description}</p> : null}
+    <figure class="version-line-chart">
+      <figcaption class="version-line-chart-heading">
+        <div>
+          <h3 class="version-line-chart-title">{title}</h3>
+          {description ? <p>{description}</p> : null}
+        </div>
+        {latestDatum ? (
+          <div class="version-line-chart-latest">
+            <span class="version-line-chart-latest-label">
+              Latest · v{latestDatum.name}
+            </span>
+            <strong>{formatChartValue(latestDatum.value, valueFormat)}</strong>
+            {latestChangeLabel ? (
+              <span class="version-line-chart-change">
+                {latestChangeLabel} from previous
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+      </figcaption>
       <div class="version-line-chart-wrapper" data-version-line={chartPayload}>
-        <canvas aria-label={title} role="img">
+        <canvas
+          aria-label={`${title}. Line chart by framework version; a data table follows.`}
+          role="img"
+        >
           {title} chart
         </canvas>
+        <div class="version-line-chart-data sr-only">
+          <table>
+            <caption>{title} data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Framework version</th>
+                <th scope="col">{yAxisLabel}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chartData.map((datum) => (
+                <tr>
+                  <th scope="row">{datum.name}</th>
+                  <td>{formatChartValue(datum.value, valueFormat)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p>
+            The latest release is shown as a filled point; earlier releases use
+            outlined points.
+          </p>
+        </div>
       </div>
-    </div>
+    </figure>
   ) : null
 }
 
@@ -115,24 +174,92 @@ const hasChartData = chartData.length > 0
 >
   .version-line-chart {
     width: 100%;
-    margin-bottom: 2em;
+    margin-block: 1.5rem 2.5rem;
+    margin-inline: 0;
   }
 
   .version-line-chart-title {
-    font-size: 16px;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .version-line-chart-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .version-line-chart-heading p {
+    margin-block: 0.35rem 0;
+  }
+
+  .version-line-chart-latest {
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: auto auto;
+    align-items: baseline;
+    column-gap: 0.75rem;
+    text-align: right;
+  }
+
+  .version-line-chart-latest-label {
+    color: var(--ft-muted);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .version-line-chart-latest strong {
+    color: var(--ft-text);
+    font-size: 1.1rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .version-line-chart-change {
+    grid-column: 1 / -1;
+    color: var(--ft-muted);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .version-line-chart-wrapper {
     position: relative;
+    box-sizing: border-box;
     width: 100%;
     max-width: 1000px;
     height: var(--chartHeight);
     margin-inline: auto;
+    padding: 1rem 1rem 0.5rem 0.5rem;
+    border: 1px solid var(--ft-border);
+    border-radius: 0.75rem;
+    background: var(--ft-bg);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
   }
 
   @media (max-width: 768px) {
+    .version-line-chart-heading {
+      display: block;
+    }
+
+    .version-line-chart-latest {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-top: 0.65rem;
+      column-gap: 0.5rem;
+    }
+
+    .version-line-chart-change {
+      flex-basis: 100%;
+    }
+
     .version-line-chart-wrapper {
       height: var(--mobileChartHeight);
+      padding: 0.75rem 0.5rem 0.25rem 0.25rem;
     }
   }
 </style>
@@ -141,6 +268,7 @@ const hasChartData = chartData.length > 0
   import {
     CategoryScale,
     Chart,
+    Filler,
     Legend,
     LineController,
     LineElement,
@@ -157,6 +285,7 @@ const hasChartData = chartData.length > 0
 
   Chart.register(
     CategoryScale,
+    Filler,
     Legend,
     LineController,
     LineElement,
@@ -166,11 +295,13 @@ const hasChartData = chartData.length > 0
   )
 
   const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
-  const LINE_COLOR = '#8f7bd1'
-  const POINT_COLOR = '#6f5ab8'
+  const LINE_COLOR = '#697586'
+  const POINT_COLOR = '#4b5565'
   const TEXT_COLOR_FALLBACK = '#1f2933'
   const MUTED_COLOR_FALLBACK = '#697586'
   const BORDER_COLOR_FALLBACK = '#d9dee7'
+  const LINE_FILL_FALLBACK = 'rgba(105, 117, 134, 0.12)'
+  const LINE_FILL_TRANSPARENT_FALLBACK = 'rgba(105, 117, 134, 0)'
 
   function formatAxisTick(
     value: string | number,
@@ -225,8 +356,25 @@ const hasChartData = chartData.length > 0
     const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
     const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
     const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
-    const lineColor = getCssVar(root, '--ft-chart-bar', LINE_COLOR)
-    const pointColor = getCssVar(root, '--ft-chart-bar-hover', POINT_COLOR)
+    const lineColor = getCssVar(root, '--ft-chart-line', LINE_COLOR)
+    const pointColor = getCssVar(root, '--ft-chart-line-hover', POINT_COLOR)
+    const lineFill = getCssVar(root, '--ft-chart-line-fill', LINE_FILL_FALLBACK)
+    const lineFillTransparent = getCssVar(
+      root,
+      '--ft-chart-line-fill-transparent',
+      LINE_FILL_TRANSPARENT_FALLBACK,
+    )
+    const canvasColor = getCssVar(root, '--ft-bg', '#ffffff')
+    const lastPointIndex = data.length - 1
+    const pointRadii = data.map((_, index) =>
+      index === lastPointIndex ? 6 : 4,
+    )
+    const pointBackgroundColors = data.map((_, index) =>
+      index === lastPointIndex ? pointColor : canvasColor,
+    )
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
 
     chartCache.get(canvas)?.destroy()
 
@@ -239,45 +387,101 @@ const hasChartData = chartData.length > 0
             label: payload.yAxisLabel ?? chartTitle,
             data: values,
             borderColor: lineColor,
-            backgroundColor: lineColor,
-            borderWidth: 2,
-            pointBackgroundColor: pointColor,
-            pointBorderColor: pointColor,
-            pointHoverRadius: 6,
-            pointRadius: 4,
+            backgroundColor: (context) => {
+              const { chart } = context
+              const { chartArea, ctx } = chart
+              if (!chartArea) return lineFill
+
+              const gradient = ctx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              )
+              gradient.addColorStop(0, lineFill)
+              gradient.addColorStop(0.72, lineFillTransparent)
+              return gradient
+            },
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            borderWidth: 3,
+            fill: true,
+            pointBackgroundColor: pointBackgroundColors,
+            pointBorderColor: lineColor,
+            pointBorderWidth: 3,
+            pointHitRadius: 12,
+            pointHoverBackgroundColor: pointColor,
+            pointHoverBorderColor: canvasColor,
+            pointHoverBorderWidth: 3,
+            pointHoverRadius: 7,
+            pointRadius: pointRadii,
+            pointStyle: 'circle',
             showLine: true,
-            tension: 0.25,
+            tension: 0.32,
           },
         ],
       },
       options: {
-        animation: { duration: 500 },
+        animation: { duration: prefersReducedMotion ? 0 : 500 },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        layout: {
+          padding: {
+            left: 4,
+            right: 8,
+            top: 8,
+          },
+        },
         maintainAspectRatio: false,
         responsive: true,
         plugins: {
           legend: { display: false },
           tooltip: {
+            backgroundColor: textColor,
+            bodyColor: canvasColor,
+            borderColor: lineColor,
+            borderWidth: 1,
             callbacks: {
               label: (context) =>
-                formatChartValue(Number(context.raw ?? 0), payload.valueFormat),
+                `${payload.yAxisLabel}: ${formatChartValue(
+                  Number(context.raw ?? 0),
+                  payload.valueFormat,
+                )}`,
+              title: (items) => `Version ${items[0]?.label ?? ''}`,
             },
+            caretPadding: 8,
+            cornerRadius: 8,
+            displayColors: false,
+            padding: 10,
+            titleColor: canvasColor,
           },
         },
         scales: {
           x: {
+            border: { display: false },
             grid: { display: false },
             ticks: {
-              color: textColor,
+              autoSkip: true,
+              autoSkipPadding: 16,
+              color: mutedColor,
               font: { size: 12, weight: 500 },
+              maxTicksLimit: 8,
               maxRotation: 0,
               minRotation: 0,
+              padding: 8,
             },
           },
           y: {
             beginAtZero: true,
             suggestedMax,
-            border: { color: gridColor },
-            grid: { color: gridColor },
+            border: { display: false },
+            grid: {
+              color: gridColor,
+              drawTicks: false,
+              lineWidth: 1,
+            },
             title: {
               color: mutedColor,
               display: Boolean(payload.yAxisLabel),
@@ -287,6 +491,7 @@ const hasChartData = chartData.length > 0
             ticks: {
               color: mutedColor,
               font: { size: 12 },
+              padding: 10,
               precision: payload.valueFormat === 'count' ? 0 : undefined,
               callback: (value) => formatAxisTick(value, payload.valueFormat),
             },

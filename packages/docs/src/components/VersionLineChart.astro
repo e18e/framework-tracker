@@ -64,6 +64,14 @@ function transformValue(value: number) {
   return value
 }
 
+function formatLatestChange(value: number | null) {
+  if (value == null) return null
+  if (value === 0) return 'No change'
+
+  const sign = value > 0 ? '+' : '−'
+  return `${sign}${formatChartValue(Math.abs(value), valueFormat)}`
+}
+
 function getVersionChartData(): ChartDatum[] {
   return versions.flatMap((stats) => {
     const rawValue =
@@ -98,15 +106,7 @@ const latestChange =
   latestDatum != null && previousDatum != null
     ? latestDatum.value - previousDatum.value
     : null
-const latestChangeLabel =
-  latestChange == null
-    ? null
-    : latestChange === 0
-      ? 'No change'
-      : `${latestChange > 0 ? '+' : '−'}${formatChartValue(
-          Math.abs(latestChange),
-          valueFormat,
-        )}`
+const latestChangeLabel = formatLatestChange(latestChange)
 ---
 
 {

@@ -71,7 +71,12 @@ Installed using the CLI
 - Build benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
 - Build output size is the total size of the configured production output
-  directory after the final build run.
+  directory after the final build run. For Next.js, `.next/cache` is excluded
+  because it is not a production artifact. Other frameworks also write build
+  caches, but store them under `node_modules`, outside their configured output
+  directories. Those caches therefore still exist but are naturally excluded
+  from the measurement; excluding `.next/cache` keeps the comparison
+  consistent.
 
 ### Core-JS Polyfills
 

@@ -117,12 +117,17 @@ async function spawnServer(
     })
   })
 
-  await Promise.race([
-    waitForServer(
-      `http://${CLIENT_SIDE_RENDERED_HOST}:${CLIENT_SIDE_RENDERED_PORT}/client-side-rendered`,
-    ),
-    exitPromise,
-  ])
+  try {
+    await Promise.race([
+      waitForServer(
+        `http://${CLIENT_SIDE_RENDERED_HOST}:${CLIENT_SIDE_RENDERED_PORT}/client-side-rendered`,
+      ),
+      exitPromise,
+    ])
+  } catch (error) {
+    if (!exited) proc.kill('SIGTERM')
+    throw error
+  }
 
   return () => {
     if (!exited) proc.kill('SIGTERM')

@@ -132,10 +132,15 @@ async function spawnServer(
     })
   })
 
-  await Promise.race([
-    waitForServer(`http://${SSR_LOAD_HOST}:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`),
-    exitPromise,
-  ])
+  try {
+    await Promise.race([
+      waitForServer(`http://${SSR_LOAD_HOST}:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`),
+      exitPromise,
+    ])
+  } catch (error) {
+    if (!exited) proc.kill('SIGTERM')
+    throw error
+  }
 
   return () => {
     if (!exited) proc.kill('SIGTERM')

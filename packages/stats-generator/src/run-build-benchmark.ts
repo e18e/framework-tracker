@@ -62,7 +62,14 @@ async function main() {
     console.info(`  Warm build time: ${warmBuildTimeMs}ms`)
   }
 
-  const buildOutputSize = getDirectorySize(buildOutputPath)
+  const excludedBuildOutputPaths =
+    testConfig.buildOutputDir === '.next'
+      ? [join(buildOutputPath, 'cache')]
+      : []
+  const buildOutputSize = getDirectorySize(
+    buildOutputPath,
+    excludedBuildOutputPaths,
+  )
   console.info(`\nBuild output size: ${buildOutputSize} bytes`)
 
   const coldBuildTime = {

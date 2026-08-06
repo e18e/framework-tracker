@@ -12,13 +12,28 @@ import type {
 } from './types.ts'
 
 /**
- * Get directory size in bytes using du command.
+ * Get directory size in bytes using du command, optionally excluding subpaths.
  * Works on both Linux and macOS.
  */
-export function getDirectorySize(dirPath: string): number {
+export function getDirectorySize(
+  dirPath: string,
+  excludedPaths: string[] = [],
+): number {
   try {
     const output = execFileSync('du', ['-sk', dirPath], { encoding: 'utf-8' })
-    const sizeKb = Number.parseInt(output.split(/\s+/)[0], 10)
+    let sizeKb = Number.parseInt(output.split(/\s+/)[0], 10)
+
+    for (const excludedPath of excludedPaths) {
+      if (!existsSync(excludedPath)) {
+        continue
+      }
+
+      const excludedOutput = execFileSync('du', ['-sk', excludedPath], {
+        encoding: 'utf-8',
+      })
+      sizeKb -= Number.parseInt(excludedOutput.split(/\s+/)[0], 10)
+    }
+
     return sizeKb * 1024
   } catch (error) {
     console.warn(`Warning: Could not get directory size for ${dirPath}:`, error)

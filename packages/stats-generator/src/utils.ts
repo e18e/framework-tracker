@@ -6,6 +6,7 @@ import { packagesDir } from './constants.ts'
 import { getFrameworks } from './get-frameworks.ts'
 import type {
   CIStats,
+  DependencyStats,
   FrameworkConfig,
   PackageJson,
   TestConfig,
@@ -114,6 +115,41 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
     prodDependencies: Object.keys(dependencies).length,
     devDependencies: Object.keys(devDependencies).length,
     allDependencies,
+  }
+}
+
+export function getFrameworkDependencyName(frameworkPackage: string): string {
+  return frameworkPackage.startsWith('jsr:')
+    ? frameworkPackage.slice('jsr:'.length)
+    : frameworkPackage
+}
+
+export function getFrameworkDependencyCountsFromPackageMetadata(
+  starterPackageName: string,
+  frameworkPackage: string,
+): DependencyStats {
+  // pnpm exposes JSR dependencies under their package name in node_modules.
+  const installedPackageName = getFrameworkDependencyName(frameworkPackage)
+  const packageJsonPath = join(
+    packagesDir,
+    starterPackageName,
+    'node_modules',
+    installedPackageName,
+    'package.json',
+  )
+  const packageJson = JSON.parse(
+    readFileSync(packageJsonPath, 'utf-8'),
+  ) as PackageJson
+  const dependencies = packageJson.dependencies ?? {}
+  const devDependencies = packageJson.devDependencies ?? {}
+
+  return {
+    prodDependencies: Object.keys(dependencies).length,
+    devDependencies: Object.keys(devDependencies).length,
+    allDependencies: new Set([
+      ...Object.keys(dependencies),
+      ...Object.keys(devDependencies),
+    ]).size,
   }
 }
 

@@ -14,6 +14,7 @@ import type {
   BuildStats,
   CoreJsStats,
   BrowserBaselineStats,
+  DependencyStats,
   E18eStats,
 } from './types.ts'
 
@@ -131,12 +132,29 @@ async function main() {
         )
       }
 
-      // Load e18e stats from artifact
+      // Load dependency stats from artifacts
       const e18eArtifactPath = join(
         artifactsDir,
         `e18e-stats-${name}`,
         'e18e-stats.json',
       )
+      const frameworkDependencyStatsPath = join(
+        artifactsDir,
+        `e18e-stats-${name}`,
+        'framework-dependency-stats.json',
+      )
+      const frameworkDependencies = readJsonFile<DependencyStats>(
+        frameworkDependencyStatsPath,
+      )
+      if (frameworkDependencies) {
+        console.info(`  ✓ Found framework dependency stats artifact`)
+        stats = { ...stats, frameworkDependencies }
+      } else {
+        console.warn(
+          `No framework dependency stats artifact found at ${frameworkDependencyStatsPath}`,
+        )
+      }
+
       const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
       if (e18eStats) {
         console.info(`  ✓ Found e18e stats artifact`)

@@ -103,6 +103,7 @@ export interface CIStats {
   prodDependencies?: number
   devDependencies?: number
   allDependencies?: number
+  frameworkDependencies?: DependencyStats
   duplicateDependencies?: number
   depInstallSize?: number
   e18eMessages?: Array<{
@@ -115,6 +116,12 @@ export interface CIStats {
     dependencies?: Record<string, string>
     devDependencies?: Record<string, string>
   }
+}
+
+export interface DependencyStats {
+  prodDependencies: number
+  devDependencies: number
+  allDependencies: number
 }
 
 export interface InstallStats {

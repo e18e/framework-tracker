@@ -10,6 +10,12 @@ const timeSchema = z.object({
   maxMs: z.number(),
 })
 
+const dependencyStatsSchema = z.object({
+  prodDependencies: z.number().int().nonnegative(),
+  devDependencies: z.number().int().nonnegative(),
+  allDependencies: z.number().int().nonnegative(),
+})
+
 const devtimeSchema = z.object({
   name: z.string(),
   type: z.string(),
@@ -19,6 +25,7 @@ const devtimeSchema = z.object({
   prodDependencies: z.number(),
   devDependencies: z.number(),
   allDependencies: z.number(),
+  frameworkDependencies: dependencyStatsSchema.optional(),
   installTime: timeSchema,
   coldBuildTime: timeSchema,
   warmBuildTime: timeSchema,

@@ -161,8 +161,50 @@ To get the project running locally:
    ```
 
 5. **Linting and formatting**:
+
    ```bash
    pnpm lint:all        # Run linting across workspace and framework packages
    pnpm format          # Format code with Prettier
    pnpm type-check:all  # Run type checking across workspace and framework packages
    ```
+
+### Running Benchmarks Locally
+
+Use the benchmark CLI to run the configured benchmarks for one or more
+frameworks. Framework names select both their `starter-*` and `app-*` packages;
+package names select only that package.
+
+```bash
+# See every framework, package, and configured benchmark
+pnpm benchmark --list
+
+# Run one benchmark for multiple framework apps
+pnpm benchmark astro next --measurement ssrLoad
+
+# Benchmark a specific framework version
+pnpm benchmark next --version 15.5.9 --measurement ssrLoad
+
+# Select exact packages and reduce the browser benchmark to three runs
+pnpm benchmark app-astro app-sveltekit \
+  --measurement clientSideRendered \
+  --runs 3
+
+# Preview the installs, builds, and benchmark commands without executing them
+pnpm benchmark --all --measurement ssrRequestThroughput --dry-run
+```
+
+The CLI installs each selected package with its own lockfile and builds runtime
+apps before benchmarking them. Pass `--skip-install` to reuse existing
+`node_modules` directories. Browser benchmarks require Chrome or Chromium; set
+`CHROME_PATH` when it is not installed in a standard location.
+
+Install and build benchmarks default to their run frequency from
+`.github/frameworks.json`. Use `--runs` to override it. Benchmark results are
+written to the selected package's existing `ci-stats.json`,
+`install-stats.json`, or `build-stats.json`, so expect the working tree to
+change.
+
+`--version` can be used when the selection resolves to one framework. The CLI
+temporarily updates that framework dependency in every selected package, uses a
+non-frozen install for the benchmark, and restores the original manifests,
+lockfiles, and installed dependencies afterward.

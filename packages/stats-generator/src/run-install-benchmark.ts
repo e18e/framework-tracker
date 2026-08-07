@@ -7,6 +7,7 @@ import {
   getDirectorySize,
   writeJsonFile,
   getFrameworkByPackage,
+  getFrameworkDependencyName,
   parseArgs,
 } from './utils.ts'
 import type { InstallStats } from './types.ts'
@@ -43,15 +44,16 @@ function measureInstallTime(cwd: string): number {
 }
 
 function getFrameworkVersion(cwd: string, frameworkPackage: string): string {
+  const dependencyName = getFrameworkDependencyName(frameworkPackage)
   try {
     const output = execCommand(
-      `pnpm list "${frameworkPackage}" --depth=0 --json`,
+      `pnpm list "${dependencyName}" --depth=0 --json`,
       cwd,
     )
     const data = JSON.parse(output)
     return (
-      data[0]?.dependencies?.[frameworkPackage]?.version ||
-      data[0]?.devDependencies?.[frameworkPackage]?.version ||
+      data[0]?.dependencies?.[dependencyName]?.version ||
+      data[0]?.devDependencies?.[dependencyName]?.version ||
       'unknown'
     )
   } catch {

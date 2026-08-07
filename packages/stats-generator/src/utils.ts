@@ -117,6 +117,12 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
   }
 }
 
+export function getFrameworkDependencyName(frameworkPackage: string): string {
+  return frameworkPackage.startsWith('jsr:')
+    ? frameworkPackage.slice('jsr:'.length)
+    : frameworkPackage
+}
+
 export async function getFrameworkVersion(
   packageName: string,
   frameworkPackage: string,
@@ -126,11 +132,12 @@ export async function getFrameworkVersion(
   }
 
   try {
+    const dependencyName = getFrameworkDependencyName(frameworkPackage)
     const pkgJsonPath = join(
       packagesDir,
       packageName,
       'node_modules',
-      frameworkPackage,
+      dependencyName,
       'package.json',
     )
     const pkgJson = JSON.parse(await readFile(pkgJsonPath, 'utf-8')) as {

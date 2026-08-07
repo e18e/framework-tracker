@@ -118,12 +118,18 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
   }
 }
 
+export function getFrameworkDependencyName(frameworkPackage: string): string {
+  return frameworkPackage.startsWith('jsr:')
+    ? frameworkPackage.slice('jsr:'.length)
+    : frameworkPackage
+}
+
 export function getFrameworkDependencyCountsFromPackageMetadata(
   starterPackageName: string,
   frameworkPackage: string,
 ): DependencyStats {
   // pnpm exposes JSR dependencies under their package name in node_modules.
-  const installedPackageName = frameworkPackage.replace(/^jsr:/, '')
+  const installedPackageName = getFrameworkDependencyName(frameworkPackage)
   const packageJsonPath = join(
     packagesDir,
     starterPackageName,

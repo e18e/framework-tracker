@@ -209,11 +209,18 @@ jobs:
         working-directory: ./packages/${{ matrix.framework.package }}
         run: npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json || true
 
-      - name: Upload e18e stats
+      - name: Collect framework dependency stats
+        env:
+          STARTER_PACKAGE: ${{ matrix.framework.package }}
+        run: node packages/stats-generator/src/run-framework-dependency-scan.ts "$STARTER_PACKAGE"
+
+      - name: Upload dependency stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: e18e-stats-${{ matrix.framework.name }}
-          path: packages/${{ matrix.framework.package }}/e18e-stats.json
+          path: |
+            packages/${{ matrix.framework.package }}/e18e-stats.json
+            packages/${{ matrix.framework.package }}/framework-dependency-stats.json
           retention-days: 1
           if-no-files-found: error
 

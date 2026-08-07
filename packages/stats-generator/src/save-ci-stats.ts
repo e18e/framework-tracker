@@ -3,7 +3,6 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDependencyCountsFromPackageMetadata,
-  getFrameworkDependencyCountsFromPackageMetadata,
   getPackageJsonDeps,
   normalizeCIStats,
   readJsonFile,
@@ -15,6 +14,7 @@ import type {
   BuildStats,
   CoreJsStats,
   BrowserBaselineStats,
+  DependencyStats,
   E18eStats,
 } from './types.ts'
 
@@ -132,12 +132,29 @@ async function main() {
         )
       }
 
-      // Load e18e stats from artifact
+      // Load dependency stats from artifacts
       const e18eArtifactPath = join(
         artifactsDir,
         `e18e-stats-${name}`,
         'e18e-stats.json',
       )
+      const frameworkDependencyStatsPath = join(
+        artifactsDir,
+        `e18e-stats-${name}`,
+        'framework-dependency-stats.json',
+      )
+      const frameworkDependencies = readJsonFile<DependencyStats>(
+        frameworkDependencyStatsPath,
+      )
+      if (frameworkDependencies) {
+        console.info(`  ✓ Found framework dependency stats artifact`)
+        stats = { ...stats, frameworkDependencies }
+      } else {
+        console.warn(
+          `No framework dependency stats artifact found at ${frameworkDependencyStatsPath}`,
+        )
+      }
+
       const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
       if (e18eStats) {
         console.info(`  ✓ Found e18e stats artifact`)
@@ -151,15 +168,9 @@ async function main() {
           devDependencies: e18eStats.stats.dependencyCount.development,
           allDependencies: packageDependencyCounts.allDependencies,
         }
-        const frameworkDependencies =
-          getFrameworkDependencyCountsFromPackageMetadata(
-            packageName,
-            framework.frameworkPackage,
-          )
         stats = {
           ...stats,
           ...dependencyCounts,
-          frameworkDependencies,
           duplicateDependencies:
             typeof duplicateEntry?.value === 'number'
               ? duplicateEntry.value

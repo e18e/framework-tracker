@@ -71,7 +71,7 @@
     "focusedFramework": false,
     "starter": {
       "package": "starter-mastro",
-      "buildScript": "generate",
+      "buildScript": "build",
       "buildOutputDir": "generated",
       "measurements": [
         {
@@ -94,7 +94,17 @@
       "package": "app-mastro",
       "buildScript": "build",
       "buildOutputDir": "generated",
-      "measurements": []
+      "measurements": [
+        {
+          "type": "ssrRequestThroughput"
+        },
+        {
+          "type": "serverSideRendered"
+        },
+        {
+          "type": "ssrLoad"
+        }
+      ]
     }
   },
   {

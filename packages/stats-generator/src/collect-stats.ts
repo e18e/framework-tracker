@@ -4,10 +4,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { saveStats } from './save-stats.ts'
 import { getCIStats } from './get-ci-stats.ts'
-import {
-  getDependencyCountsFromPackageMetadata,
-  getFrameworkDependencyCountsFromPackageMetadata,
-} from './utils.ts'
+import { getDependencyCountsFromPackageMetadata } from './utils.ts'
 import type {
   BrowserBaselineStats,
   FrameworkStats,
@@ -49,16 +46,6 @@ async function processStarter(framework: FrameworkConfig, order: number) {
       ciStats.allDependencies === undefined)
       ? getDependencyCountsFromPackageMetadata(pkgDir)
       : {}
-  const frameworkDependencyStats =
-    hasDependencies && ciStats.frameworkDependencies === undefined
-      ? {
-          frameworkDependencies:
-            getFrameworkDependencyCountsFromPackageMetadata(
-              pkgDir,
-              framework.frameworkPackage,
-            ),
-        }
-      : {}
   const hasBrowserBaseline = measurements.some(
     (m) => m.type === 'browserBaseline',
   )
@@ -74,7 +61,6 @@ async function processStarter(framework: FrameworkConfig, order: number) {
     isFocused: framework.focusedFramework,
     order,
     ...dependencyStats,
-    ...frameworkDependencyStats,
     ...browserBaselineStats,
     ...ciStats,
   }

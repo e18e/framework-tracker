@@ -3,6 +3,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDependencyCountsFromPackageMetadata,
+  getFrameworkDependencyCountsFromPackageMetadata,
   getPackageJsonDeps,
   normalizeCIStats,
   readJsonFile,
@@ -150,9 +151,15 @@ async function main() {
           devDependencies: e18eStats.stats.dependencyCount.development,
           allDependencies: packageDependencyCounts.allDependencies,
         }
+        const frameworkDependencies =
+          getFrameworkDependencyCountsFromPackageMetadata(
+            packageName,
+            framework.frameworkPackage,
+          )
         stats = {
           ...stats,
           ...dependencyCounts,
+          frameworkDependencies,
           duplicateDependencies:
             typeof duplicateEntry?.value === 'number'
               ? duplicateEntry.value

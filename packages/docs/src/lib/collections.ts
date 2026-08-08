@@ -201,6 +201,41 @@ export const depsStats = starterStats.map((f) => ({
   graph: 'View',
 }))
 
+const frameworkPackageNames: Record<string, string> = {
+  'starter-astro': 'astro',
+  'starter-mastro': '@mastrojs/mastro',
+  'starter-next-js': 'next',
+  'starter-nuxt': 'nuxt',
+  'starter-react-router': '@react-router/dev',
+  'starter-solid-start': '@solidjs/start',
+  'starter-sveltekit': '@sveltejs/kit',
+  'starter-tanstack-start-react': '@tanstack/react-start',
+}
+
+export const frameworkDepsStats = starterStats.flatMap((f) => {
+  const dependencies = f.frameworkDependencies
+  const frameworkPackage = frameworkPackageNames[f.package]
+  if (dependencies == null || frameworkPackage == null) return []
+
+  const graphQuery =
+    f.frameworkVersion != null && f.frameworkVersion !== 'unknown'
+      ? `${frameworkPackage}@${f.frameworkVersion}`
+      : frameworkPackage
+
+  return [
+    {
+      name: f.name,
+      package: f.package,
+      isFocused: f.isFocused,
+      allDependencies: dependencies.allDependencies.toLocaleString(),
+      devDependencies: dependencies.devDependencies.toLocaleString(),
+      prodDependencies: dependencies.prodDependencies.toLocaleString(),
+      graph: 'View',
+      graphUrl: `https://npmgraph.js.org/?q=${encodeURIComponent(graphQuery)}`,
+    },
+  ]
+})
+
 export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,

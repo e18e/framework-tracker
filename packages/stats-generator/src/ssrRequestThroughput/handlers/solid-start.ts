@@ -1,9 +1,17 @@
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { packagesDir } from '../../constants.ts'
-import { importWithCapturedServer } from './nitro.ts'
-import type { NodeServerRenderHandler } from '../types.ts'
+import { importWithoutListening } from './nitro.ts'
 import type { ServerRenderHandler } from '../types.ts'
+
+interface NitroGlobal {
+  __nitro__?: Record<
+    string,
+    {
+      fetch: (request: Request) => Promise<Response>
+    }
+  >
+}
 
 export async function buildSolidStartHandler(): Promise<ServerRenderHandler> {
   const entryPath = join(
@@ -11,26 +19,19 @@ export async function buildSolidStartHandler(): Promise<ServerRenderHandler> {
     'app-solid-start',
     '.output',
     'server',
-    'chunks',
-    'nitro',
-    'nitro.mjs',
+    'index.mjs',
   )
   const entryUrl = pathToFileURL(entryPath).href
-  const { server } =
-    await importWithCapturedServer<Record<string, never>>(entryUrl)
-  const handler = server?.listeners('request')[0]
+  await importWithoutListening<Record<string, never>>(entryUrl)
+  const nitroApp = (globalThis as typeof globalThis & NitroGlobal).__nitro__
+    ?.default
 
-  if (typeof handler !== 'function') {
-    throw new Error('Unable to find SolidStart request handler')
+  if (!nitroApp) {
+    throw new Error('Unable to find SolidStart Nitro app')
   }
 
   return {
-    type: 'node',
-    handler: (req, res) => {
-      if (!res.socket) {
-        res.socket = {}
-      }
-      return (handler as NodeServerRenderHandler)(req, res)
-    },
+    type: 'web',
+    handler: (request) => nitroApp.fetch(request),
   }
 }

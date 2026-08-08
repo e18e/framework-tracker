@@ -8,7 +8,10 @@ import BrowserBaselineTable from '../../components/BrowserBaselineTable.astro'
 import BuildSizeCharts from '../../components/BuildSizeCharts.astro'
 import CoreJsTable from '../../components/CoreJsTable.astro'
 import DependencyCharts from '../../components/DependencyCharts.astro'
+import DependencyCountText from '../../components/DependencyCountText.astro'
 import DependencyStatsTable from '../../components/DependencyStatsTable.astro'
+import FrameworkDependencyCharts from '../../components/FrameworkDependencyCharts.astro'
+import FrameworkDependencyStatsTable from '../../components/FrameworkDependencyStatsTable.astro'
 import NodeModulesSizeCharts from '../../components/NodeModulesSizeCharts.astro'
 
 ## Setup
@@ -20,6 +23,15 @@ Each starter project uses each meta-frameworks recommended setup via their CLI w
 ## Dependency Counts
 
 Methodology: [Dependency Counts](/methodology/#dependency-counts).
+
+<DependencyCountText />
+
+### Meta-framework Direct Package Counts
+
+<FrameworkDependencyStatsTable />
+<FrameworkDependencyCharts />
+
+### Starter Projects
 
 <DependencyStatsTable />
 <DependencyCharts />

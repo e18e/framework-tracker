@@ -12,7 +12,10 @@ import CoreJsTable from '../../components/CoreJsTable.astro'
 import CoreWebVitalsCharts from '../../components/CoreWebVitalsCharts.astro'
 import CoreWebVitalsTable from '../../components/CoreWebVitalsTable.astro'
 import DependencyCharts from '../../components/DependencyCharts.astro'
+import DependencyCountText from '../../components/DependencyCountText.astro'
 import DependencyStatsTable from '../../components/DependencyStatsTable.astro'
+import FrameworkDependencyCharts from '../../components/FrameworkDependencyCharts.astro'
+import FrameworkDependencyStatsTable from '../../components/FrameworkDependencyStatsTable.astro'
 import NodeModulesSizeCharts from '../../components/NodeModulesSizeCharts.astro'
 import ServerSideRenderedCharts from '../../components/ServerSideRenderedCharts.astro'
 import ServerSideRenderedStatsTable from '../../components/ServerSideRenderedStatsTable.astro'
@@ -27,6 +30,15 @@ import SSRRequestThroughputStatsTable from '../../components/SSRRequestThroughpu
 ## Dependency Counts
 
 Methodology: [Dependency Counts](/methodology/#dependency-counts).
+
+<DependencyCountText />
+
+### Meta-framework Direct Package Counts
+
+<FrameworkDependencyStatsTable />
+<FrameworkDependencyCharts />
+
+### Starter Projects
 
 <DependencyStatsTable />
 <DependencyCharts />

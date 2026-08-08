@@ -1,0 +1,29 @@
+---
+import { frameworkDepsStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const frameworkDepsColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'allDependencies', header: 'Deps' },
+  { key: 'devDependencies', header: 'Dev' },
+  { key: 'prodDependencies', header: 'Prod' },
+  {
+    key: 'graph',
+    header: 'Graph',
+    href: (row: Record<string, unknown>) => row.graphUrl as string,
+  },
+]
+---
+
+<StatsTable
+  label="Metaframework package dependency counts"
+  columns={frameworkDepsColumns}
+  data={frameworkDepsStats}
+/>

@@ -1,0 +1,43 @@
+---
+import { starterStats } from '../lib/collections'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+
+type DependencyMetric =
+  'allDependencies' | 'devDependencies' | 'prodDependencies'
+
+function getChartData(metric: DependencyMetric) {
+  return starterStats
+    .flatMap((framework) => {
+      const value = framework.frameworkDependencies?.[metric]
+      if (typeof value !== 'number' || !Number.isFinite(value)) return []
+
+      return [
+        {
+          name: framework.name,
+          value,
+          focused: framework.isFocused,
+        },
+      ]
+    })
+    .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
+}
+---
+
+<ComparisonBarChart
+  title="Metaframework Dependencies"
+  data={getChartData('allDependencies')}
+  valueFormat="count"
+  yAxisLabel="Dependency count"
+/>
+<ComparisonBarChart
+  title="Metaframework Development Dependencies"
+  data={getChartData('devDependencies')}
+  valueFormat="count"
+  yAxisLabel="Dependency count"
+/>
+<ComparisonBarChart
+  title="Metaframework Production Dependencies"
+  data={getChartData('prodDependencies')}
+  valueFormat="count"
+  yAxisLabel="Dependency count"
+/>

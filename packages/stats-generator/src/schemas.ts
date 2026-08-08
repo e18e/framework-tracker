@@ -10,7 +10,6 @@ export const InstallStatsSchema = z.object({
   frameworkVersion: z.string().min(1),
   installTime: TimeStatSchema,
   nodeModulesSize: z.number().nonnegative(),
-  nodeModulesSizeProdOnly: z.number().nonnegative(),
 })
 
 export const BuildStatsSchema = z.object({

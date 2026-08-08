@@ -111,14 +111,6 @@ async function main() {
     const nodeModulesSize = getDirectorySize(nodeModulesPath)
     console.info(`node_modules size: ${nodeModulesSize} bytes`)
 
-    rmSync(nodeModulesPath, { recursive: true, force: true })
-    execCommand('pnpm install --prod --no-frozen-lockfile', tempDir)
-
-    const nodeModulesSizeProdOnly = getDirectorySize(nodeModulesPath)
-    console.info(
-      `node_modules size (prod only): ${nodeModulesSizeProdOnly} bytes`,
-    )
-
     const stats: InstallStats = {
       frameworkVersion,
       installTime: {
@@ -127,7 +119,6 @@ async function main() {
         maxMs: maxInstallTimeMs,
       },
       nodeModulesSize,
-      nodeModulesSizeProdOnly,
     }
 
     const outputPath = join(packagesDir, packageName, 'install-stats.json')

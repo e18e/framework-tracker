@@ -64,7 +64,6 @@ async function main() {
           frameworkVersion: installStats.frameworkVersion,
           installTime: installStats.installTime,
           nodeModulesSize: installStats.nodeModulesSize,
-          nodeModulesSizeProdOnly: installStats.nodeModulesSizeProdOnly,
         }
         frameworkVersion = installStats.frameworkVersion
       } else {

@@ -187,11 +187,12 @@ export async function getFrameworkVersion(
 }
 
 /**
- * Keep generated stats on the current nested client-side-rendered shape.
- * This also cleans up older flat fields when merging existing stats files.
+ * Keep generated stats on the current shape and remove retired metrics and
+ * older flat fields when merging existing stats files.
  */
 export function normalizeCIStats<T extends CIStats>(stats: T): T {
   const legacyStats = stats as T & {
+    nodeModulesSizeProdOnly?: unknown
     serverRenderThroughputTests?: CIStats['ssrRequestThroughputTests']
     ssrOpsPerSec?: unknown
     ssrAvgLatencyMs?: unknown
@@ -330,6 +331,7 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     }
   }
 
+  delete legacyStats.nodeModulesSizeProdOnly
   delete legacyStats.ssrOpsPerSec
   delete legacyStats.serverRenderThroughputTests
   delete legacyStats.ssrAvgLatencyMs

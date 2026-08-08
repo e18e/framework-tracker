@@ -35,7 +35,6 @@ Metrics affecting developer productivity, build times, and CI/CD pipeline perfor
 - Production dependencies (direct + transitive)
 - Dev dependencies (direct + transitive)
 - Duplicate packages in tree (same package, different versions)
-- `node_modules` size (production only)
 - `node_modules` size (with dev dependencies)
 - Install time (clean `npm install` / `pnpm install` / `yarn install`)
 - Minimum Node version (lowest `engines.node` in entire dependency tree)

@@ -195,7 +195,6 @@ export const depsStats = starterStats.map((f) => ({
   allDependencies: f.allDependencies.toLocaleString(),
   duplicateDependencies: f.duplicateDependencies,
   nodeModulesSize: formatBytesToMB(f.nodeModulesSize),
-  nodeModulesSizeProdOnly: formatBytesToMB(f.nodeModulesSizeProdOnly),
   depInstallSize:
     f.depInstallSize != null ? formatBytesToMB(f.depInstallSize) : '—',
   graph: 'View',

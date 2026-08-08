@@ -77,9 +77,9 @@ matches the framework version tracked by the starter project.
 - Install benchmarks copy the starter package to a temporary directory, remove
   `node_modules`, prune the package manager store when possible, and run
   `pnpm install --no-frozen-lockfile`.
-- Full `node_modules` size is measured after the regular install.
-- Production-only `node_modules` size is measured after removing the full
-  install and running `pnpm install --prod --no-frozen-lockfile`.
+- `node_modules` size is measured after the regular install. This represents
+  the starter's complete local installation, including development tools; it
+  does not represent the framework's production deployment size.
 
 ### Build and Install Times
 

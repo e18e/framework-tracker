@@ -38,7 +38,6 @@ export interface CIStats {
   // Install stats
   installTime?: TimeStat
   nodeModulesSize?: number
-  nodeModulesSizeProdOnly?: number
   // Build stats
   coldBuildTime?: TimeStat
   warmBuildTime?: TimeStat
@@ -128,7 +127,6 @@ export interface InstallStats {
   frameworkVersion: string
   installTime: TimeStat
   nodeModulesSize: number
-  nodeModulesSizeProdOnly: number
 }
 
 export interface BuildStats {

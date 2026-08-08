@@ -40,6 +40,29 @@ Installed using the CLI
 - Step 4: Install dependencies?: `yes`
 - Step 5: Initialize a new git repository?: `No`
 
+#### SvelteKit
+
+Installed using the CLI
+
+- Step 1: `pnpm dlx sv create .`
+- Step 2: Which template would you like?: `SvelteKit minimal`
+- Step 3: Add type checking with TypeScript?: `Yes, using TypeScript syntax`
+- Step 4: What would you like to add to your project?: `sveltekit-adapter`
+- Step 5: Which SvelteKit adapter would you like to use?: `node`
+- Step 6: Which package manager do you want to install dependencies with?: `pnpm`
+
+#### SolidStart
+
+Installed using the CLI. The SolidStart version selected in the generator
+matches the framework version tracked by the starter project.
+
+- Step 1: `pnpm create solid .`
+- Step 2: What type of project would you like to create?: `SolidStart`
+- Step 3: Which version of SolidStart?: `v1 (stable)`
+- Step 4: Use Typescript?: `Yes`
+- Step 5: Which template would you like to use?: `basic`
+- Step 6: Install dependencies: `pnpm install`
+
 ### Dependency Counts
 
 - Production and development dependency counts come from each starter package's

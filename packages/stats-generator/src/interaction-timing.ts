@@ -14,6 +14,41 @@ interface INPBreakdownDetails {
   }>
 }
 
+interface LighthouseTrace {
+  traceEvents?: Array<{
+    name?: string
+    ph?: string
+    args?: {
+      data?: {
+        duration?: number
+        interactionId?: number
+      }
+    }
+  }>
+}
+
+/**
+ * Chrome can emit preliminary sub-1ms Event Timing durations for full-document navigations.
+ * Lighthouse drops them before pairing the start and end events used to calculate the final interaction timing.
+ * https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/models/trace/handlers/UserInteractionsHandler.ts
+ */
+export function prepareInteractionTraceForLighthouse(trace: unknown): void {
+  const traceEvents = (trace as LighthouseTrace | undefined)?.traceEvents ?? []
+
+  for (const event of traceEvents) {
+    const data = event.args?.data
+    if (
+      event.name === 'EventTiming' &&
+      event.ph === 'b' &&
+      data?.interactionId &&
+      typeof data.duration === 'number' &&
+      data.duration < 1
+    ) {
+      data.duration = 1
+    }
+  }
+}
+
 export function getInteractionTimingFromLighthouse(
   audit: LighthouseAudit | undefined,
 ): InteractionTiming | null {

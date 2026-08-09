@@ -171,6 +171,9 @@ throughput, and load behavior for comparable production apps.
   interaction latency. This is one controlled interaction, not Google's
   page-lifetime
   [Interaction to Next Paint (INP)](https://web.dev/articles/inp) metric.
+- Interactions that trigger a full document navigation use Lighthouse
+  navigation mode. Interactions handled by a client router use Lighthouse
+  timespan mode.
 - Benchmarks run 5 times by default. Paint and interaction timing values are
   averaged across those runs.
 - These are route-based client-side rendering tests, not full-app SPA mode
@@ -214,6 +217,9 @@ throughput, and load behavior for comparable production apps.
   Chrome Event Timing trace data and reports its input delay, processing
   duration, and presentation delay. Their sum is recorded as the interaction
   latency.
+- Interactions that trigger a full document navigation use Lighthouse
+  navigation mode. Interactions handled by a client router use Lighthouse
+  timespan mode.
 - Detail links use each framework's default production navigation component or
   idiomatic anchor behavior. Default meta-framework route prefetching or
   preloading is allowed when it is part of the framework's default link

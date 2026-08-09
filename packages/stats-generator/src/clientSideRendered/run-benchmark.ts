@@ -6,6 +6,7 @@ import {
   getInteractionTimingFromLighthouse,
   INTERACTION_SCENARIO,
   INTERACTION_SOURCE,
+  prepareInteractionTraceForLighthouse,
 } from '../interaction-timing.ts'
 import type { InteractionTestStats } from '../types.ts'
 import type {
@@ -100,6 +101,12 @@ async function runOnce(
           }),
       )
       await flow.endTimespan()
+    }
+
+    if (fullDocumentNavigation) {
+      prepareInteractionTraceForLighthouse(
+        flow.createArtifactsJson().gatherSteps[1]?.artifacts.Trace,
+      )
     }
 
     const flowResult = await flow.createFlowResult()

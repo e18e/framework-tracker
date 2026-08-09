@@ -56,6 +56,7 @@ function getBrowserVersion(chromiumPath: string): string | undefined {
 async function runOnce(
   url: string,
   chromiumPath: string,
+  fullDocumentNavigation: boolean,
 ): Promise<ServerSideRenderedRunResult> {
   const browser = await puppeteer.launch({
     executablePath: chromiumPath,
@@ -79,24 +80,33 @@ async function runOnce(
     await flow.navigate(`${url}${SERVER_SIDE_RENDERED_PATH}`)
     await page.waitForSelector('table tbody tr', { timeout: 15_000 })
 
-    await flow.startTimespan()
-    await page.click('table tbody tr:first-child a')
-    await page.waitForSelector('#detail-id', { timeout: 15_000 })
-    // Double rAF ensures the paint entry is recorded before the timespan ends.
-    await page.evaluate((): Promise<void> => {
-      const { requestAnimationFrame: nextFrame } = globalThis as unknown as {
-        requestAnimationFrame: (callback: () => void) => number
-      }
+    // Use navigation mode when the interaction triggers a full document load.
+    // https://github.com/GoogleChrome/lighthouse/blob/main/docs/user-flows.md#triggering-a-navigation-via-user-interactions
+    if (fullDocumentNavigation) {
+      await flow.startNavigation()
+      await page.click('table tbody tr:first-child a')
+      await flow.endNavigation()
+      await page.waitForSelector('#detail-id', { timeout: 15_000 })
+    } else {
+      await flow.startTimespan()
+      await page.click('table tbody tr:first-child a')
+      await page.waitForSelector('#detail-id', { timeout: 15_000 })
+      // Double rAF ensures the paint entry is recorded before the timespan ends.
+      await page.evaluate((): Promise<void> => {
+        const { requestAnimationFrame: nextFrame } = globalThis as unknown as {
+          requestAnimationFrame: (callback: () => void) => number
+        }
 
-      return new Promise((resolve) => {
-        nextFrame(() => nextFrame(resolve))
+        return new Promise((resolve) => {
+          nextFrame(() => nextFrame(resolve))
+        })
       })
-    })
-    await flow.endTimespan()
+      await flow.endTimespan()
+    }
 
     const flowResult = await flow.createFlowResult()
     const navLhr = flowResult.steps[0].lhr
-    const timespanLhr = flowResult.steps[1].lhr
+    const interactionLhr = flowResult.steps[1].lhr
 
     const metricsItems = (
       navLhr.audits['metrics']?.details as { items?: Record<string, number>[] }
@@ -104,7 +114,7 @@ async function runOnce(
     const firstPaintMs = metricsItems?.observedFirstPaint ?? null
     const fcpMs = navLhr.audits['first-contentful-paint']?.numericValue ?? null
     const interaction = getInteractionTimingFromLighthouse(
-      timespanLhr.audits['inp-breakdown-insight'],
+      interactionLhr.audits['inp-breakdown-insight'],
     )
 
     await page.close()
@@ -124,6 +134,7 @@ export async function runBenchmark(
   packageName: string,
   displayName: string,
   runs: number,
+  fullDocumentNavigation: boolean,
 ): Promise<ServerSideRenderedBenchmarkResult> {
   const chromiumPath = findChromium()
   const browserVersion = getBrowserVersion(chromiumPath)
@@ -134,7 +145,7 @@ export async function runBenchmark(
 
   for (let i = 0; i < runs; i++) {
     console.info(`  Run ${i + 1}/${runs}...`)
-    results.push(await runOnce(url, chromiumPath))
+    results.push(await runOnce(url, chromiumPath, fullDocumentNavigation))
   }
 
   const fp = results

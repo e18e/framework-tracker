@@ -14,6 +14,7 @@ interface ServerSideRenderedFrameworkConfig {
   displayName: string
   package: string
   serveScript: string
+  fullDocumentNavigation: boolean
 }
 
 const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
@@ -22,48 +23,56 @@ const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
     displayName: 'Astro Server Side Rendered',
     package: 'app-astro',
     serveScript: 'astro.ts',
+    fullDocumentNavigation: true,
   },
   {
     name: 'mastro-server-side-rendered',
     displayName: 'Mastro Server Side Rendered',
     package: 'app-mastro',
     serveScript: 'mastro.ts',
+    fullDocumentNavigation: true,
   },
   {
     name: 'next-server-side-rendered',
     displayName: 'Next.js Server Side Rendered',
     package: 'app-next-js',
     serveScript: 'next.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'nuxt-server-side-rendered',
     displayName: 'Nuxt Server Side Rendered',
     package: 'app-nuxt',
     serveScript: 'nitro.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'react-router-server-side-rendered',
     displayName: 'React Router Server Side Rendered',
     package: 'app-react-router',
     serveScript: 'react-router.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'solid-start-server-side-rendered',
     displayName: 'SolidStart Server Side Rendered',
     package: 'app-solid-start',
     serveScript: 'nitro.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'sveltekit-server-side-rendered',
     displayName: 'SvelteKit Server Side Rendered',
     package: 'app-sveltekit',
     serveScript: 'sveltekit.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'tanstack-start-server-side-rendered',
     displayName: 'TanStack Start Server Side Rendered',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
+    fullDocumentNavigation: false,
   },
 ]
 
@@ -160,6 +169,7 @@ export async function runServerSideRenderedBenchmark(
       config.name,
       config.displayName,
       runs,
+      config.fullDocumentNavigation,
     )
   } finally {
     killServer()

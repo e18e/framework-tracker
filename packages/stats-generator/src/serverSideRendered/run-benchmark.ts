@@ -6,6 +6,7 @@ import {
   getInteractionTimingFromLighthouse,
   INTERACTION_SCENARIO,
   INTERACTION_SOURCE,
+  logInteractionTrace,
 } from '../interaction-timing.ts'
 import type { InteractionTestStats } from '../types.ts'
 import type {
@@ -104,6 +105,9 @@ async function runOnce(
       await flow.endTimespan()
     }
 
+    const interactionTrace = fullDocumentNavigation
+      ? flow.createArtifactsJson().gatherSteps[1]?.artifacts.Trace
+      : undefined
     const flowResult = await flow.createFlowResult()
     const navLhr = flowResult.steps[0].lhr
     const interactionLhr = flowResult.steps[1].lhr
@@ -116,6 +120,10 @@ async function runOnce(
     const interaction = getInteractionTimingFromLighthouse(
       interactionLhr.audits['inp-breakdown-insight'],
     )
+
+    if (fullDocumentNavigation) {
+      logInteractionTrace(interactionTrace, interaction !== null)
+    }
 
     await page.close()
     return { firstPaintMs, fcpMs, interaction }

@@ -14,6 +14,31 @@ interface INPBreakdownDetails {
   }>
 }
 
+interface LighthouseTrace {
+  traceEvents?: Array<{
+    name?: string
+    args?: { data?: { interactionId?: number } }
+  }>
+}
+
+export function logInteractionTrace(
+  trace: unknown,
+  measured: boolean,
+): void {
+  const traceEvents = (trace as LighthouseTrace | undefined)?.traceEvents
+    ?.filter(
+      (event) =>
+        (event.name === 'EventTiming' &&
+          (event.args?.data?.interactionId ?? 0) > 0) ||
+        event.name === 'Responsiveness.Renderer.UserInteraction',
+    )
+
+  console.log(
+    `Full-document interaction trace (${measured ? 'measured' : 'missing'}):`,
+  )
+  console.log(JSON.stringify(traceEvents ?? [], null, 2))
+}
+
 export function getInteractionTimingFromLighthouse(
   audit: LighthouseAudit | undefined,
 ): InteractionTiming | null {

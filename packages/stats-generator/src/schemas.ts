@@ -82,6 +82,42 @@ export const SSRLoadStatsSchema = z.object({
   browserVersion: z.string().optional(),
 })
 
+const InteractionTestsSchema = z.object({
+  scenario: z.literal('first-row-detail-navigation'),
+  source: z.literal('lighthouse-inp-breakdown'),
+  interactionLatencyMs: z.number().positive(),
+  inputDelayMs: z.number().nonnegative(),
+  processingDurationMs: z.number().nonnegative(),
+  presentationDelayMs: z.number().nonnegative(),
+})
+
+const RenderedTestsSchema = z
+  .object({
+    firstPaintMs: z.number().positive(),
+    fcpMs: z.number().positive(),
+    /** Historical only; new runs record interactionTests instead. */
+    inpMs: z.number().optional(),
+    interactionTests: InteractionTestsSchema.optional(),
+    runs: z.number().int().positive(),
+  })
+  .refine(
+    (stats) =>
+      stats.inpMs !== undefined || stats.interactionTests !== undefined,
+    {
+      message: 'Expected historical inpMs or current interactionTests',
+    },
+  )
+
+export const ClientSideRenderedStatsSchema = z.object({
+  clientSideRenderedTests: RenderedTestsSchema,
+  browserVersion: z.string().min(1),
+})
+
+export const ServerSideRenderedStatsSchema = z.object({
+  serverSideRenderedTests: RenderedTestsSchema,
+  browserVersion: z.string().min(1),
+})
+
 export type InstallStats = z.infer<typeof InstallStatsSchema>
 export type BuildStats = z.infer<typeof BuildStatsSchema>
 export type BrowserBaselineStats = z.infer<typeof BrowserBaselineStatsSchema>
@@ -89,4 +125,10 @@ export type SSRRequestThroughputStats = z.infer<
   typeof SSRRequestThroughputStatsSchema
 >
 export type SSRLoadStats = z.infer<typeof SSRLoadStatsSchema>
+export type ClientSideRenderedStats = z.infer<
+  typeof ClientSideRenderedStatsSchema
+>
+export type ServerSideRenderedStats = z.infer<
+  typeof ServerSideRenderedStatsSchema
+>
 export type TimeStat = z.infer<typeof TimeStatSchema>

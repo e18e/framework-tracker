@@ -9,10 +9,18 @@ import {
   BrowserBaselineStatsSchema,
   SSRRequestThroughputStatsSchema,
   SSRLoadStatsSchema,
+  ClientSideRenderedStatsSchema,
+  ServerSideRenderedStatsSchema,
 } from './schemas.ts'
 
 type BenchmarkType =
-  'install' | 'build' | 'browserBaseline' | 'ssrRequestThroughput' | 'ssrLoad'
+  | 'install'
+  | 'build'
+  | 'browserBaseline'
+  | 'ssrRequestThroughput'
+  | 'ssrLoad'
+  | 'clientSideRendered'
+  | 'serverSideRendered'
 
 interface BenchmarkConfig {
   type: BenchmarkType
@@ -31,6 +39,16 @@ const STARTER_BENCHMARKS: BenchmarkConfig[] = [
 ]
 
 const APP_BENCHMARKS: BenchmarkConfig[] = [
+  {
+    type: 'clientSideRendered',
+    file: 'ci-stats.json',
+    schema: ClientSideRenderedStatsSchema,
+  },
+  {
+    type: 'serverSideRendered',
+    file: 'ci-stats.json',
+    schema: ServerSideRenderedStatsSchema,
+  },
   {
     type: 'ssrRequestThroughput',
     file: 'ci-stats.json',

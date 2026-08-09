@@ -111,7 +111,17 @@ const runtimeSchema = z.object({
     .object({
       firstPaintMs: z.number(),
       fcpMs: z.number(),
-      inpMs: z.number(),
+      inpMs: z.number().optional(),
+      interactionTests: z
+        .object({
+          scenario: z.literal('first-row-detail-navigation'),
+          source: z.literal('lighthouse-inp-breakdown'),
+          interactionLatencyMs: z.number().positive(),
+          inputDelayMs: z.number().nonnegative(),
+          processingDurationMs: z.number().nonnegative(),
+          presentationDelayMs: z.number().nonnegative(),
+        })
+        .optional(),
       runs: z.number(),
     })
     .optional(),
@@ -119,7 +129,17 @@ const runtimeSchema = z.object({
     .object({
       firstPaintMs: z.number(),
       fcpMs: z.number(),
-      inpMs: z.number(),
+      inpMs: z.number().optional(),
+      interactionTests: z
+        .object({
+          scenario: z.literal('first-row-detail-navigation'),
+          source: z.literal('lighthouse-inp-breakdown'),
+          interactionLatencyMs: z.number().positive(),
+          inputDelayMs: z.number().nonnegative(),
+          processingDurationMs: z.number().nonnegative(),
+          presentationDelayMs: z.number().nonnegative(),
+        })
+        .optional(),
       runs: z.number(),
     })
     .optional(),

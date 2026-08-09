@@ -1,64 +1,49 @@
+import type { InteractionTiming } from './types.ts'
+
 export const INTERACTION_SCENARIO = 'first-row-detail-navigation'
-export const INTERACTION_SOURCE = 'chrome-event-timing'
+export const INTERACTION_SOURCE = 'lighthouse-inp-breakdown'
 
-export interface InteractionTiming {
-  interactionLatencyMs: number
-  inputDelayMs: number
-  processingDurationMs: number
-  presentationDelayMs: number
+interface LighthouseAudit {
+  details?: unknown
 }
 
-export interface InteractionTestStats extends InteractionTiming {
-  scenario: typeof INTERACTION_SCENARIO
-  source: typeof INTERACTION_SOURCE
+interface INPBreakdownDetails {
+  items?: Array<{
+    type?: string
+    items?: Array<{ subpart?: string; duration?: number }>
+  }>
 }
 
-interface EventTimingData {
-  duration?: number
-  interactionId?: number
-  processingEnd?: number
-  processingStart?: number
-  timeStamp?: number
-}
-
-interface TraceEvent {
-  name?: string
-  ph?: string
-  args?: {
-    data?: EventTimingData
-  }
-}
-
-export function getInteractionTimingFromTrace(
-  traceEvents: TraceEvent[],
+export function getInteractionTimingFromLighthouse(
+  audit: LighthouseAudit | undefined,
 ): InteractionTiming | null {
-  for (const event of traceEvents) {
-    if (event.name !== 'EventTiming' || event.ph === 'e') continue
+  const details = audit?.details as INPBreakdownDetails | undefined
+  const items = details?.items?.find(
+    (item) => item.type === 'table',
+  )?.items
+  const inputDelayMs = items?.find(
+    (item) => item.subpart === 'inputDelay',
+  )?.duration
+  const processingDurationMs = items?.find(
+    (item) => item.subpart === 'processingDuration',
+  )?.duration
+  const presentationDelayMs = items?.find(
+    (item) => item.subpart === 'presentationDelay',
+  )?.duration
 
-    const data = event.args?.data
-    const interactionId = data?.interactionId
-    const duration = data?.duration
-    const processingEnd = data?.processingEnd
-    const processingStart = data?.processingStart
-    const timeStamp = data?.timeStamp
-    if (
-      interactionId == null ||
-      interactionId <= 0 ||
-      duration == null ||
-      processingEnd == null ||
-      processingStart == null ||
-      timeStamp == null
-    ) {
-      continue
-    }
-
-    return {
-      interactionLatencyMs: duration,
-      inputDelayMs: processingStart - timeStamp,
-      processingDurationMs: processingEnd - processingStart,
-      presentationDelayMs: timeStamp + duration - processingEnd,
-    }
+  if (
+    inputDelayMs == null ||
+    processingDurationMs == null ||
+    presentationDelayMs == null
+  ) {
+    return null
   }
 
-  return null
+  return {
+    interactionLatencyMs:
+      inputDelayMs + processingDurationMs + presentationDelayMs,
+    inputDelayMs,
+    processingDurationMs,
+    presentationDelayMs,
+  }
 }

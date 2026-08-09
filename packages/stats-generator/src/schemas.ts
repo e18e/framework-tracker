@@ -84,7 +84,7 @@ export const SSRLoadStatsSchema = z.object({
 
 const InteractionTestsSchema = z.object({
   scenario: z.literal('first-row-detail-navigation'),
-  source: z.literal('chrome-event-timing'),
+  source: z.literal('lighthouse-inp-breakdown'),
   interactionLatencyMs: z.number(),
   inputDelayMs: z.number(),
   processingDurationMs: z.number(),

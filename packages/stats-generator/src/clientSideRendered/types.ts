@@ -1,7 +1,4 @@
-import type {
-  InteractionTestStats,
-  InteractionTiming,
-} from '../interaction-timing.ts'
+import type { InteractionTestStats, InteractionTiming } from '../types.ts'
 
 export interface ClientSideRenderedRunResult {
   firstPaintMs: number | null

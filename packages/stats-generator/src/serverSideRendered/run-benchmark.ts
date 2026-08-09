@@ -3,11 +3,11 @@ import { execFileSync } from 'node:child_process'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
 import {
-  getInteractionTimingFromTrace,
+  getInteractionTimingFromLighthouse,
   INTERACTION_SCENARIO,
   INTERACTION_SOURCE,
 } from '../interaction-timing.ts'
-import type { InteractionTestStats } from '../interaction-timing.ts'
+import type { InteractionTestStats } from '../types.ts'
 import type {
   ServerSideRenderedBenchmarkResult,
   ServerSideRenderedRunResult,
@@ -96,16 +96,15 @@ async function runOnce(
 
     const flowResult = await flow.createFlowResult()
     const navLhr = flowResult.steps[0].lhr
-    const timespanArtifacts =
-      flow.createArtifactsJson().gatherSteps[1].artifacts
+    const timespanLhr = flowResult.steps[1].lhr
 
     const metricsItems = (
       navLhr.audits['metrics']?.details as { items?: Record<string, number>[] }
     )?.items?.[0]
     const firstPaintMs = metricsItems?.observedFirstPaint ?? null
     const fcpMs = navLhr.audits['first-contentful-paint']?.numericValue ?? null
-    const interaction = getInteractionTimingFromTrace(
-      timespanArtifacts.Trace.traceEvents,
+    const interaction = getInteractionTimingFromLighthouse(
+      timespanLhr.audits['inp-breakdown-insight'],
     )
 
     await page.close()

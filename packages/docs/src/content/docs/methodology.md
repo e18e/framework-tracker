@@ -164,10 +164,12 @@ throughput, and load behavior for comparable production apps.
 - First Paint and First Contentful Paint are measured on initial navigation to
   `/client-side-rendered`.
 - A controlled interaction clicks the first row's detail link and waits for the
-  detail view. Chrome's
-  [Event Timing API](https://www.w3.org/TR/event-timing/) records its interaction
-  latency, input delay, processing duration, and presentation delay. This is
-  one controlled interaction, not Google's page-lifetime
+  detail view. Lighthouse's
+  [INP breakdown insight](https://developer.chrome.com/docs/performance/insights/inp-breakdown)
+  processes Chrome Event Timing trace data and reports its input delay,
+  processing duration, and presentation delay. Their sum is recorded as the
+  interaction latency. This is one controlled interaction, not Google's
+  page-lifetime
   [Interaction to Next Paint (INP)](https://web.dev/articles/inp) metric.
 - Benchmarks run 5 times by default. Paint and interaction timing values are
   averaged across those runs.
@@ -208,9 +210,10 @@ throughput, and load behavior for comparable production apps.
 - First Paint and First Contentful Paint are measured on initial navigation to
   `/server-side-rendered`.
 - A controlled interaction clicks the first row's detail link and waits for
-  `/server-side-rendered/:id`. Chrome Event Timing records its total latency,
-  input delay, processing duration, and presentation delay. These interaction
-  measurements are retained in the stats data but are not currently charted.
+  `/server-side-rendered/:id`. Lighthouse's INP breakdown insight processes
+  Chrome Event Timing trace data and reports its input delay, processing
+  duration, and presentation delay. Their sum is recorded as the interaction
+  latency.
 - Detail links use each framework's default production navigation component or
   idiomatic anchor behavior. Default meta-framework route prefetching or
   preloading is allowed when it is part of the framework's default link

@@ -86,9 +86,9 @@ const InteractionTestsSchema = z.object({
   scenario: z.literal('first-row-detail-navigation'),
   source: z.literal('lighthouse-inp-breakdown'),
   interactionLatencyMs: z.number().positive(),
-  inputDelayMs: z.number().positive(),
-  processingDurationMs: z.number().positive(),
-  presentationDelayMs: z.number().positive(),
+  inputDelayMs: z.number().nonnegative(),
+  processingDurationMs: z.number().nonnegative(),
+  presentationDelayMs: z.number().nonnegative(),
 })
 
 const RenderedTestsSchema = z

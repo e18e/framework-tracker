@@ -32,20 +32,26 @@ export function getInteractionTimingFromLighthouse(
   if (
     typeof inputDelayMs !== 'number' ||
     !Number.isFinite(inputDelayMs) ||
-    inputDelayMs <= 0 ||
+    inputDelayMs < 0 ||
     typeof processingDurationMs !== 'number' ||
     !Number.isFinite(processingDurationMs) ||
-    processingDurationMs <= 0 ||
+    processingDurationMs < 0 ||
     typeof presentationDelayMs !== 'number' ||
     !Number.isFinite(presentationDelayMs) ||
-    presentationDelayMs <= 0
+    presentationDelayMs < 0
   ) {
     return null
   }
 
+  const interactionLatencyMs =
+    inputDelayMs + processingDurationMs + presentationDelayMs
+
+  if (interactionLatencyMs <= 0) {
+    return null
+  }
+
   return {
-    interactionLatencyMs:
-      inputDelayMs + processingDurationMs + presentationDelayMs,
+    interactionLatencyMs,
     inputDelayMs,
     processingDurationMs,
     presentationDelayMs,

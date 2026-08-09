@@ -109,7 +109,7 @@ jobs:
             echo "Building client-side rendered app for $PKG..."
             (cd packages/$PKG && pnpm build)
             echo "Running client-side rendered benchmark for $PKG..."
-            pnpm --filter @framework-tracker/stats-generator run:client-side-rendered $PKG
+            pnpm --filter @framework-tracker/stats-generator run:client-side-rendered $PKG 1
           done
 
           echo ""
@@ -120,7 +120,7 @@ jobs:
             echo "Building server-side rendered app for $PKG..."
             (cd packages/$PKG && pnpm build)
             echo "Running server-side rendered benchmark for $PKG..."
-            pnpm --filter @framework-tracker/stats-generator run:server-side-rendered $PKG
+            pnpm --filter @framework-tracker/stats-generator run:server-side-rendered $PKG 1
           done
 
           echo ""

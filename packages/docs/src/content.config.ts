@@ -116,10 +116,10 @@ const runtimeSchema = z.object({
         .object({
           scenario: z.literal('first-row-detail-navigation'),
           source: z.literal('lighthouse-inp-breakdown'),
-          interactionLatencyMs: z.number(),
-          inputDelayMs: z.number(),
-          processingDurationMs: z.number(),
-          presentationDelayMs: z.number(),
+          interactionLatencyMs: z.number().positive(),
+          inputDelayMs: z.number().positive(),
+          processingDurationMs: z.number().positive(),
+          presentationDelayMs: z.number().positive(),
         })
         .optional(),
       runs: z.number(),
@@ -134,10 +134,10 @@ const runtimeSchema = z.object({
         .object({
           scenario: z.literal('first-row-detail-navigation'),
           source: z.literal('lighthouse-inp-breakdown'),
-          interactionLatencyMs: z.number(),
-          inputDelayMs: z.number(),
-          processingDurationMs: z.number(),
-          presentationDelayMs: z.number(),
+          interactionLatencyMs: z.number().positive(),
+          inputDelayMs: z.number().positive(),
+          processingDurationMs: z.number().positive(),
+          presentationDelayMs: z.number().positive(),
         })
         .optional(),
       runs: z.number(),

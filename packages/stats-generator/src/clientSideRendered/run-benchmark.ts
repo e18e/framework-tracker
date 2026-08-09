@@ -139,6 +139,18 @@ export async function runBenchmark(
     .map((r) => r.firstPaintMs)
     .filter((v): v is number => v !== null)
   const fcp = results.map((r) => r.fcpMs).filter((v): v is number => v !== null)
+  if (
+    fp.length !== results.length ||
+    fp.some((value) => !Number.isFinite(value) || value <= 0)
+  ) {
+    throw new Error('First Paint was missing, non-finite, or zero')
+  }
+  if (
+    fcp.length !== results.length ||
+    fcp.some((value) => !Number.isFinite(value) || value <= 0)
+  ) {
+    throw new Error('FCP was missing, non-finite, or zero')
+  }
   const interactions = results
     .map((r) => r.interaction)
     .filter((value) => value !== null)

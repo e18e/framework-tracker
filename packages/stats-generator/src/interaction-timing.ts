@@ -30,9 +30,15 @@ export function getInteractionTimingFromLighthouse(
   )?.duration
 
   if (
-    inputDelayMs == null ||
-    processingDurationMs == null ||
-    presentationDelayMs == null
+    typeof inputDelayMs !== 'number' ||
+    !Number.isFinite(inputDelayMs) ||
+    inputDelayMs <= 0 ||
+    typeof processingDurationMs !== 'number' ||
+    !Number.isFinite(processingDurationMs) ||
+    processingDurationMs <= 0 ||
+    typeof presentationDelayMs !== 'number' ||
+    !Number.isFinite(presentationDelayMs) ||
+    presentationDelayMs <= 0
   ) {
     return null
   }

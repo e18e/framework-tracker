@@ -18,9 +18,7 @@ export function getInteractionTimingFromLighthouse(
   audit: LighthouseAudit | undefined,
 ): InteractionTiming | null {
   const details = audit?.details as INPBreakdownDetails | undefined
-  const items = details?.items?.find(
-    (item) => item.type === 'table',
-  )?.items
+  const items = details?.items?.find((item) => item.type === 'table')?.items
   const inputDelayMs = items?.find(
     (item) => item.subpart === 'inputDelay',
   )?.duration

@@ -1,4 +1,3 @@
-import { A } from '@solidjs/router'
 import { For } from 'solid-js'
 
 type Entry = { id: string; name: string }
@@ -18,7 +17,7 @@ export default function ClientSideRenderedTable() {
               <td>{entry.id}</td>
               <td>{entry.name}</td>
               <td>
-                <A href={`/client-side-rendered/${entry.id}`}>View →</A>
+                <a href={`/client-side-rendered/${entry.id}`}>View →</a>
               </td>
             </tr>
           )}

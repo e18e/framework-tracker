@@ -111,7 +111,17 @@ const runtimeSchema = z.object({
     .object({
       firstPaintMs: z.number(),
       fcpMs: z.number(),
-      inpMs: z.number(),
+      inpMs: z.number().optional(),
+      interactionTests: z
+        .object({
+          scenario: z.literal('first-row-detail-navigation'),
+          source: z.literal('chrome-event-timing'),
+          interactionLatencyMs: z.number(),
+          inputDelayMs: z.number(),
+          processingDurationMs: z.number(),
+          presentationDelayMs: z.number(),
+        })
+        .optional(),
       runs: z.number(),
     })
     .optional(),
@@ -119,7 +129,17 @@ const runtimeSchema = z.object({
     .object({
       firstPaintMs: z.number(),
       fcpMs: z.number(),
-      inpMs: z.number(),
+      inpMs: z.number().optional(),
+      interactionTests: z
+        .object({
+          scenario: z.literal('first-row-detail-navigation'),
+          source: z.literal('chrome-event-timing'),
+          interactionLatencyMs: z.number(),
+          inputDelayMs: z.number(),
+          processingDurationMs: z.number(),
+          presentationDelayMs: z.number(),
+        })
+        .optional(),
       runs: z.number(),
     })
     .optional(),

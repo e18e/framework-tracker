@@ -55,7 +55,11 @@ async function main() {
     `  First Paint: ${result.clientSideRenderedTests.firstPaintMs}ms`,
   )
   console.info(`  FCP:         ${result.clientSideRenderedTests.fcpMs}ms`)
-  console.info(`  INP:         ${result.clientSideRenderedTests.inpMs}ms`)
+  const interaction = result.clientSideRenderedTests.interactionTests
+  console.info(`  Interaction: ${interaction.interactionLatencyMs}ms`)
+  console.info(`    Input delay:  ${interaction.inputDelayMs}ms`)
+  console.info(`    Processing:   ${interaction.processingDurationMs}ms`)
+  console.info(`    Presentation: ${interaction.presentationDelayMs}ms`)
 }
 
 main().catch((error) => {

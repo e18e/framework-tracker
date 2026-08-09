@@ -83,14 +83,30 @@ export interface CIStats {
   clientSideRenderedTests?: {
     firstPaintMs: number
     fcpMs: number
-    inpMs: number
+    inpMs?: number
+    interactionTests?: {
+      scenario: 'first-row-detail-navigation'
+      source: 'chrome-event-timing'
+      interactionLatencyMs: number
+      inputDelayMs: number
+      processingDurationMs: number
+      presentationDelayMs: number
+    }
     runs: number
   }
   // Server-side rendered route stats (browser paint + interaction timings)
   serverSideRenderedTests?: {
     firstPaintMs: number
     fcpMs: number
-    inpMs: number
+    inpMs?: number
+    interactionTests?: {
+      scenario: 'first-row-detail-navigation'
+      source: 'chrome-event-timing'
+      interactionLatencyMs: number
+      inputDelayMs: number
+      processingDurationMs: number
+      presentationDelayMs: number
+    }
     runs: number
   }
   // Core-js vendored polyfill stats

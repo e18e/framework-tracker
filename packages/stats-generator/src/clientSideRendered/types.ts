@@ -1,18 +1,23 @@
+import type {
+  InteractionTestStats,
+  InteractionTiming,
+} from '../interaction-timing.ts'
+
 export interface ClientSideRenderedRunResult {
   firstPaintMs: number | null
   fcpMs: number | null
-  inpMs: number | null
+  interaction: InteractionTiming | null
 }
 
 export interface ClientSideRenderedBenchmarkResult {
   name: string
   displayName: string
   package: string
-  browserVersion?: string
+  browserVersion: string
   clientSideRenderedTests: {
     firstPaintMs: number
     fcpMs: number
-    inpMs: number
+    interactionTests: InteractionTestStats
     runs: number
   }
 }
@@ -25,7 +30,8 @@ export interface ClientSideRenderedStats {
   clientSideRenderedTests: {
     firstPaintMs: number
     fcpMs: number
-    inpMs: number
+    inpMs?: number
+    interactionTests?: InteractionTestStats
     runs: number
   }
 }

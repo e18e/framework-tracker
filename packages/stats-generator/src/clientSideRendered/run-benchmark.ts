@@ -2,6 +2,12 @@ import { existsSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
+import {
+  getInteractionTimingFromTrace,
+  INTERACTION_SCENARIO,
+  INTERACTION_SOURCE,
+} from '../interaction-timing.ts'
+import type { InteractionTestStats } from '../interaction-timing.ts'
 import type {
   ClientSideRenderedBenchmarkResult,
   ClientSideRenderedRunResult,
@@ -73,7 +79,6 @@ async function runOnce(
     await flow.navigate(`${url}${CLIENT_SIDE_RENDERED_PATH}`)
     await page.waitForSelector('table tbody tr', { timeout: 15_000 })
 
-    // INP: click the first row's detail link
     await flow.startTimespan()
     await page.click('table tbody tr:first-child a')
     await page.waitForSelector('#detail-id', { timeout: 15_000 })
@@ -89,18 +94,20 @@ async function runOnce(
 
     const flowResult = await flow.createFlowResult()
     const navLhr = flowResult.steps[0].lhr
-    const timespanLhr = flowResult.steps[1].lhr
+    const timespanArtifacts =
+      flow.createArtifactsJson().gatherSteps[1].artifacts
 
     const metricsItems = (
       navLhr.audits['metrics']?.details as { items?: Record<string, number>[] }
     )?.items?.[0]
     const firstPaintMs = metricsItems?.observedFirstPaint ?? null
     const fcpMs = navLhr.audits['first-contentful-paint']?.numericValue ?? null
-    const inpMs =
-      timespanLhr.audits['interaction-to-next-paint']?.numericValue ?? null
+    const interaction = getInteractionTimingFromTrace(
+      timespanArtifacts.Trace.traceEvents,
+    )
 
     await page.close()
-    return { firstPaintMs, fcpMs, inpMs }
+    return { firstPaintMs, fcpMs, interaction }
   } finally {
     await browser.close()
   }
@@ -119,6 +126,9 @@ export async function runBenchmark(
 ): Promise<ClientSideRenderedBenchmarkResult> {
   const chromiumPath = findChromium()
   const browserVersion = getBrowserVersion(chromiumPath)
+  if (!browserVersion) {
+    throw new Error(`Could not read Chrome version from ${chromiumPath}`)
+  }
   const results: ClientSideRenderedRunResult[] = []
 
   for (let i = 0; i < runs; i++) {
@@ -130,17 +140,40 @@ export async function runBenchmark(
     .map((r) => r.firstPaintMs)
     .filter((v): v is number => v !== null)
   const fcp = results.map((r) => r.fcpMs).filter((v): v is number => v !== null)
-  const inp = results.map((r) => r.inpMs).filter((v): v is number => v !== null)
+  const interactions = results
+    .map((r) => r.interaction)
+    .filter((value) => value !== null)
+  if (interactions.length !== results.length) {
+    throw new Error(
+      `Interaction timing could not be measured in ${results.length - interactions.length} of ${results.length} runs`,
+    )
+  }
 
+  const firstPaintMs = avg(fp)
+  const fcpMs = avg(fcp)
+  const interactionTests: InteractionTestStats = {
+    scenario: INTERACTION_SCENARIO,
+    source: INTERACTION_SOURCE,
+    interactionLatencyMs: avg(
+      interactions.map((value) => value.interactionLatencyMs),
+    ),
+    inputDelayMs: avg(interactions.map((value) => value.inputDelayMs)),
+    processingDurationMs: avg(
+      interactions.map((value) => value.processingDurationMs),
+    ),
+    presentationDelayMs: avg(
+      interactions.map((value) => value.presentationDelayMs),
+    ),
+  }
   return {
     name: packageName,
     displayName,
     package: packageName,
     browserVersion,
     clientSideRenderedTests: {
-      firstPaintMs: avg(fp),
-      fcpMs: avg(fcp),
-      inpMs: avg(inp),
+      firstPaintMs,
+      fcpMs,
+      interactionTests,
       runs: results.length,
     },
   }

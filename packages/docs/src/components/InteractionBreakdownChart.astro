@@ -21,7 +21,23 @@ const maxLatency = Math.max(
   1,
   ...data.map((datum) => datum.interactionLatencyMs),
 )
-const chartHeight = Math.max(56, data.length * 56)
+const chartHeight = Math.max(80, data.length * 56 + 24)
+
+function getMedian(values: number[]) {
+  const sortedValues = [...values].sort((a, b) => a - b)
+  const middleIndex = Math.floor(sortedValues.length / 2)
+
+  return sortedValues.length % 2 === 0
+    ? (sortedValues[middleIndex - 1]! + sortedValues[middleIndex]!) / 2
+    : sortedValues[middleIndex]!
+}
+
+const medianLatency = getMedian(data.map((datum) => datum.interactionLatencyMs))
+const focusedMedianLatency = getMedian(
+  data
+    .filter((datum) => datum.focused !== false)
+    .map((datum) => datum.interactionLatencyMs),
+)
 
 function segmentSize(value: number) {
   return `${(value / maxLatency) * 100}%`
@@ -83,6 +99,30 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
         class="horizontal-bars"
         style={`--interaction-chart-height: ${chartHeight}px`}
       >
+        <div class="median-layer all-median" aria-hidden="true">
+          <div class="median-plot">
+            <span
+              class="median-line"
+              style={`left: ${segmentSize(medianLatency)}`}
+            >
+              <span class="median-label">
+                Median: {formatChartValue(medianLatency, 'ms')}
+              </span>
+            </span>
+          </div>
+        </div>
+        <div class="median-layer focused-median" aria-hidden="true">
+          <div class="median-plot">
+            <span
+              class="median-line"
+              style={`left: ${segmentSize(focusedMedianLatency)}`}
+            >
+              <span class="median-label">
+                Median: {formatChartValue(focusedMedianLatency, 'ms')}
+              </span>
+            </span>
+          </div>
+        </div>
         {data.map((datum) => {
           const logo = FRAMEWORK_LOGOS[datum.name]
           return (
@@ -266,11 +306,73 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
   }
 
   .horizontal-bars {
+    position: relative;
     display: flex;
+    box-sizing: border-box;
     min-height: var(--interaction-chart-height);
     flex-direction: column;
     justify-content: space-evenly;
     gap: 0.75rem;
+    padding-top: 24px;
+  }
+
+  .median-layer {
+    position: absolute;
+    z-index: 4;
+    inset: 24px 0 0;
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: 0.75rem;
+    pointer-events: none;
+  }
+
+  .median-plot {
+    position: relative;
+    grid-column: 2;
+  }
+
+  .median-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+  }
+
+  .median-line::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #7bb560, #bece57, #f2ca60, #ec8f5e);
+    mask: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 9px);
+    -webkit-mask: repeating-linear-gradient(
+      to bottom,
+      #000 0 5px,
+      transparent 5px 9px
+    );
+    content: '';
+  }
+
+  .median-label {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    color: var(--sl-color-text-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .focused-median {
+    display: none;
+  }
+
+  :global([data-framework-scope='focused']) .all-median {
+    display: none;
+  }
+
+  :global([data-framework-scope='focused']) .focused-median {
+    display: grid;
   }
 
   .horizontal-row {
@@ -473,6 +575,11 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
 
   @media screen and (max-width: 560px) {
     .horizontal-row {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.5rem;
+    }
+
+    .median-layer {
       grid-template-columns: 1.5rem minmax(0, 1fr);
       gap: 0.5rem;
     }

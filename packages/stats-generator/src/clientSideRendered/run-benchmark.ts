@@ -4,6 +4,7 @@ import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
 import {
   getInteractionTimingFromLighthouse,
+  getNavigationInteractionTimingFromLighthouse,
   INTERACTION_SCENARIO,
   INTERACTION_SOURCE,
   prepareInteractionTraceForLighthouse,
@@ -103,10 +104,10 @@ async function runOnce(
       await flow.endTimespan()
     }
 
+    const interactionArtifacts =
+      flow.createArtifactsJson().gatherSteps[1]?.artifacts
     if (fullDocumentNavigation) {
-      prepareInteractionTraceForLighthouse(
-        flow.createArtifactsJson().gatherSteps[1]?.artifacts.Trace,
-      )
+      prepareInteractionTraceForLighthouse(interactionArtifacts?.Trace)
     }
 
     const flowResult = await flow.createFlowResult()
@@ -118,9 +119,15 @@ async function runOnce(
     )?.items?.[0]
     const firstPaintMs = metricsItems?.observedFirstPaint ?? null
     const fcpMs = navLhr.audits['first-contentful-paint']?.numericValue ?? null
-    const interaction = getInteractionTimingFromLighthouse(
-      interactionLhr.audits['inp-breakdown-insight'],
-    )
+    const interaction =
+      fullDocumentNavigation && interactionArtifacts
+        ? await getNavigationInteractionTimingFromLighthouse(
+            interactionArtifacts,
+            interactionLhr.configSettings,
+          )
+        : getInteractionTimingFromLighthouse(
+            interactionLhr.audits['inp-breakdown-insight'],
+          )
 
     await page.close()
     return { firstPaintMs, fcpMs, interaction }

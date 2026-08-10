@@ -156,13 +156,26 @@ export const serverSideRenderedStats = runtimeEntries
       framework.serverSideRenderedTests != null &&
       Number.isFinite(framework.serverSideRenderedTests.firstPaintMs),
   )
-  .map((framework) => ({
-    name: framework.name,
-    package: framework.package,
-    isFocused: framework.isFocused,
-    firstPaintMs: `${framework.serverSideRenderedTests!.firstPaintMs}ms`,
-    fcpMs: `${framework.serverSideRenderedTests!.fcpMs}ms`,
-  }))
+  .map((framework) => {
+    const tests = framework.serverSideRenderedTests!
+    const interaction = tests.interactionTests
+
+    return {
+      name: framework.name,
+      package: framework.package,
+      isFocused: framework.isFocused,
+      firstPaintMs: `${tests.firstPaintMs}ms`,
+      fcpMs: `${tests.fcpMs}ms`,
+      interactionLatencyMs: formatMilliseconds(
+        interaction?.interactionLatencyMs,
+      ),
+      inputDelayMs: formatMilliseconds(interaction?.inputDelayMs),
+      processingDurationMs: formatMilliseconds(
+        interaction?.processingDurationMs,
+      ),
+      presentationDelayMs: formatMilliseconds(interaction?.presentationDelayMs),
+    }
+  })
 
 export const clientSideRenderedStats = runtimeEntries
   .map((entry) => entry.data)
@@ -172,13 +185,30 @@ export const clientSideRenderedStats = runtimeEntries
       Number.isFinite(framework.clientSideRenderedTests.firstPaintMs),
   )
   .sort((a, b) => a.order - b.order)
-  .map((framework) => ({
-    name: framework.name,
-    package: framework.package,
-    isFocused: framework.isFocused,
-    firstPaintMs: `${framework.clientSideRenderedTests!.firstPaintMs}ms`,
-    fcpMs: `${framework.clientSideRenderedTests!.fcpMs}ms`,
-  }))
+  .map((framework) => {
+    const tests = framework.clientSideRenderedTests!
+    const interaction = tests.interactionTests
+
+    return {
+      name: framework.name,
+      package: framework.package,
+      isFocused: framework.isFocused,
+      firstPaintMs: `${tests.firstPaintMs}ms`,
+      fcpMs: `${tests.fcpMs}ms`,
+      interactionLatencyMs: formatMilliseconds(
+        interaction?.interactionLatencyMs,
+      ),
+      inputDelayMs: formatMilliseconds(interaction?.inputDelayMs),
+      processingDurationMs: formatMilliseconds(
+        interaction?.processingDurationMs,
+      ),
+      presentationDelayMs: formatMilliseconds(interaction?.presentationDelayMs),
+    }
+  })
+
+function formatMilliseconds(value: number | undefined) {
+  return value != null && Number.isFinite(value) ? `${value}ms` : '—'
+}
 
 export const depsStats = starterStats.map((f) => ({
   name: f.name,
@@ -349,6 +379,25 @@ export const chartClientSideRenderedFCPData = runtimeEntries
     value: f.clientSideRenderedTests!.fcpMs,
     focused: f.isFocused,
   }))
+
+type RenderedTestsKey = 'clientSideRenderedTests' | 'serverSideRenderedTests'
+export function getRenderedInteractionBreakdownData(
+  testsKey: RenderedTestsKey,
+) {
+  return runtimeEntries
+    .map((entry) => entry.data)
+    .sort((a, b) => a.order - b.order)
+    .flatMap((framework) => {
+      const interaction = framework[testsKey]?.interactionTests
+      if (interaction == null) return []
+
+      return {
+        name: framework.name,
+        focused: framework.isFocused,
+        ...interaction,
+      }
+    })
+}
 
 export const coreJsTableData = starterStats.map((f) => {
   const hasCorejs = (f.vendoredCoreJsUnnecessaryModules?.length ?? 0) > 0

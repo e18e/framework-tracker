@@ -1,11 +1,37 @@
 ---
 import VersionLineChart from './VersionLineChart.astro'
+import InteractionBreakdownChart from './InteractionBreakdownChart.astro'
 
 interface Props {
   versions: unknown[]
 }
 
 const { versions } = Astro.props
+
+const interactionData = versions.flatMap((version) => {
+  if (version == null || typeof version !== 'object') return []
+  const stats = version as Record<string, unknown>
+  const tests = stats.serverSideRenderedTests
+  if (tests == null || typeof tests !== 'object') return []
+  const interaction = (tests as Record<string, unknown>).interactionTests
+  if (interaction == null || typeof interaction !== 'object') return []
+  const values = interaction as Record<string, unknown>
+  if (
+    typeof values.interactionLatencyMs !== 'number' ||
+    typeof values.inputDelayMs !== 'number' ||
+    typeof values.processingDurationMs !== 'number' ||
+    typeof values.presentationDelayMs !== 'number'
+  )
+    return []
+
+  return {
+    name: `v${String(stats.frameworkVersion ?? 'Unknown')}`,
+    interactionLatencyMs: values.interactionLatencyMs,
+    inputDelayMs: values.inputDelayMs,
+    processingDurationMs: values.processingDurationMs,
+    presentationDelayMs: values.presentationDelayMs,
+  }
+})
 ---
 
 <VersionLineChart
@@ -22,3 +48,12 @@ const { versions } = Astro.props
   valueFormat="ms"
   yAxisLabel="Milliseconds"
 />
+{
+  interactionData.length > 0 ? (
+    <InteractionBreakdownChart
+      title="Server Interaction Breakdown by Version"
+      data={interactionData}
+      orientation="vertical"
+    />
+  ) : null
+}

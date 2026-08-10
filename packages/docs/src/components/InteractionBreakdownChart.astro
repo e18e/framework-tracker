@@ -1,0 +1,480 @@
+---
+import { formatChartValue } from '../lib/chart'
+
+interface InteractionBreakdownDatum {
+  name: string
+  focused?: boolean
+  interactionLatencyMs: number
+  inputDelayMs: number
+  processingDurationMs: number
+  presentationDelayMs: number
+}
+
+interface Props {
+  title: string
+  data: InteractionBreakdownDatum[]
+  orientation?: 'horizontal' | 'vertical'
+}
+
+const { title, data, orientation = 'horizontal' } = Astro.props
+const maxLatency = Math.max(
+  1,
+  ...data.map((datum) => datum.interactionLatencyMs),
+)
+const chartHeight = Math.max(56, data.length * 56)
+
+function segmentSize(value: number) {
+  return `${(value / maxLatency) * 100}%`
+}
+
+const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
+  Astro: {
+    dark: '/framework-logos/astro-gradient.svg',
+    light: '/framework-logos/astro-dark.svg',
+  },
+  'Baseline HTML': { dark: '/framework-logos/html5.svg' },
+  Gatsby: { dark: '/framework-logos/gatsby.svg' },
+  'Next.js': {
+    dark: '/framework-logos/nextdotjs-light.svg',
+    light: '/framework-logos/nextdotjs.svg',
+  },
+  Nuxt: { dark: '/framework-logos/nuxt.svg' },
+  'Nuxt.js': { dark: '/framework-logos/nuxt.svg' },
+  'React Router': { dark: '/framework-logos/reactrouter.svg' },
+  SolidStart: { dark: '/framework-logos/solid-start.svg' },
+  SvelteKit: { dark: '/framework-logos/svelte.svg' },
+  'TanStack Start': { dark: '/tanstack-circle-logo.png' },
+  WordPress: { dark: '/framework-logos/wordpress.svg' },
+}
+---
+
+<figure class:list={['interaction-chart', orientation]}>
+  <figcaption>
+    <h3>{title}</h3>
+    <p>
+      Total latency is split into the three consecutive phases reported by
+      Lighthouse.
+    </p>
+    <ul class="phase-descriptions">
+      <li>
+        The <strong>input delay</strong>, which starts when the user initiates
+        an interaction with the page, and ends when the event callbacks for the
+        interaction begin to run.
+      </li>
+      <li>
+        The <strong>processing duration</strong>, which consists of the time it
+        takes for event callbacks to run to completion.
+      </li>
+      <li>
+        The <strong>presentation delay</strong>, which is the time it takes for
+        the browser to present the next frame which contains the visual result
+        of the interaction.
+      </li>
+    </ul>
+  </figcaption>
+  <ul class="legend" aria-hidden="true">
+    <li><span class="swatch input"></span>Input delay</li>
+    <li><span class="swatch processing"></span>Processing duration</li>
+    <li><span class="swatch presentation"></span>Presentation delay</li>
+  </ul>
+  {
+    orientation === 'horizontal' ? (
+      <div
+        class="horizontal-bars"
+        style={`--interaction-chart-height: ${chartHeight}px`}
+      >
+        {data.map((datum) => {
+          const logo = FRAMEWORK_LOGOS[datum.name]
+          return (
+            <div
+              class="horizontal-row"
+              data-focused={datum.focused === false ? 'false' : 'true'}
+            >
+              <span class="framework-logo">
+                {logo ? (
+                  <>
+                    <img
+                      class:list={{ 'theme-logo': true, dark: logo.light }}
+                      src={logo.dark}
+                      alt={datum.name}
+                    />
+                    {logo.light ? (
+                      <img
+                        class="theme-logo light"
+                        src={logo.light}
+                        alt={datum.name}
+                      />
+                    ) : null}
+                  </>
+                ) : (
+                  <span class="logo-fallback" title={datum.name}>
+                    {datum.name.slice(0, 1)}
+                  </span>
+                )}
+              </span>
+              <div class="horizontal-plot">
+                <div class="horizontal-bar" aria-hidden="true">
+                  <span
+                    class="bar-segment input"
+                    style={`width: ${segmentSize(datum.inputDelayMs)}`}
+                    data-tooltip={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
+                    title={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
+                  />
+                  <span
+                    class="bar-segment processing"
+                    style={`width: ${segmentSize(datum.processingDurationMs)}`}
+                    data-tooltip={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
+                    title={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
+                  />
+                  <span
+                    class="bar-segment presentation"
+                    style={`width: ${segmentSize(datum.presentationDelayMs)}`}
+                    data-tooltip={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
+                    title={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
+                  />
+                </div>
+                <strong
+                  class:list={{
+                    'bar-value': true,
+                    inside: datum.interactionLatencyMs / maxLatency > 0.85,
+                  }}
+                  style={`left: ${segmentSize(datum.interactionLatencyMs)}`}
+                >
+                  {formatChartValue(datum.interactionLatencyMs, 'ms')}
+                </strong>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    ) : (
+      <div class="vertical-scroll">
+        <div class="vertical-bars">
+          {data.map((datum) => (
+            <div class="vertical-column">
+              <strong>
+                {formatChartValue(datum.interactionLatencyMs, 'ms')}
+              </strong>
+              <div
+                class="vertical-bar"
+                style={`height: ${segmentSize(datum.interactionLatencyMs)}`}
+                aria-hidden="true"
+              >
+                <span
+                  class="bar-segment presentation"
+                  style={`height: ${(datum.presentationDelayMs / datum.interactionLatencyMs) * 100}%`}
+                  data-tooltip={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
+                  title={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
+                />
+                <span
+                  class="bar-segment processing"
+                  style={`height: ${(datum.processingDurationMs / datum.interactionLatencyMs) * 100}%`}
+                  data-tooltip={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
+                  title={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
+                />
+                <span
+                  class="bar-segment input"
+                  style={`height: ${(datum.inputDelayMs / datum.interactionLatencyMs) * 100}%`}
+                  data-tooltip={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
+                  title={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
+                />
+              </div>
+              <span class="version-name">{datum.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  <div class="sr-only">
+    <table>
+      <caption>{title} data</caption>
+      <thead>
+        <tr>
+          <th scope="col">Framework or version</th>
+          <th scope="col">Interaction latency</th>
+          <th scope="col">Input delay</th>
+          <th scope="col">Processing duration</th>
+          <th scope="col">Presentation delay</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          data.map((datum) => (
+            <tr data-focused={datum.focused === false ? 'false' : 'true'}>
+              <th scope="row">{datum.name}</th>
+              <td>{formatChartValue(datum.interactionLatencyMs, 'ms')}</td>
+              <td>{formatChartValue(datum.inputDelayMs, 'ms')}</td>
+              <td>{formatChartValue(datum.processingDurationMs, 'ms')}</td>
+              <td>{formatChartValue(datum.presentationDelayMs, 'ms')}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</figure>
+
+<style>
+  .interaction-chart {
+    width: 100%;
+    margin: 0 0 2em;
+  }
+
+  figcaption h3 {
+    margin-bottom: 0.35rem;
+    font-size: 1rem;
+  }
+
+  figcaption p {
+    margin-top: 0;
+    color: var(--ft-muted);
+    font-size: 0.9rem;
+  }
+
+  .phase-descriptions {
+    margin-block: 0.5rem 1rem;
+    color: var(--ft-muted);
+    font-size: 0.85rem;
+  }
+
+  .phase-descriptions li {
+    margin-block: 0.2rem;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    margin: 1rem 0;
+    padding: 0;
+    color: var(--ft-muted);
+    font-size: 0.8rem;
+    list-style: none;
+  }
+
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.2rem;
+  }
+
+  .horizontal-bars {
+    display: flex;
+    min-height: var(--interaction-chart-height);
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 0.75rem;
+  }
+
+  .horizontal-row {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .horizontal-row strong,
+  .vertical-column strong {
+    font-size: 0.82rem;
+  }
+
+  .horizontal-row strong,
+  .vertical-column strong {
+    color: var(--ft-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .framework-logo {
+    display: grid;
+    width: 1.25rem;
+    height: 1.25rem;
+    place-items: center;
+  }
+
+  .theme-logo {
+    grid-area: 1 / 1;
+    width: 1.25rem;
+    height: 1.25rem;
+    object-fit: contain;
+  }
+
+  .theme-logo.light {
+    display: none;
+  }
+
+  :global(html[data-theme='light']) .theme-logo.dark {
+    display: none;
+  }
+
+  :global(html[data-theme='light']) .theme-logo.light {
+    display: block;
+  }
+
+  .logo-fallback {
+    display: grid;
+    width: 1.25rem;
+    height: 1.25rem;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ft-bg-muted);
+    color: var(--ft-text);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .horizontal-plot {
+    position: relative;
+    width: 100%;
+    height: 46px;
+  }
+
+  .horizontal-bar {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    width: 100%;
+    height: 46px;
+  }
+
+  .bar-value {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    transform: translate(0.65rem, -50%);
+    white-space: nowrap;
+  }
+
+  .bar-value.inside {
+    color: var(--ft-chart-value-on-bar, #fff);
+    transform: translate(calc(-100% - 0.65rem), -50%);
+  }
+
+  .bar-segment {
+    position: relative;
+    display: block;
+    min-width: 1px;
+  }
+
+  .bar-segment::after {
+    position: absolute;
+    z-index: 10;
+    bottom: calc(100% + 0.4rem);
+    left: 50%;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--ft-border);
+    border-radius: 0.35rem;
+    background: var(--ft-text);
+    color: var(--ft-bg);
+    content: attr(data-tooltip);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 0.2rem);
+    transition:
+      opacity 120ms ease,
+      transform 120ms ease;
+    white-space: nowrap;
+  }
+
+  .bar-segment:hover {
+    z-index: 2;
+  }
+
+  .bar-segment:hover::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  .input {
+    background: #c8c8c8;
+  }
+
+  .horizontal-bar .input {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .processing {
+    background: #929292;
+  }
+
+  .presentation {
+    background: #5f5f5f;
+  }
+
+  .horizontal-bar .presentation {
+    border-radius: 0 8px 8px 0;
+  }
+
+  .vertical-scroll {
+    width: 100%;
+    overflow-x: auto;
+    padding-top: 1rem;
+  }
+
+  .vertical-bars {
+    display: flex;
+    box-sizing: border-box;
+    width: max-content;
+    min-width: 100%;
+    height: 22rem;
+    align-items: flex-end;
+    gap: clamp(1rem, 4vw, 2.5rem);
+    justify-content: space-evenly;
+    padding: 2rem 1rem 0;
+  }
+
+  .vertical-column {
+    display: grid;
+    width: clamp(3.5rem, 8vw, 5rem);
+    height: 100%;
+    grid-template-rows: 1.5rem 1fr 1.75rem;
+    align-items: end;
+    justify-items: center;
+  }
+
+  .vertical-bar {
+    display: flex;
+    width: 100%;
+    min-height: 1px;
+    flex-direction: column;
+    align-self: end;
+  }
+
+  .vertical-bar .bar-segment {
+    width: 100%;
+  }
+
+  .vertical-bar .presentation {
+    border-radius: 0.45rem 0.45rem 0 0;
+  }
+
+  .version-name {
+    align-self: center;
+    color: var(--ft-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  :global([data-framework-scope='focused'])
+    .horizontal-row[data-focused='false'],
+  :global([data-framework-scope='focused']) .sr-only tr[data-focused='false'] {
+    display: none;
+  }
+
+  @media screen and (max-width: 560px) {
+    .horizontal-row {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.5rem;
+    }
+  }
+</style>

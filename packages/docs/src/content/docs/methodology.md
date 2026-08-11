@@ -195,6 +195,7 @@ throughput, and load behavior for comparable production apps.
 - The Astro islands use React because it was Astro's most popular UI framework
   integration at the time this methodology was written, representing 23% of
   projects according to the Astro team (15/07/2026).
+- Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](Detail links use each framework's default production ). Note update to docs page once this PR has been merged.
 
 ### Server Side Rendered Tests
 
@@ -214,6 +215,7 @@ throughput, and load behavior for comparable production apps.
   `/server-side-rendered` route and its detail route use
   `export const prerender = false` so they are rendered on demand by the
   production server instead of measured as prerendered static HTML.
+- Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](Detail links use each framework's default production ). Note update to docs page once this PR has been merged.
 
 ### Server Side Throughput Tests
 

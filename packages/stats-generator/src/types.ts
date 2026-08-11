@@ -21,6 +21,18 @@ export interface TestConfig {
   measurements: MeasurementConfig[]
 }
 
+export interface InteractionTiming {
+  interactionLatencyMs: number
+  inputDelayMs: number
+  processingDurationMs: number
+  presentationDelayMs: number
+}
+
+export interface InteractionTestStats extends InteractionTiming {
+  scenario: 'first-row-detail-navigation'
+  source: 'lighthouse-inp-breakdown'
+}
+
 export interface FrameworkConfig {
   name: string
   displayName: string
@@ -83,14 +95,16 @@ export interface CIStats {
   clientSideRenderedTests?: {
     firstPaintMs: number
     fcpMs: number
-    inpMs: number
+    inpMs?: number
+    interactionTests?: InteractionTestStats
     runs: number
   }
   // Server-side rendered route stats (browser paint + interaction timings)
   serverSideRenderedTests?: {
     firstPaintMs: number
     fcpMs: number
-    inpMs: number
+    inpMs?: number
+    interactionTests?: InteractionTestStats
     runs: number
   }
   // Core-js vendored polyfill stats

@@ -15,6 +15,7 @@ interface ClientSideRenderedFrameworkConfig {
   package: string
   /** Filename of the serve script in src/serve/ */
   serveScript: string
+  fullDocumentNavigation: boolean
 }
 
 const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
@@ -23,42 +24,49 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     displayName: 'Astro Client Side Rendered',
     package: 'app-astro',
     serveScript: 'astro.ts',
+    fullDocumentNavigation: true,
   },
   {
     name: 'next-client-side-rendered',
     displayName: 'Next.js Client Side Rendered',
     package: 'app-next-js',
     serveScript: 'next.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'nuxt-client-side-rendered',
     displayName: 'Nuxt Client Side Rendered',
     package: 'app-nuxt',
     serveScript: 'nitro.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'react-router-client-side-rendered',
     displayName: 'React Router Client Side Rendered',
     package: 'app-react-router',
     serveScript: 'react-router.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'solid-start-client-side-rendered',
     displayName: 'SolidStart Client Side Rendered',
     package: 'app-solid-start',
     serveScript: 'nitro.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'sveltekit-client-side-rendered',
     displayName: 'SvelteKit Client Side Rendered',
     package: 'app-sveltekit',
     serveScript: 'sveltekit.ts',
+    fullDocumentNavigation: false,
   },
   {
     name: 'tanstack-start-client-side-rendered',
     displayName: 'TanStack Start Client Side Rendered',
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
+    fullDocumentNavigation: false,
   },
 ]
 
@@ -155,6 +163,7 @@ export async function runClientSideRenderedBenchmark(
       config.name,
       config.displayName,
       runs,
+      config.fullDocumentNavigation,
     )
   } finally {
     killServer()

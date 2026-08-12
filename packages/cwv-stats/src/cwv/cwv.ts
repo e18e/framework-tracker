@@ -17,6 +17,10 @@ type FrameworkCWV = {
   }
 }
 
+const frameworkSlugOverrides: Partial<Record<Framework, string>> = {
+  SolidStart: 'solid-start',
+}
+
 export async function getLatestFrameworksCWV(): Promise<Array<FrameworkCWV>> {
   console.info(`Running LCP Query for frameworks: [${frameworks.join(',')}]`)
 
@@ -72,7 +76,9 @@ function validateAllCWVIsSameDate(
 
 function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
   const frameworkVitals = latestFrameworkCWV.map((stat) => ({
-    id: stat.technology.toLowerCase().replace(/[.\s]/g, '-'),
+    id:
+      frameworkSlugOverrides[stat.technology] ??
+      stat.technology.toLowerCase().replace(/[.\s]/g, '-'),
     framework: stat.technology,
     date: stat.date,
     overall: getCWV('overall', stat),

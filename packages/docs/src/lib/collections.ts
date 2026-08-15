@@ -60,8 +60,8 @@ export type Device = 'desktop' | 'mobile'
 export const cwvStats = (device: Device) =>
   cwvEntries
     .map(({ data }) => ({
-      id: data.id,
-      framework: data.framework,
+      name: data.name,
+      package: data.package,
       isFocused: true,
       overallPercent: Math.floor(data.overall[device] * 100),
       lcpPercent: Math.floor(data.lcp[device] * 100),
@@ -78,7 +78,7 @@ export function getCWVStatsChartData(cwv: CWV, device: Device) {
   return cwvStats(device)
     .sort((a, b) => b[`${cwv}Percent`] - a[`${cwv}Percent`])
     .map((stat) => ({
-      name: stat.framework,
+      name: stat.name,
       value: stat[`${cwv}Percent`],
       focused: true,
     }))

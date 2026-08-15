@@ -27,7 +27,7 @@ jobs:
           container_id=$(docker run -d cwv-stats)
           docker wait "$container_id"
           docker cp "$container_id:/app/cwv-stats.json" ./packages/docs/src/content/cwv/cwv-stats.json
-          cat ./packages/cwv-stats/cwv-stats.json
+          cat ./packages/docs/src/content/cwv/cwv-stats.json
           docker rm "$container_id"
 
       - name: Create Pull Request
@@ -52,7 +52,7 @@ jobs:
 
           Includes:
           - CWV stats for frameworks in packages/cwv-stats/src/frameworks/frameworks.ts
-          - Outputs stats to packages/cwv-stats/cwv-stats.json
+          - Outputs stats to packages/docs/src/content/cwv/cwv-stats.json
 
           This PR was automatically created and will auto-merge if all checks pass." \
               --base main \

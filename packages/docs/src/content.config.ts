@@ -179,7 +179,8 @@ const cwvCollection = defineCollection({
   loader: file('src/content/cwv/cwv-stats.json'),
   schema: z.object({
     id: z.string(),
-    framework: z.string(),
+    name: z.string(),
+    package: z.string(),
     date: z.string(),
     overall: z.object({
       mobile: z.number(),

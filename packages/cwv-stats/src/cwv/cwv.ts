@@ -1,4 +1,10 @@
-import { type Framework, frameworks } from '../frameworks/frameworks.ts'
+import {
+  type Framework,
+  type FrameworkName,
+  type FrameworkPackage,
+  frameworkMetadata,
+  frameworks,
+} from '../frameworks/frameworks.ts'
 import {
   type HTTPArchiveCWV,
   type HTTPArchiveCWVSnapshot,
@@ -7,8 +13,9 @@ import {
 
 // httparchive allows us to pull FID but does not include any metrics at this current time so we can ignore it.
 type FrameworkCWV = {
-  id: string
-  framework: Framework
+  id: FrameworkPackage
+  name: FrameworkName
+  package: FrameworkPackage
   date: string
 } & {
   [cwv in Lowercase<Exclude<HTTPArchiveCWV, 'FID'>>]: {
@@ -71,17 +78,22 @@ function validateAllCWVIsSameDate(
 }
 
 function buildFrameworkCWV(latestFrameworkCWV: HTTPArchiveCWVSnapshot[]) {
-  const frameworkVitals = latestFrameworkCWV.map((stat) => ({
-    id: stat.technology.toLowerCase().replace(/[.\s]/g, '-'),
-    framework: stat.technology,
-    date: stat.date,
-    overall: getCWV('overall', stat),
-    lcp: getCWV('LCP', stat),
-    cls: getCWV('CLS', stat),
-    fcp: getCWV('FCP', stat),
-    ttfb: getCWV('TTFB', stat),
-    inp: getCWV('INP', stat),
-  }))
+  const frameworkVitals = latestFrameworkCWV.map((stat) => {
+    const framework = frameworkMetadata[stat.technology]
+
+    return {
+      id: framework.package,
+      name: framework.name,
+      package: framework.package,
+      date: stat.date,
+      overall: getCWV('overall', stat),
+      lcp: getCWV('LCP', stat),
+      cls: getCWV('CLS', stat),
+      fcp: getCWV('FCP', stat),
+      ttfb: getCWV('TTFB', stat),
+      inp: getCWV('INP', stat),
+    }
+  })
 
   return frameworkVitals
 }

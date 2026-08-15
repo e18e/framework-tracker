@@ -12,11 +12,11 @@ const { device } = Astro.props
 
 const columns = [
   {
-    key: 'framework',
+    key: 'name',
     header: 'Framework',
     nameCell: true,
     href: (row: Record<string, unknown>) =>
-      `/framework/${getFrameworkSlug(row.id as string)}`,
+      `/framework/${getFrameworkSlug(row.package as string)}`,
   },
   { key: 'lcpPercent', header: 'LCP%' },
   { key: 'clsPercent', header: 'CLS%' },

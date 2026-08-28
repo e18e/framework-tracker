@@ -10,6 +10,7 @@ import {
   parseArgs,
 } from './utils.ts'
 import type { InstallStats } from './types.ts'
+import { summarizeSamples } from './sample-statistics.ts'
 
 function execCommand(command: string, cwd: string): string {
   return execSync(command, {
@@ -94,13 +95,6 @@ async function main() {
       console.info(`  Install time: ${time}ms`)
     }
 
-    const avgInstallTimeMs =
-      Math.round(
-        (installTimes.reduce((a, b) => a + b, 0) / installTimes.length) * 10,
-      ) / 10
-    const minInstallTimeMs = Math.min(...installTimes)
-    const maxInstallTimeMs = Math.max(...installTimes)
-
     const frameworkVersion = getFrameworkVersion(
       tempDir,
       framework.frameworkPackage,
@@ -113,11 +107,7 @@ async function main() {
 
     const stats: InstallStats = {
       frameworkVersion,
-      installTime: {
-        avgMs: avgInstallTimeMs,
-        minMs: minInstallTimeMs,
-        maxMs: maxInstallTimeMs,
-      },
+      installTime: summarizeSamples(installTimes, 1),
       nodeModulesSize,
     }
 
@@ -126,6 +116,9 @@ async function main() {
 
     console.info(`\n✓ Saved install stats to ${outputPath}`)
     console.info(`  Average: ${stats.installTime.avgMs}ms`)
+    console.info(
+      `  Standard deviation: ${stats.installTime.standardDeviationMs}ms`,
+    )
     console.info(`  Min: ${stats.installTime.minMs}ms`)
     console.info(`  Max: ${stats.installTime.maxMs}ms`)
   } finally {

@@ -33,6 +33,17 @@ export interface InteractionTestStats extends InteractionTiming {
   source: 'lighthouse-inp-breakdown'
 }
 
+export interface RenderedTestSample {
+  firstPaintMs: number
+  fcpMs: number
+  interactionTests: InteractionTiming
+}
+
+export interface RenderedTestStandardDeviation extends InteractionTiming {
+  firstPaintMs: number
+  fcpMs: number
+}
+
 export interface FrameworkConfig {
   name: string
   displayName: string
@@ -98,6 +109,8 @@ export interface CIStats {
     inpMs?: number
     interactionTests?: InteractionTestStats
     runs: number
+    standardDeviation?: RenderedTestStandardDeviation
+    samples?: RenderedTestSample[]
   }
   // Server-side rendered route stats (browser paint + interaction timings)
   serverSideRenderedTests?: {
@@ -106,6 +119,8 @@ export interface CIStats {
     inpMs?: number
     interactionTests?: InteractionTestStats
     runs: number
+    standardDeviation?: RenderedTestStandardDeviation
+    samples?: RenderedTestSample[]
   }
   // Core-js vendored polyfill stats
   vendoredCoreJsSize?: number
@@ -169,8 +184,10 @@ export interface BrowserBaselineStats {
 
 export interface TimeStat {
   avgMs: number
+  standardDeviationMs: number
   minMs: number
   maxMs: number
+  samplesMs: number[]
 }
 
 export interface FrameworkStats extends CIStats {

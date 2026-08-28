@@ -74,17 +74,18 @@ matches the framework version tracked by the starter project.
 
 ### Node Modules Size
 
-- Install benchmarks copy the starter package to a temporary directory, remove
-  `node_modules`, prune the package manager store when possible, and run
-  `pnpm install --no-frozen-lockfile`.
+- For every repetition, install benchmarks copy the starter package to a fresh
+  temporary directory and use dedicated, initially empty pnpm store and cache
+  directories. They run `pnpm install --frozen-lockfile` so every measurement
+  installs the committed dependency graph without reusing local package data.
 - `node_modules` size is measured after the regular install. This represents
   the starter's complete local installation, including development tools; it
   does not represent the framework's production deployment size.
 
 ### Build and Install Times
 
-- Install time measures a clean `pnpm install --no-frozen-lockfile` in a
-  temporary copy of the starter package.
+- Install time measures a clean `pnpm install --frozen-lockfile` in a fresh
+  temporary copy of the starter package with an empty pnpm store and cache.
 - Install benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
 - Cold build time removes the configured build output directory before running

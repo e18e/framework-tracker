@@ -13,13 +13,14 @@ starting a framework and the runtime cost of serving and hydrating a comparable
 app. Timing results are run multiple times and averaged, and generated JSON is
 published into the docs package.
 
-Benchmarks run on Depot GitHub Actions runners using
+Most benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
 which Depot documents as an Intel runner with 2 CPUs, 8 GB RAM, 100 GB disk,
-and a 2 GB disk accelerator. Browser rendering benchmarks run directly on the
-Depot runner host and use the host Chrome installation rather than a job-level
-browser container. The generated runtime stats record the Chrome version used
-for browser rendering benchmarks.
+and a 2 GB disk accelerator. The SSR load test instead uses
+`depot-ubuntu-24.04-16`, with 16 CPUs and 64 GB RAM. Browser rendering
+benchmarks run directly on the Depot runner host and use the host Chrome
+installation rather than a job-level browser container. The generated runtime
+stats record the Chrome version used for browser rendering benchmarks.
 
 ## Dev Time
 
@@ -274,6 +275,13 @@ throughput, and load behavior for comparable production apps.
 - Load is applied with [autocannon](https://github.com/mcollina/autocannon) in
   staged connection counts: 1, 5, 10, 25, 50, 100, and 200 concurrent
   connections.
+- The framework server and Autocannon run in separate containers on the same
+  16-CPU Depot runner. The server container is pinned to CPUs 0-11 and the
+  Autocannon container to CPUs 12-15, preventing the two benchmark workloads
+  from competing for the same CPU cores. They still share the host's memory,
+  kernel, Docker runtime, and other system resources, so this does not provide
+  the full isolation of separate machines. Keeping both containers on one host
+  also avoids introducing cross-machine network latency.
 - Each stage runs for approximately 5 seconds.
 - Peak requests/sec is the highest successful stage throughput observed during
   the staged run.

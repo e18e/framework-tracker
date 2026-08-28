@@ -226,7 +226,9 @@ jobs:
 
   measure-ssr-load:
     if: inputs.ssr-load-matrix != '[]'
-    runs-on: depot-ubuntu-24.04
+    runs-on: depot-ubuntu-24.04-16
+    env:
+      RUNNER_LABEL: 'Depot depot-ubuntu-24.04-16 GitHub Actions runner (16 CPUs, 64 GB RAM, 180 GB disk, 8 GB disk accelerator; server CPUs 0-11; Autocannon CPUs 12-15)'
     strategy:
       fail-fast: false
       matrix:
@@ -256,7 +258,7 @@ jobs:
         run: pnpm build
 
       - name: Run SSR load benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:ssr-load ${{ matrix.framework.package }}
+        run: packages/stats-generator/scripts/run-containerized-ssr-load.sh ${{ matrix.framework.package }}
 
       - name: Upload SSR load stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

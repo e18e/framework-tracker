@@ -228,6 +228,16 @@ export const depsStats = starterStats.map((f) => ({
   graph: 'View',
 }))
 
+export const minimumNodeVersionTableData = starterStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.isFocused,
+  minNodeVersion: f.minimumNodeVersion ? `v${f.minimumNodeVersion}` : '—',
+  imposedBy: f.minimumNodeVersionImposedBy?.length
+    ? f.minimumNodeVersionImposedBy.join(', ')
+    : '—',
+}))
+
 const frameworkPackageNames: Record<string, string> = {
   'starter-astro': 'astro',
   'starter-mastro': '@mastrojs/mastro',

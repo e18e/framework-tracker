@@ -114,6 +114,9 @@ jobs:
         if: contains(toJson(matrix.framework.measurements), 'browserBaseline')
         run: pnpm --filter @framework-tracker/stats-generator run:browser-baseline ${{ matrix.framework.package }}
 
+      - name: Scan installed dependencies for Node engine constraints
+        run: pnpm --filter @framework-tracker/stats-generator run:node-engines ${{ matrix.framework.package }}
+
       - name: Upload build stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -138,6 +141,14 @@ jobs:
           path: packages/${{ matrix.framework.package }}/browser-baseline-stats.json
           retention-days: 1
           if-no-files-found: error
+
+      - name: Upload node engines stats
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: node-engines-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/node-engines-stats.json
+          retention-days: 1
+          if-no-files-found: warn
 
   measure-ssr-request-throughput:
     if: inputs.ssr-request-throughput-matrix != '[]'

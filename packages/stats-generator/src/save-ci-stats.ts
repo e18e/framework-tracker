@@ -14,6 +14,7 @@ import type {
   BuildStats,
   CoreJsStats,
   BrowserBaselineStats,
+  NodeEnginesStats,
   DependencyStats,
   E18eStats,
 } from './types.ts'
@@ -128,6 +129,29 @@ async function main() {
       } else {
         console.warn(
           `No browser baseline stats artifact found at ${browserBaselineArtifactPath}`,
+        )
+      }
+
+      const nodeEnginesArtifactPath = join(
+        artifactsDir,
+        `node-engines-stats-${name}`,
+        'node-engines-stats.json',
+      )
+      const nodeEnginesStats = readJsonFile<NodeEnginesStats>(
+        nodeEnginesArtifactPath,
+      )
+      if (nodeEnginesStats) {
+        console.info(`  ✓ Found Node engines stats artifact`)
+        if (nodeEnginesStats.minimumNodeVersion) {
+          stats = {
+            ...stats,
+            minimumNodeVersion: nodeEnginesStats.minimumNodeVersion,
+            minimumNodeVersionImposedBy: nodeEnginesStats.imposedBy,
+          }
+        }
+      } else {
+        console.warn(
+          `No Node engines stats artifact found at ${nodeEnginesArtifactPath}`,
         )
       }
 

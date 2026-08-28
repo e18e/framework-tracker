@@ -1,0 +1,23 @@
+---
+import { minimumNodeVersionTableData } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const columns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'minNodeVersion', header: 'Min Node' },
+  { key: 'imposedBy', header: 'Set by' },
+]
+---
+
+<StatsTable
+  label="Minimum Node version by framework"
+  columns={columns}
+  data={minimumNodeVersionTableData}
+/>

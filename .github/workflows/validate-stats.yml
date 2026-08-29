@@ -19,6 +19,7 @@ on:
       - '!packages/starter-*/corejs-stats.json'
       - '!packages/starter-*/browser-baseline-stats.json'
       - '!packages/starter-*/e18e-stats.json'
+      - '!packages/starter-*/node-engines-stats.json'
 
 jobs:
   validate:
@@ -81,6 +82,8 @@ jobs:
             pnpm --filter @framework-tracker/stats-generator run:install $PKG 1
             echo "Running build benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:build $PKG
+            echo "Running Node engines scan for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:node-engines $PKG
           done
 
           echo ""

@@ -30,6 +30,14 @@ export const BrowserBaselineStatsSchema = z.object({
   baselineFeatureCount: z.number().nonnegative(),
 })
 
+export const NodeEnginesStatsSchema = z.object({
+  minimumNodeVersion: z.string().nullable(),
+  imposedBy: z.array(z.string()),
+  packagesScanned: z.number().nonnegative(),
+  packagesDeclaringNodeEngine: z.number().nonnegative(),
+  unsatisfiableRanges: z.array(z.string()),
+})
+
 export const SSRRequestThroughputStatsSchema = z.object({
   ssrRequestThroughputTests: z.object({
     opsPerSec: z.number().positive(),
@@ -121,6 +129,7 @@ export const ServerSideRenderedStatsSchema = z.object({
 export type InstallStats = z.infer<typeof InstallStatsSchema>
 export type BuildStats = z.infer<typeof BuildStatsSchema>
 export type BrowserBaselineStats = z.infer<typeof BrowserBaselineStatsSchema>
+export type NodeEnginesStats = z.infer<typeof NodeEnginesStatsSchema>
 export type SSRRequestThroughputStats = z.infer<
   typeof SSRRequestThroughputStatsSchema
 >

@@ -134,6 +134,12 @@ matches the framework version tracked by the starter project.
 - Features is the number of unique web platform feature IDs detected in the
   browser-facing build output.
 
+### Minimum Node Version
+
+The oldest Node.js release that satisfies every `engines.node` range declared by the packages installed in the starter's `node_modules`, dev and prod dependencies included, together with the starter's own `package.json`. The ranges are deduplicated and intersected, so the floor is the lowest version that every package accepts at once. The "Set by" column lists the packages that impose that floor, meaning removing any one of them would lower it. When several packages share the floor and no single one is responsible, the column shows a dash.
+
+A dash in the Min Node column means no installed package declares a resolvable `engines.node` range.
+
 ### Duplicate Dependencies
 
 - Duplicate dependency details come from e18e dependency analysis messages

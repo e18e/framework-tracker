@@ -72,6 +72,8 @@ const devtimeSchema = z.object({
       baselineFeatureCount: z.number(),
     })
     .optional(),
+  minimumNodeVersion: z.string().optional(),
+  minimumNodeVersionImposedBy: z.array(z.string()).optional(),
   timingMeasuredAt: z.string(),
   runner: z.string(),
   browserVersion: z.string().optional(),

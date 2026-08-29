@@ -1,6 +1,8 @@
-import { execSync } from 'node:child_process'
-import { join } from 'node:path'
-import { existsSync, rmSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { cpSync, mkdirSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { installDependencies, parseRunFrequency } from './benchmark-utils.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDirectorySize,
@@ -11,30 +13,66 @@ import {
 import type { BuildStats } from './types.ts'
 import { summarizeSamples } from './sample-statistics.ts'
 
-function measureBuildTime(cwd: string): number {
+function copyTrackedProject(sourceDir: string, projectDir: string): void {
+  const repositoryDir = join(packagesDir, '..')
+  const sourcePathFromRepository = relative(repositoryDir, sourceDir)
+  const trackedPaths = execFileSync(
+    'git',
+    ['ls-files', '-z', '--', sourcePathFromRepository],
+    {
+      cwd: repositoryDir,
+      encoding: 'utf-8',
+    },
+  )
+    .split('\0')
+    .filter(Boolean)
+
+  for (const trackedPath of trackedPaths) {
+    const projectPath = relative(sourcePathFromRepository, trackedPath)
+    const destinationPath = join(projectDir, projectPath)
+    mkdirSync(dirname(destinationPath), { recursive: true })
+    cpSync(join(repositoryDir, trackedPath), destinationPath)
+  }
+}
+
+function measureBuildTime(cwd: string, buildScript: string): number {
   const start = performance.now()
-  execSync('pnpm build', { cwd, encoding: 'utf-8', stdio: 'inherit' })
+  execFileSync('pnpm', [buildScript], {
+    cwd,
+    encoding: 'utf-8',
+    stdio: 'inherit',
+  })
   const end = performance.now()
   return Math.round(end - start)
 }
 
-function rmBuildOutput(buildOutputPath: string): void {
-  if (existsSync(buildOutputPath)) {
-    console.info('Build output found. Removing build output')
-    rmSync(buildOutputPath, { recursive: true, force: true })
-  } else {
-    console.info('No build output found. Skipping removal of build output')
+function getBuildOutputPath(
+  projectDir: string,
+  buildOutputDir: string,
+): string {
+  const buildOutputPath = resolve(projectDir, buildOutputDir)
+  const relativeBuildOutputPath = relative(projectDir, buildOutputPath)
+
+  if (
+    !relativeBuildOutputPath ||
+    relativeBuildOutputPath === '..' ||
+    relativeBuildOutputPath.startsWith(`..${sep}`) ||
+    isAbsolute(relativeBuildOutputPath)
+  ) {
+    throw new Error(
+      `Build output directory must be inside the project: ${buildOutputDir}`,
+    )
   }
+
+  return buildOutputPath
 }
 
 async function main() {
   const { packageName, args } = parseArgs(
-    'Usage: run-build-benchmark <package-name>\nExample: run-build-benchmark starter-astro',
+    'Usage: run-build-benchmark <package-name> [run-frequency]\nExample: run-build-benchmark starter-astro 5',
   )
 
-  const fallbackFrequency = '5'
-  const base = 10
-  const runFrequency = Number.parseInt(args[0] || fallbackFrequency, base)
+  const runFrequency = parseRunFrequency(args[0])
 
   const { framework, testConfig } = await getFrameworkByPackage(packageName)
 
@@ -43,62 +81,102 @@ async function main() {
   )
 
   const packageDir = join(packagesDir, packageName)
-  const buildOutputPath = join(packageDir, testConfig.buildOutputDir)
+  const tempDir = join(
+    tmpdir(),
+    `framework-build-benchmark-${packageName}-${Date.now()}`,
+  )
+  const storeDir = join(tempDir, 'store')
+  const cacheDir = join(tempDir, 'cache')
 
   const coldBuildTimesMs: number[] = []
   const warmBuildTimesMs: number[] = []
+  let finalProjectDir = ''
+  let previousRunDir = ''
 
-  for (let i = 1; i <= runFrequency; i++) {
-    console.info(`\nBuild run ${i}/${runFrequency}...`)
-    rmBuildOutput(buildOutputPath)
+  try {
+    for (let i = 1; i <= runFrequency; i++) {
+      if (previousRunDir) {
+        rmSync(previousRunDir, { recursive: true, force: true })
+      }
 
-    console.info('Cold build...')
-    const coldBuildTimeMs = measureBuildTime(packageDir)
-    coldBuildTimesMs.push(coldBuildTimeMs)
-    console.info(`  Cold build time: ${coldBuildTimeMs}ms`)
+      const runDir = join(tempDir, `run-${i}`)
+      const projectDir = join(runDir, 'project')
+      copyTrackedProject(packageDir, projectDir)
 
-    console.info('\nWarm build...')
-    const warmBuildTimeMs = measureBuildTime(packageDir)
-    warmBuildTimesMs.push(warmBuildTimeMs)
-    console.info(`  Warm build time: ${warmBuildTimeMs}ms`)
+      console.info(`\nBuild run ${i}/${runFrequency}...`)
+      console.info('Installing dependencies outside the timed region...')
+      installDependencies(projectDir, storeDir, cacheDir)
+
+      console.info('Cold build...')
+      const coldBuildTimeMs = measureBuildTime(
+        projectDir,
+        testConfig.buildScript,
+      )
+      coldBuildTimesMs.push(coldBuildTimeMs)
+      console.info(`  Cold build time: ${coldBuildTimeMs}ms`)
+
+      console.info('\nWarm build...')
+      const warmBuildTimeMs = measureBuildTime(
+        projectDir,
+        testConfig.buildScript,
+      )
+      warmBuildTimesMs.push(warmBuildTimeMs)
+      console.info(`  Warm build time: ${warmBuildTimeMs}ms`)
+
+      finalProjectDir = projectDir
+      previousRunDir = runDir
+    }
+
+    const finalBuildOutputPath = getBuildOutputPath(
+      finalProjectDir,
+      testConfig.buildOutputDir,
+    )
+    const excludedBuildOutputPaths =
+      testConfig.buildOutputDir === '.next'
+        ? [join(finalBuildOutputPath, 'cache')]
+        : []
+    const buildOutputSize = getDirectorySize(
+      finalBuildOutputPath,
+      excludedBuildOutputPaths,
+    )
+    console.info(`\nBuild output size: ${buildOutputSize} bytes`)
+
+    const coldBuildTime = summarizeSamples(coldBuildTimesMs)
+    console.info(`\nAvg cold build time: ${coldBuildTime.avgMs} ms`)
+    console.info(
+      `\nCold build standard deviation: ${coldBuildTime.standardDeviationMs} ms`,
+    )
+    console.info(`\nMin cold build time: ${coldBuildTime.minMs} ms`)
+    console.info(`\nMax cold build time: ${coldBuildTime.maxMs} ms`)
+
+    const warmBuildTime = summarizeSamples(warmBuildTimesMs)
+    console.info(`\nAvg warm build time: ${warmBuildTime.avgMs} ms`)
+    console.info(
+      `\nWarm build standard deviation: ${warmBuildTime.standardDeviationMs} ms`,
+    )
+    console.info(`\nMin warm build time: ${warmBuildTime.minMs} ms`)
+    console.info(`\nMax warm build time: ${warmBuildTime.maxMs} ms`)
+
+    const stats: BuildStats = {
+      coldBuildTime,
+      warmBuildTime,
+      buildOutputSize,
+    }
+
+    const outputPath = join(packagesDir, packageName, 'build-stats.json')
+    writeJsonFile(outputPath, stats)
+
+    const buildOutputPath = getBuildOutputPath(
+      packageDir,
+      testConfig.buildOutputDir,
+    )
+    rmSync(buildOutputPath, { recursive: true, force: true })
+    cpSync(finalBuildOutputPath, buildOutputPath, { recursive: true })
+
+    console.info(`\n✓ Saved build stats to ${outputPath}`)
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true })
   }
-
-  const excludedBuildOutputPaths =
-    testConfig.buildOutputDir === '.next'
-      ? [join(buildOutputPath, 'cache')]
-      : []
-  const buildOutputSize = getDirectorySize(
-    buildOutputPath,
-    excludedBuildOutputPaths,
-  )
-  console.info(`\nBuild output size: ${buildOutputSize} bytes`)
-
-  const coldBuildTime = summarizeSamples(coldBuildTimesMs)
-  console.info(`\nAvg cold build time: ${coldBuildTime.avgMs} ms`)
-  console.info(
-    `\nCold build standard deviation: ${coldBuildTime.standardDeviationMs} ms`,
-  )
-  console.info(`\nMin cold build time: ${coldBuildTime.minMs} ms`)
-  console.info(`\nMax cold build time: ${coldBuildTime.maxMs} ms`)
-
-  const warmBuildTime = summarizeSamples(warmBuildTimesMs)
-  console.info(`\nAvg warm build time: ${warmBuildTime.avgMs} ms`)
-  console.info(
-    `\nWarm build standard deviation: ${warmBuildTime.standardDeviationMs} ms`,
-  )
-  console.info(`\nMin warm build time: ${warmBuildTime.minMs} ms`)
-  console.info(`\nMax warm build time: ${warmBuildTime.maxMs} ms`)
-
-  const stats: BuildStats = {
-    coldBuildTime,
-    warmBuildTime,
-    buildOutputSize,
-  }
-
-  const outputPath = join(packagesDir, packageName, 'build-stats.json')
-  writeJsonFile(outputPath, stats)
-
-  console.info(`\n✓ Saved build stats to ${outputPath}`)
 }
 
 main().catch((error) => {

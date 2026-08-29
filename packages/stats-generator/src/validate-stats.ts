@@ -7,6 +7,7 @@ import {
   InstallStatsSchema,
   BuildStatsSchema,
   BrowserBaselineStatsSchema,
+  NodeEnginesStatsSchema,
   SSRRequestThroughputStatsSchema,
   SSRLoadStatsSchema,
   ClientSideRenderedStatsSchema,
@@ -17,6 +18,7 @@ type BenchmarkType =
   | 'install'
   | 'build'
   | 'browserBaseline'
+  | 'nodeEngines'
   | 'ssrRequestThroughput'
   | 'ssrLoad'
   | 'clientSideRendered'
@@ -35,6 +37,11 @@ const STARTER_BENCHMARKS: BenchmarkConfig[] = [
     type: 'browserBaseline',
     file: 'browser-baseline-stats.json',
     schema: BrowserBaselineStatsSchema,
+  },
+  {
+    type: 'nodeEngines',
+    file: 'node-engines-stats.json',
+    schema: NodeEnginesStatsSchema,
   },
 ]
 

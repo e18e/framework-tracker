@@ -98,10 +98,6 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install package dependencies
-        working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile
-
       - name: Run build benchmark
         run: |
           RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "build") | .runFrequency')
@@ -113,6 +109,9 @@ jobs:
       - name: Scan build output for browser baseline requirements
         if: contains(toJson(matrix.framework.measurements), 'browserBaseline')
         run: pnpm --filter @framework-tracker/stats-generator run:browser-baseline ${{ matrix.framework.package }}
+
+      - name: Scan installed dependencies for Node engine constraints
+        run: pnpm --filter @framework-tracker/stats-generator run:node-engines ${{ matrix.framework.package }}
 
       - name: Upload build stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -138,6 +137,14 @@ jobs:
           path: packages/${{ matrix.framework.package }}/browser-baseline-stats.json
           retention-days: 1
           if-no-files-found: error
+
+      - name: Upload node engines stats
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: node-engines-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/node-engines-stats.json
+          retention-days: 1
+          if-no-files-found: warn
 
   measure-ssr-request-throughput:
     if: inputs.ssr-request-throughput-matrix != '[]'
@@ -226,7 +233,9 @@ jobs:
 
   measure-ssr-load:
     if: inputs.ssr-load-matrix != '[]'
-    runs-on: depot-ubuntu-24.04
+    runs-on: depot-ubuntu-24.04-16
+    env:
+      RUNNER_LABEL: 'Depot depot-ubuntu-24.04-16 GitHub Actions runner (16 CPUs, 64 GB RAM, 180 GB disk, 8 GB disk accelerator; server CPUs 0-11; Autocannon CPUs 12-15)'
     strategy:
       fail-fast: false
       matrix:
@@ -256,7 +265,7 @@ jobs:
         run: pnpm build
 
       - name: Run SSR load benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:ssr-load ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-tracker/stats-generator run:ssr-load:containerized ${{ matrix.framework.package }}
 
       - name: Upload SSR load stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -1,7 +1,8 @@
 import { execSync } from 'node:child_process'
-import { cpSync, rmSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { cpSync, mkdirSync, rmSync } from 'node:fs'
+import { basename, join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { installDependencies, parseRunFrequency } from './benchmark-utils.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDirectorySize,
@@ -20,24 +21,23 @@ function execCommand(command: string, cwd: string): string {
   })
 }
 
-function cleanForFreshInstall(cwd: string): void {
-  const nodeModulesPath = join(cwd, 'node_modules')
-  if (existsSync(nodeModulesPath)) {
-    rmSync(nodeModulesPath, { recursive: true, force: true })
-  }
-
-  try {
-    execCommand('pnpm store prune', cwd)
-  } catch {
-    // Ignore if prune fails
-  }
+function copyFreshProject(sourceDir: string, runDir: string): string {
+  const projectDir = join(runDir, 'project')
+  mkdirSync(runDir, { recursive: true })
+  cpSync(sourceDir, projectDir, {
+    recursive: true,
+    filter: (sourcePath) => basename(sourcePath) !== 'node_modules',
+  })
+  return projectDir
 }
 
-function measureInstallTime(cwd: string): number {
-  cleanForFreshInstall(cwd)
-
+function measureInstallTime(
+  cwd: string,
+  storeDir: string,
+  cacheDir: string,
+): number {
   const start = performance.now()
-  execCommand('pnpm install --no-frozen-lockfile', cwd)
+  installDependencies(cwd, storeDir, cacheDir)
   const end = performance.now()
 
   return Math.round(end - start)
@@ -65,9 +65,7 @@ async function main() {
     'Usage: run-install-benchmark <package-name> [run-frequency]\nExample: run-install-benchmark starter-astro 5',
   )
 
-  const fallbackFrequency = '5'
-  const base = 10
-  const runFrequency = Number.parseInt(args[0] || fallbackFrequency, base)
+  const runFrequency = parseRunFrequency(args[0])
 
   const { framework } = await getFrameworkByPackage(packageName)
 
@@ -82,26 +80,39 @@ async function main() {
     `framework-benchmark-${packageName}-${Date.now()}`,
   )
 
-  console.info(`Copying ${packageName} to ${tempDir}...`)
-  cpSync(sourceDir, tempDir, { recursive: true })
+  console.info(`Using isolated benchmark directory ${tempDir}...`)
 
   try {
     const installTimes: number[] = []
+    let finalProjectDir = ''
+    let previousRunDir = ''
 
     for (let i = 1; i <= runFrequency; i++) {
+      if (previousRunDir) {
+        rmSync(previousRunDir, { recursive: true, force: true })
+      }
+
+      const runDir = join(tempDir, `run-${i}`)
+      const projectDir = copyFreshProject(sourceDir, runDir)
+      const storeDir = join(runDir, 'store')
+      const cacheDir = join(runDir, 'cache')
+
       console.info(`\nInstall run ${i}/${runFrequency}...`)
-      const time = measureInstallTime(tempDir)
+      const time = measureInstallTime(projectDir, storeDir, cacheDir)
       installTimes.push(time)
       console.info(`  Install time: ${time}ms`)
+
+      finalProjectDir = projectDir
+      previousRunDir = runDir
     }
 
     const frameworkVersion = getFrameworkVersion(
-      tempDir,
+      finalProjectDir,
       framework.frameworkPackage,
     )
     console.info(`\nFramework version: ${frameworkVersion}`)
 
-    const nodeModulesPath = join(tempDir, 'node_modules')
+    const nodeModulesPath = join(finalProjectDir, 'node_modules')
     const nodeModulesSize = getDirectorySize(nodeModulesPath)
     console.info(`node_modules size: ${nodeModulesSize} bytes`)
 

@@ -13,13 +13,14 @@ starting a framework and the runtime cost of serving and hydrating a comparable
 app. Timing results are run multiple times and averaged, and generated JSON is
 published into the docs package.
 
-Benchmarks run on Depot GitHub Actions runners using
+Most benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
 which Depot documents as an Intel runner with 2 CPUs, 8 GB RAM, 100 GB disk,
-and a 2 GB disk accelerator. Browser rendering benchmarks run directly on the
-Depot runner host and use the host Chrome installation rather than a job-level
-browser container. The generated runtime stats record the Chrome version used
-for browser rendering benchmarks.
+and a 2 GB disk accelerator. The SSR load test instead uses
+`depot-ubuntu-24.04-16`, with 16 CPUs and 64 GB RAM. Browser rendering
+benchmarks run directly on the Depot runner host and use the host Chrome
+installation rather than a job-level browser container. The generated runtime
+stats record the Chrome version used for browser rendering benchmarks.
 
 ## Dev Time
 
@@ -74,23 +75,26 @@ matches the framework version tracked by the starter project.
 
 ### Node Modules Size
 
-- Install benchmarks copy the starter package to a temporary directory, remove
-  `node_modules`, prune the package manager store when possible, and run
-  `pnpm install --no-frozen-lockfile`.
+- For every repetition, install benchmarks copy the starter package to a fresh
+  temporary directory and use dedicated, initially empty pnpm store and cache
+  directories. They run `pnpm install --frozen-lockfile` so every measurement
+  installs the committed dependency graph without reusing local package data.
 - `node_modules` size is measured after the regular install. This represents
   the starter's complete local installation, including development tools; it
   does not represent the framework's production deployment size.
 
 ### Build and Install Times
 
-- Install time measures a clean `pnpm install --no-frozen-lockfile` in a
-  temporary copy of the starter package.
+- Install time measures a clean `pnpm install --frozen-lockfile` in a fresh
+  temporary copy of the starter package with an empty pnpm store and cache.
 - Install benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
-- Cold build time removes the configured build output directory before running
-  `pnpm build`.
-- Warm build time runs `pnpm build` again after the cold build, preserving
-  whatever cache or generated output the framework leaves in place.
+- Each build repetition uses a fresh temporary copy of the tracked starter
+  files. Dependencies are installed outside the timed region with a frozen
+  lockfile and a dedicated store shared by the repetitions.
+- Cold build time measures the first build in that fresh project. Warm build
+  time measures a second build in the same project, preserving whatever cache
+  or generated output the first build leaves in place.
 - Build benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
 - Build output size is the total size of the configured production output
@@ -131,6 +135,12 @@ matches the framework version tracked by the starter project.
 - Features is the number of unique web platform feature IDs detected in the
   browser-facing build output.
 
+### Minimum Node Version
+
+The oldest Node.js release that satisfies every `engines.node` range declared by the packages installed in the starter's `node_modules`, dev and prod dependencies included, together with the starter's own `package.json`. The ranges are deduplicated and intersected, so the floor is the lowest version that every package accepts at once. The "Set by" column lists the packages that impose that floor, meaning removing any one of them would lower it. When several packages share the floor and no single one is responsible, the column shows a dash.
+
+A dash in the Min Node column means no installed package declares a resolvable `engines.node` range.
+
 ### Duplicate Dependencies
 
 - Duplicate dependency details come from e18e dependency analysis messages
@@ -159,53 +169,28 @@ throughput, and load behavior for comparable production apps.
 
 ### Client Side Rendered Tests
 
-- Each framework renders a table of 1000 rows with two UUID columns.
-- Metrics are measured with Lighthouse flow in Chromium through Puppeteer.
-- First Paint and First Contentful Paint are measured on initial navigation to
+- Each framework renders a table of 1000 rows with two UUID columns in the
+  browser.
+- First Paint and First Contentful Paint are measured during navigation to
   `/client-side-rendered`.
-- A controlled interaction clicks the first row's detail link and waits for the
-  detail view. Lighthouse's
-  [INP breakdown insight](https://developer.chrome.com/docs/performance/insights/inp-breakdown)
-  processes Chrome Event Timing trace data and reports its input delay,
-  processing duration, and presentation delay. Their sum is recorded as the
-  interaction latency. This is one controlled interaction, not Google's
-  page-lifetime
-  [Interaction to Next Paint (INP)](https://web.dev/articles/inp) metric.
-- Interactions that trigger a full document navigation use Lighthouse
-  navigation mode. Interactions handled by a client router use Lighthouse
-  timespan mode.
-- Benchmarks run 5 times by default. Paint and interaction timing values are
-  averaged across those runs.
-- These are route-based client-side rendering tests, not full-app SPA mode
-  tests. Each app uses its normal production build and configures the benchmark
-  routes so the measured table and detail content are rendered in the browser.
-- Full-app SPA modes are not supported consistently across the compared
-  frameworks. Many of the frameworks are designed around hybrid or
-  server-capable production builds, so forcing an SPA-specific build would also
-  introduce different deployment models and framework-specific configuration.
-- A framework may statically generate or prerender an application shell,
-  including an SPA fallback shell, provided the generated HTML does not contain
-  the measured table, UUID data, or detail content. Shell delivery may therefore
-  use the framework's normal static or server path, while all measured content
-  must be generated and rendered in the browser.
-- Next.js wraps the client-side rendered table in a `dynamic` import with
-  `ssr: false` to prevent the table from being rendered into the initial HTML.
-- TanStack Start, Nuxt, and SvelteKit disable SSR for the benchmark routes.
-- SvelteKit prerenders the main route's empty application shell so adapter-node
-  can serve it as a static asset. The dynamic detail route remains
-  non-prerendered because its IDs are generated in the browser.
-- SolidStart uses `clientOnly` components for the table and detail content.
-- React Router uses route-level `clientLoader` functions with `HydrateFallback`
-  so the client-rendered routes are not server-rendered.
-- Astro's benchmark table and detail components are React islands rendered with
-  `client:only="react"`. Astro's `ClientRouter` is not used for this test
-  because it changes navigation behavior rather than making components
-  client-only. Using `client:only` is generally discouraged for typical Astro
-  sites, but it keeps the measured content client-rendered for this comparison.
-- The Astro islands use React because it was Astro's most popular UI framework
-  integration at the time this methodology was written, representing 23% of
-  projects according to the Astro team (15/07/2026).
-- Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](https://github.com/solidjs/solid-docs/pull/1620). Note update to docs page once this PR has been merged.
+- The benchmark clicks the first row's detail link and measures the resulting
+  interaction. Route IDs may be read from the URL or included in normal
+  framework routing and bootstrap state, but the measured table and detail
+  markup must be rendered in the browser.
+- Full-document navigations use Lighthouse navigation mode. Client-routed
+  navigations use timespan mode.
+- Interaction latency is the sum of Lighthouse's input delay, processing
+  duration, and presentation delay. It represents this controlled interaction,
+  not the page-lifetime INP metric.
+- Results are averaged across five production-build runs.
+- These tests measure route-based client rendering, not forced SPA
+  configurations. Each framework uses its supported production routing and
+  rendering controls.
+- Astro uses a client-only island for the measured content, which requires a UI
+  framework integration. React was chosen because the Astro team identified it
+  as their most popular integration, used by 23% of Astro projects (15/07/2026).
+  The detail link performs a full-document navigation; the other tested
+  frameworks use their client routers.
 
 ### Server Side Rendered Tests
 
@@ -274,6 +259,13 @@ throughput, and load behavior for comparable production apps.
 - Load is applied with [autocannon](https://github.com/mcollina/autocannon) in
   staged connection counts: 1, 5, 10, 25, 50, 100, and 200 concurrent
   connections.
+- The framework server and Autocannon run in separate containers on the same
+  16-CPU Depot runner. The server container is pinned to CPUs 0-11 and the
+  Autocannon container to CPUs 12-15, preventing the two benchmark workloads
+  from competing for the same CPU cores. They still share the host's memory,
+  kernel, Docker runtime, and other system resources, so this does not provide
+  the full isolation of separate machines. Keeping both containers on one host
+  also avoids introducing cross-machine network latency.
 - Each stage runs for approximately 5 seconds.
 - Peak requests/sec is the highest successful stage throughput observed during
   the staged run.

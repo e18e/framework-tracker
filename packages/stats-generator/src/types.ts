@@ -127,6 +127,9 @@ export interface CIStats {
   vendoredCoreJsUnnecessaryModules?: string[]
   // Browser baseline stats
   browserBaselineTests?: BrowserBaselineStats
+  // Minimum Node version across the installed dependency tree
+  minimumNodeVersion?: string
+  minimumNodeVersionImposedBy?: string[]
   // Dependency stats (from e18e analysis)
   prodDependencies?: number
   devDependencies?: number
@@ -180,6 +183,14 @@ export interface BrowserBaselineStats {
   baselineYear: number | null
   baselineReason: string | null
   baselineFeatureCount: number
+}
+
+export interface NodeEnginesStats {
+  minimumNodeVersion: string | null
+  imposedBy: string[]
+  packagesScanned: number
+  packagesDeclaringNodeEngine: number
+  unsatisfiableRanges: string[]
 }
 
 export interface TimeStat {

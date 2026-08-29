@@ -38,7 +38,7 @@ function extractVersion(source: string): string {
 
 async function main() {
   const { packageName } = parseArgs(
-    'Usage: run-corejs-scan <package-name>\nExample: run-corejs-scan starter-next',
+    'Usage: run-corejs-scan <package-name>\nExample: run-corejs-scan starter-next-js',
   )
 
   const { framework, testConfig } = await getFrameworkByPackage(packageName)

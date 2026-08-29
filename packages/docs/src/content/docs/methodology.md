@@ -159,53 +159,28 @@ throughput, and load behavior for comparable production apps.
 
 ### Client Side Rendered Tests
 
-- Each framework renders a table of 1000 rows with two UUID columns.
-- Metrics are measured with Lighthouse flow in Chromium through Puppeteer.
-- First Paint and First Contentful Paint are measured on initial navigation to
+- Each framework renders a table of 1000 rows with two UUID columns in the
+  browser.
+- First Paint and First Contentful Paint are measured during navigation to
   `/client-side-rendered`.
-- A controlled interaction clicks the first row's detail link and waits for the
-  detail view. Lighthouse's
-  [INP breakdown insight](https://developer.chrome.com/docs/performance/insights/inp-breakdown)
-  processes Chrome Event Timing trace data and reports its input delay,
-  processing duration, and presentation delay. Their sum is recorded as the
-  interaction latency. This is one controlled interaction, not Google's
-  page-lifetime
-  [Interaction to Next Paint (INP)](https://web.dev/articles/inp) metric.
-- Interactions that trigger a full document navigation use Lighthouse
-  navigation mode. Interactions handled by a client router use Lighthouse
-  timespan mode.
-- Benchmarks run 5 times by default. Paint and interaction timing values are
-  averaged across those runs.
-- These are route-based client-side rendering tests, not full-app SPA mode
-  tests. Each app uses its normal production build and configures the benchmark
-  routes so the measured table and detail content are rendered in the browser.
-- Full-app SPA modes are not supported consistently across the compared
-  frameworks. Many of the frameworks are designed around hybrid or
-  server-capable production builds, so forcing an SPA-specific build would also
-  introduce different deployment models and framework-specific configuration.
-- A framework may statically generate or prerender an application shell,
-  including an SPA fallback shell, provided the generated HTML does not contain
-  the measured table, UUID data, or detail content. Shell delivery may therefore
-  use the framework's normal static or server path, while all measured content
-  must be generated and rendered in the browser.
-- Next.js wraps the client-side rendered table in a `dynamic` import with
-  `ssr: false` to prevent the table from being rendered into the initial HTML.
-- TanStack Start, Nuxt, and SvelteKit disable SSR for the benchmark routes.
-- SvelteKit prerenders the main route's empty application shell so adapter-node
-  can serve it as a static asset. The dynamic detail route remains
-  non-prerendered because its IDs are generated in the browser.
-- SolidStart uses `clientOnly` components for the table and detail content.
-- React Router uses route-level `clientLoader` functions with `HydrateFallback`
-  so the client-rendered routes are not server-rendered.
-- Astro's benchmark table and detail components are React islands rendered with
-  `client:only="react"`. Astro's `ClientRouter` is not used for this test
-  because it changes navigation behavior rather than making components
-  client-only. Using `client:only` is generally discouraged for typical Astro
-  sites, but it keeps the measured content client-rendered for this comparison.
-- The Astro islands use React because it was Astro's most popular UI framework
-  integration at the time this methodology was written, representing 23% of
-  projects according to the Astro team (15/07/2026).
-- Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](https://github.com/solidjs/solid-docs/pull/1620). Note update to docs page once this PR has been merged.
+- The benchmark clicks the first row's detail link and measures the resulting
+  interaction. Route IDs may be read from the URL or included in normal
+  framework routing and bootstrap state, but the measured table and detail
+  markup must be rendered in the browser.
+- Full-document navigations use Lighthouse navigation mode. Client-routed
+  navigations use timespan mode.
+- Interaction latency is the sum of Lighthouse's input delay, processing
+  duration, and presentation delay. It represents this controlled interaction,
+  not the page-lifetime INP metric.
+- Results are averaged across five production-build runs.
+- These tests measure route-based client rendering, not forced SPA
+  configurations. Each framework uses its supported production routing and
+  rendering controls.
+- Astro uses a client-only island for the measured content, which requires a UI
+  framework integration. React was chosen because the Astro team identified it
+  as their most popular integration, used by 23% of Astro projects (15/07/2026).
+  The detail link performs a full-document navigation; the other tested
+  frameworks use their client routers.
 
 ### Server Side Rendered Tests
 

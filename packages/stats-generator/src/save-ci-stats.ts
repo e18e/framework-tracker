@@ -12,6 +12,7 @@ import type {
   CIStats,
   InstallStats,
   BuildStats,
+  DevServerStats,
   CoreJsStats,
   BrowserBaselineStats,
   NodeEnginesStats,
@@ -89,6 +90,25 @@ async function main() {
         }
       } else {
         console.warn(`No build stats artifact found at ${buildStatsPath}`)
+      }
+
+      const devServerStatsPath = join(
+        artifactsDir,
+        `dev-server-stats-${name}`,
+        'dev-server-stats.json',
+      )
+      const devServerStats = readJsonFile<DevServerStats>(devServerStatsPath)
+
+      if (devServerStats) {
+        console.info(`  ✓ Found dev server stats artifact`)
+        stats = {
+          ...stats,
+          devServerStartTime: devServerStats.devServerStartTime,
+        }
+      } else {
+        console.warn(
+          `No dev server stats artifact found at ${devServerStatsPath}`,
+        )
       }
 
       // Load core-js stats from artifact

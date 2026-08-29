@@ -105,6 +105,31 @@ matches the framework version tracked by the starter project.
   from the measurement; excluding `.next/cache` keeps the comparison
   consistent.
 
+### Dev Server Startup
+
+- Dev server startup time measures how long `pnpm dev` takes in a fresh
+  temporary copy of the tracked starter files until the first
+  `GET http://localhost:<port>/` returns HTTP 200. Dependencies are installed
+  outside the timed region with a frozen lockfile and a dedicated store shared
+  by the repetitions, the same setup as the build benchmark.
+- The clock starts when the `pnpm dev` process is spawned and stops when the
+  response headers of the first 200 arrive, so pnpm's own startup, framework
+  boot, and the on-demand compile of the home page are all included. The
+  response body is not read, because several dev servers stream the page and
+  body time would measure page size rather than startup.
+- The port is the starter's default dev port, recorded as `devServerPort` in
+  `.github/frameworks.json`. The starters are not modified, so whatever they
+  ship is inside the measurement: Nuxt and TanStack Start enable devtools,
+  and Astro and React Router generate types at boot. Mastro's `dev` script is
+  a plain `node --watch` server rather than a framework dev server.
+- The dev server runs with a minimal environment (`PATH`, `HOME`, `TMPDIR`,
+  `LANG`, `LC_ALL`) plus telemetry opt-outs, so the terminal that launches the
+  benchmark cannot change how the framework behaves. Astro, for example,
+  switches to a detached background server when it detects an AI agent
+  terminal.
+- Dev server benchmarks run 5 times by default and report average, minimum,
+  and maximum duration.
+
 ### Core-JS Polyfills
 
 - The scanner searches JavaScript build output files for vendored

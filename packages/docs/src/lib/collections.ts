@@ -289,6 +289,15 @@ export const buildInstallData = starterStats.map((f) => ({
   buildOutput: formatBytesToMB(f.buildOutputSize),
 }))
 
+export const devServerStartData = starterStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.isFocused,
+  avgStart: formatTimeMs(f.devServerStartTime?.avgMs ?? Number.NaN),
+  minStart: formatTimeMs(f.devServerStartTime?.minMs ?? Number.NaN),
+  maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
+}))
+
 export const chartDuplicateDependencyData = starterStats
   .filter((f) => Number.isFinite(f.duplicateDependencies))
   .map((f) => ({

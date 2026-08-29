@@ -1,0 +1,18 @@
+---
+import VersionLineChart from './VersionLineChart.astro'
+
+interface Props {
+  versions: unknown[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  title="Average Dev Server Startup Time"
+  versions={versions}
+  metric="devServerStartTime.avgMs"
+  transform="msToSeconds"
+  valueFormat="s"
+  yAxisLabel="Seconds"
+/>

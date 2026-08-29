@@ -2,13 +2,12 @@ import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { packagesDir } from '../constants.ts'
-import { getHost } from '../serve/common.ts'
+import { getHost, getPort } from '../serve/common.ts'
 import { runLoadTest } from './run-load-test.ts'
 import type { SSRLoadBenchmarkResult } from './types.ts'
 
-const SSR_LOAD_HOST = getHost()
-const SSR_LOAD_PORT = 3003
-const SSR_LOAD_PATH = '/server-side-rendered'
+export const DEFAULT_SSR_LOAD_PORT = 3003
+export const SSR_LOAD_PATH = '/server-side-rendered'
 
 interface SSRLoadFrameworkConfig {
   name: string
@@ -75,9 +74,27 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
 ]
 
 export function supportsSSRLoadBenchmark(packageName: string): boolean {
-  return SSR_LOAD_FRAMEWORKS.some(
+  return getFrameworkConfig(packageName) !== undefined
+}
+
+function getFrameworkConfig(
+  packageName: string,
+): SSRLoadFrameworkConfig | undefined {
+  return SSR_LOAD_FRAMEWORKS.find(
     (framework) => framework.package === packageName,
   )
+}
+
+function requireFrameworkConfig(packageName: string): SSRLoadFrameworkConfig {
+  const config = getFrameworkConfig(packageName)
+
+  if (!config) {
+    throw new Error(
+      `Unknown SSR load package: ${packageName}. Available: ${SSR_LOAD_FRAMEWORKS.map((framework) => framework.package).join(', ')}`,
+    )
+  }
+
+  return config
 }
 
 async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
@@ -97,9 +114,17 @@ async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
   throw new Error(`Server at ${url} did not become ready within ${timeoutMs}ms`)
 }
 
+export async function startSSRLoadServer(
+  packageName: string,
+): Promise<() => void> {
+  return spawnServer(requireFrameworkConfig(packageName))
+}
+
 async function spawnServer(
   config: SSRLoadFrameworkConfig,
 ): Promise<() => void> {
+  const host = getHost()
+  const port = getPort(DEFAULT_SSR_LOAD_PORT)
   const appDir = join(packagesDir, config.package)
   const scriptPath = fileURLToPath(
     new URL(`../serve/${config.serveScript}`, import.meta.url),
@@ -108,9 +133,9 @@ async function spawnServer(
   const proc = spawn('node', [scriptPath, appDir], {
     env: {
       ...process.env,
-      HOST: SSR_LOAD_HOST,
+      HOST: host,
       NODE_ENV: 'production',
-      PORT: String(SSR_LOAD_PORT),
+      PORT: String(port),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
@@ -139,7 +164,7 @@ async function spawnServer(
   })
 
   await Promise.race([
-    waitForServer(`http://${SSR_LOAD_HOST}:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`),
+    waitForServer(`http://${host}:${port}${SSR_LOAD_PATH}`),
     exitPromise,
   ])
 
@@ -151,19 +176,30 @@ async function spawnServer(
 export async function runSSRLoadBenchmark(
   packageName: string,
 ): Promise<SSRLoadBenchmarkResult> {
-  const config = SSR_LOAD_FRAMEWORKS.find(
-    (framework) => framework.package === packageName,
-  )
+  const config = requireFrameworkConfig(packageName)
 
-  if (!config) {
-    throw new Error(
-      `Unknown SSR load package: ${packageName}. Available: ${SSR_LOAD_FRAMEWORKS.map((framework) => framework.package).join(', ')}`,
-    )
+  const remoteUrl = process.env.SSR_LOAD_TARGET_URL
+  if (remoteUrl) {
+    const url = new URL(remoteUrl)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new Error('SSR_LOAD_TARGET_URL must use http or https')
+    }
+
+    console.info(`Using remote server for ${config.displayName}: ${url}`)
+    await waitForServer(url.toString())
+    return {
+      name: config.name,
+      displayName: config.displayName,
+      package: config.package,
+      ssrLoadTests: await runLoadTest(url.toString()),
+    }
   }
 
-  const url = `http://${SSR_LOAD_HOST}:${SSR_LOAD_PORT}${SSR_LOAD_PATH}`
+  const host = getHost()
+  const port = getPort(DEFAULT_SSR_LOAD_PORT)
+  const url = `http://${host}:${port}${SSR_LOAD_PATH}`
   console.info(`Starting server for ${config.displayName}...`)
-  const killServer = await spawnServer(config)
+  const killServer = await startSSRLoadServer(packageName)
 
   try {
     console.info(`Running SSR load benchmark for ${config.displayName}...`)

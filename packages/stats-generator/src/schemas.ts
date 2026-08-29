@@ -163,6 +163,65 @@ export const ServerSideRenderedStatsSchema = z.object({
   browserVersion: z.string().min(1),
 })
 
+export const StarterCIStatsSchema = z.object({
+  timingMeasuredAt: z.string().min(1),
+  runner: z.string().min(1),
+  frameworkVersion: z.string().min(1),
+  installTime: TimeStatSchema,
+  coldBuildTime: TimeStatSchema,
+  warmBuildTime: TimeStatSchema,
+  nodeModulesSize: z.number().positive(),
+  buildOutputSize: z.number().positive(),
+  allDependencies: z.number().positive(),
+  prodDependencies: z.number().nonnegative(),
+  devDependencies: z.number().nonnegative(),
+  duplicateDependencies: z.number().nonnegative().optional(),
+  depInstallSize: z.number().positive().optional(),
+  browserBaselineTests: BrowserBaselineStatsSchema.optional(),
+  frameworkDependencies: z
+    .object({
+      prodDependencies: z.number().nonnegative().optional(),
+      devDependencies: z.number().nonnegative().optional(),
+      allDependencies: z.number().nonnegative().optional(),
+    })
+    .optional(),
+  packageJson: z
+    .object({
+      dependencies: z.record(z.string(), z.string()).optional(),
+      devDependencies: z.record(z.string(), z.string()).optional(),
+    })
+    .optional(),
+})
+
+export const AppCIStatsSchema = z
+  .object({
+    timingMeasuredAt: z.string().min(1),
+    runner: z.string().min(1),
+    frameworkVersion: z.string().min(1).optional(),
+    browserVersion: z.string().min(1).optional(),
+    ssrRequestThroughputTests:
+      SSRRequestThroughputStatsSchema.shape.ssrRequestThroughputTests.optional(),
+    ssrLoadTests: SSRLoadStatsSchema.shape.ssrLoadTests.optional(),
+    clientSideRenderedTests: RenderedTestsSchema.optional(),
+    serverSideRenderedTests: RenderedTestsSchema.optional(),
+    packageJson: z
+      .object({
+        dependencies: z.record(z.string(), z.string()).optional(),
+        devDependencies: z.record(z.string(), z.string()).optional(),
+      })
+      .optional(),
+  })
+  .refine(
+    (stats) =>
+      stats.ssrRequestThroughputTests !== undefined ||
+      stats.ssrLoadTests !== undefined ||
+      stats.clientSideRenderedTests !== undefined ||
+      stats.serverSideRenderedTests !== undefined,
+    {
+      message: 'Expected at least one benchmark test measurement in app stats',
+    },
+  )
+
 export type InstallStats = z.infer<typeof InstallStatsSchema>
 export type BuildStats = z.infer<typeof BuildStatsSchema>
 export type BrowserBaselineStats = z.infer<typeof BrowserBaselineStatsSchema>
@@ -177,4 +236,6 @@ export type ClientSideRenderedStats = z.infer<
 export type ServerSideRenderedStats = z.infer<
   typeof ServerSideRenderedStatsSchema
 >
+export type StarterCIStats = z.infer<typeof StarterCIStatsSchema>
+export type AppCIStats = z.infer<typeof AppCIStatsSchema>
 export type TimeStat = z.infer<typeof TimeStatSchema>

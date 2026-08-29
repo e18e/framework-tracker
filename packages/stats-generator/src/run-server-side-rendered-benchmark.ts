@@ -52,9 +52,11 @@ async function main() {
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
   console.info(
-    `  First Paint: ${result.serverSideRenderedTests.firstPaintMs}ms`,
+    `  First Paint: ${result.serverSideRenderedTests.firstPaintMs}ms ± ${result.serverSideRenderedTests.standardDeviation.firstPaintMs}ms`,
   )
-  console.info(`  FCP:         ${result.serverSideRenderedTests.fcpMs}ms`)
+  console.info(
+    `  FCP:         ${result.serverSideRenderedTests.fcpMs}ms ± ${result.serverSideRenderedTests.standardDeviation.fcpMs}ms`,
+  )
   const interaction = result.serverSideRenderedTests.interactionTests
   console.info(`  Interaction: ${interaction.interactionLatencyMs}ms`)
   console.info(`    Input delay:  ${interaction.inputDelayMs}ms`)

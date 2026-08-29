@@ -1,10 +1,19 @@
 import { z } from 'zod'
 
-export const TimeStatSchema = z.object({
-  avgMs: z.number(),
-  minMs: z.number(),
-  maxMs: z.number(),
-})
+export const TimeStatSchema = z
+  .object({
+    avgMs: z.number(),
+    standardDeviationMs: z.number().nonnegative().optional(),
+    minMs: z.number(),
+    maxMs: z.number(),
+    samplesMs: z.array(z.number()).nonempty().optional(),
+  })
+  .refine(
+    (stats) =>
+      (stats.standardDeviationMs === undefined) ===
+      (stats.samplesMs === undefined),
+    { message: 'Expected standard deviation and samples together' },
+  )
 
 export const InstallStatsSchema = z.object({
   frameworkVersion: z.string().min(1),
@@ -99,6 +108,19 @@ const InteractionTestsSchema = z.object({
   presentationDelayMs: z.number().nonnegative(),
 })
 
+const InteractionTimingSchema = z.object({
+  interactionLatencyMs: z.number().nonnegative(),
+  inputDelayMs: z.number().nonnegative(),
+  processingDurationMs: z.number().nonnegative(),
+  presentationDelayMs: z.number().nonnegative(),
+})
+
+const RenderedTestSampleSchema = z.object({
+  firstPaintMs: z.number().positive(),
+  fcpMs: z.number().positive(),
+  interactionTests: InteractionTimingSchema,
+})
+
 const RenderedTestsSchema = z
   .object({
     firstPaintMs: z.number().positive(),
@@ -107,6 +129,11 @@ const RenderedTestsSchema = z
     inpMs: z.number().optional(),
     interactionTests: InteractionTestsSchema.optional(),
     runs: z.number().int().positive(),
+    standardDeviation: InteractionTimingSchema.extend({
+      firstPaintMs: z.number().nonnegative(),
+      fcpMs: z.number().nonnegative(),
+    }).optional(),
+    samples: z.array(RenderedTestSampleSchema).nonempty().optional(),
   })
   .refine(
     (stats) =>
@@ -114,6 +141,16 @@ const RenderedTestsSchema = z
     {
       message: 'Expected historical inpMs or current interactionTests',
     },
+  )
+  .refine(
+    (stats) =>
+      stats.samples === undefined || stats.samples.length === stats.runs,
+    { message: 'Expected one browser sample per run' },
+  )
+  .refine(
+    (stats) =>
+      (stats.standardDeviation === undefined) === (stats.samples === undefined),
+    { message: 'Expected standard deviation and samples together' },
   )
 
 export const ClientSideRenderedStatsSchema = z.object({

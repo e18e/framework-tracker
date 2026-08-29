@@ -14,6 +14,7 @@ import type {
   ClientSideRenderedBenchmarkResult,
   ClientSideRenderedRunResult,
 } from './types.ts'
+import { standardDeviation } from '../sample-statistics.ts'
 
 const CLIENT_SIDE_RENDERED_PATH = '/client-side-rendered'
 
@@ -201,6 +202,27 @@ export async function runBenchmark(
       interactions.map((value) => value.presentationDelayMs),
     ),
   }
+  const samples = results.map((_, index) => ({
+    firstPaintMs: fp[index],
+    fcpMs: fcp[index],
+    interactionTests: interactions[index],
+  }))
+  const standardDeviationStats = {
+    firstPaintMs: standardDeviation(fp),
+    fcpMs: standardDeviation(fcp),
+    interactionLatencyMs: standardDeviation(
+      interactions.map((value) => value.interactionLatencyMs),
+    ),
+    inputDelayMs: standardDeviation(
+      interactions.map((value) => value.inputDelayMs),
+    ),
+    processingDurationMs: standardDeviation(
+      interactions.map((value) => value.processingDurationMs),
+    ),
+    presentationDelayMs: standardDeviation(
+      interactions.map((value) => value.presentationDelayMs),
+    ),
+  }
   return {
     name: packageName,
     displayName,
@@ -211,6 +233,8 @@ export async function runBenchmark(
       fcpMs,
       interactionTests,
       runs: results.length,
+      standardDeviation: standardDeviationStats,
+      samples,
     },
   }
 }

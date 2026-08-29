@@ -1,4 +1,9 @@
-import type { InteractionTestStats, InteractionTiming } from '../types.ts'
+import type {
+  InteractionTestStats,
+  InteractionTiming,
+  RenderedTestSample,
+  RenderedTestStandardDeviation,
+} from '../types.ts'
 
 export interface ClientSideRenderedRunResult {
   firstPaintMs: number | null
@@ -16,6 +21,8 @@ export interface ClientSideRenderedBenchmarkResult {
     fcpMs: number
     interactionTests: InteractionTestStats
     runs: number
+    standardDeviation: RenderedTestStandardDeviation
+    samples: RenderedTestSample[]
   }
 }
 
@@ -30,5 +37,7 @@ export interface ClientSideRenderedStats {
     inpMs?: number
     interactionTests?: InteractionTestStats
     runs: number
+    standardDeviation?: RenderedTestStandardDeviation
+    samples?: RenderedTestSample[]
   }
 }

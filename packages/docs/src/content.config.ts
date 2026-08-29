@@ -6,8 +6,23 @@ import { z } from 'astro/zod'
 
 const timeSchema = z.object({
   avgMs: z.number(),
+  standardDeviationMs: z.number().nonnegative().optional(),
   minMs: z.number(),
   maxMs: z.number(),
+  samplesMs: z.array(z.number()).nonempty().optional(),
+})
+
+const interactionTimingSchema = z.object({
+  interactionLatencyMs: z.number().nonnegative(),
+  inputDelayMs: z.number().nonnegative(),
+  processingDurationMs: z.number().nonnegative(),
+  presentationDelayMs: z.number().nonnegative(),
+})
+
+const renderedTestSampleSchema = z.object({
+  firstPaintMs: z.number().positive(),
+  fcpMs: z.number().positive(),
+  interactionTests: interactionTimingSchema,
 })
 
 const dependencyStatsSchema = z.object({
@@ -125,6 +140,13 @@ const runtimeSchema = z.object({
         })
         .optional(),
       runs: z.number(),
+      standardDeviation: interactionTimingSchema
+        .extend({
+          firstPaintMs: z.number().nonnegative(),
+          fcpMs: z.number().nonnegative(),
+        })
+        .optional(),
+      samples: z.array(renderedTestSampleSchema).nonempty().optional(),
     })
     .optional(),
   serverSideRenderedTests: z
@@ -143,6 +165,13 @@ const runtimeSchema = z.object({
         })
         .optional(),
       runs: z.number(),
+      standardDeviation: interactionTimingSchema
+        .extend({
+          firstPaintMs: z.number().nonnegative(),
+          fcpMs: z.number().nonnegative(),
+        })
+        .optional(),
+      samples: z.array(renderedTestSampleSchema).nonempty().optional(),
     })
     .optional(),
   timingMeasuredAt: z.string().optional(),

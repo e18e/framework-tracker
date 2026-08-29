@@ -109,6 +109,12 @@ async function main() {
 
   const starterDir = join(packagesDir, packageName)
   const nodeModulesDir = join(starterDir, 'node_modules')
+  if (!isRealDirectory(nodeModulesDir)) {
+    throw new Error(
+      `No node_modules in ${starterDir}; install the starter's dependencies before scanning`,
+    )
+  }
+
   const pnpmDir = join(nodeModulesDir, '.pnpm')
 
   const packageDirs = isRealDirectory(pnpmDir)

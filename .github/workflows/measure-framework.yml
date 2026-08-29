@@ -98,10 +98,6 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install package dependencies
-        working-directory: ./packages/${{ matrix.framework.package }}
-        run: pnpm install --frozen-lockfile
-
       - name: Run build benchmark
         run: |
           RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "build") | .runFrequency')

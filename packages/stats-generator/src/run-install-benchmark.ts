@@ -1,7 +1,8 @@
-import { execFileSync, execSync } from 'node:child_process'
+import { execSync } from 'node:child_process'
 import { cpSync, mkdirSync, rmSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { installDependencies, parseRunFrequency } from './benchmark-utils.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDirectorySize,
@@ -35,22 +36,7 @@ function measureInstallTime(
   cacheDir: string,
 ): number {
   const start = performance.now()
-  execFileSync(
-    'pnpm',
-    [
-      'install',
-      '--frozen-lockfile',
-      '--store-dir',
-      storeDir,
-      '--cache-dir',
-      cacheDir,
-    ],
-    {
-      cwd,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    },
-  )
+  installDependencies(cwd, storeDir, cacheDir)
   const end = performance.now()
 
   return Math.round(end - start)
@@ -78,9 +64,7 @@ async function main() {
     'Usage: run-install-benchmark <package-name> [run-frequency]\nExample: run-install-benchmark starter-astro 5',
   )
 
-  const fallbackFrequency = '5'
-  const base = 10
-  const runFrequency = Number.parseInt(args[0] || fallbackFrequency, base)
+  const runFrequency = parseRunFrequency(args[0])
 
   const { framework } = await getFrameworkByPackage(packageName)
 

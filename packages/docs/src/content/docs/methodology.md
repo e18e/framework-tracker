@@ -88,10 +88,12 @@ matches the framework version tracked by the starter project.
   temporary copy of the starter package with an empty pnpm store and cache.
 - Install benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
-- Cold build time removes the configured build output directory before running
-  `pnpm build`.
-- Warm build time runs `pnpm build` again after the cold build, preserving
-  whatever cache or generated output the framework leaves in place.
+- Each build repetition uses a fresh temporary copy of the tracked starter
+  files. Dependencies are installed outside the timed region with a frozen
+  lockfile and a dedicated store shared by the repetitions.
+- Cold build time measures the first build in that fresh project. Warm build
+  time measures a second build in the same project, preserving whatever cache
+  or generated output the first build leaves in place.
 - Build benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
 - Build output size is the total size of the configured production output

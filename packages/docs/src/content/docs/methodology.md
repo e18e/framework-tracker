@@ -182,7 +182,14 @@ throughput, and load behavior for comparable production apps.
 - Interaction latency is the sum of Lighthouse's input delay, processing
   duration, and presentation delay. It represents this controlled interaction,
   not the page-lifetime INP metric.
-- Results are averaged across five production-build runs.
+- CI creates one production build and starts one production server, which stays
+  running for all five measurements. Each measurement launches a fresh Chrome
+  process.
+- The arithmetic mean is reported. Raw samples and their sample standard
+  deviation are retained.
+- Valid slow results are kept rather than discarded as outliers. A measurement
+  is invalid only when a required Chrome paint or interaction value is missing
+  or not greater than zero.
 - These tests measure route-based client rendering, not forced SPA
   configurations. Each framework uses its supported production routing and
   rendering controls.
@@ -211,8 +218,14 @@ throughput, and load behavior for comparable production apps.
   preloading is allowed when it is part of the framework's default link
   behavior, but the measured SSR routes are still rendered on demand rather than
   converted to prerendered static output.
-- Benchmarks run 5 times by default and require every Chrome paint and
-  interaction measurement to be present and greater than zero.
+- CI creates one production build and starts one production server, which stays
+  running for all five measurements. Each measurement launches a fresh Chrome
+  process.
+- The arithmetic mean is reported. Raw samples and their sample standard
+  deviation are retained.
+- Valid slow results are kept rather than discarded as outliers. A measurement
+  is invalid only when a required Chrome paint or interaction value is missing
+  or not greater than zero.
 - Astro keeps the default static output mode, but the measured
   `/server-side-rendered` route and its detail route use
   `export const prerender = false` so they are rendered on demand by the

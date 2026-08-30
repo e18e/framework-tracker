@@ -10,8 +10,8 @@ implemented across frameworks as consistently as each framework allows.
 
 The goal is to show both the default project cost developers inherit when
 starting a framework and the runtime cost of serving and hydrating a comparable
-app. Timing results are run multiple times and averaged, and generated JSON is
-published into the docs package.
+app. Repetition and aggregation vary by benchmark, as described in each
+benchmark section. Generated JSON is published into the docs package.
 
 Most benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),

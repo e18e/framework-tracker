@@ -15,12 +15,9 @@ published into the docs package.
 
 Most benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
-which Depot documents as an Intel runner with 2 CPUs, 8 GB RAM, 100 GB disk,
-and a 2 GB disk accelerator. The SSR load test instead uses
-`depot-ubuntu-24.04-16`, with 16 CPUs and 64 GB RAM. Browser rendering
-benchmarks run directly on the Depot runner host and use the host Chrome
-installation rather than a job-level browser container. The generated runtime
-stats record the Chrome version used for browser rendering benchmarks.
+with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. Depot runs each
+job on a fresh, single-tenant EC2 instance. Its x86 runners use AMD EC2
+instances and GitHub's standard runner image. If a test deviates from this config it will list its setup in this doc.
 
 ## Dev Time
 
@@ -248,6 +245,8 @@ throughput, and load behavior for comparable production apps.
 
 ### Server Side Load Test
 
+- The load test deviates from the standard Depot set up and uses: uses`depot-ubuntu-24.04-16`, with 16 CPUs, 64 GB RAM, 180 GB disk, and an 8 GB disk
+  accelerator.
 - Each framework serves the server-rendered table route over a real local HTTP
   server.
 - The measured route is `/server-side-rendered`, using the same 1000-row UUID

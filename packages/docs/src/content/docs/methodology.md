@@ -160,6 +160,13 @@ implement the same small benchmark routes and data shape wherever possible, so
 the stats focus on browser rendering, server rendering, request-handler
 throughput, and load behavior for comparable production apps.
 
+The client- and server-rendered browser tests benchmarks run directly on the Depot runner host and use the
+host Chrome installation. They use headless Chrome with Lighthouse's desktop form factor, `throttlingMethod: provided`, and screen
+emulation disabled. Lighthouse applies no simulated CPU or network throttling.
+Requests use a local connection to a production server, so the results are
+relative comparisons on the CI host rather than estimates for typical devices
+or networks.
+
 ### Framework Specific Notes
 
 - These runtime apps are not currently intended to measure static-site output. Astro's

@@ -1,8 +1,12 @@
 import { execFileSync } from 'node:child_process'
-import { cpSync, mkdirSync, rmSync } from 'node:fs'
+import { cpSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { installDependencies, parseRunFrequency } from './benchmark-utils.ts'
+import { isAbsolute, join, relative, resolve, sep } from 'node:path'
+import {
+  copyTrackedProject,
+  installDependencies,
+  parseRunFrequency,
+} from './benchmark-utils.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDirectorySize,
@@ -12,28 +16,6 @@ import {
 } from './utils.ts'
 import type { BuildStats } from './types.ts'
 import { summarizeSamples } from './sample-statistics.ts'
-
-function copyTrackedProject(sourceDir: string, projectDir: string): void {
-  const repositoryDir = join(packagesDir, '..')
-  const sourcePathFromRepository = relative(repositoryDir, sourceDir)
-  const trackedPaths = execFileSync(
-    'git',
-    ['ls-files', '-z', '--', sourcePathFromRepository],
-    {
-      cwd: repositoryDir,
-      encoding: 'utf-8',
-    },
-  )
-    .split('\0')
-    .filter(Boolean)
-
-  for (const trackedPath of trackedPaths) {
-    const projectPath = relative(sourcePathFromRepository, trackedPath)
-    const destinationPath = join(projectDir, projectPath)
-    mkdirSync(dirname(destinationPath), { recursive: true })
-    cpSync(join(repositoryDir, trackedPath), destinationPath)
-  }
-}
 
 function measureBuildTime(cwd: string, buildScript: string): number {
   const start = performance.now()

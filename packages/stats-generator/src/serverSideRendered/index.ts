@@ -47,6 +47,13 @@ const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    name: 'pracht-server-side-rendered',
+    displayName: 'Pracht Server Side Rendered',
+    package: 'app-pracht',
+    serveScript: 'pracht.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'react-router-server-side-rendered',
     displayName: 'React Router Server Side Rendered',
     package: 'app-react-router',

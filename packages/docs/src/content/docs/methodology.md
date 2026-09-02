@@ -49,6 +49,21 @@ Installed using the CLI
 - Step 5: Which SvelteKit adapter would you like to use?: `node`
 - Step 6: Which package manager do you want to install dependencies with?: `pnpm`
 
+#### Pracht
+
+Installed using the CLI
+
+- Step 1: `pnpm create pracht@latest`
+- Step 2: Where should we create your app?: `.`
+- Step 3: Deployment adapter?: `Node.js` (the default)
+- Step 4: Routing?: `manifest` (the default)
+- Step 5: Add Tailwind CSS?: `No` (the default)
+- Step 6: Include agent tooling (skills, `.mcp.json`, `AGENTS.md`)?: `No`
+- Step 7: Initialize a git repository?: `No`
+
+The generated `Dockerfile` and `.dockerignore` are also removed, as no
+measurement uses them.
+
 #### SolidStart
 
 Installed using the CLI. The SolidStart version selected in the generator

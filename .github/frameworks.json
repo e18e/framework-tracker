@@ -200,6 +200,52 @@
     }
   },
   {
+    "name": "pracht",
+    "displayName": "Pracht",
+    "frameworkPackage": "@pracht/core",
+    "focusedFramework": false,
+    "starter": {
+      "package": "starter-pracht",
+      "buildScript": "build",
+      "buildOutputDir": "dist",
+      "measurements": [
+        {
+          "type": "install",
+          "runFrequency": 5
+        },
+        {
+          "type": "build",
+          "runFrequency": 5
+        },
+        {
+          "type": "dependencies"
+        },
+        {
+          "type": "browserBaseline"
+        }
+      ]
+    },
+    "app": {
+      "package": "app-pracht",
+      "buildScript": "build",
+      "buildOutputDir": "dist",
+      "measurements": [
+        {
+          "type": "ssrRequestThroughput"
+        },
+        {
+          "type": "clientSideRendered"
+        },
+        {
+          "type": "serverSideRendered"
+        },
+        {
+          "type": "ssrLoad"
+        }
+      ]
+    }
+  },
+  {
     "name": "react-router",
     "displayName": "React Router",
     "frameworkPackage": "@react-router/dev",

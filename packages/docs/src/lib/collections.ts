@@ -243,6 +243,7 @@ const frameworkPackageNames: Record<string, string> = {
   'starter-mastro': '@mastrojs/mastro',
   'starter-next-js': 'next',
   'starter-nuxt': 'nuxt',
+  'starter-pracht': '@pracht/core',
   'starter-react-router': '@react-router/dev',
   'starter-solid-start': '@solidjs/start',
   'starter-sveltekit': '@sveltejs/kit',

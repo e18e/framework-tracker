@@ -48,6 +48,12 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     serveScript: 'nitro.ts',
   },
   {
+    name: 'pracht-ssr-load',
+    displayName: 'Pracht SSR Load',
+    package: 'app-pracht',
+    serveScript: 'pracht.ts',
+  },
+  {
     name: 'react-router-ssr-load',
     displayName: 'React Router SSR Load',
     package: 'app-react-router',

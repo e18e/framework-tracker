@@ -24,7 +24,6 @@ export const InstallStatsSchema = z.object({
 export const BuildStatsSchema = z.object({
   coldBuildTime: TimeStatSchema,
   warmBuildTime: TimeStatSchema,
-  buildOutputSize: z.number().nonnegative(),
 })
 
 export const BrowserBaselineStatsSchema = z.object({

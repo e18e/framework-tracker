@@ -286,7 +286,6 @@ export const buildInstallData = starterStats.map((f) => ({
   avgWarmBuild: formatTimeMs(f.warmBuildTime.avgMs),
   minWarmBuild: formatTimeMs(f.warmBuildTime.minMs),
   maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
-  buildOutput: formatBytesToMB(f.buildOutputSize),
 }))
 
 export const chartDuplicateDependencyData = starterStats

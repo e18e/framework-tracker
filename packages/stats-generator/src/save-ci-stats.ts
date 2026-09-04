@@ -85,7 +85,6 @@ async function main() {
           ...stats,
           coldBuildTime: buildStats.coldBuildTime,
           warmBuildTime: buildStats.warmBuildTime,
-          buildOutputSize: buildStats.buildOutputSize,
         }
       } else {
         console.warn(`No build stats artifact found at ${buildStatsPath}`)

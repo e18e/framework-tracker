@@ -64,7 +64,6 @@ export interface CIStats {
   // Build stats
   coldBuildTime?: TimeStat
   warmBuildTime?: TimeStat
-  buildOutputSize?: number
   testTimeMs?: number
   // Direct SSR request throughput stats
   ssrRequestThroughputTests?: {
@@ -164,7 +163,6 @@ export interface InstallStats {
 export interface BuildStats {
   coldBuildTime: TimeStat
   warmBuildTime: TimeStat
-  buildOutputSize: number
 }
 
 export interface CoreJsStats {

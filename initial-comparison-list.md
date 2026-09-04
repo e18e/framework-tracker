@@ -44,7 +44,6 @@ Metrics affecting developer productivity, build times, and CI/CD pipeline perfor
 
 - Cold build time (clean install → production build complete)
 - Warm build time (incremental rebuild with cache)
-- Build output size (total bytes of production build)
 - Peak memory during production build
 - Default bundler used (Vite, Webpack, Turbopack, Rspack, etc.)
 - Bundler configuration complexity (zero-config vs requires setup)
@@ -167,7 +166,6 @@ Using official "create" commands or template
 
 - Default number of dependencies
 - Default install size
-- Default build output size
 - Default linting setup
 
 #### Community Health

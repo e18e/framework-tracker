@@ -3,7 +3,7 @@ import { formatBytesToMB, formatTimeMs } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
 const devtimeVersionEntries = await getCollection('devtimeVersions')
-export const runtimeEntries = await getCollection('runtime')
+const runtimeEntries = await getCollection('runtime')
 const runtimeVersionEntries = await getCollection('runtimeVersions')
 const cwvEntries = await getCollection('cwv')
 

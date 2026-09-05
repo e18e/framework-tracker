@@ -11,7 +11,6 @@ import { buildTanStackStartHandler } from './handlers/tanstack-start.ts'
 import type {
   ServerRenderHandler,
   SSRRequestThroughputBenchmarkResult,
-  SSRRequestThroughputStats,
 } from './types.ts'
 
 interface SSRRequestThroughputFrameworkConfig {
@@ -121,23 +120,5 @@ export async function runSSRRequestThroughputBenchmark(
     } else {
       process.env.NODE_ENV = previousNodeEnv
     }
-  }
-}
-
-export function toSSRRequestThroughputStats(
-  result: SSRRequestThroughputBenchmarkResult,
-): SSRRequestThroughputStats {
-  return {
-    name: result.displayName,
-    package: result.package,
-    type: 'runtime-app',
-    ssrRequestThroughputTests: {
-      opsPerSec: result.opsPerSec,
-      avgLatencyMs: result.avgLatencyMs,
-      medianLatencyMs: result.medianLatencyMs,
-      samples: result.samples,
-      bodySizeKb: result.bodySizeKb,
-      duplicationFactor: result.duplicationFactor,
-    },
   }
 }

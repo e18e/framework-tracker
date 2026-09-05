@@ -1,4 +1,4 @@
-export type MeasurementType =
+type MeasurementType =
   | 'install'
   | 'build'
   | 'test'
@@ -9,7 +9,7 @@ export type MeasurementType =
   | 'clientSideRendered'
   | 'serverSideRendered'
 
-export interface MeasurementConfig {
+interface MeasurementConfig {
   type: MeasurementType
   runFrequency?: number
 }

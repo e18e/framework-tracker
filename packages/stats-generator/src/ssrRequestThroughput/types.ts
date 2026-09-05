@@ -22,17 +22,3 @@ export interface SSRRequestThroughputBenchmarkResult {
   bodySizeKb: number
   duplicationFactor: number
 }
-
-export interface SSRRequestThroughputStats {
-  name: string
-  package: string
-  type: 'runtime-app'
-  ssrRequestThroughputTests: {
-    opsPerSec: number
-    avgLatencyMs: number
-    medianLatencyMs: number
-    samples: number
-    bodySizeKb: number
-    duplicationFactor: number
-  }
-}

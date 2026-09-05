@@ -100,7 +100,7 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
   }
 }
 
-export function getFrameworkDependencyName(frameworkPackage: string): string {
+function getFrameworkDependencyName(frameworkPackage: string): string {
   return frameworkPackage.startsWith('jsr:')
     ? frameworkPackage.slice('jsr:'.length)
     : frameworkPackage

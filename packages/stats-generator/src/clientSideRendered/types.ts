@@ -25,19 +25,3 @@ export interface ClientSideRenderedBenchmarkResult {
     samples: RenderedTestSample[]
   }
 }
-
-export interface ClientSideRenderedStats {
-  timingMeasuredAt: string
-  runner: string
-  browserVersion?: string
-  frameworkVersion?: string
-  clientSideRenderedTests: {
-    firstPaintMs: number
-    fcpMs: number
-    inpMs?: number
-    interactionTests?: InteractionTestStats
-    runs: number
-    standardDeviation?: RenderedTestStandardDeviation
-    samples?: RenderedTestSample[]
-  }
-}

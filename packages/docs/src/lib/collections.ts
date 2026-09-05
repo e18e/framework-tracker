@@ -3,7 +3,7 @@ import { formatBytesToMB, formatTimeMs } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
 const devtimeVersionEntries = await getCollection('devtimeVersions')
-export const runtimeEntries = await getCollection('runtime')
+const runtimeEntries = await getCollection('runtime')
 const runtimeVersionEntries = await getCollection('runtimeVersions')
 const cwvEntries = await getCollection('cwv')
 
@@ -286,7 +286,6 @@ export const buildInstallData = starterStats.map((f) => ({
   avgWarmBuild: formatTimeMs(f.warmBuildTime.avgMs),
   minWarmBuild: formatTimeMs(f.warmBuildTime.minMs),
   maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
-  buildOutput: formatBytesToMB(f.buildOutputSize),
 }))
 
 export const devServerStartData = starterStats.map((f) => ({

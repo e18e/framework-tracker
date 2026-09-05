@@ -1,4 +1,4 @@
-export type MeasurementType =
+type MeasurementType =
   | 'install'
   | 'build'
   | 'devServer'
@@ -10,7 +10,7 @@ export type MeasurementType =
   | 'clientSideRendered'
   | 'serverSideRendered'
 
-export interface MeasurementConfig {
+interface MeasurementConfig {
   type: MeasurementType
   runFrequency?: number
 }
@@ -66,7 +66,6 @@ export interface CIStats {
   // Build stats
   coldBuildTime?: TimeStat
   warmBuildTime?: TimeStat
-  buildOutputSize?: number
   devServerStartTime?: TimeStat
   testTimeMs?: number
   // Direct SSR request throughput stats
@@ -167,7 +166,6 @@ export interface InstallStats {
 export interface BuildStats {
   coldBuildTime: TimeStat
   warmBuildTime: TimeStat
-  buildOutputSize: number
 }
 
 export interface DevServerStats {

@@ -8,12 +8,7 @@ import {
   parseRunFrequency,
 } from './benchmark-utils.ts'
 import { packagesDir } from './constants.ts'
-import {
-  getDirectorySize,
-  writeJsonFile,
-  getFrameworkByPackage,
-  parseArgs,
-} from './utils.ts'
+import { writeJsonFile, getFrameworkByPackage, parseArgs } from './utils.ts'
 import type { BuildStats } from './types.ts'
 import { summarizeSamples } from './sample-statistics.ts'
 
@@ -113,16 +108,6 @@ async function main() {
       finalProjectDir,
       testConfig.buildOutputDir,
     )
-    const excludedBuildOutputPaths =
-      testConfig.buildOutputDir === '.next'
-        ? [join(finalBuildOutputPath, 'cache')]
-        : []
-    const buildOutputSize = getDirectorySize(
-      finalBuildOutputPath,
-      excludedBuildOutputPaths,
-    )
-    console.info(`\nBuild output size: ${buildOutputSize} bytes`)
-
     const coldBuildTime = summarizeSamples(coldBuildTimesMs)
     console.info(`\nAvg cold build time: ${coldBuildTime.avgMs} ms`)
     console.info(
@@ -142,7 +127,6 @@ async function main() {
     const stats: BuildStats = {
       coldBuildTime,
       warmBuildTime,
-      buildOutputSize,
     }
 
     const outputPath = join(packagesDir, packageName, 'build-stats.json')

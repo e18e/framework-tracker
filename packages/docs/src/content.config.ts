@@ -45,7 +45,6 @@ const devtimeSchema = z.object({
   coldBuildTime: timeSchema,
   warmBuildTime: timeSchema,
   devServerStartTime: timeSchema.optional(),
-  buildOutputSize: z.number(),
   nodeModulesSize: z.number(),
   duplicateDependencies: z.number().optional(),
   depInstallSize: z.number().optional(),

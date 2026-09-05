@@ -10,17 +10,14 @@ implemented across frameworks as consistently as each framework allows.
 
 The goal is to show both the default project cost developers inherit when
 starting a framework and the runtime cost of serving and hydrating a comparable
-app. Timing results are run multiple times and averaged, and generated JSON is
-published into the docs package.
+app. Repetition and aggregation vary by benchmark, as described in each
+benchmark section. Generated JSON is published into the docs package.
 
 Most benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
-which Depot documents as an Intel runner with 2 CPUs, 8 GB RAM, 100 GB disk,
-and a 2 GB disk accelerator. The SSR load test instead uses
-`depot-ubuntu-24.04-16`, with 16 CPUs and 64 GB RAM. Browser rendering
-benchmarks run directly on the Depot runner host and use the host Chrome
-installation rather than a job-level browser container. The generated runtime
-stats record the Chrome version used for browser rendering benchmarks.
+with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. Depot runs each
+job on a fresh, single-tenant EC2 instance. Its x86 runners use AMD EC2
+instances and GitHub's standard runner image. If a test deviates from this config it will list its setup in this doc.
 
 ## Dev Time
 
@@ -97,13 +94,6 @@ matches the framework version tracked by the starter project.
   or generated output the first build leaves in place.
 - Build benchmarks run 5 times by default and report average, minimum, and
   maximum duration.
-- Build output size is the total size of the configured production output
-  directory after the final build run. For Next.js, `.next/cache` is excluded
-  because it is not a production artifact. Other frameworks also write build
-  caches, but store them under `node_modules`, outside their configured output
-  directories. Those caches therefore still exist but are naturally excluded
-  from the measurement; excluding `.next/cache` keeps the comparison
-  consistent.
 
 ### Dev Server Startup
 
@@ -185,6 +175,13 @@ implement the same small benchmark routes and data shape wherever possible, so
 the stats focus on browser rendering, server rendering, request-handler
 throughput, and load behavior for comparable production apps.
 
+The client- and server-rendered browser tests benchmarks run directly on the Depot runner host and use the
+host Chrome installation. They use headless Chrome with Lighthouse's desktop form factor, `throttlingMethod: provided`, and screen
+emulation disabled. Lighthouse applies no simulated CPU or network throttling.
+Requests use a local connection to a production server, so the results are
+relative comparisons on the CI host rather than estimates for typical devices
+or networks.
+
 ### Framework Specific Notes
 
 - These runtime apps are not currently intended to measure static-site output. Astro's
@@ -207,7 +204,14 @@ throughput, and load behavior for comparable production apps.
 - Interaction latency is the sum of Lighthouse's input delay, processing
   duration, and presentation delay. It represents this controlled interaction,
   not the page-lifetime INP metric.
-- Results are averaged across five production-build runs.
+- CI creates one production build and starts one production server, which stays
+  running for all five measurements. Each measurement launches a fresh Chrome
+  process.
+- The arithmetic mean is reported. Raw samples and their sample standard
+  deviation are retained.
+- Valid slow results are kept rather than discarded as outliers. A measurement
+  is invalid only when a required Chrome paint or interaction value is missing
+  or not greater than zero.
 - These tests measure route-based client rendering, not forced SPA
   configurations. Each framework uses its supported production routing and
   rendering controls.
@@ -236,8 +240,14 @@ throughput, and load behavior for comparable production apps.
   preloading is allowed when it is part of the framework's default link
   behavior, but the measured SSR routes are still rendered on demand rather than
   converted to prerendered static output.
-- Benchmarks run 5 times by default and require every Chrome paint and
-  interaction measurement to be present and greater than zero.
+- CI creates one production build and starts one production server, which stays
+  running for all five measurements. Each measurement launches a fresh Chrome
+  process.
+- The arithmetic mean is reported. Raw samples and their sample standard
+  deviation are retained.
+- Valid slow results are kept rather than discarded as outliers. A measurement
+  is invalid only when a required Chrome paint or interaction value is missing
+  or not greater than zero.
 - Astro keeps the default static output mode, but the measured
   `/server-side-rendered` route and its detail route use
   `export const prerender = false` so they are rendered on demand by the
@@ -273,6 +283,8 @@ throughput, and load behavior for comparable production apps.
 
 ### Server Side Load Test
 
+- The load test deviates from the standard Depot set up and uses: uses`depot-ubuntu-24.04-16`, with 16 CPUs, 64 GB RAM, 180 GB disk, and an 8 GB disk
+  accelerator.
 - Each framework serves the server-rendered table route over a real local HTTP
   server.
 - The measured route is `/server-side-rendered`, using the same 1000-row UUID

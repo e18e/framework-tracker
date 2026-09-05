@@ -4,7 +4,7 @@ import http from 'node:http'
 import net from 'node:net'
 import { setTimeout as sleep } from 'node:timers/promises'
 
-export const LOOPBACK_ADDRESSES = ['127.0.0.1', '::1']
+const LOOPBACK_ADDRESSES = ['127.0.0.1', '::1']
 
 const INHERITED_ENV = ['PATH', 'HOME', 'TMPDIR', 'LANG', 'LC_ALL']
 
@@ -249,7 +249,7 @@ export async function killProcessTree(
   signalAll('SIGKILL')
 }
 
-export interface DevServerExit {
+interface DevServerExit {
   code: number | null
   signal: NodeJS.Signals | null
 }

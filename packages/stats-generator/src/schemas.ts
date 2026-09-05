@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const TimeStatSchema = z
+const TimeStatSchema = z
   .object({
     avgMs: z.number(),
     standardDeviationMs: z.number().nonnegative().optional(),
@@ -24,7 +24,10 @@ export const InstallStatsSchema = z.object({
 export const BuildStatsSchema = z.object({
   coldBuildTime: TimeStatSchema,
   warmBuildTime: TimeStatSchema,
-  buildOutputSize: z.number().nonnegative(),
+})
+
+export const DevServerStatsSchema = z.object({
+  devServerStartTime: TimeStatSchema,
 })
 
 export const BrowserBaselineStatsSchema = z.object({
@@ -162,19 +165,3 @@ export const ServerSideRenderedStatsSchema = z.object({
   serverSideRenderedTests: RenderedTestsSchema,
   browserVersion: z.string().min(1),
 })
-
-export type InstallStats = z.infer<typeof InstallStatsSchema>
-export type BuildStats = z.infer<typeof BuildStatsSchema>
-export type BrowserBaselineStats = z.infer<typeof BrowserBaselineStatsSchema>
-export type NodeEnginesStats = z.infer<typeof NodeEnginesStatsSchema>
-export type SSRRequestThroughputStats = z.infer<
-  typeof SSRRequestThroughputStatsSchema
->
-export type SSRLoadStats = z.infer<typeof SSRLoadStatsSchema>
-export type ClientSideRenderedStats = z.infer<
-  typeof ClientSideRenderedStatsSchema
->
-export type ServerSideRenderedStats = z.infer<
-  typeof ServerSideRenderedStatsSchema
->
-export type TimeStat = z.infer<typeof TimeStatSchema>

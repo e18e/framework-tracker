@@ -3,7 +3,7 @@ import { formatBytesToMB, formatTimeMs } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
 const devtimeVersionEntries = await getCollection('devtimeVersions')
-export const runtimeEntries = await getCollection('runtime')
+const runtimeEntries = await getCollection('runtime')
 const runtimeVersionEntries = await getCollection('runtimeVersions')
 const cwvEntries = await getCollection('cwv')
 
@@ -287,7 +287,15 @@ export const buildInstallData = starterStats.map((f) => ({
   avgWarmBuild: formatTimeMs(f.warmBuildTime.avgMs),
   minWarmBuild: formatTimeMs(f.warmBuildTime.minMs),
   maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
-  buildOutput: formatBytesToMB(f.buildOutputSize),
+}))
+
+export const devServerStartData = starterStats.map((f) => ({
+  name: f.name,
+  package: f.package,
+  isFocused: f.isFocused,
+  avgStart: formatTimeMs(f.devServerStartTime?.avgMs ?? Number.NaN),
+  minStart: formatTimeMs(f.devServerStartTime?.minMs ?? Number.NaN),
+  maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
 }))
 
 export const chartDuplicateDependencyData = starterStats

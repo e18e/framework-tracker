@@ -6,6 +6,7 @@ import { readJsonFile } from './utils.ts'
 import {
   InstallStatsSchema,
   BuildStatsSchema,
+  DevServerStatsSchema,
   BrowserBaselineStatsSchema,
   NodeEnginesStatsSchema,
   SSRRequestThroughputStatsSchema,
@@ -17,6 +18,7 @@ import {
 type BenchmarkType =
   | 'install'
   | 'build'
+  | 'devServer'
   | 'browserBaseline'
   | 'nodeEngines'
   | 'ssrRequestThroughput'
@@ -33,6 +35,11 @@ interface BenchmarkConfig {
 const STARTER_BENCHMARKS: BenchmarkConfig[] = [
   { type: 'install', file: 'install-stats.json', schema: InstallStatsSchema },
   { type: 'build', file: 'build-stats.json', schema: BuildStatsSchema },
+  {
+    type: 'devServer',
+    file: 'dev-server-stats.json',
+    schema: DevServerStatsSchema,
+  },
   {
     type: 'browserBaseline',
     file: 'browser-baseline-stats.json',

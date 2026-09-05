@@ -14,6 +14,11 @@ on:
         description: 'JSON array of frameworks to measure build time'
         type: string
         required: true
+      dev-server-matrix:
+        description: 'JSON array of frameworks to measure dev server startup time'
+        type: string
+        required: false
+        default: '[]'
       ssr-request-throughput-matrix:
         description: 'JSON array of frameworks to measure SSR request throughput performance'
         type: string
@@ -132,6 +137,43 @@ jobs:
         with:
           name: browser-baseline-stats-${{ matrix.framework.name }}
           path: packages/${{ matrix.framework.package }}/browser-baseline-stats.json
+          retention-days: 1
+          if-no-files-found: error
+
+  measure-dev-server:
+    if: inputs.dev-server-matrix != '[]'
+    runs-on: depot-ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.dev-server-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run dev server benchmark
+        run: |
+          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "devServer") | .runFrequency')
+          pnpm --filter @framework-tracker/stats-generator run:dev-server ${{ matrix.framework.package }} $RUN_FREQUENCY
+
+      - name: Upload dev server stats
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: dev-server-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/dev-server-stats.json
           retention-days: 1
           if-no-files-found: error
 

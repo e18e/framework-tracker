@@ -16,6 +16,7 @@ on:
       - '!packages/starter-*/stats/**'
       - '!packages/starter-*/install-stats.json'
       - '!packages/starter-*/build-stats.json'
+      - '!packages/starter-*/dev-server-stats.json'
       - '!packages/starter-*/corejs-stats.json'
       - '!packages/starter-*/browser-baseline-stats.json'
       - '!packages/starter-*/e18e-stats.json'
@@ -82,6 +83,8 @@ jobs:
             pnpm --filter @framework-tracker/stats-generator run:install $PKG 1
             echo "Running build benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:build $PKG
+            echo "Running dev server benchmark for $PKG (1 run)..."
+            pnpm --filter @framework-tracker/stats-generator run:dev-server $PKG 1
             echo "Running Node engines scan for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:node-engines $PKG
           done

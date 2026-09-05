@@ -6,7 +6,7 @@ export async function importWithoutListening<T>(entryUrl: string): Promise<T> {
   return module
 }
 
-export async function importWithCapturedServer<T>(
+async function importWithCapturedServer<T>(
   entryUrl: string,
 ): Promise<{ module: T; server: HttpServer | HttpsServer | undefined }> {
   const originalHttpListen = HttpServer.prototype.listen

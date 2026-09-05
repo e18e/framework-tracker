@@ -26,6 +26,10 @@ export const BuildStatsSchema = z.object({
   warmBuildTime: TimeStatSchema,
 })
 
+export const DevServerStatsSchema = z.object({
+  devServerStartTime: TimeStatSchema,
+})
+
 export const BrowserBaselineStatsSchema = z.object({
   baselineStatus: z.union([
     z.literal('high'),

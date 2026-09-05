@@ -1,6 +1,7 @@
 type MeasurementType =
   | 'install'
   | 'build'
+  | 'devServer'
   | 'test'
   | 'dependencies'
   | 'browserBaseline'
@@ -18,6 +19,7 @@ export interface TestConfig {
   package: string
   buildScript: string
   buildOutputDir: string
+  devServerPort?: number
   measurements: MeasurementConfig[]
 }
 
@@ -64,6 +66,7 @@ export interface CIStats {
   // Build stats
   coldBuildTime?: TimeStat
   warmBuildTime?: TimeStat
+  devServerStartTime?: TimeStat
   testTimeMs?: number
   // Direct SSR request throughput stats
   ssrRequestThroughputTests?: {
@@ -163,6 +166,10 @@ export interface InstallStats {
 export interface BuildStats {
   coldBuildTime: TimeStat
   warmBuildTime: TimeStat
+}
+
+export interface DevServerStats {
+  devServerStartTime: TimeStat
 }
 
 export interface CoreJsStats {

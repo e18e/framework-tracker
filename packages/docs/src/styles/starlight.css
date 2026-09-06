@@ -162,3 +162,24 @@ mobile-starlight-toc {
 .depot p:empty {
   display: none;
 }
+
+/* Logos with a second light-mode file ship both <img> elements and swap here,
+   because Starlight toggles data-theme rather than prefers-color-scheme. The
+   margin reset undoes the 1rem Starlight gives any sibling inside
+   .sl-markdown-content, which would otherwise drop the second variant. */
+.framework-logo--dark,
+.framework-logo--light {
+  margin-top: 0;
+}
+
+.framework-logo--light {
+  display: none;
+}
+
+:root[data-theme='light'] .framework-logo--dark {
+  display: none;
+}
+
+:root[data-theme='light'] .framework-logo--light {
+  display: inline-block;
+}

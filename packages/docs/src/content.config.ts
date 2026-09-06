@@ -3,6 +3,7 @@ import { file, glob } from 'astro/loaders'
 import { docsLoader } from '@astrojs/starlight/loaders'
 import { docsSchema } from '@astrojs/starlight/schema'
 import { z } from 'astro/zod'
+import { readdirSync } from 'node:fs'
 
 const timeSchema = z.object({
   avgMs: z.number(),
@@ -240,6 +241,31 @@ const cwvCollection = defineCollection({
   }),
 })
 
+// Derived from the devtime filenames rather than hardcoded, so adding a
+// framework does not silently break every code comparison example.
+const frameworkSlugs = new Set(
+  readdirSync(new URL('./content/devtime', import.meta.url))
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => file.replace(/^starter-/, '').replace(/\.json$/, '')),
+)
+
+const codeComparisonCollection = defineCollection({
+  loader: glob({
+    pattern: '**/*',
+    base: './src/content/code-comparison',
+    generateId: ({ entry }) => {
+      const slug = /^[^/]+\/([^/]+)\.md$/.exec(entry)?.[1]
+      if (slug == null || !frameworkSlugs.has(slug)) {
+        throw new Error(
+          `Invalid code comparison file "${entry}". Expected <example>/<framework>.md where <framework> is one of: ${[...frameworkSlugs].join(', ')}.`,
+        )
+      }
+      return entry.replace(/\.md$/, '')
+    },
+  }),
+  schema: z.object({ docs: z.url().optional() }).strict(),
+})
+
 const docsCollection: ReturnType<typeof defineCollection> = defineCollection({
   loader: docsLoader(),
   schema: docsSchema(),
@@ -252,4 +278,5 @@ export const collections = {
   runtime: runtimeCollection,
   runtimeVersions: runtimeVersionsCollection,
   cwv: cwvCollection,
+  codeComparison: codeComparisonCollection,
 }

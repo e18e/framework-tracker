@@ -1,11 +1,12 @@
 import { getCollection } from 'astro:content'
-import { formatBytesToMB, formatTimeMs } from './utils'
+import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
 
 const devtimeEntries = await getCollection('devtime')
 const devtimeVersionEntries = await getCollection('devtimeVersions')
 const runtimeEntries = await getCollection('runtime')
 const runtimeVersionEntries = await getCollection('runtimeVersions')
 const cwvEntries = await getCollection('cwv')
+const codeComparisonEntries = await getCollection('codeComparison')
 
 type DevtimeVersionData = (typeof devtimeVersionEntries)[number]['data']
 type RuntimeVersionData = (typeof runtimeVersionEntries)[number]['data']
@@ -87,6 +88,20 @@ export function getCWVStatsChartData(cwv: CWV, device: Device) {
 export const starterStats = devtimeEntries
   .map((entry) => entry.data)
   .sort((a, b) => a.order - b.order)
+
+export function getCodeComparison(example: string) {
+  return starterStats.map((framework) => {
+    const slug = getFrameworkSlug(framework.package)
+    return {
+      name: framework.name,
+      package: framework.package,
+      slug,
+      entry: codeComparisonEntries.find(
+        (entry) => entry.id === `${example}/${slug}`,
+      ),
+    }
+  })
+}
 
 export const ssrRequestThroughputStats = runtimeEntries
   .map((entry) => entry.data)

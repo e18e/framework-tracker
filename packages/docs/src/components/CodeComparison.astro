@@ -1,0 +1,243 @@
+---
+import { render } from 'astro:content'
+import { getCodeComparison } from '../lib/collections'
+import { frameworkLogos } from '../lib/framework-logos'
+
+type Props = {
+  example: string
+}
+
+const { example } = Astro.props
+
+const frameworks = getCodeComparison(example)
+
+if (frameworks.every((framework) => framework.entry == null)) {
+  throw new Error(
+    `No code comparison snippets found for example "${example}". Expected files in src/content/code-comparison/${example}/.`,
+  )
+}
+
+const tabs = await Promise.all(
+  frameworks.map(async ({ name, slug, package: packageName, entry }) => ({
+    name,
+    slug,
+    logo: frameworkLogos[packageName],
+    docs: entry?.data.docs,
+    Content: entry == null ? null : (await render(entry)).Content,
+    tabId: `${example}-tab-${slug}`,
+    panelId: `${example}-panel-${slug}`,
+  })),
+)
+---
+
+<code-comparison>
+  <div role="tablist" aria-label="Framework">
+    {
+      tabs.map(({ name, slug, logo, tabId, panelId }, index) => (
+        <button
+          type="button"
+          role="tab"
+          id={tabId}
+          aria-controls={panelId}
+          aria-selected={index === 0 ? 'true' : 'false'}
+          tabindex={index === 0 ? 0 : -1}
+          data-framework={slug}
+          title={name}
+          class="code-comparison-tab"
+        >
+          {logo == null || 'symbol' in logo ? (
+            <span class="code-comparison-symbol" aria-hidden="true">
+              {logo?.symbol ?? '◼'}
+            </span>
+          ) : (
+            <Fragment>
+              <img
+                class:list={[
+                  'code-comparison-logo',
+                  logo.light != null && 'framework-logo--dark',
+                ]}
+                src={logo.dark}
+                alt=""
+              />
+              {logo.light != null && (
+                <img
+                  class="code-comparison-logo framework-logo--light"
+                  src={logo.light}
+                  alt=""
+                />
+              )}
+            </Fragment>
+          )}
+          <span class="sr-only">{name}</span>
+        </button>
+      ))
+    }
+  </div>
+  {
+    tabs.map(({ name, docs, Content, tabId, panelId }, index) => (
+      <div
+        role="tabpanel"
+        id={panelId}
+        aria-labelledby={tabId}
+        hidden={index !== 0}
+      >
+        {Content == null ? (
+          <p>
+            Not documented for {name} yet.{' '}
+            <a href="https://github.com/e18e/framework-tracker/issues/111">
+              Contribute this example
+            </a>
+            .
+          </p>
+        ) : (
+          <Fragment>
+            <Content />
+            {docs != null && (
+              <p>
+                <a href={docs}>{name} documentation</a>
+              </p>
+            )}
+          </Fragment>
+        )}
+      </div>
+    ))
+  }
+</code-comparison>
+
+<style>
+  code-comparison {
+    display: block;
+  }
+
+  [role='tablist'] {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    border-bottom: 2px solid var(--ft-border);
+  }
+
+  /* Starlight gives every sibling inside .sl-markdown-content a 1rem top margin,
+     which would drop every tab but the first out of the strip. */
+  .code-comparison-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0;
+    margin-bottom: -2px;
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--ft-muted);
+    cursor: pointer;
+    opacity: 0.75;
+  }
+
+  .code-comparison-tab:hover,
+  .code-comparison-tab:focus-visible {
+    opacity: 1;
+  }
+
+  .code-comparison-tab[aria-selected='true'] {
+    border-bottom-color: var(--ft-accent);
+    color: var(--ft-text);
+    opacity: 1;
+  }
+
+  .code-comparison-logo,
+  .code-comparison-symbol {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: none;
+  }
+
+  .code-comparison-logo {
+    object-fit: contain;
+  }
+
+  .code-comparison-symbol {
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  [role='tabpanel'] {
+    margin-top: 1rem;
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'code-comparison-framework'
+
+  function readStored() {
+    try {
+      return localStorage.getItem(STORAGE_KEY)
+    } catch {
+      return null
+    }
+  }
+
+  function selectEverywhere(slug: string | undefined) {
+    if (slug == null) return
+    try {
+      localStorage.setItem(STORAGE_KEY, slug)
+    } catch {
+      // Private browsing refuses writes; the selection still applies to this page view.
+    }
+    for (const element of document.querySelectorAll<CodeComparison>(
+      'code-comparison',
+    )) {
+      element.select(slug)
+    }
+  }
+
+  class CodeComparison extends HTMLElement {
+    tabs: HTMLButtonElement[] = []
+
+    connectedCallback() {
+      this.tabs = [...this.querySelectorAll<HTMLButtonElement>('[role="tab"]')]
+      this.addEventListener('click', (event) => {
+        const tab = (event.target as HTMLElement).closest<HTMLButtonElement>(
+          '[role="tab"]',
+        )
+        selectEverywhere(tab?.dataset.framework)
+      })
+      this.addEventListener('keydown', (event) => {
+        const index = this.tabs.indexOf(
+          document.activeElement as HTMLButtonElement,
+        )
+        if (index < 0) return
+        const last = this.tabs.length - 1
+        const next: Record<string, number> = {
+          ArrowLeft: index === 0 ? last : index - 1,
+          ArrowRight: index === last ? 0 : index + 1,
+          Home: 0,
+          End: last,
+        }
+        const targetIndex = next[event.key]
+        const target = targetIndex == null ? undefined : this.tabs[targetIndex]
+        if (target == null) return
+        event.preventDefault()
+        selectEverywhere(target.dataset.framework)
+        target.focus()
+      })
+      this.select(readStored() ?? this.tabs[0]?.dataset.framework ?? '')
+    }
+
+    select(slug: string) {
+      if (!this.tabs.some((tab) => tab.dataset.framework === slug)) return
+      for (const tab of this.tabs) {
+        const selected = tab.dataset.framework === slug
+        tab.setAttribute('aria-selected', String(selected))
+        tab.tabIndex = selected ? 0 : -1
+        const panel = document.getElementById(
+          tab.getAttribute('aria-controls') ?? '',
+        )
+        if (panel != null) panel.hidden = !selected
+      }
+    }
+  }
+
+  customElements.define('code-comparison', CodeComparison)
+</script>

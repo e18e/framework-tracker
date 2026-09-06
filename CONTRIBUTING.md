@@ -133,6 +133,35 @@ Adding a new framework increases the maintenance burden, so please open an issue
 
 6. **Submit a PR**: Open a pull request with the new packages and configuration. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 
+### Adding a Code Comparison Example
+
+The [Code Comparison](https://frameworks.e18e.dev/code-comparison/) page is driven by markdown files in `packages/docs/src/content/code-comparison/<example>/<framework>.md`. One file per framework, named after the framework's slug, which is its `packages/docs/src/content/devtime/starter-*.json` filename without the prefix. Anything else under that folder fails `pnpm type-check`, including a stray file at the wrong depth or with the wrong extension. A framework with no file gets a placeholder tab, so a partial example still ships.
+
+Each file holds optional frontmatter, optional prose, and one fenced code block per file the task needs:
+
+````md
+---
+docs: https://svelte.dev/docs/kit/routing
+---
+
+```svelte title="src/routes/about/+page.svelte"
+<h1>About</h1>
+```
+````
+
+The rules the page depends on:
+
+- `title=` is the path relative to the starter package root, and the block is the **complete** file at that path. A reader must be able to write every block verbatim into a fresh copy of `packages/starter-<framework>` and have the example work with no other edits and no added dependencies. Replace a file the starter already ships rather than showing a diff of it.
+- Keep snippets minimal. No layouts, styling, metadata, or test ids.
+- Prose is for a step the framework needs beyond adding a file. One or two sentences.
+- `docs` is optional and must be a working URL to that framework's guide for the task.
+
+Adding a new example means adding the folder plus a `##` heading and a `<CodeComparison example="..." />` line in `packages/docs/src/content/docs/code-comparison.mdx`. Nothing else changes, so examples can be contributed in parallel.
+
+Verify a snippet before opening the PR, because nothing in CI can. Copy the starter to a scratch directory, `pnpm install`, write every block into it at its `title=` path, run `pnpm dev`, and request the routes the example adds.
+
+Run `pnpm format` too. Prettier reformats `astro`, `vue`, `ts`, and `tsx` fences to this repo's style. It leaves `svelte` fences alone, since `prettier-plugin-svelte` is not installed here, so format those by hand to match.
+
 ### Getting Started
 
 To get the project running locally:

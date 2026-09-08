@@ -240,7 +240,6 @@ export const minimumNodeVersionTableData = starterStats.map((f) => ({
 
 const frameworkPackageNames: Record<string, string> = {
   'starter-astro': 'astro',
-  'starter-mastro': '@mastrojs/mastro',
   'starter-next-js': 'next',
   'starter-nuxt': 'nuxt',
   'starter-react-router': '@react-router/dev',

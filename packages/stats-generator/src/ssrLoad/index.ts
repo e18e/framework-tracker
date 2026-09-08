@@ -30,12 +30,6 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     serveScript: 'astro.ts',
   },
   {
-    name: 'mastro-ssr-load',
-    displayName: 'Mastro SSR Load',
-    package: 'app-mastro',
-    serveScript: 'mastro.ts',
-  },
-  {
     name: 'next-ssr-load',
     displayName: 'Next.js SSR Load',
     package: 'app-next-js',

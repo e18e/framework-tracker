@@ -19,3 +19,7 @@ jobs:
     steps:
       - name: AgentScan
         uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          trusted-author-associations: 'member,owner'
+          honeypot: true

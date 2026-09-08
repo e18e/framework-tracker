@@ -36,8 +36,6 @@ function ipFamily(address: string): 4 | 6 {
   return address.includes(':') ? 6 : 4
 }
 
-// Mastro serves its dev routes only when the request hostname is `localhost`,
-// and fetch() refuses to send a custom Host header, so this uses node:http.
 export function probeOnce(
   address: string,
   port: number,
@@ -52,8 +50,7 @@ export function probeOnce(
         method: 'GET',
         family: ipFamily(address),
         agent: false,
-        setHost: false,
-        headers: { host: `localhost:${port}`, connection: 'close' },
+        headers: { connection: 'close' },
         timeout: timeoutMs,
       },
       (response) => {
@@ -225,8 +222,7 @@ function signalPid(pid: number, signal: NodeJS.Signals): void {
 }
 
 // Astro re-spawns its dev server detached when it detects an agent terminal,
-// so the process group alone is not enough; `node --watch` (Mastro) restarts
-// children, so the descendant list alone is not enough either.
+// so the process group alone is not enough.
 export async function killProcessTree(
   child: ChildProcess,
   graceMs = 5_000,

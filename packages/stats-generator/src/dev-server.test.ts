@@ -68,7 +68,7 @@ async function freePort(): Promise<number> {
   return port
 }
 
-test('probeOnce reports the status and preserves the localhost Host header', async (t) => {
+test('probeOnce reports the status and uses the target Host header', async (t) => {
   let hostHeader = ''
   const { server, port } = await listen((req, res) => {
     hostHeader = req.headers.host ?? ''
@@ -77,7 +77,7 @@ test('probeOnce reports the status and preserves the localhost Host header', asy
   t.after(() => close(server))
 
   assert.deepEqual(await probeOnce('127.0.0.1', port, 1000), { status: 503 })
-  assert.equal(hostHeader, `localhost:${port}`)
+  assert.equal(hostHeader, `127.0.0.1:${port}`)
 })
 
 test('probeOnce reports a refused connection without throwing', async () => {

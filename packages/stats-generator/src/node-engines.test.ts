@@ -119,12 +119,12 @@ test('disjoint ranges yield null and list every range a candidate failed', () =>
   ])
 })
 
-test('the starter package itself can be the sole imposer', () => {
+test('a starter package can be the sole imposer', () => {
   const stats = resolveMinimumNodeVersion([
-    { name: 'starter-mastro', range: '>=24.12' },
+    { name: 'starter-example', range: '>=24.12' },
     { name: 'a', range: '>=18' },
     { name: 'b', range: '^20 || >=22' },
   ])
   assert.equal(stats.minimumNodeVersion, '24.12.0')
-  assert.deepEqual(stats.imposedBy, ['starter-mastro'])
+  assert.deepEqual(stats.imposedBy, ['starter-example'])
 })

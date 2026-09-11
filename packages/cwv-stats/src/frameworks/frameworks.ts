@@ -5,6 +5,7 @@ export const frameworks = [
   'Nuxt.js',
   'SvelteKit',
   'React Router',
+  'TanStack Start',
 ] as const
 
 export type Framework = (typeof frameworks)[number]
@@ -16,6 +17,10 @@ export const frameworkMetadata = {
   'Nuxt.js': { name: 'Nuxt', package: 'app-nuxt' },
   SvelteKit: { name: 'SvelteKit', package: 'app-sveltekit' },
   'React Router': { name: 'React Router', package: 'app-react-router' },
+  'TanStack Start': {
+    name: 'TanStack Start',
+    package: 'app-tanstack-start-react',
+  },
 } as const satisfies Record<
   Framework,
   { name: string; package: `app-${string}` }

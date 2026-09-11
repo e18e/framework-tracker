@@ -110,8 +110,7 @@ matches the framework version tracked by the starter project.
 - The port is the starter's default dev port, recorded as `devServerPort` in
   `.github/frameworks.json`. The starters are not modified, so whatever they
   ship is inside the measurement: Nuxt and TanStack Start enable devtools,
-  and Astro and React Router generate types at boot. Mastro's `dev` script is
-  a plain `node --watch` server rather than a framework dev server.
+  and Astro and React Router generate types at boot.
 - The dev server runs with a minimal environment (`PATH`, `HOME`, `TMPDIR`,
   `LANG`, `LC_ALL`) plus telemetry opt-outs, so the terminal that launches the
   benchmark cannot change how the framework behaves. Astro, for example,

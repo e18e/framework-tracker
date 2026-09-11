@@ -45,9 +45,9 @@ const tabs = await Promise.all(
           title={name}
           class="code-comparison-tab"
         >
-          {logo == null || 'symbol' in logo ? (
+          {logo == null ? (
             <span class="code-comparison-symbol" aria-hidden="true">
-              {logo?.symbol ?? '◼'}
+              ◼
             </span>
           ) : (
             <Fragment>

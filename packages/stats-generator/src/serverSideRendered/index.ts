@@ -26,13 +26,6 @@ const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: true,
   },
   {
-    name: 'mastro-server-side-rendered',
-    displayName: 'Mastro Server Side Rendered',
-    package: 'app-mastro',
-    serveScript: 'mastro.ts',
-    fullDocumentNavigation: true,
-  },
-  {
     name: 'next-server-side-rendered',
     displayName: 'Next.js Server Side Rendered',
     package: 'app-next-js',

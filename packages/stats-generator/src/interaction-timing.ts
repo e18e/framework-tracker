@@ -34,7 +34,7 @@ interface LighthouseTrace {
  * Lighthouse drops them before pairing the start and end events used to calculate the final interaction timing.
  * https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/models/trace/handlers/UserInteractionsHandler.ts
  *
- * TODO: When Chrome or Lighthouse is bumped, capture repeated Astro and Mastro native-navigation traces.
+ * TODO: When Chrome or Lighthouse is bumped, capture repeated Astro native-navigation traces.
  * Remove this normalization if Chrome no longer emits sub-1ms preliminary durations, or if Lighthouse no longer
  * rejects Event Timing start records whose preliminary duration is below 1 ms.
  */

@@ -7,8 +7,8 @@ import { getFrameworkSlug } from '../lib/utils'
 function getFrameworkTitle(name: string, packageName: string) {
   const logo = frameworkLogos[packageName]
   let visual: string
-  if (logo == null || 'symbol' in logo) {
-    visual = `<span class="framework-card-symbol" aria-hidden="true">${logo?.symbol ?? '◼'}</span>`
+  if (logo == null) {
+    visual = `<span class="framework-card-symbol" aria-hidden="true">◼</span>`
   } else {
     const dark = `<img class="framework-card-logo${logo.light != null ? ' framework-logo--dark' : ''}" src="${logo.dark}" alt="" />`
     const light =

@@ -1,5 +1,4 @@
-export type FrameworkLogo =
-  { dark: string; light?: string } | { symbol: string }
+export type FrameworkLogo = { dark: string; light?: string }
 
 /** Keyed by devtime starter package name. */
 export const frameworkLogos: Record<string, FrameworkLogo> = {
@@ -7,7 +6,6 @@ export const frameworkLogos: Record<string, FrameworkLogo> = {
     dark: '/framework-logos/astro-gradient.svg',
     light: '/framework-logos/astro-dark.svg',
   },
-  'starter-mastro': { symbol: '👨‍🍳' },
   'starter-next-js': {
     dark: '/framework-logos/nextdotjs-light.svg',
     light: '/framework-logos/nextdotjs.svg',

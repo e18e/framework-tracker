@@ -38,6 +38,17 @@ Installed using the CLI
 - Step 4: Install dependencies?: `yes`
 - Step 5: Initialize a new git repository?: `No`
 
+#### React Router
+
+Installed using the CLI with its default template. The v8 future flags supported
+by the tracked v7 release are enabled after generation so the project represents
+React Router's recommended v7 upgrade posture.
+
+- Step 1: `pnpm dlx create-react-router@7.11.0 .`
+- Step 2: Template: `Default (SSR, TypeScript, and Tailwind CSS)`
+- Step 3: Initialize a new git repository?: `No`
+- Step 4: Install dependencies with pnpm?: `Yes`
+
 #### SvelteKit
 
 Installed using the CLI

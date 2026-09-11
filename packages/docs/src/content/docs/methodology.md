@@ -148,6 +148,9 @@ matches the framework version tracked by the starter project.
   on, or blank if any detected feature is not yet Baseline.
 - Features is the number of unique web platform feature IDs detected in the
   browser-facing build output.
+- For Nuxt, the `temporal` feature is temporarily excluded. Nuxt bundles
+  devalue's optional Temporal deserializer, but that branch only runs when an
+  application has itself serialized a Temporal value.
 
 ### Minimum Node Version
 

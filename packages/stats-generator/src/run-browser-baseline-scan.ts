@@ -2,8 +2,8 @@ import { access, copyFile, mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import {
-  detectBaselineTarget,
-  detectBaselineYear,
+  detectBaselineTargetForFeatures,
+  detectBaselineYearForFeatures,
   detectFeatures,
 } from 'baseline-detector'
 import { glob } from 'tinyglobby'
@@ -37,7 +37,7 @@ const SOURCE_FILE_GLOB = '**/*.{js,jsx,mjs,cjs,ts,mts,cts,tsx,vue,svelte}'
 
 function normalizeBaselineTarget(
   featureIds: string[],
-  target: Awaited<ReturnType<typeof detectBaselineTarget>>,
+  target: Awaited<ReturnType<typeof detectBaselineTargetForFeatures>>,
 ): BrowserBaselineTarget {
   if (featureIds.length === 0) {
     return { status: null, reason: null }
@@ -99,18 +99,21 @@ async function main() {
     console.info(`  Build output: ${buildOutputPath}`)
     console.info(`  Staged ${copiedFileCount} browser source file(s).`)
 
-    const [featuresByFile, detectedTarget, detectedBaselineYear] =
-      await Promise.all([
-        detectFeatures({ cwd: scanDir }),
-        detectBaselineTarget({ cwd: scanDir }),
-        detectBaselineYear({ cwd: scanDir }),
-      ])
-
+    const featuresByFile = await detectFeatures({ cwd: scanDir })
+    // Nuxt only reaches devalue's Temporal deserializer when application code
+    // has already serialized a Temporal value.
+    if (packageName === 'starter-nuxt') {
+      for (const features of featuresByFile.values())
+        features.delete('temporal')
+    }
+    const [detectedTarget, detectedBaselineYear] = await Promise.all([
+      detectBaselineTargetForFeatures(featuresByFile),
+      detectBaselineYearForFeatures(featuresByFile),
+    ])
     const featureIds = [
       ...new Set([...featuresByFile.values()].flatMap((ids) => [...ids])),
     ].sort()
     const target = normalizeBaselineTarget(featureIds, detectedTarget)
-
     const stats: BrowserBaselineStats = {
       baselineStatus: target.status,
       baselineYear: featureIds.length === 0 ? null : detectedBaselineYear,

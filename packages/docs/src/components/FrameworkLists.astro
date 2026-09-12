@@ -1,36 +1,22 @@
 ---
 import { CardGrid, LinkCard } from '@astrojs/starlight/components'
 import { starterStats } from '../lib/collections'
+import { frameworkLogos } from '../lib/framework-logos'
 import { getFrameworkSlug } from '../lib/utils'
-
-const frameworkLogos: Record<
-  string,
-  { src?: string; symbol?: string; className?: string }
-> = {
-  'starter-astro': {
-    src: '/framework-logos/astro-gradient.svg',
-    className: 'framework-card-logo--astro',
-  },
-  'starter-next-js': {
-    src: '/framework-logos/nextdotjs-light.svg',
-    className: 'framework-card-logo--next',
-  },
-  'starter-nuxt': { src: '/framework-logos/nuxt.svg' },
-  'starter-react-router': { src: '/framework-logos/reactrouter.svg' },
-  'starter-solid-start': { src: '/framework-logos/solid-start.svg' },
-  'starter-sveltekit': { src: '/framework-logos/svelte.svg' },
-  'starter-tanstack-start-react': {
-    src: '/framework-logos/tanstack.svg',
-  },
-}
 
 function getFrameworkTitle(name: string, packageName: string) {
   const logo = frameworkLogos[packageName]
-  const visual =
-    logo?.src != null
-      ? `<img class="framework-card-logo ${logo.className ?? ''}" src="${logo.src}" alt="" />`
-      : `<span class="framework-card-symbol" aria-hidden="true">${logo?.symbol ?? '◼'}</span>`
-
+  let visual: string
+  if (logo == null) {
+    visual = `<span class="framework-card-symbol" aria-hidden="true">◼</span>`
+  } else {
+    const dark = `<img class="framework-card-logo${logo.light != null ? ' framework-logo--dark' : ''}" src="${logo.dark}" alt="" />`
+    const light =
+      logo.light != null
+        ? `<img class="framework-card-logo framework-logo--light" src="${logo.light}" alt="" />`
+        : ''
+    visual = dark + light
+  }
   return `<span class="framework-card-title">${visual}<span>${name}</span></span>`
 }
 
@@ -115,13 +101,5 @@ const additionalFrameworks = frameworkRows.filter(
     place-items: center;
     font-size: 1.25rem;
     line-height: 1;
-  }
-
-  :global(:root[data-theme='light'] .framework-card-logo--next) {
-    filter: invert(1);
-  }
-
-  :global(:root[data-theme='light'] .framework-card-logo--astro) {
-    content: url('/framework-logos/astro-dark.svg');
   }
 </style>

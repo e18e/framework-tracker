@@ -332,3 +332,20 @@ or networks.
 - The docs publish framework-level desktop and mobile percentages from the latest
   collected HTTP Archive snapshot in the repository.
 - Metrics refresh monthly when new HTTP Archive data is collected.
+
+## Code Comparison
+
+The Code Comparison page shows how each framework solves one everyday task. It
+is written by hand rather than generated, so it carries its own rules.
+
+- Snippets target the starter project versions published on Dev Time, not the
+  latest release of each framework.
+- Each titled code block is a complete file. A task is done by writing exactly
+  the files shown into a fresh copy of that starter, with no other edits and no
+  added dependencies. A block whose title names a file the starter already ships
+  replaces it.
+- Snippets are kept minimal on purpose. Layouts, styling, metadata, and error
+  handling are left out so the framework's own answer to the task is the only
+  thing on screen.
+- Snippets are verified by writing them into a fresh copy of the starter,
+  starting its dev server with `pnpm dev`, and requesting the routes they add.

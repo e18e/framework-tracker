@@ -21,7 +21,6 @@ export default defineConfig({
         { label: 'Dev Time', link: '/dev-time/' },
         { label: 'Run Time', link: '/run-time/' },
         { label: 'All Frameworks', link: '/all-frameworks/' },
-        { label: 'Code Comparison', link: '/code-comparison/' },
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
       ],

@@ -1,10 +1,7 @@
 export default defineNuxtConfig({
-  compatibilityDate: '2025-01-01',
-  future: {
-    compatibilityVersion: 4,
-  },
+  compatibilityDate: 'latest',
   nitro: {
-    preset: 'node-server',
+    preset: './nitro-preset',
   },
   routeRules: {
     '/client-side-rendered': { ssr: false },

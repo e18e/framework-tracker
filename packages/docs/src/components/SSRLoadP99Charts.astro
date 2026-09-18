@@ -2,8 +2,12 @@
 import SSRLoadWorker25P99LatencyChart from './SSRLoadWorker25P99LatencyChart.astro'
 import SSRLoadWorker50P99LatencyChart from './SSRLoadWorker50P99LatencyChart.astro'
 import SSRLoadWorker100P99LatencyChart from './SSRLoadWorker100P99LatencyChart.astro'
+interface Props {
+  testsKey?: import('../lib/collections').SSRLoadKey
+}
+const { testsKey = 'ssrLoadTests' } = Astro.props
 ---
 
-<SSRLoadWorker25P99LatencyChart />
-<SSRLoadWorker50P99LatencyChart />
-<SSRLoadWorker100P99LatencyChart />
+<SSRLoadWorker25P99LatencyChart testsKey={testsKey} />
+<SSRLoadWorker50P99LatencyChart testsKey={testsKey} />
+<SSRLoadWorker100P99LatencyChart testsKey={testsKey} />

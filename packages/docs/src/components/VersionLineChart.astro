@@ -1,6 +1,6 @@
 ---
 import { formatChartValue } from '../lib/chart'
-import type { ChartDatum, ChartValueFormat } from '../lib/types'
+import type { ChartValueFormat } from '../lib/types'
 
 type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
 
@@ -10,6 +10,7 @@ interface Props {
   versions?: unknown[]
   metric?: string
   transform?: ValueTransform
+  stageKey?: 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
   stageWorkers?: number
   stageMetric?: string
   valueFormat: ChartValueFormat
@@ -25,6 +26,7 @@ const {
   versions = [],
   metric,
   transform,
+  stageKey = 'ssrLoadTests',
   stageWorkers,
   stageMetric,
   valueFormat,
@@ -47,7 +49,7 @@ function readPath(source: unknown, path: string) {
 function getStageMetricValue(stats: unknown) {
   if (stageWorkers == null || stageMetric == null) return undefined
 
-  const ssrLoadTests = getRecord(readPath(stats, 'ssrLoadTests'))
+  const ssrLoadTests = getRecord(readPath(stats, stageKey))
   const stages = ssrLoadTests?.stages
   if (!Array.isArray(stages)) return undefined
 
@@ -72,8 +74,8 @@ function formatLatestChange(value: number | null) {
   return `${sign}${formatChartValue(Math.abs(value), valueFormat)}`
 }
 
-function getVersionChartData(): ChartDatum[] {
-  return versions.flatMap((stats) => {
+function getVersionChartData(): { name: string; value: number | null }[] {
+  return versions.map((stats) => {
     const rawValue =
       stageWorkers != null && stageMetric != null
         ? getStageMetricValue(stats)
@@ -81,29 +83,30 @@ function getVersionChartData(): ChartDatum[] {
           ? readPath(stats, metric)
           : undefined
 
-    if (typeof rawValue !== 'number' || !Number.isFinite(rawValue)) return []
-
     return {
       name: String(readPath(stats, 'frameworkVersion') ?? 'Unknown'),
-      value: transformValue(rawValue),
+      value:
+        typeof rawValue === 'number' && Number.isFinite(rawValue)
+          ? transformValue(rawValue)
+          : null,
     }
   })
 }
 
 const chartData = getVersionChartData().map((d) => ({
   name: String(d?.name ?? ''),
-  value: Math.max(0, Number(d.value) || 0),
+  value: d.value == null ? null : Math.max(0, d.value),
 }))
 const chartPayload = JSON.stringify({
   data: chartData,
   valueFormat,
   yAxisLabel,
 })
-const hasChartData = chartData.length > 0
+const hasChartData = chartData.some((d) => d.value != null)
 const latestDatum = chartData.at(-1)
 const previousDatum = chartData.at(-2)
 const latestChange =
-  latestDatum != null && previousDatum != null
+  latestDatum?.value != null && previousDatum?.value != null
     ? latestDatum.value - previousDatum.value
     : null
 const latestChangeLabel = formatLatestChange(latestChange)
@@ -117,7 +120,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
           <h3 class="version-line-chart-title">{title}</h3>
           {description ? <p>{description}</p> : null}
         </div>
-        {latestDatum ? (
+        {latestDatum?.value != null ? (
           <div class="version-line-chart-latest">
             <span class="version-line-chart-latest-label">
               Latest · v{latestDatum.name}
@@ -151,7 +154,11 @@ const latestChangeLabel = formatLatestChange(latestChange)
               {chartData.map((datum) => (
                 <tr>
                   <th scope="row">{datum.name}</th>
-                  <td>{formatChartValue(datum.value, valueFormat)}</td>
+                  <td>
+                    {datum.value == null
+                      ? '—'
+                      : formatChartValue(datum.value, valueFormat)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -163,7 +170,9 @@ const latestChangeLabel = formatLatestChange(latestChange)
         </div>
       </div>
     </figure>
-  ) : null
+  ) : (
+    <p>No measurements available for this test.</p>
+  )
 }
 
 <style
@@ -277,11 +286,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
     Tooltip,
   } from 'chart.js'
   import { formatChartValue } from '../lib/chart'
-  import type {
-    ChartDatum,
-    ChartValueFormat,
-    VersionLineChartPayload,
-  } from '../lib/types'
+  import type { ChartValueFormat, VersionLineChartPayload } from '../lib/types'
 
   Chart.register(
     CategoryScale,
@@ -322,7 +327,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
 
   function getData(wrapper: HTMLElement): {
     payload: VersionLineChartPayload
-    data: ChartDatum[]
+    data: { name: string; value: number | null }[]
   } | null {
     const dataAttr = wrapper.dataset.versionLine
     if (!dataAttr) return null
@@ -348,7 +353,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
 
     const { payload, data } = result
     const values = data.map((d) => d.value)
-    const max = Math.max(...values)
+    const max = Math.max(...values.map((value) => value ?? 0))
     const suggestedMax =
       payload.valueFormat === 'count' ? Math.max(1, Math.ceil(max)) : max * 1.05
     const root = document.documentElement
@@ -417,6 +422,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
             pointRadius: pointRadii,
             pointStyle: 'circle',
             showLine: true,
+            spanGaps: false,
             tension: 0.32,
           },
         ],

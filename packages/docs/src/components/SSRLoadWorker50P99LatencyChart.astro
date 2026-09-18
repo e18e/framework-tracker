@@ -1,8 +1,12 @@
 ---
-import { chartSSRLoadWorker50P99LatencyData } from '../lib/collections'
+import { getSSRLoadChartData } from '../lib/collections'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = [...chartSSRLoadWorker50P99LatencyData].sort(
+interface Props {
+  testsKey?: import('../lib/collections').SSRLoadKey
+}
+const { testsKey = 'ssrLoadTests' } = Astro.props
+const data = getSSRLoadChartData(50, 'p99LatencyMs', testsKey).sort(
   (a, b) => a.value - b.value || a.name.localeCompare(b.name),
 )
 ---

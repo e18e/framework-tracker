@@ -1,3 +1,4 @@
+import { getSSRLoadKind, getSSRLoadPath } from './ssrLoad/config.ts'
 import { spawn } from 'node:child_process'
 import { cwd, env, exit, getgid, getuid, pid } from 'node:process'
 import { parseArgs } from './utils.ts'
@@ -91,6 +92,8 @@ async function main() {
       `${workspaceDir}:/workspace`,
       '--workdir',
       '/workspace',
+      '--env',
+      `SSR_LOAD_KIND=${getSSRLoadKind()}`,
       NODE_IMAGE,
       'node',
       'packages/stats-generator/src/run-ssr-load-server.ts',
@@ -114,7 +117,9 @@ async function main() {
       '--env',
       'RUNNER_LABEL',
       '--env',
-      `SSR_LOAD_TARGET_URL=http://${SERVER_NAME}:3003/server-side-rendered`,
+      `SSR_LOAD_TARGET_URL=http://${SERVER_NAME}:3003${getSSRLoadPath(packageName, getSSRLoadKind())}`,
+      '--env',
+      `SSR_LOAD_KIND=${getSSRLoadKind()}`,
       NODE_IMAGE,
       'node',
       'packages/stats-generator/src/run-ssr-load-benchmark.ts',

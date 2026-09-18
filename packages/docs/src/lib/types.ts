@@ -12,4 +12,8 @@ export interface ComparisonChartPayload {
   yAxisLabel: string
 }
 
-export type VersionLineChartPayload = ComparisonChartPayload
+export interface VersionLineChartPayload {
+  data: { name: string; value: number | null }[]
+  valueFormat: ChartValueFormat
+  yAxisLabel: string
+}

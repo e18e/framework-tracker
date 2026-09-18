@@ -6,5 +6,9 @@ export default [
   route('/client-side-rendered/:id', 'routes/client-side-rendered.detail.tsx'),
   route('/server-side-rendered', 'routes/server-side-rendered.tsx'),
   route('/server-side-rendered/:id', 'routes/server-side-rendered.detail.tsx'),
+  route(
+    '/server-side-rendered-plain-links',
+    'routes/server-side-rendered-plain-links.tsx',
+  ),
   route('/ssr-throughput', 'routes/ssr-throughput.tsx'),
 ] satisfies RouteConfig

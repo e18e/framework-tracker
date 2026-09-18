@@ -41,9 +41,14 @@ Methodology: [Server Side Throughput Tests](/methodology/#server-side-throughput
 <SSRRequestThroughputStatsTable />
 <SSRRequestThroughputCharts />
 
-## Server Side Load Test
+## SSR Load Test
 
-Methodology: [Server Side Load Test](/methodology/#server-side-load-test).
+Methodology: [SSR Load Test](/methodology/#ssr-load-test).
+
+All eight frameworks render the same 1,000-row, three-column table using ordinary
+`<a>` links. This compares server rendering under HTTP load without the extra
+work of rendering framework router link components. Requests still pass through
+each framework’s server routing. No browser runs and no links are clicked.
 
 <SSRLoadStatsTable />
 
@@ -58,6 +63,27 @@ Methodology: [Server Side Load Test](/methodology/#server-side-load-test).
 ### P75 Latency
 
 <SSRLoadP75Charts />
+
+## SSR Router Link Load Test
+
+Methodology: [SSR Router Link Load Test](/methodology/#ssr-router-link-load-test).
+
+The same load test using framework router link components, showing how rendering
+those components affects server performance compared with ordinary HTML links.
+
+<SSRLoadStatsTable testsKey="ssrRouterLinkLoadTests" />
+
+### P99 Latency
+
+<SSRLoadP99Charts testsKey="ssrRouterLinkLoadTests" />
+
+### P90 Latency
+
+<SSRLoadP90Charts testsKey="ssrRouterLinkLoadTests" />
+
+### P75 Latency
+
+<SSRLoadP75Charts testsKey="ssrRouterLinkLoadTests" />
 
 ## Core Web Vitals
 

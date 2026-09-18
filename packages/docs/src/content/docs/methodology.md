@@ -72,6 +72,20 @@ matches the framework version tracked by the starter project.
 - Step 5: Which template would you like to use?: `basic`
 - Step 6: Install dependencies: `pnpm install`
 
+#### TanStack Start (React)
+
+Installed using the CLI with the following setup:
+
+- Framework: `React`
+- Language: `TypeScript`
+- Build tool: `Vite`
+- Deployment integration: `Nitro` (the `nitro()` Vite plugin)
+- Styling: `Tailwind CSS`
+- Development tools: `TanStack Devtools`
+- Path aliases: `vite-tsconfig-paths`
+- Development server: `vite dev --port 3000`
+- Production build: `vite build`
+
 ### Dependency Counts
 
 - Production and development dependency counts come from each starter package's
@@ -201,6 +215,7 @@ or networks.
   runtime benchmark app uses the Node adapter so the benchmark harness can serve
   on-demand routes in production; Astro's default static output is represented
   by the starter app measurements.
+- TanStack Start uses React and Nitro's `node-server` preset, built with Vite.
 
 ### Client Side Rendered Tests
 

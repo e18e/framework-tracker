@@ -3,90 +3,112 @@ import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
   versions: unknown[]
+  testsKey?: 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
 }
 
-const { versions } = Astro.props
+const { versions, testsKey = 'ssrLoadTests' } = Astro.props
+const hasMeasurements = versions.some(
+  (version) =>
+    version != null && typeof version === 'object' && testsKey in version,
+)
 ---
 
-<VersionLineChart
-  title="Total Requests"
-  versions={versions}
-  metric="ssrLoadTests.totalRequests"
-  valueFormat="count"
-  yAxisLabel="Requests"
-/>
+{
+  hasMeasurements ? (
+    <>
+      <VersionLineChart
+        title="Total Requests"
+        versions={versions}
+        metric={`${testsKey}.totalRequests`}
+        valueFormat="count"
+        yAxisLabel="Requests"
+      />
 
-<VersionLineChart
-  title="P99 Latency at 25 Connections"
-  versions={versions}
-  stageWorkers={25}
-  stageMetric="p99LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P99 Latency at 50 Connections"
-  versions={versions}
-  stageWorkers={50}
-  stageMetric="p99LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P99 Latency at 100 Connections"
-  versions={versions}
-  stageWorkers={100}
-  stageMetric="p99LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+      <VersionLineChart
+        title="P99 Latency at 25 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={25}
+        stageMetric="p99LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+      <VersionLineChart
+        title="P99 Latency at 50 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={50}
+        stageMetric="p99LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+      <VersionLineChart
+        title="P99 Latency at 100 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={100}
+        stageMetric="p99LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
 
-<VersionLineChart
-  title="P90 Latency at 25 Connections"
-  versions={versions}
-  stageWorkers={25}
-  stageMetric="p90LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P90 Latency at 50 Connections"
-  versions={versions}
-  stageWorkers={50}
-  stageMetric="p90LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P90 Latency at 100 Connections"
-  versions={versions}
-  stageWorkers={100}
-  stageMetric="p90LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+      <VersionLineChart
+        title="P90 Latency at 25 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={25}
+        stageMetric="p90LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+      <VersionLineChart
+        title="P90 Latency at 50 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={50}
+        stageMetric="p90LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+      <VersionLineChart
+        title="P90 Latency at 100 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={100}
+        stageMetric="p90LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
 
-<VersionLineChart
-  title="P75 Latency at 25 Connections"
-  versions={versions}
-  stageWorkers={25}
-  stageMetric="p75LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P75 Latency at 50 Connections"
-  versions={versions}
-  stageWorkers={50}
-  stageMetric="p75LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
-<VersionLineChart
-  title="P75 Latency at 100 Connections"
-  versions={versions}
-  stageWorkers={100}
-  stageMetric="p75LatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+      <VersionLineChart
+        title="P75 Latency at 25 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={25}
+        stageMetric="p75LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+      <VersionLineChart
+        title="P75 Latency at 50 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={50}
+        stageMetric="p75LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+      <VersionLineChart
+        title="P75 Latency at 100 Connections"
+        versions={versions}
+        stageKey={testsKey}
+        stageWorkers={100}
+        stageMetric="p75LatencyMs"
+        valueFormat="ms"
+        yAxisLabel="Milliseconds"
+      />
+    </>
+  ) : (
+    <p>No measurements available for this test.</p>
+  )
+}

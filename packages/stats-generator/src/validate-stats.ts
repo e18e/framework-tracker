@@ -11,6 +11,7 @@ import {
   NodeEnginesStatsSchema,
   SSRRequestThroughputStatsSchema,
   SSRLoadStatsSchema,
+  SSRRouterLinkLoadStatsSchema,
   ClientSideRenderedStatsSchema,
   ServerSideRenderedStatsSchema,
 } from './schemas.ts'
@@ -23,6 +24,7 @@ type BenchmarkType =
   | 'nodeEngines'
   | 'ssrRequestThroughput'
   | 'ssrLoad'
+  | 'ssrRouterLinkLoad'
   | 'clientSideRendered'
   | 'serverSideRendered'
 
@@ -53,6 +55,11 @@ const STARTER_BENCHMARKS: BenchmarkConfig[] = [
 ]
 
 const APP_BENCHMARKS: BenchmarkConfig[] = [
+  {
+    type: 'ssrRouterLinkLoad',
+    file: 'ci-stats.json',
+    schema: SSRRouterLinkLoadStatsSchema,
+  },
   {
     type: 'clientSideRendered',
     file: 'ci-stats.json',

@@ -1,3 +1,4 @@
+import { getSSRLoadKind, getSSRLoadStatsKey } from './ssrLoad/config.ts'
 import { join } from 'node:path'
 import {
   runSSRLoadBenchmark,
@@ -26,7 +27,11 @@ async function main() {
     return
   }
 
-  console.info(`Running SSR load benchmark for ${packageName}...\n`)
+  const label =
+    getSSRLoadKind() === 'ssrLoad'
+      ? 'SSR Load Test'
+      : 'SSR Router Link Load Test'
+  console.info(`Running ${label} for ${packageName}...\n`)
 
   const { framework } = await getFrameworkByPackage(packageName)
   const frameworkVersion = await getFrameworkVersion(
@@ -47,14 +52,14 @@ async function main() {
     timingMeasuredAt: timestamp,
     runner,
     frameworkVersion: frameworkVersion ?? existingStats.frameworkVersion,
-    ssrLoadTests: result.ssrLoadTests,
+    [getSSRLoadStatsKey(getSSRLoadKind())]: result.tests,
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
   writeJsonFile(outputPath, ciStats)
 
   console.info(
-    `\n✓ Saved SSR load stats for ${packageName}: ${result.ssrLoadTests.peakRequestsPerSec} req/s at ${result.ssrLoadTests.peakWorkers} workers`,
+    `\n✓ Saved ${label} stats for ${packageName}: ${result.tests.peakRequestsPerSec} req/s at ${result.tests.peakWorkers} workers`,
   )
 }
 

@@ -1,8 +1,12 @@
 ---
-import { ssrLoadStats } from '../lib/collections'
+import { getSSRLoadStats, type SSRLoadKey } from '../lib/collections'
 import { getFrameworkSlug } from '../lib/utils'
 import StatsTable from './StatsTable.astro'
 
+interface Props {
+  testsKey?: SSRLoadKey
+}
+const { testsKey = 'ssrLoadTests' } = Astro.props
 const columns = [
   {
     key: 'name',
@@ -23,7 +27,9 @@ const columns = [
 ---
 
 <StatsTable
-  label="SSR load tests by framework"
+  label={testsKey === 'ssrLoadTests'
+    ? 'SSR Load Test by framework'
+    : 'SSR Router Link Load Test by framework'}
   columns={columns}
-  data={ssrLoadStats}
+  data={getSSRLoadStats(testsKey)}
 />

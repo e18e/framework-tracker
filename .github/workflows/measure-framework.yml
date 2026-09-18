@@ -28,6 +28,11 @@ on:
         type: string
         required: false
         default: '[]'
+      ssr-router-link-load-matrix:
+        description: 'JSON array of frameworks to measure SSR router link load performance'
+        type: string
+        required: false
+        default: '[]'
       deps-matrix:
         description: 'JSON array of frameworks to run e18e dependency analysis'
         type: string
@@ -316,6 +321,50 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ssr-load-stats-${{ matrix.framework.name }}
+          path: packages/${{ matrix.framework.package }}/ci-stats.json
+          retention-days: 1
+          if-no-files-found: error
+
+  measure-ssr-router-link-load:
+    if: inputs.ssr-router-link-load-matrix != '[]'
+    runs-on: depot-ubuntu-24.04-16
+    env:
+      RUNNER_LABEL: 'Depot depot-ubuntu-24.04-16 GitHub Actions runner (16 CPUs, 64 GB RAM, 180 GB disk, 8 GB disk accelerator; server CPUs 0-11; Autocannon CPUs 12-15)'
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJson(inputs.ssr-router-link-load-matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install package dependencies
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Build app
+        working-directory: ./packages/${{ matrix.framework.package }}
+        run: pnpm build
+
+      - name: Run SSR router link load benchmark
+        run: pnpm --filter @framework-tracker/stats-generator run:ssr-router-link-load:containerized ${{ matrix.framework.package }}
+
+      - name: Upload SSR router link load stats
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ssr-router-link-load-stats-${{ matrix.framework.name }}
           path: packages/${{ matrix.framework.package }}/ci-stats.json
           retention-days: 1
           if-no-files-found: error

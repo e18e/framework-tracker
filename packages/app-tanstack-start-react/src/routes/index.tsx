@@ -1,9 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { testData } from '../../../testdata/src/ssr'
+import { getTestData } from '../data/test-data'
 
 export const Route = createFileRoute('/')({
   component: Home,
-  loader: async () => await testData(),
+  loader: () => getTestData(),
 })
 
 function Home() {

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SsrThroughputRouteImport } from './routes/ssr-throughput'
+import { Route as ServerSideRenderedPlainLinksRouteImport } from './routes/server-side-rendered-plain-links'
 import { Route as ServerSideRenderedRouteImport } from './routes/server-side-rendered'
 import { Route as ClientSideRenderedRouteImport } from './routes/client-side-rendered'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,6 +22,12 @@ const SsrThroughputRoute = SsrThroughputRouteImport.update({
   path: '/ssr-throughput',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServerSideRenderedPlainLinksRoute =
+  ServerSideRenderedPlainLinksRouteImport.update({
+    id: '/server-side-rendered-plain-links',
+    path: '/server-side-rendered-plain-links',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ServerSideRenderedRoute = ServerSideRenderedRouteImport.update({
   id: '/server-side-rendered',
   path: '/server-side-rendered',
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/server-side-rendered-plain-links': typeof ServerSideRenderedPlainLinksRoute
   '/ssr-throughput': typeof SsrThroughputRoute
   '/client-side-rendered/$id': typeof ClientSideRenderedIdRoute
   '/server-side-rendered/$id': typeof ServerSideRenderedIdRoute
@@ -59,6 +67,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/server-side-rendered-plain-links': typeof ServerSideRenderedPlainLinksRoute
   '/ssr-throughput': typeof SsrThroughputRoute
   '/client-side-rendered/$id': typeof ClientSideRenderedIdRoute
   '/server-side-rendered/$id': typeof ServerSideRenderedIdRoute
@@ -68,6 +77,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
+  '/server-side-rendered-plain-links': typeof ServerSideRenderedPlainLinksRoute
   '/ssr-throughput': typeof SsrThroughputRoute
   '/client-side-rendered_/$id': typeof ClientSideRenderedIdRoute
   '/server-side-rendered_/$id': typeof ServerSideRenderedIdRoute
@@ -78,6 +88,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-side-rendered'
     | '/server-side-rendered'
+    | '/server-side-rendered-plain-links'
     | '/ssr-throughput'
     | '/client-side-rendered/$id'
     | '/server-side-rendered/$id'
@@ -86,6 +97,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-side-rendered'
     | '/server-side-rendered'
+    | '/server-side-rendered-plain-links'
     | '/ssr-throughput'
     | '/client-side-rendered/$id'
     | '/server-side-rendered/$id'
@@ -94,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/client-side-rendered'
     | '/server-side-rendered'
+    | '/server-side-rendered-plain-links'
     | '/ssr-throughput'
     | '/client-side-rendered_/$id'
     | '/server-side-rendered_/$id'
@@ -103,6 +116,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientSideRenderedRoute: typeof ClientSideRenderedRoute
   ServerSideRenderedRoute: typeof ServerSideRenderedRoute
+  ServerSideRenderedPlainLinksRoute: typeof ServerSideRenderedPlainLinksRoute
   SsrThroughputRoute: typeof SsrThroughputRoute
   ClientSideRenderedIdRoute: typeof ClientSideRenderedIdRoute
   ServerSideRenderedIdRoute: typeof ServerSideRenderedIdRoute
@@ -115,6 +129,13 @@ declare module '@tanstack/react-router' {
       path: '/ssr-throughput'
       fullPath: '/ssr-throughput'
       preLoaderRoute: typeof SsrThroughputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/server-side-rendered-plain-links': {
+      id: '/server-side-rendered-plain-links'
+      path: '/server-side-rendered-plain-links'
+      fullPath: '/server-side-rendered-plain-links'
+      preLoaderRoute: typeof ServerSideRenderedPlainLinksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/server-side-rendered': {
@@ -159,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientSideRenderedRoute: ClientSideRenderedRoute,
   ServerSideRenderedRoute: ServerSideRenderedRoute,
+  ServerSideRenderedPlainLinksRoute: ServerSideRenderedPlainLinksRoute,
   SsrThroughputRoute: SsrThroughputRoute,
   ClientSideRenderedIdRoute: ClientSideRenderedIdRoute,
   ServerSideRenderedIdRoute: ServerSideRenderedIdRoute,

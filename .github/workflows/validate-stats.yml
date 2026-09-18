@@ -75,6 +75,17 @@ jobs:
           done
 
           echo ""
+          echo "=== Running SSR router link load benchmarks ==="
+          FRAMEWORKS=$(cat .github/frameworks.json)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRouterLinkLoad"]))' | while read -r framework; do
+            PKG=$(echo "$framework" | jq -r '.app.package')
+            echo "Building $PKG..."
+            (cd packages/$PKG && pnpm build)
+            echo "Running SSR router link load benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:ssr-router-link-load $PKG
+          done
+
+          echo ""
           echo "=== Running starter benchmarks ==="
           FRAMEWORKS=$(cat .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.starter)' | while read -r framework; do

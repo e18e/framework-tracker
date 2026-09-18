@@ -7,6 +7,7 @@ type MeasurementType =
   | 'browserBaseline'
   | 'ssrRequestThroughput'
   | 'ssrLoad'
+  | 'ssrRouterLinkLoad'
   | 'clientSideRendered'
   | 'serverSideRendered'
 
@@ -104,6 +105,7 @@ export interface CIStats {
       bytesPerSec: number
     }>
   }
+  ssrRouterLinkLoadTests?: CIStats['ssrLoadTests']
   // Client-side rendered stats (browser paint + interaction timings)
   clientSideRenderedTests?: {
     firstPaintMs: number

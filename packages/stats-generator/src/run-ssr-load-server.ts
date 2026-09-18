@@ -1,8 +1,5 @@
-import {
-  DEFAULT_SSR_LOAD_PORT,
-  SSR_LOAD_PATH,
-  startSSRLoadServer,
-} from './ssrLoad/index.ts'
+import { getSSRLoadKind, getSSRLoadPath } from './ssrLoad/config.ts'
+import { DEFAULT_SSR_LOAD_PORT, startSSRLoadServer } from './ssrLoad/index.ts'
 import { getHost, getPort } from './serve/common.ts'
 import { parseArgs } from './utils.ts'
 
@@ -19,7 +16,7 @@ async function main() {
   console.info(`Starting SSR load server for ${packageName}...`)
   const stopServer = await startSSRLoadServer(packageName)
   console.info(
-    `SSR load server is ready on http://${host}:${port}${SSR_LOAD_PATH}`,
+    `SSR load server is ready on http://${host}:${port}${getSSRLoadPath(packageName, getSSRLoadKind())}`,
   )
 
   await new Promise<void>((resolve) => {

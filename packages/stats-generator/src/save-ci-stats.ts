@@ -1,3 +1,4 @@
+import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
@@ -306,15 +307,38 @@ async function main() {
 
       if (ssrLoadStats) {
         console.info(`  ✓ Found SSR load stats artifact`)
-        stats = {
-          ...stats,
-          frameworkVersion:
-            ssrLoadStats.frameworkVersion ?? stats.frameworkVersion,
-          ssrLoadTests: ssrLoadStats.ssrLoadTests,
-        }
+        stats = mergeSSRLoadArtifact(stats, ssrLoadStats, 'ssrLoad')
         frameworkVersion = ssrLoadStats.frameworkVersion ?? frameworkVersion
       } else {
         console.warn(`No SSR load stats artifact found at ${ssrLoadStatsPath}`)
+      }
+
+      // Load SSR router link load stats from artifact
+      const ssrRouterLinkLoadStatsPath = join(
+        artifactsDir,
+        `ssr-router-link-load-stats-${name}`,
+        'ci-stats.json',
+      )
+      const rawSSRRouterLinkLoadStats = readJsonFile<CIStats>(
+        ssrRouterLinkLoadStatsPath,
+      )
+      const ssrRouterLinkLoadStats = rawSSRRouterLinkLoadStats
+        ? normalizeCIStats(rawSSRRouterLinkLoadStats)
+        : null
+
+      if (ssrRouterLinkLoadStats) {
+        console.info(`  ✓ Found SSR router link load stats artifact`)
+        stats = mergeSSRLoadArtifact(
+          stats,
+          ssrRouterLinkLoadStats,
+          'ssrRouterLinkLoad',
+        )
+        frameworkVersion =
+          ssrRouterLinkLoadStats.frameworkVersion ?? frameworkVersion
+      } else {
+        console.warn(
+          `No SSR router link load stats artifact found at ${ssrRouterLinkLoadStatsPath}`,
+        )
       }
 
       // Load client-side rendered stats from artifact

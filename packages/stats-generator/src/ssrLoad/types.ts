@@ -31,5 +31,5 @@ export interface SSRLoadBenchmarkResult {
   name: string
   displayName: string
   package: string
-  ssrLoadTests: SSRLoadTests
+  tests: SSRLoadTests
 }

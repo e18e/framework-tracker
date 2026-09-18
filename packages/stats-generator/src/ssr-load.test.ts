@@ -9,6 +9,8 @@ import {
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { verifySSRLoadTable } from './ssrLoad/verify-table.ts'
 import { renderBaselineHtml } from './baseline-html.ts'
+import { summarizeLoadStages } from './ssrLoad/run-load-test.ts'
+import type { SSRLoadStageStats } from './ssrLoad/types.ts'
 import { testData } from '../../testdata/src/ssr.ts'
 
 const historical = JSON.parse(
@@ -17,6 +19,65 @@ const historical = JSON.parse(
     'utf8',
   ),
 ).ssrRouterLinkLoadTests
+
+function loadStage(
+  overrides: Partial<SSRLoadStageStats> = {},
+): SSRLoadStageStats {
+  return {
+    workers: 1,
+    durationMs: 5000,
+    requests: 500,
+    errors: 0,
+    requestsPerSec: 100,
+    avgLatencyMs: 10,
+    medianLatencyMs: 9,
+    p50LatencyMs: 9,
+    p75LatencyMs: 12,
+    p90LatencyMs: 15,
+    p99LatencyMs: 20,
+    maxLatencyMs: 30,
+    bytesPerSec: 1000,
+    ...overrides,
+  }
+}
+
+test('load peak excludes failing stages while preserving their diagnostics', () => {
+  const stages = [
+    loadStage({ workers: 1, requestsPerSec: 500, errors: 1 }),
+    loadStage({ workers: 5, requestsPerSec: 200, p99LatencyMs: 25 }),
+    loadStage({ workers: 10, requestsPerSec: 100 }),
+    loadStage({ workers: 25, requestsPerSec: 1000, errors: 10 }),
+  ]
+  const result = summarizeLoadStages(stages)
+  assert.equal(result.peakWorkers, 5)
+  assert.equal(result.peakRequestsPerSec, 200)
+  assert.equal(result.peakP99LatencyMs, 25)
+  assert.equal(result.totalRequests, 2000)
+  assert.equal(result.totalErrors, 11)
+  assert.deepEqual(result.stages, stages)
+})
+
+test('load peak picks the fastest clean stage and keeps the first on ties', () => {
+  const result = summarizeLoadStages([
+    loadStage(),
+    loadStage({ workers: 5, requestsPerSec: 200 }),
+    loadStage({ workers: 10, requestsPerSec: 200 }),
+  ])
+  assert.equal(result.peakWorkers, 5)
+  assert.equal(result.peakRequestsPerSec, 200)
+})
+
+test('load peak fails explicitly when no stage qualifies', () => {
+  for (const stages of [
+    [],
+    [loadStage({ errors: 1 }), loadStage({ workers: 5, errors: 2 })],
+  ]) {
+    assert.throws(
+      () => summarizeLoadStages(stages),
+      /No valid SSR load peak: no stage completed with zero errors/,
+    )
+  }
+})
 
 test('routes and result keys separate the two load tests', () => {
   for (const pkg of routerLinkPackages) {

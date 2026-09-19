@@ -6,8 +6,10 @@ import { getHost, getPort } from '../serve/common.ts'
 import { runLoadTest } from './run-load-test.ts'
 import type { SSRLoadBenchmarkResult } from './types.ts'
 
+import { getSSRLoadKind, getSSRLoadPath } from './config.ts'
+import { verifySSRLoadTable } from './verify-table.ts'
+
 export const DEFAULT_SSR_LOAD_PORT = 3003
-export const SSR_LOAD_PATH = '/server-side-rendered'
 
 interface SSRLoadFrameworkConfig {
   name: string
@@ -158,7 +160,9 @@ async function spawnServer(
   })
 
   await Promise.race([
-    waitForServer(`http://${host}:${port}${SSR_LOAD_PATH}`),
+    waitForServer(
+      `http://${host}:${port}${getSSRLoadPath(config.package, getSSRLoadKind())}`,
+    ),
     exitPromise,
   ])
 
@@ -172,6 +176,7 @@ export async function runSSRLoadBenchmark(
 ): Promise<SSRLoadBenchmarkResult> {
   const config = requireFrameworkConfig(packageName)
 
+  const measuredPath = getSSRLoadPath(packageName, getSSRLoadKind())
   const remoteUrl = process.env.SSR_LOAD_TARGET_URL
   if (remoteUrl) {
     const url = new URL(remoteUrl)
@@ -179,29 +184,32 @@ export async function runSSRLoadBenchmark(
       throw new Error('SSR_LOAD_TARGET_URL must use http or https')
     }
 
+    url.pathname = measuredPath
     console.info(`Using remote server for ${config.displayName}: ${url}`)
     await waitForServer(url.toString())
+    verifySSRLoadTable(await (await fetch(url)).text())
     return {
       name: config.name,
       displayName: config.displayName,
       package: config.package,
-      ssrLoadTests: await runLoadTest(url.toString()),
+      tests: await runLoadTest(url.toString()),
     }
   }
 
   const host = getHost()
   const port = getPort(DEFAULT_SSR_LOAD_PORT)
-  const url = `http://${host}:${port}${SSR_LOAD_PATH}`
+  const url = `http://${host}:${port}${measuredPath}`
   console.info(`Starting server for ${config.displayName}...`)
   const killServer = await startSSRLoadServer(packageName)
 
   try {
+    verifySSRLoadTable(await (await fetch(url)).text())
     console.info(`Running SSR load benchmark for ${config.displayName}...`)
     return {
       name: config.name,
       displayName: config.displayName,
       package: config.package,
-      ssrLoadTests: await runLoadTest(url),
+      tests: await runLoadTest(url),
     }
   } finally {
     killServer()

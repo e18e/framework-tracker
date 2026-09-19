@@ -102,6 +102,12 @@ export const SSRLoadStatsSchema = z.object({
   browserVersion: z.string().optional(),
 })
 
+export const SSRRouterLinkLoadStatsSchema = SSRLoadStatsSchema.omit({
+  ssrLoadTests: true,
+}).extend({
+  ssrRouterLinkLoadTests: SSRLoadStatsSchema.shape.ssrLoadTests,
+})
+
 const InteractionTestsSchema = z.object({
   scenario: z.literal('first-row-detail-navigation'),
   source: z.literal('lighthouse-inp-breakdown'),

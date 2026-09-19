@@ -1,0 +1,34 @@
+---
+title: Nuxt
+description: Nuxt SSR load version comparisons.
+---
+
+import FrameworkSSRLoadVersionCharts from '../../../components/FrameworkSSRLoadVersionCharts.astro'
+import MethodologyLink from '../../../components/MethodologyLink.astro'
+import { getRuntimeVersionStats } from '../../../lib/collections'
+
+export const runtimeVersions = getRuntimeVersionStats('app-nuxt')
+
+## SSR Load Test
+
+<MethodologyLink title="SSR Load Test" slug="ssr-load-test" />
+
+Ordinary anchors at `/server-side-rendered-plain-links`. Historical standard-test
+measurements are unavailable; new CI runs will populate this series.
+
+<FrameworkSSRLoadVersionCharts versions={runtimeVersions} />
+
+## SSR Router Link Load Test
+
+<MethodologyLink
+  title="SSR Router Link Load Test"
+  slug="ssr-router-link-load-test"
+/>
+
+Framework router links at `/server-side-rendered`. Historical HTTP load results
+are preserved in this series.
+
+<FrameworkSSRLoadVersionCharts
+  versions={runtimeVersions}
+  testsKey="ssrRouterLinkLoadTests"
+/>

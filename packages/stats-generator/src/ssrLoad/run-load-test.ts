@@ -45,9 +45,24 @@ export async function runLoadTest(url: string): Promise<SSRLoadTests> {
     stages.push(await runStage(url, workers))
   }
 
-  const peakStage = stages.reduce((best, stage) =>
-    stage.requestsPerSec > best.requestsPerSec ? stage : best,
+  return summarizeLoadStages(stages)
+}
+
+export function summarizeLoadStages(stages: SSRLoadStageStats[]): SSRLoadTests {
+  const peakStage = stages.reduce<SSRLoadStageStats | undefined>(
+    (best, stage) =>
+      stage.errors === 0 &&
+      (best === undefined || stage.requestsPerSec > best.requestsPerSec)
+        ? stage
+        : best,
+    undefined,
   )
+
+  if (peakStage === undefined) {
+    throw new Error(
+      'No valid SSR load peak: no stage completed with zero errors.',
+    )
+  }
 
   return {
     peakWorkers: peakStage.workers,

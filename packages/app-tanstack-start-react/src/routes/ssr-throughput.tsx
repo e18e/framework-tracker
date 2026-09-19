@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { testData } from '../../../testdata/src/ssr'
+import { getTestData } from '../data/test-data'
 
 export const Route = createFileRoute('/ssr-throughput')({
   component: SSRThroughputPage,
-  loader: async () => await testData(),
+  loader: () => getTestData(),
 })
 
 function SSRThroughputPage() {

@@ -72,6 +72,20 @@ matches the framework version tracked by the starter project.
 - Step 5: Which template would you like to use?: `basic`
 - Step 6: Install dependencies: `pnpm install`
 
+#### TanStack Start (React)
+
+Installed using the CLI with the following setup:
+
+- Framework: `React`
+- Language: `TypeScript`
+- Build tool: `Vite`
+- Deployment integration: `Nitro` (the `nitro()` Vite plugin)
+- Styling: `Tailwind CSS`
+- Development tools: `TanStack Devtools`
+- Path aliases: `vite-tsconfig-paths`
+- Development server: `vite dev --port 3000`
+- Production build: `vite build`
+
 ### Dependency Counts
 
 - Production and development dependency counts come from each starter package's
@@ -201,6 +215,7 @@ or networks.
   runtime benchmark app uses the Node adapter so the benchmark harness can serve
   on-demand routes in production; Astro's default static output is represented
   by the starter app measurements.
+- TanStack Start uses React and Nitro's `node-server` preset, built with Vite.
 
 ### Client Side Rendered Tests
 
@@ -294,35 +309,55 @@ or networks.
 - Astro's `/ssr-throughput` route uses `export const prerender = false` so this
   test measures request-time rendering rather than prerendered static HTML.
 
-### Server Side Load Test
+### SSR Load Test
 
-- The load test deviates from the standard Depot set up and uses: uses`depot-ubuntu-24.04-16`, with 16 CPUs, 64 GB RAM, 180 GB disk, and an 8 GB disk
-  accelerator.
-- Each framework serves the server-rendered table route over a real local HTTP
-  server.
-- The measured route is `/server-side-rendered`, using the same 1000-row UUID
-  table as the SSR request throughput and browser rendering tests.
-- This route keeps the same framework link components or idiomatic anchors used
-  by the browser-rendered SSR test. The load test only makes HTTP requests to
-  the table route; it does not run a browser or click detail links, so
-  browser-only link prefetch behavior is not exercised during the load test.
-- Load is applied with [autocannon](https://github.com/mcollina/autocannon) in
-  staged connection counts: 1, 5, 10, 25, 50, 100, and 200 concurrent
-  connections.
-- The framework server and Autocannon run in separate containers on the same
-  16-CPU Depot runner. The server container is pinned to CPUs 0-11 and the
-  Autocannon container to CPUs 12-15, preventing the two benchmark workloads
-  from competing for the same CPU cores. They still share the host's memory,
-  kernel, Docker runtime, and other system resources, so this does not provide
-  the full isolation of separate machines. Keeping both containers on one host
-  also avoids introducing cross-machine network latency.
-- Each stage runs for approximately 5 seconds.
-- Peak requests/sec is the highest successful stage throughput observed during
-  the staged run.
-- P90 and P99 latency are compared at the 25-, 50-, and 100-connection stages
-  for every framework, so latency is measured under the same concurrency
-  pressure.
-- Total requests cover the full staged load run, not only the peak stage.
+Every table uses ordinary `<a>` links to measure server rendering without router link components. Frameworks with those components use `/server-side-rendered-plain-links`; the others use `/server-side-rendered`.
+
+Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
+link with text `View →` and destination `/server-side-rendered/${entry.id}`.
+Data comes from `packages/testdata/src/ssr.ts`: UUID rows are created once per
+module instance and returned asynchronously with a zero-delay timer. The paired
+routes preserve each framework's loader and rendering structure; the intended
+table difference is the link implementation. UUID values can differ between
+server processes or separately bundled route modules, so equivalence means the
+same row schema, count, text, and destination rule, not identical random UUIDs.
+
+Requests still pass through each framework's server routing (baseline HTML uses
+its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
+clicked, and browser-only prefetching is not exercised.
+
+Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
+5 seconds per stage. Both use the same production server setup and Node 24
+containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
+8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
+share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
+is the highest stage throughput; total requests span all stages. Latency charts
+compare percentiles at 25, 50, and 100 connections.
+
+### SSR Router Link Load Test
+
+Uses framework router link components at `/server-side-rendered`, following the framework’s normal setup. Comparing the two tests shows how those components affect server rendering performance. A Results are stored under `ssrRouterLinkLoadTests`.
+
+Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
+link with text `View →` and destination `/server-side-rendered/${entry.id}`.
+Data comes from `packages/testdata/src/ssr.ts`: UUID rows are created once per
+module instance and returned asynchronously with a zero-delay timer. The paired
+routes preserve each framework's loader and rendering structure; the intended
+table difference is the link implementation. UUID values can differ between
+server processes or separately bundled route modules, so equivalence means the
+same row schema, count, text, and destination rule, not identical random UUIDs.
+
+Requests still pass through each framework's server routing (baseline HTML uses
+its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
+clicked, and browser-only prefetching is not exercised.
+
+Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
+5 seconds per stage. Both use the same production server setup and Node 24
+containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
+8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
+share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
+is the highest stage throughput; total requests span all stages. Latency charts
+compare percentiles at 25, 50, and 100 connections.
 
 ### Core Web Vitals
 

@@ -53,7 +53,7 @@ The current flow for collecting metrics is as follows:
 
 1. A PR is merged which triggers the CI Pipeline: `generate-stats` which uses functions from `packages/stats-generator` to run measurements for each framework
 2. The CI Pipeline reads the framework config from `.github/frameworks.json` and runs measurements based on each framework's `app` and `starter` config
-3. All test currently run on Depot you can find the full details in our [Methodology intro](https://frameworks.e18e.dev/methodology/#project-setups).
+3. Repository benchmarks run on Depot; see [Default Benchmark Setup](./packages/docs/src/content/docs/methodology.md#default-benchmark-setup) for the shared environment and test-specific exceptions.
 4. The collected metrics are passed into the final step which runs the scripts from `packages/stats-generator`
 5. The `stats-generator` reads `frameworks.json` and generates stats only for the configured measurements
 6. Stats are then saved into each package and passed into `packages/docs`
@@ -96,6 +96,44 @@ We track all major and minor versions of meta-framework. When updating we also u
 
 Right now we update manually but the full tests are ready for sharing we will automate this part
 
+When an upgrade changes the build tool, adapter, starter setup, or benchmark
+behavior, update the methodology in the same PR using the checklist below.
+
+### Keeping the Methodology Up to Date
+
+Update [the methodology source](./packages/docs/src/content/docs/methodology.md)
+in the same PR when adding a meta-framework or changing a project's setup,
+benchmark behavior, or test environment. Describe what the committed
+configuration actually runs, including changes introduced by version upgrades.
+
+- **Default Benchmark Setup:** Update shared settings when Node, pnpm selection,
+  runner hardware, browser configuration, or dependency installation changes.
+  Put an exception that applies to only one test in that test's section.
+- **Framework Build Tools and Adapters:** Add or update the framework's UI
+  library, build tool, and runtime adapter/server in the table. Keep table
+  entries short; use the dot points below it for presets, custom server entries,
+  and differences between starter and runtime packages. Mark a missing starter
+  or runtime app explicitly rather than implying it is benchmarked.
+- **Dev Time → Project Setups:** Record the CLI command and selected options, or
+  documented setup steps, for a new starter. Update them when the starter setup
+  changes, including any changes made after generation.
+- **Run Time → Framework Specific Notes:** Explain framework-wide rendering
+  choices and why they are needed. Keep build tool and adapter details in the
+  shared table rather than repeating them here.
+- **Individual benchmark sections:** Document new or changed routes, data,
+  rendering and navigation behavior, measurement tools, repetitions,
+  aggregation, and environment exceptions where relevant. Explain departures
+  from a framework's default behavior and how they affect the comparison.
+- **Links and versions:** Keep the home, Dev Time, and Run Time pages linked to
+  Default Benchmark Setup. Update affected methodology links if headings change.
+  Exact dependency versions belong in project manifests and lockfiles; routine
+  version updates do not need to be duplicated in the setup table.
+
+Check the documentation against the affected project configuration, benchmark
+code, and CI workflow. Run `pnpm build:docs` and check formatting for the edited
+files. In the PR description, explain any change that affects comparison with
+previous results.
+
 ### Adding a New Framework
 
 Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If approved, follow these steps:
@@ -127,11 +165,13 @@ Adding a new framework increases the maintenance burden, so please open an issue
 
    Set `focusedFramework` to `false` for new additions unless the framework is a priority for tracking.
 
-4. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory.
+4. **Update the methodology**: Follow [Keeping the Methodology Up to Date](#keeping-the-methodology-up-to-date). Add the framework to the build tools and adapters table, document its starter setup, and explain any runtime or test-specific differences.
 
-5. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+5. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory.
 
-6. **Submit a PR**: Open a pull request with the new packages and configuration. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
+6. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+
+7. **Submit a PR**: Open a pull request with the new packages, configuration, and methodology updates. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 
 ### Adding a Code Comparison Example
 

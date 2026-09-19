@@ -3,7 +3,7 @@ title: Impact
 description: Improvements to frameworks, routers, and documentation that came out of Framework Tracker.
 ---
 
-Framework Tracker measures frameworks, but the comparisons also surface
+The Framework Tracker project measures frameworks, but the comparisons also surface
 concrete improvement opportunities in the frameworks themselves, their
 routers, and their documentation. This page collects upstream changes that
 came out of the project or were influenced by its output.

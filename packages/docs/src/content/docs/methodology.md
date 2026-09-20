@@ -26,6 +26,18 @@ represent each framework's default setup as closely as possible, so the stats
 capture the dependency footprint, install cost, build cost, and generated output
 of a typical new project.
 
+### Package Versions
+
+Current pinned dependencies are listed in each project's `package.json`:
+
+- [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/starter-astro/package.json)
+- [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/starter-next-js/package.json)
+- [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/starter-nuxt/package.json)
+- [React Router](https://github.com/e18e/framework-tracker/blob/main/packages/starter-react-router/package.json)
+- [SolidStart](https://github.com/e18e/framework-tracker/blob/main/packages/starter-solid-start/package.json)
+- [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/starter-sveltekit/package.json)
+- [TanStack Start (React)](https://github.com/e18e/framework-tracker/blob/main/packages/starter-tanstack-start-react/package.json)
+
 ### Project Setups
 
 #### Astro
@@ -208,6 +220,19 @@ emulation disabled. Lighthouse applies no simulated CPU or network throttling.
 Requests use a local connection to a production server, so the results are
 relative comparisons on the CI host rather than estimates for typical devices
 or networks.
+
+### Package Versions
+
+Current pinned dependencies are listed in each project's `package.json`:
+
+- [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/app-astro/package.json)
+- [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/app-next-js/package.json)
+- [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/app-nuxt/package.json)
+- [React Router](https://github.com/e18e/framework-tracker/blob/main/packages/app-react-router/package.json)
+- [SolidStart](https://github.com/e18e/framework-tracker/blob/main/packages/app-solid-start/package.json)
+- [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/app-sveltekit/package.json)
+- [TanStack Start (React)](https://github.com/e18e/framework-tracker/blob/main/packages/app-tanstack-start-react/package.json)
+- [Baseline HTML](https://github.com/e18e/framework-tracker/blob/main/packages/app-baseline-html/package.json)
 
 ### Framework Specific Notes
 

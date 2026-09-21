@@ -2,6 +2,7 @@ import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
 import { buildBaselineHtmlHandler } from './handlers/baseline-html.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
+import { buildPrachtHandler } from './handlers/pracht.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
 import { buildNextJSHandler } from './handlers/nextjs.ts'
 import { buildReactRouterHandler } from './handlers/react-router.ts'
@@ -50,6 +51,12 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
       displayName: 'Next.js SSR Request Handler Throughput',
       package: 'app-next-js',
       buildHandler: buildNextJSHandler,
+    },
+    {
+      name: 'pracht-ssr-request-throughput',
+      displayName: 'Pracht SSR Request Handler Throughput',
+      package: 'app-pracht',
+      buildHandler: buildPrachtHandler,
     },
     {
       name: 'react-router-ssr-request-throughput',

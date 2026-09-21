@@ -13,11 +13,70 @@ starting a framework and the runtime cost of serving and hydrating a comparable
 app. Repetition and aggregation vary by benchmark, as described in each
 benchmark section. Generated JSON is published into the docs package.
 
-Most benchmarks run on Depot GitHub Actions runners using
+## Default Benchmark Setup
+
+The following setup applies to the repository's benchmarks unless a test section
+states otherwise. Framework-specific choices are described in Project Setups
+and Framework Specific Notes; additional requirements or differences are listed
+with the affected test.
+
+Benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
 with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. Depot runs each
 job on a fresh, single-tenant EC2 instance. Its x86 runners use AMD EC2
-instances and GitHub's standard runner image. If a test deviates from this config it will list its setup in this doc.
+instances and GitHub's standard runner image.
+
+- **Node.js:** CI uses Node 24. This is the benchmark runtime, separate from the
+  minimum supported Node version reported for each framework.
+- **Package manager and dependencies:** CI uses the pnpm version declared in the
+  root `package.json` and installs dependencies with frozen lockfiles.
+- **Framework, adapter, and build tool:** Each project uses the configuration
+  committed in its `starter-*` or `app-*` package. Its `package.json`, lockfile,
+  and framework configuration identify the UI library, adapter, build tool, and
+  dependency versions. These choices can differ between frameworks.
+- **Browser tests:** Client- and server-rendered browser tests run directly on
+  the runner host using its Chrome installation in headless mode. Lighthouse
+  uses the desktop form factor, `throttlingMethod: provided`, and no screen
+  emulation or simulated CPU or network throttling. Requests use a local
+  connection to a production server.
+- **Recorded environment:** Results include runner details and the measured
+  framework version; browser results also include the Chrome version used.
+  Node 24 and the host Chrome installation can receive updates between runs.
+
+The browser results are relative comparisons on the CI host rather than
+estimates for typical devices or networks. The SSR load tests document their
+larger runner and container setup below. Core Web Vitals use external HTTP
+Archive data, as described in that section.
+
+### Framework Build Tools and Adapters
+
+These are the current repository configurations. The build tool applies to both
+the Dev Time starter and Run Time app unless noted. The adapter/server column
+describes the Run Time app; starter differences are listed below.
+
+| Framework      | UI library                           | Bundler / build tool         | Adapter / server    |
+| -------------- | ------------------------------------ | ---------------------------- | ------------------- |
+| Astro          | Astro; React for client-only content | Vite (via Astro)             | Node adapter        |
+| Next.js        | React                                | Turbopack (via `next build`) | Next.js server      |
+| Nuxt           | Vue                                  | Vite (via Nuxt)              | Nitro               |
+| React Router   | React                                | Vite                         | React Router server |
+| SolidStart     | Solid                                | Vite                         | Nitro               |
+| SvelteKit      | Svelte                               | Vite                         | Node adapter        |
+| TanStack Start | React                                | Vite                         | Nitro               |
+| Baseline HTML  | None                                 | No build step                | Node.js             |
+
+- Astro's runtime app uses its Node adapter in standalone mode; its starter
+  builds static output without an adapter or React integration.
+- The SolidStart and TanStack Start starters use `nitro()` without an explicit
+  preset; their runtime apps explicitly select `node-server`.
+- Nuxt's starter uses its default Nitro configuration. Its runtime app extends
+  `node-server` with an entry that also exposes a fetch handler for the
+  request-throughput benchmark.
+- Baseline HTML is a runtime-only comparison.
+- Exact dependency versions are recorded in each project's `package.json` and
+  lockfile.
+- Test-specific rendering and routing choices are described in the relevant
+  benchmark sections below.
 
 ## Dev Time
 
@@ -214,13 +273,6 @@ implement the same small benchmark routes and data shape wherever possible, so
 the stats focus on browser rendering, server rendering, request-handler
 throughput, and load behavior for comparable production apps.
 
-The client- and server-rendered browser tests benchmarks run directly on the Depot runner host and use the
-host Chrome installation. They use headless Chrome with Lighthouse's desktop form factor, `throttlingMethod: provided`, and screen
-emulation disabled. Lighthouse applies no simulated CPU or network throttling.
-Requests use a local connection to a production server, so the results are
-relative comparisons on the CI host rather than estimates for typical devices
-or networks.
-
 ### Package Versions
 
 Current pinned dependencies are listed in each project's `package.json`:
@@ -240,7 +292,6 @@ Current pinned dependencies are listed in each project's `package.json`:
   runtime benchmark app uses the Node adapter so the benchmark harness can serve
   on-demand routes in production; Astro's default static output is represented
   by the starter app measurements.
-- TanStack Start uses React and Nitro's `node-server` preset, built with Vite.
 
 ### Client Side Rendered Tests
 

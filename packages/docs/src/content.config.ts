@@ -32,6 +32,11 @@ const dependencyStatsSchema = z.object({
   allDependencies: z.number().int().nonnegative(),
 })
 
+const firstPartyDependencyStatsSchema = dependencyStatsSchema.extend({
+  duplicateDependencies: z.number().int().nonnegative().optional(),
+  depInstallSize: z.number().nonnegative().optional(),
+})
+
 const devtimeSchema = z.object({
   name: z.string(),
   type: z.string(),
@@ -41,6 +46,7 @@ const devtimeSchema = z.object({
   prodDependencies: z.number(),
   devDependencies: z.number(),
   allDependencies: z.number(),
+  firstPartyDependencies: firstPartyDependencyStatsSchema.optional(),
   frameworkDependencies: dependencyStatsSchema.optional(),
   installTime: timeSchema,
   coldBuildTime: timeSchema,

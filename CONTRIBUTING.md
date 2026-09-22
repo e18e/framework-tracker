@@ -96,6 +96,26 @@ We track all major and minor versions of meta-framework. When updating we also u
 
 Right now we update manually but the full tests are ready for sharing we will automate this part
 
+#### First-party direct dependencies
+
+Every tracked starter includes `first-party-dependencies.json`: a JSON array of
+the direct dependencies that belong to the framework's own project or ecosystem.
+For example:
+
+```json
+["@astrojs/check", "astro"]
+```
+
+List exact package names only. Each name must be declared in the starter's
+`dependencies` or `devDependencies`; do not include transitive packages. The
+list separates a starter's direct framework packages from its other direct
+packages. It does not classify the transitive dependency tree.
+
+When changing a starter's dependencies, review this file in the same PR. Add a
+new first-party package, remove one no longer declared, and leave third-party
+packages out. Confirm ownership from the package's source project rather than
+assuming matching names or scopes are first-party.
+
 When an upgrade changes the build tool, adapter, starter setup, or benchmark
 behavior, update the methodology in the same PR using the checklist below.
 
@@ -138,7 +158,7 @@ previous results.
 
 Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If approved, follow these steps:
 
-1. **Create the starter package**: Add a new directory in `packages/` (e.g., `packages/starter-my-framework`). Set it up using the framework's official CLI or getting started guide with the recommended defaults. The starter should not be added to the pnpm workspace — it has its own independent `package.json` and lockfile. Pin the core framework dependency to an exact version (e.g., `"my-framework": "2.0.0"` not `"^2.0.0"`).
+1. **Create the starter package**: Add a new directory in `packages/` (e.g., `packages/starter-my-framework`). Set it up using the framework's official CLI or getting started guide with the recommended defaults. The starter should not be added to the pnpm workspace — it has its own independent `package.json` and lockfile. Pin the core framework dependency to an exact version (e.g., `"my-framework": "2.0.0"` not `"^2.0.0"`). Add `first-party-dependencies.json` with the starter's direct first-party packages.
 
 2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 

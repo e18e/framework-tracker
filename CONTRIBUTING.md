@@ -124,6 +124,9 @@ new first-party package, remove one no longer declared, and leave third-party
 packages out. Confirm ownership from the package's source project rather than
 assuming matching names or scopes are first-party.
 
+The validation workflow checks that every entry remains in the same dependency
+section with the same version as the starter's `package.json`.
+
 When an upgrade changes the build tool, adapter, starter setup, or benchmark
 behavior, update the methodology in the same PR using the checklist below.
 

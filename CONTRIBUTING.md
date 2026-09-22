@@ -98,18 +98,26 @@ Right now we update manually but the full tests are ready for sharing we will au
 
 #### First-party direct dependencies
 
-Every tracked starter includes `first-party-dependencies.json`: a JSON array of
-the direct dependencies that belong to the framework's own project or ecosystem.
-For example:
+Every tracked starter includes `first-party-dependencies.json`: a small package
+manifest containing the direct dependencies that belong to the framework's own
+project or ecosystem. It uses the same `dependencies` and `devDependencies`
+sections as the starter's `package.json`, with the same version ranges. For example:
 
 ```json
-["@astrojs/check", "astro"]
+{
+  "dependencies": {
+    "astro": "7.1.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10"
+  }
+}
 ```
 
-List exact package names only. Each name must be declared in the starter's
-`dependencies` or `devDependencies`; do not include transitive packages. The
-list separates a starter's direct framework packages from its other direct
-packages. It does not classify the transitive dependency tree.
+Include only direct package entries from the starter's `package.json`; do not
+include transitive packages. The manifest separates a starter's direct framework
+packages from its other direct packages. It does not classify the transitive
+dependency tree.
 
 When changing a starter's dependencies, review this file in the same PR. Add a
 new first-party package, remove one no longer declared, and leave third-party

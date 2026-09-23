@@ -8,6 +8,15 @@ concrete improvement opportunities in the frameworks themselves, their
 dependencies, and their documentation. This page collects upstream changes that
 came out of the project or were influenced by its output.
 
+## Fewer TanStack Router link hydration updates
+
+- [perf(react-router): avoid redundant link hydration updates](https://github.com/TanStack/router/pull/8435)
+  avoids one hydration-triggered render per ordinary React Router link by only
+  subscribing links to hydration state when their active matching compares URL
+  hashes. Hash-sensitive links keep the update they need. Found while
+  investigating Framework Tracker's 1,000-link table and proposed upstream to
+  TanStack Router.
+
 ## Faster link rendering in Nuxt and Vue4
 
 - [perf(nuxt): render internal `<NuxtLink>` anchors directly on server](https://github.com/nuxt/nuxt/pull/36015)

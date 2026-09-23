@@ -263,10 +263,6 @@ export const firstPartyDepsStats = starterStats.map((f) => {
     ].join(' / '),
     allDependencies: dependencies.allDependencies.toLocaleString(),
     duplicateDependencies: dependencies.duplicateDependencies ?? '—',
-    depInstallSize:
-      dependencies.depInstallSize != null
-        ? formatBytesToMB(dependencies.depInstallSize)
-        : '—',
     graph: 'View',
   }
 })

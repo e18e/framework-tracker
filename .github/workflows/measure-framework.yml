@@ -260,6 +260,11 @@ jobs:
           STARTER_PACKAGE: ${{ matrix.framework.package }}
         run: node packages/stats-generator/src/run-framework-dependency-scan.ts "$STARTER_PACKAGE"
 
+      - name: Collect first-party dependency stats
+        env:
+          STARTER_PACKAGE: ${{ matrix.framework.package }}
+        run: node packages/stats-generator/src/run-first-party-dependency-scan.ts "$STARTER_PACKAGE"
+
       - name: Scan installed dependencies for Node engine constraints
         run: pnpm --filter @framework-tracker/stats-generator run:node-engines ${{ matrix.framework.package }}
 
@@ -270,6 +275,7 @@ jobs:
           path: |
             packages/${{ matrix.framework.package }}/e18e-stats.json
             packages/${{ matrix.framework.package }}/framework-dependency-stats.json
+            packages/${{ matrix.framework.package }}/first-party-dependency-stats.json
           retention-days: 1
           if-no-files-found: error
 

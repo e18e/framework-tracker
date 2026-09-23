@@ -7,6 +7,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import type {
   CIStats,
   DependencyStats,
+  E18eStats,
   FrameworkConfig,
   PackageJson,
   TestConfig,
@@ -51,7 +52,23 @@ export function writeJsonFile(filePath: string, data: unknown): void {
   writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`)
 }
 
-function countPnpmLockPackages(lockfileContent: string): number {
+export function getDependencyStatsFromE18e(e18eStats: E18eStats) {
+  const duplicateEntry = e18eStats.stats.extraStats?.find(
+    (stat) => stat.name === 'duplicateDependencyCount',
+  )
+
+  return {
+    prodDependencies: e18eStats.stats.dependencyCount.production,
+    devDependencies: e18eStats.stats.dependencyCount.development,
+    duplicateDependencies:
+      typeof duplicateEntry?.value === 'number'
+        ? duplicateEntry.value
+        : undefined,
+    depInstallSize: e18eStats.stats.installSize,
+  }
+}
+
+export function countPnpmLockPackages(lockfileContent: string): number {
   const packageEntryPattern = /^ {2}\S.*:\s*$/
   const lines = lockfileContent.split(/\r?\n/)
   const packagesIndex = lines.findIndex((line) => line === 'packages:')

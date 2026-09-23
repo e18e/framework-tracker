@@ -139,6 +139,7 @@ export interface CIStats {
   devDependencies?: number
   allDependencies?: number
   frameworkDependencies?: DependencyStats
+  firstPartyDependencies?: FirstPartyDependencyStats
   duplicateDependencies?: number
   depInstallSize?: number
   e18eMessages?: Array<{
@@ -157,6 +158,10 @@ export interface DependencyStats {
   prodDependencies: number
   devDependencies: number
   allDependencies: number
+}
+
+export interface FirstPartyDependencyStats extends DependencyStats {
+  duplicateDependencies?: number
 }
 
 export interface InstallStats {

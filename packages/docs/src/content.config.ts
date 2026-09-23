@@ -34,7 +34,6 @@ const dependencyStatsSchema = z.object({
 
 const firstPartyDependencyStatsSchema = dependencyStatsSchema.extend({
   duplicateDependencies: z.number().int().nonnegative().optional(),
-  depInstallSize: z.number().nonnegative().optional(),
 })
 
 const devtimeSchema = z.object({

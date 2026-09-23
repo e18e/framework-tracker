@@ -1,6 +1,5 @@
 ---
 import { starterStats } from '../lib/collections'
-import { BYTES_PER_MB } from '../lib/utils'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
 type DependencyMetric =
@@ -25,21 +24,6 @@ function getDependencyChartData(metric: DependencyMetric) {
     })
     .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 }
-
-const installSizeData = starterStats
-  .flatMap((framework) => {
-    const bytes = framework.firstPartyDependencies.depInstallSize
-    if (typeof bytes !== 'number' || !Number.isFinite(bytes)) return []
-
-    return [
-      {
-        name: framework.name,
-        value: bytes / BYTES_PER_MB,
-        focused: framework.isFocused,
-      },
-    ]
-  })
-  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---
 
 <ComparisonBarChart
@@ -65,10 +49,4 @@ const installSizeData = starterStats
   data={getDependencyChartData('duplicateDependencies')}
   valueFormat="count"
   yAxisLabel="Dependency count"
-/>
-<ComparisonBarChart
-  title="Meta-framework Direct Package Install Size"
-  data={installSizeData}
-  valueFormat="mb"
-  yAxisLabel="Megabytes"
 />

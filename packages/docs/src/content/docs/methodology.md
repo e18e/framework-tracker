@@ -165,9 +165,12 @@ Installed using the CLI with the following setup:
 - The meta-framework direct packages view uses the starter's
   `first-party-dependencies.json`. It keeps only the direct packages maintained
   by the framework's ecosystem, preserving their production/development section
-  and version from the starter's `package.json`.
-- Resolved graph, duplicate, and install-size metrics use e18e analysis. Graph
-  links pass the matching starter or first-party dependency manifest to npmgraph.
+  and version from the starter's `package.json`. Its resolved graph and duplicate
+  counts follow those packages through the starter's committed `pnpm-lock.yaml`.
+- The starter project's duplicate and install-size metrics use e18e analysis.
+  Graph links pass the matching starter or first-party dependency manifest to
+  npmgraph. npmgraph resolves those manifests independently, so its transitive
+  versions may differ from the committed lockfile counts.
 
 ### Node Modules Size
 

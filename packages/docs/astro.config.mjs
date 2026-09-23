@@ -23,6 +23,7 @@ export default defineConfig({
         { label: 'All Frameworks', link: '/all-frameworks/' },
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
+        { label: 'Impact', link: '/impact/' },
       ],
       social: [
         {

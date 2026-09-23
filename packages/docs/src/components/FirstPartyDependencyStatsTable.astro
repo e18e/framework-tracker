@@ -1,0 +1,31 @@
+---
+import { firstPartyDepsStats } from '../lib/collections'
+import { getFrameworkSlug } from '../lib/utils'
+import StatsTable from './StatsTable.astro'
+
+const firstPartyDependencyColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'directDependencies', header: 'Deps Dev / Prod' },
+  { key: 'allDependencies', header: 'All Deps' },
+  { key: 'duplicateDependencies', header: 'Dup. Deps' },
+  { key: 'depInstallSize', header: 'Dep Install Size' },
+  {
+    key: 'graph',
+    header: 'Graph',
+    href: (row: Record<string, unknown>) =>
+      `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${row.package}/first-party-dependencies.json`,
+  },
+]
+---
+
+<StatsTable
+  label="First-party direct package dependency counts by framework"
+  columns={firstPartyDependencyColumns}
+  data={firstPartyDepsStats}
+/>

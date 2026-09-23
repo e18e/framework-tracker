@@ -14,6 +14,8 @@ import DevServerStartChart from '../../components/DevServerStartChart.astro'
 import DevServerStartTable from '../../components/DevServerStartTable.astro'
 import FrameworkDependencyCharts from '../../components/FrameworkDependencyCharts.astro'
 import FrameworkDependencyStatsTable from '../../components/FrameworkDependencyStatsTable.astro'
+import FirstPartyDependencyCharts from '../../components/FirstPartyDependencyCharts.astro'
+import FirstPartyDependencyStatsTable from '../../components/FirstPartyDependencyStatsTable.astro'
 import MinimumNodeVersionTable from '../../components/MinimumNodeVersionTable.astro'
 import NodeModulesSizeCharts from '../../components/NodeModulesSizeCharts.astro'
 
@@ -34,10 +36,23 @@ Methodology: [Dependency Counts](/methodology/#dependency-counts).
 
 ### Meta-framework Direct Package Counts
 
+First, we look at the direct dependency counts of the meta-framework package itself.
+
 <FrameworkDependencyStatsTable />
 <FrameworkDependencyCharts />
 
+### Meta-framework Direct Packages
+
+Next, we look at the direct framework-maintained packages that each starter
+declares. This excludes the starter's third-party setup packages.
+
+<FirstPartyDependencyStatsTable />
+<FirstPartyDependencyCharts />
+
 ### Starter Projects
+
+Finally, we look at the complete dependency footprint of the default starter
+project, including third-party packages selected by its CLI or documented setup.
 
 <DependencyStatsTable />
 <DependencyCharts />

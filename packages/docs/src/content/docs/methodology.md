@@ -159,12 +159,15 @@ Installed using the CLI with the following setup:
 
 ### Dependency Counts
 
-- Production and development dependency counts come from each starter package's
-  `package.json`.
-- Direct dependency counts are combined with e18e dependency analysis output
-  when available, including duplicate dependency counts and install size.
-- Dependency graph links point to npmgraph using the tracked starter package as
-  the input package.
+- The starter project view counts every direct production and development
+  dependency in the starter's `package.json`, then reports its resolved graph,
+  duplicates, and install size.
+- The meta-framework direct packages view uses the starter's
+  `first-party-dependencies.json`. It keeps only the direct packages maintained
+  by the framework's ecosystem, preserving their production/development section
+  and version from the starter's `package.json`.
+- Resolved graph, duplicate, and install-size metrics use e18e analysis. Graph
+  links pass the matching starter or first-party dependency manifest to npmgraph.
 
 ### Node Modules Size
 

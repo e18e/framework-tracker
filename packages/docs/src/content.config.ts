@@ -46,7 +46,7 @@ const devtimeSchema = z.object({
   prodDependencies: z.number(),
   devDependencies: z.number(),
   allDependencies: z.number(),
-  firstPartyDependencies: firstPartyDependencyStatsSchema.optional(),
+  firstPartyDependencies: firstPartyDependencyStatsSchema,
   frameworkDependencies: dependencyStatsSchema.optional(),
   installTime: timeSchema,
   coldBuildTime: timeSchema,

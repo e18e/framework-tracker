@@ -409,7 +409,14 @@ its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
 clicked, and browser-only prefetching is not exercised.
 
 Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. Both use the same production server setup and Node 24
+5 seconds per stage. New measurements repeat the full sweep three times on the
+same server, with a five-second warm-up at one connection before each sweep.
+Warm-up requests are excluded from the results. Every measured sweep is retained.
+The summary and latency charts use the actual sweep with the median peak requests
+per second; other metrics belong to that same sweep, rather than independently
+computed medians. Individual samples are stored for future variability reporting.
+Historical measurements retain their original values as one sample, with unknown
+variability and no assumed warm-up. Both use the same production server setup and Node 24
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
@@ -434,7 +441,14 @@ its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
 clicked, and browser-only prefetching is not exercised.
 
 Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. Both use the same production server setup and Node 24
+5 seconds per stage. New measurements repeat the full sweep three times on the
+same server, with a five-second warm-up at one connection before each sweep.
+Warm-up requests are excluded from the results. Every measured sweep is retained.
+The summary and latency charts use the actual sweep with the median peak requests
+per second; other metrics belong to that same sweep, rather than independently
+computed medians. Individual samples are stored for future variability reporting.
+Historical measurements retain their original values as one sample, with unknown
+variability and no assumed warm-up. Both use the same production server setup and Node 24
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec

@@ -65,37 +65,50 @@ export const SSRRequestThroughputStatsSchema = z.object({
   browserVersion: z.string().optional(),
 })
 
+const SSRLoadSweepSchema = z.object({
+  peakWorkers: z.number().positive(),
+  peakRequestsPerSec: z.number().positive(),
+  peakAvgLatencyMs: z.number().nonnegative(),
+  peakP50LatencyMs: z.number().nonnegative(),
+  peakP75LatencyMs: z.number().nonnegative(),
+  peakP90LatencyMs: z.number().nonnegative(),
+  peakP99LatencyMs: z.number().nonnegative(),
+  totalRequests: z.number().positive(),
+  totalErrors: z.number().nonnegative(),
+  stages: z
+    .array(
+      z.object({
+        workers: z.number().positive(),
+        durationMs: z.number().positive(),
+        requests: z.number().nonnegative(),
+        errors: z.number().nonnegative(),
+        requestsPerSec: z.number().nonnegative(),
+        avgLatencyMs: z.number().nonnegative(),
+        medianLatencyMs: z.number().nonnegative(),
+        p50LatencyMs: z.number().nonnegative(),
+        p75LatencyMs: z.number().nonnegative(),
+        p90LatencyMs: z.number().nonnegative(),
+        p99LatencyMs: z.number().nonnegative(),
+        maxLatencyMs: z.number().nonnegative(),
+        bytesPerSec: z.number().nonnegative(),
+      }),
+    )
+    .nonempty(),
+})
+
+export const SSRLoadTestsSchema = SSRLoadSweepSchema.extend({
+  runs: z.number().int().positive().optional(),
+  samples: z.array(SSRLoadSweepSchema).nonempty().optional(),
+  warmupDurationMs: z.number().positive().optional(),
+}).refine(
+  (stats) =>
+    (stats.runs === undefined && stats.samples === undefined) ||
+    (stats.samples !== undefined && stats.samples.length === stats.runs),
+  { message: 'Expected one load sweep sample per run' },
+)
+
 export const SSRLoadStatsSchema = z.object({
-  ssrLoadTests: z.object({
-    peakWorkers: z.number().positive(),
-    peakRequestsPerSec: z.number().positive(),
-    peakAvgLatencyMs: z.number().nonnegative(),
-    peakP50LatencyMs: z.number().nonnegative(),
-    peakP75LatencyMs: z.number().nonnegative(),
-    peakP90LatencyMs: z.number().nonnegative(),
-    peakP99LatencyMs: z.number().nonnegative(),
-    totalRequests: z.number().positive(),
-    totalErrors: z.number().nonnegative(),
-    stages: z
-      .array(
-        z.object({
-          workers: z.number().positive(),
-          durationMs: z.number().positive(),
-          requests: z.number().nonnegative(),
-          errors: z.number().nonnegative(),
-          requestsPerSec: z.number().nonnegative(),
-          avgLatencyMs: z.number().nonnegative(),
-          medianLatencyMs: z.number().nonnegative(),
-          p50LatencyMs: z.number().nonnegative(),
-          p75LatencyMs: z.number().nonnegative(),
-          p90LatencyMs: z.number().nonnegative(),
-          p99LatencyMs: z.number().nonnegative(),
-          maxLatencyMs: z.number().nonnegative(),
-          bytesPerSec: z.number().nonnegative(),
-        }),
-      )
-      .nonempty(),
-  }),
+  ssrLoadTests: SSRLoadTestsSchema,
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),

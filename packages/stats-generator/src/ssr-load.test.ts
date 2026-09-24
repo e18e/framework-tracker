@@ -1,3 +1,4 @@
+import { SSRLoadTestsSchema } from './schemas.ts'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
@@ -9,7 +10,11 @@ import {
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { verifySSRLoadTable } from './ssrLoad/verify-table.ts'
 import { renderBaselineHtml } from './baseline-html.ts'
-import { summarizeLoadStages } from './ssrLoad/run-load-test.ts'
+import {
+  runLoadTest,
+  summarizeLoadSweeps,
+  summarizeLoadStages,
+} from './ssrLoad/run-load-test.ts'
 import type { SSRLoadStageStats } from './ssrLoad/types.ts'
 import { testData } from '../../testdata/src/ssr.ts'
 
@@ -196,5 +201,76 @@ test('paired route sources preserve the loader and table except for link impleme
       .replace(/<\/(?:Link|NuxtLink)>/g, '</a>')
     const compact = (source: string) => source.replace(/\s+/g, '')
     assert.equal(compact(anchor), compact(normalized), routerPath)
+  }
+})
+
+test('repeated load sweeps select the median peak sweep without mixing metrics', () => {
+  const samples = [300, 100, 200].map((requestsPerSec) =>
+    summarizeLoadStages([
+      loadStage({ requestsPerSec, p99LatencyMs: requestsPerSec / 2 }),
+    ]),
+  )
+  const result = summarizeLoadSweeps(samples)
+  assert.equal(result.peakRequestsPerSec, 200)
+  assert.equal(result.peakP99LatencyMs, 100)
+  assert.deepEqual(result.stages, samples[2]!.stages)
+  assert.deepEqual(result.samples, samples)
+  assert.equal(result.runs, 3)
+  assert.equal(samples[0]!.peakRequestsPerSec, 300)
+  assert.throws(() => summarizeLoadSweeps([]))
+  assert.throws(() => summarizeLoadSweeps(samples.slice(0, 2)))
+  SSRLoadTestsSchema.parse(result)
+})
+
+test('load runner warms up before each full sweep and excludes warm-up requests', async () => {
+  const calls: number[] = []
+  const result = await runLoadTest(
+    'http://example.test',
+    async (_, workers) => {
+      calls.push(workers)
+      return loadStage({
+        workers,
+        requests: calls.length % 8 === 1 ? 99999 : 500,
+      })
+    },
+  )
+  assert.deepEqual(
+    calls,
+    Array.from({ length: 3 }, () => [1, 1, 5, 10, 25, 50, 100, 200]).flat(),
+  )
+  assert.equal(result.runs, 3)
+  assert.equal(result.warmupDurationMs, 5000)
+  assert.equal(result.totalRequests, 3500)
+  assert.ok(result.samples!.every((sample) => sample.totalRequests === 3500))
+  SSRLoadTestsSchema.parse(result)
+  await assert.rejects(
+    runLoadTest('http://example.test', async () => loadStage({ errors: 1 })),
+    /warm-up failed/,
+  )
+  await assert.rejects(
+    runLoadTest('http://example.test', async () => loadStage({ requests: 0 })),
+    /warm-up failed/,
+  )
+})
+
+test('load schema accepts historical results and rejects inconsistent sample counts', () => {
+  const sweep = summarizeLoadStages([loadStage()])
+  SSRLoadTestsSchema.parse(sweep)
+  const migrated = SSRLoadTestsSchema.parse({
+    ...sweep,
+    runs: 1,
+    samples: [sweep],
+  })
+  assert.equal(migrated.warmupDurationMs, undefined)
+  for (const metadata of [
+    { runs: 3, samples: [sweep] },
+    { runs: 1 },
+    { samples: [sweep] },
+    { runs: 0, samples: [] },
+  ]) {
+    assert.equal(
+      SSRLoadTestsSchema.safeParse({ ...sweep, ...metadata }).success,
+      false,
+    )
   }
 })

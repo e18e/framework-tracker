@@ -1,7 +1,8 @@
 import autocannon from 'autocannon'
-import type { SSRLoadStageStats, SSRLoadTests } from './types.ts'
+import type { SSRLoadStageStats, SSRLoadSweep, SSRLoadTests } from './types.ts'
 
 const STAGE_DURATION_SECONDS = 5
+const LOAD_SWEEP_COUNT = 3
 const WORKER_STAGES = [1, 5, 10, 25, 50, 100, 200] as const
 
 function round(value: number): number {
@@ -37,18 +38,52 @@ async function runStage(
   }
 }
 
-export async function runLoadTest(url: string): Promise<SSRLoadTests> {
-  const stages: SSRLoadStageStats[] = []
-
-  for (const workers of WORKER_STAGES) {
-    console.info(`  ${workers} workers for ${STAGE_DURATION_SECONDS}s`)
-    stages.push(await runStage(url, workers))
+export async function runLoadTest(
+  url: string,
+  measureStage: typeof runStage = runStage,
+): Promise<SSRLoadTests> {
+  const samples: SSRLoadSweep[] = []
+  for (let run = 1; run <= LOAD_SWEEP_COUNT; run++) {
+    console.info(
+      `  Sweep ${run}/${LOAD_SWEEP_COUNT}: warming up for ${STAGE_DURATION_SECONDS}s`,
+    )
+    const warmup = await measureStage(url, WORKER_STAGES[0])
+    if (warmup.errors > 0 || warmup.requests === 0) {
+      throw new Error(
+        'SSR load warm-up failed: expected successful requests without errors.',
+      )
+    }
+    const stages: SSRLoadStageStats[] = []
+    for (const workers of WORKER_STAGES) {
+      console.info(`  ${workers} workers for ${STAGE_DURATION_SECONDS}s`)
+      stages.push(await measureStage(url, workers))
+    }
+    samples.push(summarizeLoadStages(stages))
   }
-
-  return summarizeLoadStages(stages)
+  return {
+    ...summarizeLoadSweeps(samples),
+    warmupDurationMs: STAGE_DURATION_SECONDS * 1000,
+  }
 }
 
-export function summarizeLoadStages(stages: SSRLoadStageStats[]): SSRLoadTests {
+/** Keep a real sweep's internally consistent metrics, selected by median peak throughput. */
+export function summarizeLoadSweeps(
+  samples: readonly SSRLoadSweep[],
+): SSRLoadTests {
+  if (samples.length === 0 || samples.length % 2 === 0) {
+    throw new Error('Expected an odd, nonzero number of load sweeps.')
+  }
+  const ranked = [...samples].sort(
+    (a, b) => a.peakRequestsPerSec - b.peakRequestsPerSec,
+  )
+  return {
+    ...ranked[Math.floor(ranked.length / 2)]!,
+    runs: samples.length,
+    samples: [...samples],
+  }
+}
+
+export function summarizeLoadStages(stages: SSRLoadStageStats[]): SSRLoadSweep {
   const peakStage = stages.reduce<SSRLoadStageStats | undefined>(
     (best, stage) =>
       stage.errors === 0 &&

@@ -86,6 +86,41 @@ const devtimeSchema = z.object({
   frameworkVersion: z.string().optional(),
 })
 
+const ssrLoadSweepSchema = z.object({
+  peakWorkers: z.number(),
+  peakRequestsPerSec: z.number(),
+  peakAvgLatencyMs: z.number(),
+  peakP50LatencyMs: z.number(),
+  peakP75LatencyMs: z.number(),
+  peakP90LatencyMs: z.number(),
+  peakP99LatencyMs: z.number(),
+  totalRequests: z.number(),
+  totalErrors: z.number(),
+  stages: z.array(
+    z.object({
+      workers: z.number(),
+      durationMs: z.number(),
+      requests: z.number(),
+      errors: z.number(),
+      requestsPerSec: z.number(),
+      avgLatencyMs: z.number(),
+      medianLatencyMs: z.number(),
+      p50LatencyMs: z.number(),
+      p75LatencyMs: z.number(),
+      p90LatencyMs: z.number(),
+      p99LatencyMs: z.number(),
+      maxLatencyMs: z.number(),
+      bytesPerSec: z.number(),
+    }),
+  ),
+})
+
+const ssrLoadTestsSchema = ssrLoadSweepSchema.extend({
+  runs: z.number().int().positive().optional(),
+  samples: z.array(ssrLoadSweepSchema).nonempty().optional(),
+  warmupDurationMs: z.number().positive().optional(),
+})
+
 const runtimeSchema = z.object({
   name: z.string(),
   type: z.string(),
@@ -100,66 +135,8 @@ const runtimeSchema = z.object({
     bodySizeKb: z.number(),
     duplicationFactor: z.number(),
   }),
-  ssrLoadTests: z
-    .object({
-      peakWorkers: z.number(),
-      peakRequestsPerSec: z.number(),
-      peakAvgLatencyMs: z.number(),
-      peakP50LatencyMs: z.number(),
-      peakP75LatencyMs: z.number(),
-      peakP90LatencyMs: z.number(),
-      peakP99LatencyMs: z.number(),
-      totalRequests: z.number(),
-      totalErrors: z.number(),
-      stages: z.array(
-        z.object({
-          workers: z.number(),
-          durationMs: z.number(),
-          requests: z.number(),
-          errors: z.number(),
-          requestsPerSec: z.number(),
-          avgLatencyMs: z.number(),
-          medianLatencyMs: z.number(),
-          p50LatencyMs: z.number(),
-          p75LatencyMs: z.number(),
-          p90LatencyMs: z.number(),
-          p99LatencyMs: z.number(),
-          maxLatencyMs: z.number(),
-          bytesPerSec: z.number(),
-        }),
-      ),
-    })
-    .optional(),
-  ssrRouterLinkLoadTests: z
-    .object({
-      peakWorkers: z.number(),
-      peakRequestsPerSec: z.number(),
-      peakAvgLatencyMs: z.number(),
-      peakP50LatencyMs: z.number(),
-      peakP75LatencyMs: z.number(),
-      peakP90LatencyMs: z.number(),
-      peakP99LatencyMs: z.number(),
-      totalRequests: z.number(),
-      totalErrors: z.number(),
-      stages: z.array(
-        z.object({
-          workers: z.number(),
-          durationMs: z.number(),
-          requests: z.number(),
-          errors: z.number(),
-          requestsPerSec: z.number(),
-          avgLatencyMs: z.number(),
-          medianLatencyMs: z.number(),
-          p50LatencyMs: z.number(),
-          p75LatencyMs: z.number(),
-          p90LatencyMs: z.number(),
-          p99LatencyMs: z.number(),
-          maxLatencyMs: z.number(),
-          bytesPerSec: z.number(),
-        }),
-      ),
-    })
-    .optional(),
+  ssrLoadTests: ssrLoadTestsSchema.optional(),
+  ssrRouterLinkLoadTests: ssrLoadTestsSchema.optional(),
   clientSideRenderedTests: z
     .object({
       firstPaintMs: z.number(),

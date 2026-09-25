@@ -69,6 +69,10 @@ describes the Run Time app; starter differences are listed below.
   builds static output without an adapter or React integration.
 - The SolidStart and TanStack Start starters use `nitro()` without an explicit
   preset; their runtime apps explicitly select `node-server`.
+- The TanStack Start runtime app uses the [documented FastResponse optimization](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#performance-tip-fastresponse)
+  for Node.js deployments with Nitro. Its server entry replaces the global
+  `Response` constructor with srvx's `FastResponse`. This is a deployment-specific
+  throughput setting; the Dev Time starter retains its generated setup.
 - Nuxt's starter uses its default Nitro configuration. Its runtime app extends
   `node-server` with an entry that also exposes a fetch handler for the
   request-throughput benchmark.

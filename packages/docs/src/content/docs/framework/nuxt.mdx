@@ -1,24 +1,107 @@
 ---
 title: Nuxt
-description: Nuxt SSR load version comparisons.
+description: Nuxt version comparison page.
 ---
 
+import FrameworkBrowserBaselineVersionTable from '../../../components/FrameworkBrowserBaselineVersionTable.astro'
+import FrameworkBuildInstallVersionCharts from '../../../components/FrameworkBuildInstallVersionCharts.astro'
+import FrameworkClientRenderedVersionCharts from '../../../components/FrameworkClientRenderedVersionCharts.astro'
+import FrameworkCoreJsVersionChart from '../../../components/FrameworkCoreJsVersionChart.astro'
+import FrameworkDependencyVersionCharts from '../../../components/FrameworkDependencyVersionCharts.astro'
+import FrameworkDevServerVersionCharts from '../../../components/FrameworkDevServerVersionCharts.astro'
+import FrameworkNodeModulesSizeVersionCharts from '../../../components/FrameworkNodeModulesSizeVersionCharts.astro'
+import FrameworkServerRenderedVersionCharts from '../../../components/FrameworkServerRenderedVersionCharts.astro'
 import FrameworkSSRLoadVersionCharts from '../../../components/FrameworkSSRLoadVersionCharts.astro'
+import FrameworkSSRRequestThroughputVersionCharts from '../../../components/FrameworkSSRRequestThroughputVersionCharts.astro'
 import MethodologyLink from '../../../components/MethodologyLink.astro'
-import { getRuntimeVersionStats } from '../../../lib/collections'
+import {
+  getRuntimeVersionStats,
+  getStarterVersionStats,
+} from '../../../lib/collections'
 
-export const runtimeVersions = getRuntimeVersionStats('app-nuxt')
+export const nuxtStarterVersions = getStarterVersionStats('starter-nuxt')
+export const nuxtRuntimeVersions = getRuntimeVersionStats('app-nuxt')
 
-## SSR Load Test
+## Dev Time
+
+### Dependency Counts
+
+<MethodologyLink title="Dependency Counts" slug="dependency-counts" />
+
+<FrameworkDependencyVersionCharts versions={nuxtStarterVersions} />
+
+### Node Modules Size
+
+<MethodologyLink title="Node Modules Size" slug="node-modules-size" />
+
+<FrameworkNodeModulesSizeVersionCharts versions={nuxtStarterVersions} />
+
+### Build and Install Times
+
+<MethodologyLink
+  title="Build and Install Times"
+  slug="build-and-install-times"
+/>
+
+<FrameworkBuildInstallVersionCharts versions={nuxtStarterVersions} />
+
+### Dev Server Startup
+
+<MethodologyLink title="Dev Server Startup" slug="dev-server-startup" />
+
+<FrameworkDevServerVersionCharts versions={nuxtStarterVersions} />
+
+### Core-JS Polyfills
+
+<MethodologyLink title="Core-JS Polyfills" slug="core-js-polyfills" />
+
+<FrameworkCoreJsVersionChart versions={nuxtStarterVersions} />
+
+### Browser Baseline
+
+<MethodologyLink title="Browser Baseline" slug="browser-baseline" />
+
+<FrameworkBrowserBaselineVersionTable versions={nuxtStarterVersions} />
+
+## Run Time
+
+### Client Side Rendered Tests
+
+<MethodologyLink
+  title="Client Side Rendered Tests"
+  slug="client-side-rendered-tests"
+/>
+
+<FrameworkClientRenderedVersionCharts versions={nuxtRuntimeVersions} />
+
+### Server Side Rendered Tests
+
+<MethodologyLink
+  title="Server Side Rendered Tests"
+  slug="server-side-rendered-tests"
+/>
+
+<FrameworkServerRenderedVersionCharts versions={nuxtRuntimeVersions} />
+
+### Server Side Throughput Tests
+
+<MethodologyLink
+  title="Server Side Throughput Tests"
+  slug="server-side-throughput-tests"
+/>
+
+<FrameworkSSRRequestThroughputVersionCharts versions={nuxtRuntimeVersions} />
+
+### SSR Load Test
 
 <MethodologyLink title="SSR Load Test" slug="ssr-load-test" />
 
 Ordinary anchors at `/server-side-rendered-plain-links`. Historical standard-test
 measurements are unavailable; new CI runs will populate this series.
 
-<FrameworkSSRLoadVersionCharts versions={runtimeVersions} />
+<FrameworkSSRLoadVersionCharts versions={nuxtRuntimeVersions} />
 
-## SSR Router Link Load Test
+### SSR Router Link Load Test
 
 <MethodologyLink
   title="SSR Router Link Load Test"
@@ -29,6 +112,6 @@ Framework router links at `/server-side-rendered`. Historical HTTP load results
 are preserved in this series.
 
 <FrameworkSSRLoadVersionCharts
-  versions={runtimeVersions}
+  versions={nuxtRuntimeVersions}
   testsKey="ssrRouterLinkLoadTests"
 />

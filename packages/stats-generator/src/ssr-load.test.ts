@@ -224,6 +224,7 @@ test('repeated load sweeps select the median peak sweep without mixing metrics',
 
 test('load runner warms up before each full sweep and excludes warm-up requests', async () => {
   const calls: number[] = []
+  const pauses: number[] = []
   const result = await runLoadTest(
     'http://example.test',
     async (_, workers) => {
@@ -233,24 +234,85 @@ test('load runner warms up before each full sweep and excludes warm-up requests'
         requests: calls.length % 8 === 1 ? 99999 : 500,
       })
     },
+    async (ms) => {
+      pauses.push(ms)
+    },
   )
   assert.deepEqual(
     calls,
     Array.from({ length: 3 }, () => [1, 1, 5, 10, 25, 50, 100, 200]).flat(),
   )
+  assert.deepEqual(pauses, [5000, 5000])
   assert.equal(result.runs, 3)
   assert.equal(result.warmupDurationMs, 5000)
   assert.equal(result.totalRequests, 3500)
   assert.ok(result.samples!.every((sample) => sample.totalRequests === 3500))
   SSRLoadTestsSchema.parse(result)
-  await assert.rejects(
-    runLoadTest('http://example.test', async () => loadStage({ errors: 1 })),
-    /warm-up failed/,
+})
+
+test('warm-up recovers after an overloaded sweep without retaining retry measurements', async () => {
+  const events: string[] = []
+  let calls = 0
+  const result = await runLoadTest(
+    'http://example.test',
+    async (_, workers) => {
+      events.push(`stage:${workers}`)
+      calls++
+      return loadStage({
+        workers,
+        requests: calls === 9 ? 99999 : 500,
+        errors: calls === 9 ? 2 : 0,
+      })
+    },
+    async (ms) => {
+      events.push(`pause:${ms}`)
+    },
   )
-  await assert.rejects(
-    runLoadTest('http://example.test', async () => loadStage({ requests: 0 })),
-    /warm-up failed/,
+  assert.deepEqual(events.slice(8, 13), [
+    'pause:5000',
+    'stage:1',
+    'pause:5000',
+    'stage:1',
+    'stage:1',
+  ])
+  assert.equal(calls, 25)
+  assert.equal(result.samples!.length, 3)
+  assert.ok(
+    result.samples!.every(
+      (sample) => sample.totalRequests === 3500 && sample.totalErrors === 0,
+    ),
   )
+})
+
+test('persistently unhealthy warm-up stops after three attempts with diagnostics', async () => {
+  for (const stage of [loadStage({ errors: 2 }), loadStage({ requests: 0 })]) {
+    let calls = 0
+    const pauses: number[] = []
+    await assert.rejects(
+      runLoadTest(
+        'http://example.test',
+        async (_, workers) => {
+          assert.equal(workers, 1)
+          calls++
+          return stage
+        },
+        async (ms) => {
+          pauses.push(ms)
+        },
+      ),
+      (error: Error) => {
+        assert.match(error.message, /warm-up failed .*sweep 1\/3, attempt 3\/3/)
+        assert.ok(
+          error.message.includes(
+            `${stage.requests} requests, ${stage.errors} errors`,
+          ),
+        )
+        return true
+      },
+    )
+    assert.equal(calls, 3)
+    assert.deepEqual(pauses, [5000, 5000])
+  }
 })
 
 test('load schema accepts historical results and rejects inconsistent sample counts', () => {

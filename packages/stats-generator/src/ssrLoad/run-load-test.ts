@@ -1,8 +1,11 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import autocannon from 'autocannon'
 import type { SSRLoadStageStats, SSRLoadSweep, SSRLoadTests } from './types.ts'
 
 const STAGE_DURATION_SECONDS = 5
 const LOAD_SWEEP_COUNT = 3
+const WARMUP_ATTEMPTS = 3
+const RECOVERY_MS = 5000
 const WORKER_STAGES = [1, 5, 10, 25, 50, 100, 200] as const
 
 function round(value: number): number {
@@ -41,22 +44,42 @@ async function runStage(
 export async function runLoadTest(
   url: string,
   measureStage: typeof runStage = runStage,
+  pause: (ms: number) => Promise<void> = delay,
 ): Promise<SSRLoadTests> {
   const samples: SSRLoadSweep[] = []
   for (let run = 1; run <= LOAD_SWEEP_COUNT; run++) {
-    console.info(
-      `  Sweep ${run}/${LOAD_SWEEP_COUNT}: warming up for ${STAGE_DURATION_SECONDS}s`,
-    )
-    const warmup = await measureStage(url, WORKER_STAGES[0])
-    if (warmup.errors > 0 || warmup.requests === 0) {
-      throw new Error(
-        'SSR load warm-up failed: expected successful requests without errors.',
+    if (run > 1) {
+      console.info(
+        `  Sweep ${run}/${LOAD_SWEEP_COUNT}: recovering for ${RECOVERY_MS / 1000}s`,
       )
+      await pause(RECOVERY_MS)
+    }
+    for (let attempt = 1; attempt <= WARMUP_ATTEMPTS; attempt++) {
+      console.info(
+        `  Sweep ${run}/${LOAD_SWEEP_COUNT}: warm-up ${attempt}/${WARMUP_ATTEMPTS} for ${STAGE_DURATION_SECONDS}s`,
+      )
+      const warmup = await measureStage(url, WORKER_STAGES[0])
+      if (warmup.errors === 0 && warmup.requests > 0) break
+
+      const details = `sweep ${run}/${LOAD_SWEEP_COUNT}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests} requests, ${warmup.errors} errors, ${warmup.durationMs}ms`
+      if (attempt === WARMUP_ATTEMPTS) {
+        throw new Error(
+          `SSR load warm-up failed (${details}); expected requests without errors after recovery.`,
+        )
+      }
+      console.warn(
+        `  Unhealthy warm-up (${details}); recovering for ${RECOVERY_MS / 1000}s before retry.`,
+      )
+      await pause(RECOVERY_MS)
     }
     const stages: SSRLoadStageStats[] = []
     for (const workers of WORKER_STAGES) {
       console.info(`  ${workers} workers for ${STAGE_DURATION_SECONDS}s`)
-      stages.push(await measureStage(url, workers))
+      const stage = await measureStage(url, workers)
+      console.info(
+        `    ${stage.requests} requests, ${stage.errors} errors, ${stage.requestsPerSec} req/s`,
+      )
+      stages.push(stage)
     }
     samples.push(summarizeLoadStages(stages))
   }

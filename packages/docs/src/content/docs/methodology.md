@@ -411,7 +411,10 @@ clicked, and browser-only prefetching is not exercised.
 Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
 5 seconds per stage. New measurements repeat the full sweep three times on the
 same server, with a five-second warm-up at one connection before each sweep.
-Warm-up requests are excluded from the results. Every measured sweep is retained.
+The server gets five seconds of recovery between sweeps. An unhealthy warm-up
+is retried up to twice, with five seconds of recovery before each retry; a sweep
+only starts after a warm-up with requests and no errors. Persistent failures abort
+the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
 The summary and latency charts use the actual sweep with the median peak requests
 per second; other metrics belong to that same sweep, rather than independently
 computed medians. Individual samples are stored for future variability reporting.
@@ -443,7 +446,10 @@ clicked, and browser-only prefetching is not exercised.
 Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
 5 seconds per stage. New measurements repeat the full sweep three times on the
 same server, with a five-second warm-up at one connection before each sweep.
-Warm-up requests are excluded from the results. Every measured sweep is retained.
+The server gets five seconds of recovery between sweeps. An unhealthy warm-up
+is retried up to twice, with five seconds of recovery before each retry; a sweep
+only starts after a warm-up with requests and no errors. Persistent failures abort
+the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
 The summary and latency charts use the actual sweep with the median peak requests
 per second; other metrics belong to that same sweep, rather than independently
 computed medians. Individual samples are stored for future variability reporting.

@@ -250,6 +250,23 @@ export const depsStats = starterStats.map((f) => ({
   graph: 'View',
 }))
 
+export const firstPartyDepsStats = starterStats.map((f) => {
+  const dependencies = f.firstPartyDependencies
+
+  return {
+    name: f.name,
+    package: f.package,
+    isFocused: f.isFocused,
+    directDependencies: [
+      dependencies.devDependencies.toLocaleString(),
+      dependencies.prodDependencies.toLocaleString(),
+    ].join(' / '),
+    allDependencies: dependencies.allDependencies.toLocaleString(),
+    duplicateDependencies: dependencies.duplicateDependencies ?? '—',
+    graph: 'View',
+  }
+})
+
 export const minimumNodeVersionTableData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,

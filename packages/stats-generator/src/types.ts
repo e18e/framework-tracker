@@ -1,3 +1,4 @@
+import type { SSRLoadTests } from './ssrLoad/types.ts'
 type MeasurementType =
   | 'install'
   | 'build'
@@ -79,32 +80,7 @@ export interface CIStats {
     duplicationFactor: number
   }
   // Real server SSR load stats
-  ssrLoadTests?: {
-    peakWorkers: number
-    peakRequestsPerSec: number
-    peakAvgLatencyMs: number
-    peakP50LatencyMs: number
-    peakP75LatencyMs: number
-    peakP90LatencyMs: number
-    peakP99LatencyMs: number
-    totalRequests: number
-    totalErrors: number
-    stages: Array<{
-      workers: number
-      durationMs: number
-      requests: number
-      errors: number
-      requestsPerSec: number
-      avgLatencyMs: number
-      medianLatencyMs: number
-      p50LatencyMs: number
-      p75LatencyMs: number
-      p90LatencyMs: number
-      p99LatencyMs: number
-      maxLatencyMs: number
-      bytesPerSec: number
-    }>
-  }
+  ssrLoadTests?: SSRLoadTests
   ssrRouterLinkLoadTests?: CIStats['ssrLoadTests']
   // Client-side rendered stats (browser paint + interaction timings)
   clientSideRenderedTests?: {
@@ -139,6 +115,7 @@ export interface CIStats {
   devDependencies?: number
   allDependencies?: number
   frameworkDependencies?: DependencyStats
+  firstPartyDependencies?: FirstPartyDependencyStats
   duplicateDependencies?: number
   depInstallSize?: number
   e18eMessages?: Array<{
@@ -157,6 +134,10 @@ export interface DependencyStats {
   prodDependencies: number
   devDependencies: number
   allDependencies: number
+}
+
+export interface FirstPartyDependencyStats extends DependencyStats {
+  duplicateDependencies?: number
 }
 
 export interface InstallStats {

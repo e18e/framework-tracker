@@ -43,10 +43,10 @@ jobs:
 
           FRAMEWORKS=$(cat .github/frameworks.json)
 
-          CHANGED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD -- 'packages/starter-*/package.json' 'packages/app-*/package.json')
+          CHANGED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD -- 'packages/starter-*/package.json' 'packages/starter-*/pnpm-lock.yaml' 'packages/starter-*/first-party-dependencies.json' 'packages/app-*/package.json')
 
           if [[ -z "$CHANGED_FILES" ]]; then
-            echo "No framework package.json files changed, skipping"
+            echo "No framework dependency files changed, skipping"
             echo "has-changes=false" >> $GITHUB_OUTPUT
             echo "framework-names=[]" >> $GITHUB_OUTPUT
             echo "install=[]" >> $GITHUB_OUTPUT

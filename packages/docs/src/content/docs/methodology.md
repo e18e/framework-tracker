@@ -159,12 +159,18 @@ Installed using the CLI with the following setup:
 
 ### Dependency Counts
 
-- Production and development dependency counts come from each starter package's
-  `package.json`.
-- Direct dependency counts are combined with e18e dependency analysis output
-  when available, including duplicate dependency counts and install size.
-- Dependency graph links point to npmgraph using the tracked starter package as
-  the input package.
+- The starter project view counts every direct production and development
+  dependency in the starter's `package.json`, then reports its resolved graph,
+  duplicates, and install size.
+- The meta-framework direct packages view uses the starter's
+  `first-party-dependencies.json`. It keeps only the direct packages maintained
+  by the framework's ecosystem, preserving their production/development section
+  and version from the starter's `package.json`. Its resolved graph and duplicate
+  counts follow those packages through the starter's committed `pnpm-lock.yaml`.
+- The starter project's duplicate and install-size metrics use e18e analysis.
+  Graph links pass the matching starter or first-party dependency manifest to
+  npmgraph. npmgraph resolves those manifests independently, so its transitive
+  versions may differ from the committed lockfile counts.
 
 ### Node Modules Size
 
@@ -403,7 +409,17 @@ its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
 clicked, and browser-only prefetching is not exercised.
 
 Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. Both use the same production server setup and Node 24
+5 seconds per stage. New measurements repeat the full sweep three times on the
+same server, with a five-second warm-up at one connection before each sweep.
+The server gets five seconds of recovery between sweeps. An unhealthy warm-up
+is retried up to twice, with five seconds of recovery before each retry; a sweep
+only starts after a warm-up with requests and no errors. Persistent failures abort
+the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
+The summary and latency charts use the actual sweep with the median peak requests
+per second; other metrics belong to that same sweep, rather than independently
+computed medians. Individual samples are stored for future variability reporting.
+Historical measurements retain their original values as one sample, with unknown
+variability and no assumed warm-up. Both use the same production server setup and Node 24
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
@@ -428,7 +444,17 @@ its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
 clicked, and browser-only prefetching is not exercised.
 
 Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. Both use the same production server setup and Node 24
+5 seconds per stage. New measurements repeat the full sweep three times on the
+same server, with a five-second warm-up at one connection before each sweep.
+The server gets five seconds of recovery between sweeps. An unhealthy warm-up
+is retried up to twice, with five seconds of recovery before each retry; a sweep
+only starts after a warm-up with requests and no errors. Persistent failures abort
+the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
+The summary and latency charts use the actual sweep with the median peak requests
+per second; other metrics belong to that same sweep, rather than independently
+computed medians. Individual samples are stored for future variability reporting.
+Historical measurements retain their original values as one sample, with unknown
+variability and no assumed warm-up. Both use the same production server setup and Node 24
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec

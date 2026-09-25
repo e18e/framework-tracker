@@ -4,6 +4,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import {
   getDependencyCountsFromPackageMetadata,
+  getDependencyStatsFromE18e,
   getPackageJsonDeps,
   normalizeCIStats,
   readJsonFile,
@@ -18,6 +19,7 @@ import type {
   BrowserBaselineStats,
   NodeEnginesStats,
   DependencyStats,
+  FirstPartyDependencyStats,
   E18eStats,
 } from './types.ts'
 
@@ -198,27 +200,32 @@ async function main() {
         )
       }
 
+      const firstPartyDependencyStatsPath = join(
+        artifactsDir,
+        `e18e-stats-${name}`,
+        'first-party-dependency-stats.json',
+      )
+      const firstPartyDependencies = readJsonFile<FirstPartyDependencyStats>(
+        firstPartyDependencyStatsPath,
+      )
+      if (firstPartyDependencies) {
+        console.info(`  ✓ Found first-party dependency stats artifact`)
+        stats = { ...stats, firstPartyDependencies }
+      } else {
+        console.warn(
+          `No first-party dependency stats artifact found at ${firstPartyDependencyStatsPath}`,
+        )
+      }
+
       const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
       if (e18eStats) {
         console.info(`  ✓ Found e18e stats artifact`)
         const packageDependencyCounts =
           getDependencyCountsFromPackageMetadata(packageName)
-        const duplicateEntry = e18eStats.stats.extraStats?.find(
-          (s) => s.name === 'duplicateDependencyCount',
-        )
-        const dependencyCounts = {
-          prodDependencies: e18eStats.stats.dependencyCount.production,
-          devDependencies: e18eStats.stats.dependencyCount.development,
-          allDependencies: packageDependencyCounts.allDependencies,
-        }
         stats = {
           ...stats,
-          ...dependencyCounts,
-          duplicateDependencies:
-            typeof duplicateEntry?.value === 'number'
-              ? duplicateEntry.value
-              : undefined,
-          depInstallSize: e18eStats.stats.installSize,
+          ...getDependencyStatsFromE18e(e18eStats),
+          allDependencies: packageDependencyCounts.allDependencies,
           e18eMessages: e18eStats.messages,
         }
       } else {

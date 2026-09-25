@@ -14,7 +14,7 @@ export interface SSRLoadStageStats {
   bytesPerSec: number
 }
 
-export interface SSRLoadTests {
+export interface SSRLoadSweep {
   peakWorkers: number
   peakRequestsPerSec: number
   peakAvgLatencyMs: number
@@ -25,6 +25,12 @@ export interface SSRLoadTests {
   totalRequests: number
   totalErrors: number
   stages: SSRLoadStageStats[]
+}
+
+export interface SSRLoadTests extends SSRLoadSweep {
+  runs?: number
+  samples?: SSRLoadSweep[]
+  warmupDurationMs?: number
 }
 
 export interface SSRLoadBenchmarkResult {

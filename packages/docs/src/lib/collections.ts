@@ -419,16 +419,17 @@ export function getRenderedInteractionBreakdownData(
 }
 
 export const coreJsTableData = starterStats.map((f) => {
-  const hasCorejs = (f.vendoredCoreJsUnnecessaryModules?.length ?? 0) > 0
+  const hasCorejs = (f.vendoredCoreJsSize ?? 0) > 0
   return {
     name: f.name,
     package: f.package,
     isFocused: f.isFocused,
+    detected: f.vendoredCoreJsSize == null ? '—' : hasCorejs ? 'Yes' : 'No',
     bundledSize: hasCorejs
       ? `${((f.vendoredCoreJsSize ?? 0) / 1024).toFixed(1)} KB`
       : '—',
     unnecessaryModules: hasCorejs
-      ? String(f.vendoredCoreJsUnnecessaryModules!.length)
+      ? String(f.vendoredCoreJsUnnecessaryModules?.length ?? 0)
       : '—',
   }
 })

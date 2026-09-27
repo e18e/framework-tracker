@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import {
+  IncomingMessage,
+  ServerResponse,
+} from './ssrRequestThroughput/mock-http.ts'
 import { consumeWebResponse } from './ssrRequestThroughput/run-benchmark.ts'
 
 test('timed Web responses drain every chunk without collecting the body', async () => {
@@ -40,4 +44,17 @@ test('validation runs still collect the complete Web response', async () => {
     body: html,
     length: new TextEncoder().encode(html).byteLength,
   })
+})
+
+test('Node mock counts every byte and collects the body only for validation', async () => {
+  const html = '<table>✓</table>'
+  for (const collect of [false, true]) {
+    const response = new ServerResponse(new IncomingMessage(), collect)
+    response.write('<table>')
+    response.end('✓</table>')
+    await response.await
+
+    assert.equal(response.length, Buffer.byteLength(html))
+    assert.equal(response.body, collect ? html : '')
+  }
 })

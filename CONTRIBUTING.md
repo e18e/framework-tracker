@@ -93,9 +93,10 @@ Coming soon but will also pull from `.github/frameworks.json`
 ### Versioning
 
 We track one release per major or minor version of each meta-framework. Use the
-latest available patch release for that major or minor version. When adding a
-new major or minor version, also update the other packages in its starter and
-app projects to the latest versions available on the framework release date.
+latest available patch release for that major or minor version. When updating
+the framework version, also update the other direct packages in its starter and
+app projects to the latest compatible versions available on the framework
+release date.
 
 For a newer patch within a major or minor version already tracked (for example,
 SolidStart `2.0.0` to `2.0.5`), update the exact framework version in both the

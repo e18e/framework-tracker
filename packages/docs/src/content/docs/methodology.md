@@ -227,15 +227,20 @@ Installed using the CLI with the following setup:
 
 ### Core-JS Polyfills
 
-- The scanner searches JavaScript build output files for vendored
+- The scanner searches JavaScript build output files, including browser and
+  server files, for vendored
   [core-js](https://github.com/zloirock/core-js/blob/master/packages/core-js-compat/README.md)
-  signatures.
+  signatures. A match indicates that core-js code is present, but does not by
+  itself establish whether that code is unnecessary for every supported runtime.
 - Detected core-js versions are compared with the modules required by the last 2
   major versions of Chrome, Firefox, Safari, and Edge.
-- Unnecessary module counts represent polyfill modules already natively
-  supported by that browser target.
-- Size is approximate: it reflects the JavaScript chunk containing core-js,
-  which may include other bundled code.
+- The module count comes from the **full detected core-js release**: it counts
+  modules that those browser targets support natively. The scanner does not
+  verify that each counted module appears in the build output. Browser targets
+  also do not determine what server runtimes need.
+- The reported size is the combined size of JavaScript files with a core-js
+  signature. It includes any other code in those files and is not the size of
+  core-js itself.
 
 ### Browser Baseline
 

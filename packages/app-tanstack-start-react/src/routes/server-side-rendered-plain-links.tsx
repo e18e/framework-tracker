@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getTestData } from '../data/test-data'
+import type { TableEntry } from '../../../testdata/src/ssr'
 
 export const Route = createFileRoute('/server-side-rendered-plain-links')({
   component: ServerSideRenderedPage,
@@ -7,7 +8,7 @@ export const Route = createFileRoute('/server-side-rendered-plain-links')({
 })
 
 function ServerSideRenderedPage() {
-  const data = Route.useLoaderData()
+  const data: TableEntry[] = Route.useLoaderData()
 
   return (
     <table>

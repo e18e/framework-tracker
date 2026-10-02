@@ -23,6 +23,32 @@ interface HandlerResult {
   status: number
 }
 
+export async function consumeWebResponse(
+  response: Response,
+  collect: boolean,
+): Promise<Pick<HandlerResult, 'body' | 'length'>> {
+  if (collect) {
+    const buffer = await response.arrayBuffer()
+    return { body: new TextDecoder().decode(buffer), length: buffer.byteLength }
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) return { body: '', length: 0 }
+
+  let length = 0
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      length += value.byteLength
+    }
+  } finally {
+    reader.releaseLock()
+  }
+
+  return { body: '', length }
+}
+
 async function runWebHandler(
   handler: WebServerRenderHandler,
   collect = false,
@@ -36,9 +62,8 @@ async function runWebHandler(
     },
   )
   const response = await handler(request)
-  const buffer = await response.arrayBuffer()
-  const body = collect ? new TextDecoder().decode(buffer) : ''
-  return { body, length: buffer.byteLength, status: response.status }
+  const { body, length } = await consumeWebResponse(response, collect)
+  return { body, length, status: response.status }
 }
 
 async function runNodeHandler(

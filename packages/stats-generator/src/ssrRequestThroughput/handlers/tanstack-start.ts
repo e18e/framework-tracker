@@ -5,9 +5,12 @@ import { importWithoutListening } from './nitro.ts'
 import type { ServerRenderHandler } from '../types.ts'
 
 interface NitroGlobal {
-  __nitro__?: {
-    fetch: (request: Request) => Promise<Response>
-  }
+  __nitro__?: Record<
+    string,
+    {
+      fetch: (request: Request) => Promise<Response>
+    }
+  >
 }
 
 export async function buildTanStackStartHandler(): Promise<ServerRenderHandler> {
@@ -21,6 +24,7 @@ export async function buildTanStackStartHandler(): Promise<ServerRenderHandler> 
   const entryUrl = pathToFileURL(entryPath).href
   await importWithoutListening<Record<string, never>>(entryUrl)
   const nitroApp = (globalThis as typeof globalThis & NitroGlobal).__nitro__
+    ?.default
 
   if (!nitroApp) {
     throw new Error('Unable to find TanStack Start Nitro app')

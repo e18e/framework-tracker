@@ -41,6 +41,13 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    name: 'pracht-client-side-rendered',
+    displayName: 'Pracht Client Side Rendered',
+    package: 'app-pracht',
+    serveScript: 'pracht.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'react-router-client-side-rendered',
     displayName: 'React Router Client Side Rendered',
     package: 'app-react-router',

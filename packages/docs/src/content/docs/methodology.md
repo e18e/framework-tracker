@@ -38,7 +38,10 @@ instances and GitHub's standard runner image.
   the runner host using its Chrome installation in headless mode. Lighthouse
   uses the desktop form factor, `throttlingMethod: provided`, and no screen
   emulation or simulated CPU or network throttling. Requests use a local
-  connection to a production server.
+  connection to a production server. The Lighthouse flow collects only the
+  audits needed for the published First Paint, First Contentful Paint, and
+  interaction-latency measurements, so unrelated diagnostics do not affect
+  the benchmark.
 - **Recorded environment:** Results include runner details and the measured
   framework version; browser results also include the Chrome version used.
   Node 24 and the host Chrome installation can receive updates between runs.

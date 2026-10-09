@@ -23,6 +23,10 @@ export class IncomingMessage extends Readable {
     this.url = url
   }
 
+  _read(): void {
+    this.push(null)
+  }
+
   get rawHeaders(): string[] {
     return []
   }

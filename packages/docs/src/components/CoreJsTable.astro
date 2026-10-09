@@ -11,13 +11,17 @@ const columns = [
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
   },
-  { key: 'bundledSize', header: '~Size' },
-  { key: 'unnecessaryModules', header: 'Unnecessary Modules' },
+  { key: 'detected', header: 'Core-JS detected' },
+  { key: 'bundledSize', header: 'Matching JS files' },
+  {
+    key: 'unnecessaryModules',
+    header: 'Modules not needed by target browsers',
+  },
 ]
 ---
 
 <StatsTable
-  label="Core-JS polyfills by framework"
+  label="Core-JS signatures in build output by framework"
   columns={columns}
   data={coreJsTableData}
 />

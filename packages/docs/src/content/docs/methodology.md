@@ -38,7 +38,10 @@ instances and GitHub's standard runner image.
   the runner host using its Chrome installation in headless mode. Lighthouse
   uses the desktop form factor, `throttlingMethod: provided`, and no screen
   emulation or simulated CPU or network throttling. Requests use a local
-  connection to a production server.
+  connection to a production server. The Lighthouse flow collects only the
+  audits needed for the published First Paint, First Contentful Paint, and
+  interaction-latency measurements, so unrelated diagnostics do not affect
+  the benchmark.
 - **Recorded environment:** Results include runner details and the measured
   framework version; browser results also include the Chrome version used.
   Node 24 and the host Chrome installation can receive updates between runs.
@@ -59,6 +62,7 @@ describes the Run Time app; starter differences are listed below.
 | Astro          | Astro; React for client-only content | Vite (via Astro)             | Node adapter        |
 | Next.js        | React                                | Turbopack (via `next build`) | Next.js server      |
 | Nuxt           | Vue                                  | Vite (via Nuxt)              | Nitro               |
+| Pracht         | Preact                               | Vite                         | Node adapter        |
 | React Router   | React                                | Vite                         | React Router server |
 | SolidStart     | Solid                                | Vite                         | Nitro               |
 | SvelteKit      | Svelte                               | Vite                         | Node adapter        |
@@ -96,6 +100,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/starter-astro/package.json)
 - [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/starter-next-js/package.json)
 - [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/starter-nuxt/package.json)
+- [Pracht](https://github.com/e18e/framework-tracker/blob/main/packages/starter-pracht/package.json)
 - [React Router](https://github.com/e18e/framework-tracker/blob/main/packages/starter-react-router/package.json)
 - [SolidStart](https://github.com/e18e/framework-tracker/blob/main/packages/starter-solid-start/package.json)
 - [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/starter-sveltekit/package.json)
@@ -134,6 +139,21 @@ Installed using the CLI
 - Step 4: What would you like to add to your project?: `sveltekit-adapter`
 - Step 5: Which SvelteKit adapter would you like to use?: `node`
 - Step 6: Which package manager do you want to install dependencies with?: `pnpm`
+
+#### Pracht
+
+Installed using the CLI
+
+- Step 1: `pnpm create pracht@latest`
+- Step 2: Where should we create your app?: `.`
+- Step 3: Deployment adapter?: `Node.js` (the default)
+- Step 4: Routing?: `manifest` (the default)
+- Step 5: Add Tailwind CSS?: `No` (the default)
+- Step 6: Include agent tooling (skills, `.mcp.json`, `AGENTS.md`)?: `No`
+- Step 7: Initialize a git repository?: `No`
+
+The generated `Dockerfile` and `.dockerignore` are also removed, as no
+measurement uses them.
 
 #### SolidStart
 
@@ -227,15 +247,20 @@ Installed using the CLI with the following setup:
 
 ### Core-JS Polyfills
 
-- The scanner searches JavaScript build output files for vendored
+- The scanner searches JavaScript build output files, including browser and
+  server files, for vendored
   [core-js](https://github.com/zloirock/core-js/blob/master/packages/core-js-compat/README.md)
-  signatures.
+  signatures. A match indicates that core-js code is present, but does not by
+  itself establish whether that code is unnecessary for every supported runtime.
 - Detected core-js versions are compared with the modules required by the last 2
   major versions of Chrome, Firefox, Safari, and Edge.
-- Unnecessary module counts represent polyfill modules already natively
-  supported by that browser target.
-- Size is approximate: it reflects the JavaScript chunk containing core-js,
-  which may include other bundled code.
+- The module count comes from the **full detected core-js release**: it counts
+  modules that those browser targets support natively. The scanner does not
+  verify that each counted module appears in the build output. Browser targets
+  also do not determine what server runtimes need.
+- The reported size is the combined size of JavaScript files with a core-js
+  signature. It includes any other code in those files and is not the size of
+  core-js itself.
 
 ### Browser Baseline
 
@@ -290,6 +315,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/app-astro/package.json)
 - [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/app-next-js/package.json)
 - [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/app-nuxt/package.json)
+- [Pracht](https://github.com/e18e/framework-tracker/blob/main/packages/app-pracht/package.json)
 - [React Router](https://github.com/e18e/framework-tracker/blob/main/packages/app-react-router/package.json)
 - [SolidStart](https://github.com/e18e/framework-tracker/blob/main/packages/app-solid-start/package.json)
 - [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/app-sveltekit/package.json)
@@ -302,6 +328,10 @@ Current pinned dependencies are listed in each project's `package.json`:
   runtime benchmark app uses the Node adapter so the benchmark harness can serve
   on-demand routes in production; Astro's default static output is represented
   by the starter app measurements.
+- Pracht's starter prerenders its home route, while its runtime app uses SSR for
+  server-rendered routes and `render: 'spa'` for the client-rendered routes.
+  Runtime routes keep the default full hydration so server output includes the
+  client bootstrap rather than measuring a no-hydration optimization.
 
 ### Client Side Rendered Tests
 
@@ -334,6 +364,8 @@ Current pinned dependencies are listed in each project's `package.json`:
   as their most popular integration, used by 23% of Astro projects (15/07/2026).
   The detail link performs a full-document navigation; the other tested
   frameworks use their client routers.
+- Pracht's client-rendered table generates its UUID rows in the browser; the
+  route and its detail route use `render: 'spa'` and navigate with `<Link>`.
 
 ### Server Side Rendered Tests
 
@@ -354,6 +386,8 @@ Current pinned dependencies are listed in each project's `package.json`:
   preloading is allowed when it is part of the framework's default link
   behavior, but the measured SSR routes are still rendered on demand rather than
   converted to prerendered static output.
+- Pracht uses `<Link>` with its default intent (hover/focus) prefetch on this
+  route; the separate plain-link SSR load route uses ordinary anchors instead.
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
@@ -397,7 +431,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### SSR Load Test
 
-Every table uses ordinary `<a>` links to measure server rendering without router link components. Frameworks with those components use `/server-side-rendered-plain-links`; the others use `/server-side-rendered`.
+Every table uses ordinary `<a>` links to measure server rendering without router link components. Frameworks with those components, including Pracht, use `/server-side-rendered-plain-links`; the others use `/server-side-rendered`.
 
 Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
 link with text `View →` and destination `/server-side-rendered/${entry.id}`.
@@ -432,7 +466,7 @@ compare percentiles at 25, 50, and 100 connections.
 
 ### SSR Router Link Load Test
 
-Uses framework router link components at `/server-side-rendered`, following the framework’s normal setup. Comparing the two tests shows how those components affect server rendering performance. A Results are stored under `ssrRouterLinkLoadTests`.
+Uses framework router link components at `/server-side-rendered`, following the framework’s normal setup. Pracht uses `<Link>` with its default intent prefetch behavior. Comparing the two tests shows how those components affect server rendering performance. Results are stored under `ssrRouterLinkLoadTests`.
 
 Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
 link with text `View →` and destination `/server-side-rendered/${entry.id}`.

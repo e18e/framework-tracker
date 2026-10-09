@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { once } from 'node:events'
 import test from 'node:test'
 import {
   IncomingMessage,
@@ -58,3 +59,28 @@ test('Node mock counts every byte and collects the body only for validation', as
     assert.equal(response.body, collect ? html : '')
   }
 })
+
+test(
+  'Node handlers can drain the empty request after sending a response',
+  { timeout: 1000 },
+  async () => {
+    for (const collect of [false, true]) {
+      const request = new IncomingMessage('/ssr-throughput')
+      const response = new ServerResponse(request, collect)
+      let chunks = 0
+      request.on('data', () => chunks++)
+      const requestEnded = once(request, 'end')
+
+      // SvelteKit's Node adapter resumes unconsumed requests after responding.
+      response.once('finish', () => request.resume())
+      response.end('<table>✓</table>')
+      await Promise.all([response.await, requestEnded])
+
+      assert.equal(chunks, 0)
+      assert.equal(request.readableEnded, true)
+      assert.equal(response.statusCode, 200)
+      assert.equal(response.length, Buffer.byteLength('<table>✓</table>'))
+      assert.equal(response.body, collect ? '<table>✓</table>' : '')
+    }
+  },
+)

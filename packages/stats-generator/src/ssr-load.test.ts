@@ -165,6 +165,10 @@ test('paired route sources preserve the loader and table except for link impleme
       'app-nuxt/app/pages/server-side-rendered-plain-links/index.vue',
     ],
     [
+      'app-pracht/src/routes/server-side-rendered.tsx',
+      'app-pracht/src/routes/server-side-rendered-plain-links.tsx',
+    ],
+    [
       'app-react-router/app/routes/server-side-rendered.tsx',
       'app-react-router/app/routes/server-side-rendered-plain-links.tsx',
     ],
@@ -181,6 +185,14 @@ test('paired route sources preserve the loader and table except for link impleme
     assert.match(original, /<(?:Link|NuxtLink)\b/)
     assert.doesNotMatch(anchor, /<(?:Link|NuxtLink)\b/)
     const normalized = original
+      .replace(
+        "import { Link, type RouteComponentProps } from '@pracht/core'",
+        "import type { RouteComponentProps } from '@pracht/core'",
+      )
+      .replace(
+        /<Link\s+route="server-side-rendered-detail"\s+params=\{\{ id: entry\.id \}\}\s*>/,
+        '<a href={`/server-side-rendered/${entry.id}`}>',
+      )
       .replace(/import Link from 'next\/link'\n/, '')
       .replace(/import \{ Link \} from 'react-router'\n/, '')
       .replace('createFileRoute, Link', 'createFileRoute')

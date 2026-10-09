@@ -1,0 +1,122 @@
+---
+title: Pracht
+description: Pracht version comparison page.
+---
+
+import FrameworkBrowserBaselineVersionTable from '../../../components/FrameworkBrowserBaselineVersionTable.astro'
+import FrameworkBuildInstallVersionCharts from '../../../components/FrameworkBuildInstallVersionCharts.astro'
+import FrameworkClientRenderedVersionCharts from '../../../components/FrameworkClientRenderedVersionCharts.astro'
+import FrameworkCoreJsVersionChart from '../../../components/FrameworkCoreJsVersionChart.astro'
+import FrameworkDependencyVersionCharts from '../../../components/FrameworkDependencyVersionCharts.astro'
+import FrameworkDevServerVersionCharts from '../../../components/FrameworkDevServerVersionCharts.astro'
+import FrameworkNodeModulesSizeVersionCharts from '../../../components/FrameworkNodeModulesSizeVersionCharts.astro'
+import FrameworkServerRenderedVersionCharts from '../../../components/FrameworkServerRenderedVersionCharts.astro'
+import FrameworkSSRLoadVersionCharts from '../../../components/FrameworkSSRLoadVersionCharts.astro'
+import FrameworkSSRRequestThroughputVersionCharts from '../../../components/FrameworkSSRRequestThroughputVersionCharts.astro'
+import MethodologyLink from '../../../components/MethodologyLink.astro'
+import {
+  getRuntimeVersionStats,
+  getStarterVersionStats,
+} from '../../../lib/collections'
+
+export const prachtStarterVersions = getStarterVersionStats('starter-pracht')
+export const prachtRuntimeVersions = getRuntimeVersionStats('app-pracht')
+
+{
+prachtStarterVersions.length === 0 && prachtRuntimeVersions.length === 0 ? (
+
+<p>Measurements will appear after the first Pracht benchmark run.</p>
+) : null
+}
+
+## Dev Time
+
+### Dependency Counts
+
+<MethodologyLink title="Dependency Counts" slug="dependency-counts" />
+
+<FrameworkDependencyVersionCharts versions={prachtStarterVersions} />
+
+### Node Modules Size
+
+<MethodologyLink title="Node Modules Size" slug="node-modules-size" />
+
+<FrameworkNodeModulesSizeVersionCharts versions={prachtStarterVersions} />
+
+### Build and Install Times
+
+<MethodologyLink
+  title="Build and Install Times"
+  slug="build-and-install-times"
+/>
+
+<FrameworkBuildInstallVersionCharts versions={prachtStarterVersions} />
+
+### Dev Server Startup
+
+<MethodologyLink title="Dev Server Startup" slug="dev-server-startup" />
+
+<FrameworkDevServerVersionCharts versions={prachtStarterVersions} />
+
+### Core-JS Polyfills
+
+<MethodologyLink title="Core-JS Polyfills" slug="core-js-polyfills" />
+
+<FrameworkCoreJsVersionChart versions={prachtStarterVersions} />
+
+### Browser Baseline
+
+<MethodologyLink title="Browser Baseline" slug="browser-baseline" />
+
+<FrameworkBrowserBaselineVersionTable versions={prachtStarterVersions} />
+
+## Run Time
+
+### Client Side Rendered Tests
+
+<MethodologyLink
+  title="Client Side Rendered Tests"
+  slug="client-side-rendered-tests"
+/>
+
+<FrameworkClientRenderedVersionCharts versions={prachtRuntimeVersions} />
+
+### Server Side Rendered Tests
+
+<MethodologyLink
+  title="Server Side Rendered Tests"
+  slug="server-side-rendered-tests"
+/>
+
+<FrameworkServerRenderedVersionCharts versions={prachtRuntimeVersions} />
+
+### Server Side Throughput Tests
+
+<MethodologyLink
+  title="Server Side Throughput Tests"
+  slug="server-side-throughput-tests"
+/>
+
+<FrameworkSSRRequestThroughputVersionCharts versions={prachtRuntimeVersions} />
+
+### SSR Load Test
+
+<MethodologyLink title="SSR Load Test" slug="ssr-load-test" />
+
+Ordinary anchors at `/server-side-rendered-plain-links`.
+
+<FrameworkSSRLoadVersionCharts versions={prachtRuntimeVersions} />
+
+### SSR Router Link Load Test
+
+<MethodologyLink
+  title="SSR Router Link Load Test"
+  slug="ssr-router-link-load-test"
+/>
+
+Pracht router links at `/server-side-rendered`.
+
+<FrameworkSSRLoadVersionCharts
+  testsKey="ssrRouterLinkLoadTests"
+  versions={prachtRuntimeVersions}
+/>

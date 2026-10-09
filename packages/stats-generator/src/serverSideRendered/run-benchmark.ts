@@ -76,6 +76,11 @@ async function runOnce(
         throttlingMethod: 'provided',
         formFactor: 'desktop',
         screenEmulation: { disabled: true },
+        onlyAudits: [
+          'metrics',
+          'first-contentful-paint',
+          'inp-breakdown-insight',
+        ],
       },
     })
 

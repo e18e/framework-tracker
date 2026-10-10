@@ -92,9 +92,27 @@ Coming soon but will also pull from `.github/frameworks.json`
 
 ### Versioning
 
-We track all major and minor versions of meta-framework. When updating we also update all other packages in the repo to the latest as of the date of the meta-framework release.
+We track one release per major or minor version of each meta-framework. Use the
+latest available patch release for that major or minor version. When updating
+the framework version, also update the other direct packages in its starter and
+app projects to the latest compatible versions available on the framework
+release date.
 
-Right now we update manually but the full tests are ready for sharing we will automate this part
+For a newer patch within a major or minor version already tracked (for example,
+SolidStart `2.0.0` to `2.0.5`), update the exact framework version in both the
+starter and app `package.json` files, regenerate both lockfiles, and update the
+starter's `first-party-dependencies.json`. Update `frameworkVersion` and the
+framework package version in both `ci-stats.json` files, then rename the
+existing `stats/<old-version>.json` files to the new patch version and update
+their version fields. Make the same changes to the current and versioned stats
+JSON files under `packages/docs/src/content/devtime` and `runtime`. Replace the
+old patch entry rather than adding another point to the major or minor history.
+Leave measured values and diagnostic messages unchanged; they still reflect the
+previous patch until the Generate Stats workflow reruns after the change reaches
+`main` and opens a stats update PR.
+
+Framework version bumps are currently manual; CI handles the measurements after
+the change reaches `main`.
 
 #### First-party direct dependencies
 

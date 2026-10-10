@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { getTestData } from '../data/test-data'
+import type { TableEntry } from '../../../testdata/src/ssr'
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -7,7 +8,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
-  const data = Route.useLoaderData()
+  const data: TableEntry[] = Route.useLoaderData()
 
   return (
     <table>

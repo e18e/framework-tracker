@@ -14,7 +14,7 @@ const buildPath = join(appDir, 'build', 'server', 'index.js')
 
 const appRequire = createRequire(join(appDir, 'package.json'))
 const servePackagePath = appRequire.resolve('@react-router/serve/package.json')
-const serveBinPath = join(dirname(servePackagePath), 'bin.js')
+const serveBinPath = join(dirname(servePackagePath), 'bin.cjs')
 
 spawnProductionServer([serveBinPath, buildPath], appDir, {
   HOST,

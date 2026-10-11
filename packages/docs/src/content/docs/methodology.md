@@ -118,6 +118,14 @@ Installed using the CLI
 - Step 4: Install dependencies?: `yes`
 - Step 5: Initialize a new git repository?: `No`
 
+#### Nuxt
+
+The starter keeps Nuxt's default welcome screen, enables devtools, and uses the
+default Nitro configuration. Both the starter and runtime app declare TypeScript
+as a direct development dependency to pin a version compatible with `vue-tsc`,
+rather than relying on its automatically installed peer dependency. This package
+is included in the starter's full dependency counts.
+
 #### React Router
 
 Installed using the CLI with its default template. The v8 future flags supported

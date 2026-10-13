@@ -2,6 +2,7 @@ import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
+import { getPublishTimes, withReleasedAt } from './release-dates.ts'
 import {
   getDependencyCountsFromPackageMetadata,
   getDependencyStatsFromE18e,
@@ -22,6 +23,39 @@ import type {
   FirstPartyDependencyStats,
   E18eStats,
 } from './types.ts'
+
+const publishTimesCache = new Map<string, Promise<Record<string, string>>>()
+
+async function getReleasedAt(
+  frameworkPackage: string,
+  frameworkVersion: string | undefined,
+  existingStats: CIStats | null,
+): Promise<string | undefined> {
+  if (!frameworkVersion || frameworkVersion === 'unknown') return undefined
+
+  try {
+    if (!publishTimesCache.has(frameworkPackage)) {
+      publishTimesCache.set(frameworkPackage, getPublishTimes(frameworkPackage))
+    }
+    const releasedAt = (await publishTimesCache.get(frameworkPackage)!)[
+      frameworkVersion
+    ]
+    if (releasedAt == null) {
+      console.warn(
+        `No publish time found for ${frameworkPackage}@${frameworkVersion}`,
+      )
+    }
+    return releasedAt
+  } catch (error) {
+    console.warn(
+      `Failed to fetch publish time for ${frameworkPackage}@${frameworkVersion}:`,
+      error,
+    )
+    return existingStats?.frameworkVersion === frameworkVersion
+      ? existingStats.releasedAt
+      : undefined
+  }
+}
 
 async function main() {
   const artifactsDir = process.argv[2] || 'artifacts'
@@ -232,10 +266,17 @@ async function main() {
         console.warn(`No e18e stats artifact found at ${e18eArtifactPath}`)
       }
 
-      stats = {
-        ...stats,
-        packageJson: getPackageJsonDeps(packageName),
-      }
+      stats = withReleasedAt(
+        {
+          ...stats,
+          packageJson: getPackageJsonDeps(packageName),
+        },
+        await getReleasedAt(
+          framework.frameworkPackage,
+          frameworkVersion,
+          existingStats,
+        ),
+      )
 
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
@@ -407,10 +448,17 @@ async function main() {
         )
       }
 
-      stats = {
-        ...stats,
-        packageJson: getPackageJsonDeps(packageName),
-      }
+      stats = withReleasedAt(
+        {
+          ...stats,
+          packageJson: getPackageJsonDeps(packageName),
+        },
+        await getReleasedAt(
+          framework.frameworkPackage,
+          frameworkVersion,
+          existingStats,
+        ),
+      )
 
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')

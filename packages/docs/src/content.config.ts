@@ -84,6 +84,7 @@ const devtimeSchema = z.object({
   runner: z.string(),
   browserVersion: z.string().optional(),
   frameworkVersion: z.string().optional(),
+  releasedAt: z.string().optional(),
 })
 
 const ssrLoadSweepSchema = z.object({
@@ -191,6 +192,7 @@ const runtimeSchema = z.object({
   runner: z.string().optional(),
   browserVersion: z.string().optional(),
   frameworkVersion: z.string().optional(),
+  releasedAt: z.string().optional(),
 })
 
 const devtimeCollection = defineCollection({

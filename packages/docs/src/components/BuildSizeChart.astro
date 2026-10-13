@@ -11,6 +11,7 @@ const data = validEntries
     name: f.name,
     value: f.coldBuildTime.avgMs / 1000,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
   .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---

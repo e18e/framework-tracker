@@ -343,6 +343,7 @@ export const chartDuplicateDependencyData = starterStats
     name: f.name,
     value: f.duplicateDependencies!,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
 
 export const chartServerSideRenderedFPData = runtimeEntries

@@ -12,6 +12,7 @@ const data = validEntries
     name: f.name,
     value: f.nodeModulesSize / BYTES_PER_MB,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
   .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 ---

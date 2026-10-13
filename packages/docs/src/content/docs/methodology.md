@@ -71,6 +71,10 @@ describes the Run Time app; starter differences are listed below.
 
 - Astro's runtime app uses its Node adapter in standalone mode; its starter
   builds static output without an adapter or React integration.
+- Next.js uses Turbopack's default filesystem caches for development and
+  production builds. Warm build measurements retain the production build cache
+  created by the cold build. Build-time type checking uses the project-local
+  `tsc` CLI by default.
 - The SolidStart and TanStack Start starters use `nitro()` without an explicit
   preset; their runtime apps explicitly select `node-server`.
 - The TanStack Start runtime app uses the [documented FastResponse optimization](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#performance-tip-fastresponse)

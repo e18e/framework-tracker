@@ -8,6 +8,7 @@ const data = ssrRequestThroughputStats
     name: f.name,
     value: f.ssrRequestThroughputTests.opsPerSec,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
   .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
 ---

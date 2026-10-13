@@ -15,6 +15,7 @@ const chartData = data.map((d) => ({
   name: String(d?.name ?? ''),
   value: Math.max(0, Number(d.value) || 0),
   focused: d.focused,
+  version: d.version,
 }))
 const chartHeight = getComparisonChartHeight(chartData.length)
 
@@ -421,9 +422,15 @@ const chartPayload = JSON.stringify({
         plugins: {
           legend: { display: false },
           tooltip: {
+            displayColors: false,
+
             callbacks: {
               label: (context) =>
                 formatChartValue(Number(context.raw ?? 0), payload.valueFormat),
+              afterLabel: (context) => {
+                const version = data[context.dataIndex]?.version
+                return version ? `v${version}` : ''
+              },
             },
           },
         },

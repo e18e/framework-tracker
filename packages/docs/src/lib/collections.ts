@@ -135,6 +135,7 @@ export function getSSRLoadChartData(
       name: f.name,
       value: getSSRLoadLatencyStage(f, workers, key)![percentile],
       focused: f.package === 'app-baseline-html' ? true : f.isFocused,
+      version: f.frameworkVersion,
     }))
 }
 
@@ -356,6 +357,7 @@ export const chartServerSideRenderedFPData = runtimeEntries
     name: f.name,
     value: f.serverSideRenderedTests!.firstPaintMs,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
 
 export const chartServerSideRenderedFCPData = runtimeEntries
@@ -370,6 +372,7 @@ export const chartServerSideRenderedFCPData = runtimeEntries
     name: f.name,
     value: f.serverSideRenderedTests!.fcpMs,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
 
 export const chartClientSideRenderedFPData = runtimeEntries
@@ -384,6 +387,7 @@ export const chartClientSideRenderedFPData = runtimeEntries
     name: f.name,
     value: f.clientSideRenderedTests!.firstPaintMs,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
 
 export const chartClientSideRenderedFCPData = runtimeEntries
@@ -398,6 +402,7 @@ export const chartClientSideRenderedFCPData = runtimeEntries
     name: f.name,
     value: f.clientSideRenderedTests!.fcpMs,
     focused: f.isFocused,
+    version: f.frameworkVersion,
   }))
 
 type RenderedTestsKey = 'clientSideRenderedTests' | 'serverSideRenderedTests'

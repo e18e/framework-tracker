@@ -4,6 +4,7 @@ export interface ChartDatum {
   name: string
   value: number
   focused?: boolean
+  version: string
 }
 
 export interface ComparisonChartPayload {

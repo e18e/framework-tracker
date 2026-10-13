@@ -62,6 +62,7 @@ export interface CIStats {
   runner?: string
   browserVersion?: string
   frameworkVersion?: string
+  releasedAt?: string
   // Install stats
   installTime?: TimeStat
   nodeModulesSize?: number

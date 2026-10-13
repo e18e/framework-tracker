@@ -118,6 +118,23 @@ Installed using the CLI
 - Step 4: Install dependencies?: `yes`
 - Step 5: Initialize a new git repository?: `No`
 
+#### Next.js
+
+Installed using the CLI with its default selections:
+
+- Step 1: `pnpm dlx create-next-app@latest .`
+- Step 2: TypeScript: `Yes` (the default)
+- Step 3: Linter: `ESLint` (the default)
+- Step 4: React Compiler: `No` (the default)
+- Step 5: Tailwind CSS: `Yes` (the default)
+- Step 6: Use a `src/` directory: `No` (the default)
+- Step 7: App Router: `Yes` (the default)
+- Step 8: Import alias: `@/*` (the default)
+- Step 9: Include agent guidance files (`AGENTS.md` and `CLAUDE.md`): `Yes` (the default)
+
+Turbopack is the default build tool. The starter retains the template's Geist
+fonts, fetched through `next/font/google`, and its page and layout classes.
+
 #### React Router
 
 Installed using the CLI with its default template. The v8 future flags supported

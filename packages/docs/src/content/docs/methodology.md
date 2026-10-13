@@ -135,6 +135,14 @@ Installed using the CLI with its default selections:
 Turbopack is the default build tool. The starter retains the template's Geist
 fonts, fetched through `next/font/google`, and its page and layout classes.
 
+#### Nuxt
+
+The starter keeps Nuxt's default welcome screen, enables devtools, and uses the
+default Nitro configuration. Both the starter and runtime app declare TypeScript
+as a direct development dependency to pin a version compatible with `vue-tsc`,
+rather than relying on its automatically installed peer dependency. This package
+is included in the starter's full dependency counts.
+
 #### React Router
 
 Installed using the CLI with its default template. The v8 future flags supported

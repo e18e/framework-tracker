@@ -1,9 +1,17 @@
 'use client'
 
-import { useParams } from 'next/navigation'
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
+
+const ClientSideRenderedDetail = dynamic(
+  () => import('./ClientSideRenderedDetail'),
+  { ssr: false },
+)
 
 export default function ClientSideRenderedDetailPage() {
-  const params = useParams<{ id: string }>()
-
-  return <p id="detail-id">{params.id}</p>
+  return (
+    <Suspense fallback={null}>
+      <ClientSideRenderedDetail />
+    </Suspense>
+  )
 }

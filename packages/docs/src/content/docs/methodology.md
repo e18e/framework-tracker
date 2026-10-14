@@ -134,10 +134,13 @@ Installed using the CLI with its default selections:
 - Step 6: Use a `src/` directory: `No` (the default)
 - Step 7: App Router: `Yes` (the default)
 - Step 8: Import alias: `@/*` (the default)
-- Step 9: Include agent guidance files (`AGENTS.md` and `CLAUDE.md`): `Yes` (the default)
+- Step 9: Cache Components: `Yes` (the default)
+- Step 10: Partial Prefetching: `Yes` (enabled with Cache Components)
+- Step 11: Include agent guidance (`AGENTS.md`): `Yes` (the default)
 
-Turbopack is the default build tool. The starter retains the template's Geist
-fonts, fetched through `next/font/google`, and its page and layout classes.
+Turbopack is the default build tool. Tailwind CSS uses its native Turbopack loader
+without a PostCSS configuration. The starter retains the template's Geist fonts,
+fetched through `next/font/google`, and its page and layout classes.
 
 #### Nuxt
 
@@ -361,6 +364,11 @@ Current pinned dependencies are listed in each project's `package.json`:
   server-rendered routes and `render: 'spa'` for the client-rendered routes.
   Runtime routes keep the default full hydration so server output includes the
   client bootstrap rather than measuring a no-hydration optimization.
+- Next.js's starter and runtime app enable Cache Components and Partial
+  Prefetching, following the CLI defaults. Runtime data routes call `connection()`
+  before loading the shared UUID fixture, so the table is loaded and rendered
+  on every request without `use cache`. A Suspense boundary with an empty
+  fallback allows normal streaming without painting a loading placeholder.
 
 ### Client Side Rendered Tests
 
@@ -388,6 +396,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - These tests measure route-based client rendering, not forced SPA
   configurations. Each framework uses its supported production routing and
   rendering controls.
+- Next.js disables SSR for both the client-rendered table and detail content.
 - Astro uses a client-only island for the measured content, which requires a UI
   framework integration. React was chosen because the Astro team identified it
   as their most popular integration, used by 23% of Astro projects (15/07/2026).
@@ -413,8 +422,11 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Detail links use each framework's default production navigation component or
   idiomatic anchor behavior. Default meta-framework route prefetching or
   preloading is allowed when it is part of the framework's default link
-  behavior, but the measured SSR routes are still rendered on demand rather than
-  converted to prerendered static output.
+  behavior, but the measured table is loaded and rendered on every request,
+  without caching or prerendering the table output. Normal streaming and static
+  surrounding shells are allowed. Streaming boundaries use empty fallbacks so
+  a loading placeholder does not produce First Contentful Paint before the
+  measured table.
 - Pracht uses `<Link>` with its default intent (hover/focus) prefetch on this
   route; the separate plain-link SSR load route uses ordinary anchors instead.
 - CI creates one production build and starts one production server, which stays
@@ -440,6 +452,9 @@ Current pinned dependencies are listed in each project's `package.json`:
   throughput measurement.
 - Mock HTTP requests bypass TCP overhead, so this measures request-handler
   rendering throughput rather than full network server throughput.
+- Each measured request consumes the complete response, including streamed
+  table content. Prerendered shells may be reused, but the table is loaded and
+  rendered on demand without caching its output.
 - Data is loaded asynchronously to simulate real-world data fetching.
 - Duplication factor indicates how many times each UUID appears in the response.
   A 1x result is optimal; a 2x result usually means the response includes a

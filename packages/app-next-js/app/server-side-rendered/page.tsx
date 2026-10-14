@@ -1,10 +1,17 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
-import { testData } from '../../../testdata/src/ssr'
+import { getTestData } from '../../data'
 
-export const dynamic = 'force-dynamic'
+export default function ServerSideRenderedPage() {
+  return (
+    <Suspense fallback={null}>
+      <RequestTable />
+    </Suspense>
+  )
+}
 
-export default async function ServerSideRenderedPage() {
-  const entries = await testData()
+async function RequestTable() {
+  const entries = await getTestData()
 
   return (
     <table>

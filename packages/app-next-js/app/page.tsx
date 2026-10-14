@@ -1,8 +1,15 @@
-export const dynamic = 'force-dynamic'
-
-import { testData } from '../../testdata/src/ssr'
+import { Suspense } from 'react'
+import { getTestData } from '../data'
 import { Table } from './table'
 
-export default async function App() {
-  return <Table data={await testData()} />
+export default function App() {
+  return (
+    <Suspense fallback={null}>
+      <RequestTable />
+    </Suspense>
+  )
+}
+
+async function RequestTable() {
+  return <Table data={await getTestData()} />
 }

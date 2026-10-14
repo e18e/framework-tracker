@@ -1,8 +1,15 @@
-import { testData } from '../../../testdata/src/ssr'
+import { Suspense } from 'react'
+import { getTestData } from '../../data'
 import { Table } from './table'
 
-export const dynamic = 'force-dynamic'
+export default function SSRThroughputPage() {
+  return (
+    <Suspense fallback={null}>
+      <RequestTable />
+    </Suspense>
+  )
+}
 
-export default async function SSRThroughputPage() {
-  return <Table data={await testData()} />
+async function RequestTable() {
+  return <Table data={await getTestData()} />
 }

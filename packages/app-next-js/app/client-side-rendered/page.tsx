@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 
 const ClientSideRenderedTable = dynamic(
@@ -8,5 +9,9 @@ const ClientSideRenderedTable = dynamic(
 )
 
 export default function ClientSideRenderedPage() {
-  return <ClientSideRenderedTable />
+  return (
+    <Suspense fallback={null}>
+      <ClientSideRenderedTable />
+    </Suspense>
+  )
 }

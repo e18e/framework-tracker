@@ -23,7 +23,26 @@ on:
       - '!packages/starter-*/node-engines-stats.json'
 
 jobs:
-  validate:
+  prepare:
+    runs-on: depot-ubuntu-24.04
+    outputs:
+      frameworks: ${{ steps.matrix.outputs.frameworks }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Prepare framework matrix
+        id: matrix
+        run: echo "frameworks=$(jq -c '[.[].name]' .github/frameworks.json)" >> "$GITHUB_OUTPUT"
+
+  benchmarks:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: ${{ fromJSON(needs.prepare.outputs.frameworks) }}
+    env:
+      FRAMEWORK: ${{ matrix.framework }}
     runs-on: depot-ubuntu-24.04
     steps:
       - name: Checkout code
@@ -46,7 +65,7 @@ jobs:
 
       - name: Install all package dependencies
         run: |
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty, .[].app.package // empty'); do
             echo "Installing $PKG..."
             (cd packages/$PKG && pnpm install --frozen-lockfile)
@@ -57,7 +76,7 @@ jobs:
           set -e
 
           echo "=== Running SSR request throughput benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
@@ -68,7 +87,7 @@ jobs:
 
           echo ""
           echo "=== Running SSR load benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrLoad"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
@@ -79,7 +98,7 @@ jobs:
 
           echo ""
           echo "=== Running SSR router link load benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRouterLinkLoad"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
@@ -90,7 +109,7 @@ jobs:
 
           echo ""
           echo "=== Running starter benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.starter)' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Running install benchmark for $PKG (1 run)..."
@@ -105,7 +124,7 @@ jobs:
 
           echo ""
           echo "=== Running e18e dependency analysis ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Running e18e analysis for $PKG..."
@@ -114,7 +133,7 @@ jobs:
 
           echo ""
           echo "=== Running browser baseline scans ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["browserBaseline"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Scanning browser baseline requirements for $PKG..."
@@ -123,7 +142,7 @@ jobs:
 
           echo ""
           echo "=== Running client-side rendered benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building client-side rendered app for $PKG..."
@@ -134,7 +153,7 @@ jobs:
 
           echo ""
           echo "=== Running server-side rendered benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(jq --arg name "$FRAMEWORK" '[.[] | select(.name == $name)]' .github/frameworks.json)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["serverSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building server-side rendered app for $PKG..."
@@ -145,4 +164,15 @@ jobs:
 
           echo ""
           echo "=== Validating all outputs ==="
-          pnpm --filter @framework-tracker/stats-generator validate
+          pnpm --filter @framework-tracker/stats-generator validate "$FRAMEWORK"
+
+  validate:
+    if: always()
+    needs: [prepare, benchmarks]
+    runs-on: depot-ubuntu-24.04
+    steps:
+      - name: Check all framework validations passed
+        env:
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          BENCHMARKS_RESULT: ${{ needs.benchmarks.result }}
+        run: test "$PREPARE_RESULT" = success && test "$BENCHMARKS_RESULT" = success

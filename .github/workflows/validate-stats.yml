@@ -107,7 +107,7 @@ jobs:
               echo "Running build benchmark for $PKG..."
               pnpm --filter @framework-tracker/stats-generator run:build $PKG
               echo "Running dev server benchmark for $PKG (1 run)..."
-              flock "$RUNNER_TEMP/validate-dev-server.lock" env -u PORT pnpm --filter @framework-tracker/stats-generator run:dev-server "$PKG" 1
+              flock "$RUNNER_TEMP/validate-server.lock" env -u PORT pnpm --filter @framework-tracker/stats-generator run:dev-server "$PKG" 1
               echo "Running Node engines scan for $PKG..."
               pnpm --filter @framework-tracker/stats-generator run:node-engines $PKG
             done
@@ -138,7 +138,7 @@ jobs:
               echo "Building client-side rendered app for $PKG..."
               (cd packages/$PKG && pnpm build)
               echo "Running client-side rendered benchmark for $PKG..."
-              pnpm --filter @framework-tracker/stats-generator run:client-side-rendered $PKG 1
+              flock "$RUNNER_TEMP/validate-server.lock" pnpm --filter @framework-tracker/stats-generator run:client-side-rendered "$PKG" 1
             done
 
             echo ""
@@ -149,7 +149,7 @@ jobs:
               echo "Building server-side rendered app for $PKG..."
               (cd packages/$PKG && pnpm build)
               echo "Running server-side rendered benchmark for $PKG..."
-              pnpm --filter @framework-tracker/stats-generator run:server-side-rendered $PKG 1
+              flock "$RUNNER_TEMP/validate-server.lock" pnpm --filter @framework-tracker/stats-generator run:server-side-rendered "$PKG" 1
             done
 
             echo ""

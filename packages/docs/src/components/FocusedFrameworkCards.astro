@@ -1,0 +1,44 @@
+---
+import { CardGrid, LinkCard } from '@astrojs/starlight/components'
+import { frameworkRows } from '../lib/framework-cards'
+
+const frameworks = frameworkRows.filter((framework) => framework.isFocused)
+---
+
+<CardGrid>
+  {
+    frameworks.map((framework) => (
+      <LinkCard
+        title={framework.title}
+        href={`/framework/${framework.slug}/`}
+        description={`Version ${framework.version}`}
+      />
+    ))
+  }
+</CardGrid>
+
+<style>
+  :global(.framework-card-title) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  :global(.framework-card-logo),
+  :global(.framework-card-symbol) {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: none;
+  }
+
+  :global(.framework-card-logo) {
+    object-fit: contain;
+  }
+
+  :global(.framework-card-symbol) {
+    display: inline-grid;
+    place-items: center;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+</style>

@@ -4,58 +4,45 @@ description: Compare the practical cost of building with modern web frameworks.
 ---
 
 import DepotLogo from '../../assets/depot-logo-horizontal.svg'
-import FrameworkLists from '../../components/FrameworkLists.astro'
+import FocusedFrameworkCards from '../../components/FocusedFrameworkCards.astro'
+import AdditionalFrameworkCards from '../../components/AdditionalFrameworkCards.astro'
 
-Framework Tracker compares the practical cost of building with modern web
-frameworks. It looks at what developers inherit when starting a project, and
-what users and servers experience when that project runs.
+Framework Tracker compares the real cost of building with modern web frameworks. It looks at what developers inherit when they start a project and what users and servers experience when it runs.
 
-The goal is not to crown one universal winner. It is to make tradeoffs easier
-to see: dependency footprint, install and build cost, browser support, rendering
-performance, server behavior, throughput, load handling, and real-world Core Web
-Vitals signals.
+The goal is not to crown one universal winner. It is to make trade-offs easier to see, from the dependencies you will inherit to the cost to your CI/CD pipelines, server performance, how fast the browser first paints, and more. It's an ever-growing list of tests that we will add to with community support.
 
-## What we include
+If you find an issue with a test or have an idea for new ones, please open an issue in our repo: [Framework Tracker Github Project](https://github.com/e18e/framework-tracker/issues)
 
-The tracker currently covers two kinds of comparable projects: starter projects
-for developer-time measurements, and small implemented apps for runtime
-measurements. Each framework is measured with the same benchmark intent wherever
-the framework model allows it.
+## What we measure and how
 
-- Dependency counts, duplicate dependencies, and install size.
-- Clean install time, cold build time, warm build time, and output size.
-- Core-JS usage and browser baseline support.
-- Client-rendered and server-rendered browser performance metrics.
-- Server-side request throughput and staged load-test results.
-- Desktop and Mobile Core Web Vitals data sourced from HTTP Archive.
+We currently split our tests into two sections: Dev Time and Run Time. Dev Time tests use a starter project set up with the Metaframeworks CLI or Docs, following the default or recommended setup. Runtime tests use a small app project set up for the measurements. We currently measure:
 
-<FrameworkLists />
+### DevTime
 
-## What we are doing
+* Dependancy counts
+* Node Modules Size
+* Build and Install Times
+* Dev Server Startup
+* Core-JS Polyfills
+* Browser Baseline
+* Minimum Node Version
 
-These stats are intended to be repeatable, inspectable, and useful for framework
-discussions that otherwise tend to become anecdotal. The data is still in active
-development, and the methodology will continue to tighten as more frameworks,
-versions, and benchmark cases are added.
+### RunTime
 
-For the full list of planned comparison areas, see the
-[roadmap](https://github.com/e18e/framework-tracker/blob/main/initial-comparison-list.md).
+* Lighthouse Client-Side Rendered
+* Lighthouse Server-Side Rendered
+* Server-Side Throughput
+* SSR Load Tests
+* SS Framework Router Link Load Test
+* Exports from Core Web Vitals
 
-## How it works
+Tests run in the CI pipeline, and we save the results to a JSON file that the Astro docs site loads. The [Methodology](/methodology) page explains how we collect each metric.
 
-Stats are collected from the repository's framework packages, normalized into
-JSON, and published into the docs site. The comparison pages then use that data
-to render charts, tables, and framework detail pages.
-
-Start with [Dev Time](/dev-time/) for project footprint and build costs, or
-[Run Time](/run-time/) for browser and server behavior. The
-[Methodology](/methodology/) page explains how each metric is collected.
-See [Default Benchmark Setup](/methodology/#default-benchmark-setup) for the
-shared environment and each framework's build tool and adapter.
+We track metrics for all `major` and `minor` versions. Stats show the latest version we have. You can click into each Framework detail page to see changes over time
 
 <div className="depot">
   <p>
-    All of the testing and stat generation is run by our Infrastructure Partner
+    All of the testing and stat generation is run by our infrastructure partner
     Depot to ensure consistent, fairer, and faster testing.
   </p>
 
@@ -68,3 +55,17 @@ shared environment and each framework's build tool and adapter.
     <DepotLogo className="logo logo-light" />
   </a>
 </div>
+
+## Featured frameworks
+
+We measure the following frameworks using the versions listed below.
+
+<FocusedFrameworkCards />
+
+## Additional frameworks
+
+We also track the frameworks below. Their results appear on the All Tests page, but are excluded from the DevTime and RunTime stats.
+
+<AdditionalFrameworkCards />
+
+

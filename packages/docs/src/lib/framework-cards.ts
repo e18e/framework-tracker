@@ -30,4 +30,3 @@ export const frameworkRows = starterStats.map((framework) => ({
       : 'Unknown',
   isFocused: framework.isFocused,
 }))
-

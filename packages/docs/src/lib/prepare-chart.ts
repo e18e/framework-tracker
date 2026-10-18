@@ -54,8 +54,9 @@ function comparison(
       )
       .sort(
         (a, b) =>
-          (sortOrder === 'descending' ? b.value - a.value : a.value - b.value) ||
-          a.name.localeCompare(b.name),
+          (sortOrder === 'descending'
+            ? b.value - a.value
+            : a.value - b.value) || a.name.localeCompare(b.name),
       ),
   }
 }

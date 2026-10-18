@@ -1,15 +1,11 @@
 ---
-import { chartClientSideRenderedFCPData } from '../lib/collections'
+import { ssrRequestThroughputStats } from '../lib/collections'
+import { prepareClientSideRenderedTestsFcpMsComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = [...chartClientSideRenderedFCPData].sort(
-  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+const chart = prepareClientSideRenderedTestsFcpMsComparison(
+  ssrRequestThroughputStats,
 )
 ---
 
-<ComparisonBarChart
-  title="First Contentful Paint (ms)"
-  data={data}
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+<ComparisonBarChart {...chart} />

@@ -1,19 +1,18 @@
 ---
-import { getSSRLoadChartData } from '../lib/collections'
+import { ssrRequestThroughputStats, type SSRLoadKey } from '../lib/collections'
+import { prepareSSRLatencyComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
 interface Props {
-  testsKey?: import('../lib/collections').SSRLoadKey
+  testsKey?: SSRLoadKey
 }
 const { testsKey = 'ssrLoadTests' } = Astro.props
-const data = getSSRLoadChartData(25, 'p90LatencyMs', testsKey).sort(
-  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
+const chart = prepareSSRLatencyComparison(
+  ssrRequestThroughputStats,
+  25,
+  'p90LatencyMs',
+  testsKey,
 )
 ---
 
-<ComparisonBarChart
-  title="P90 Latency at 25 Connections"
-  data={data}
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+<ComparisonBarChart {...chart} />

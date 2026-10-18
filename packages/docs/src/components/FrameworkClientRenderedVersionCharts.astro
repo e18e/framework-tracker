@@ -1,9 +1,14 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import {
+  prepareClientSideRenderedTestsFcpMsHistory,
+  prepareClientSideRenderedTestsFirstPaintMsHistory,
+} from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 import InteractionBreakdownChart from './InteractionBreakdownChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
 }
 
 const { versions } = Astro.props
@@ -35,19 +40,9 @@ const interactionData = versions.flatMap((version) => {
 ---
 
 <VersionLineChart
-  title="Client First Paint"
-  versions={versions}
-  metric="clientSideRenderedTests.firstPaintMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
+  {...prepareClientSideRenderedTestsFirstPaintMsHistory(versions)}
 />
-<VersionLineChart
-  title="Client FCP"
-  versions={versions}
-  metric="clientSideRenderedTests.fcpMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+<VersionLineChart {...prepareClientSideRenderedTestsFcpMsHistory(versions)} />
 {
   interactionData.length > 0 ? (
     <InteractionBreakdownChart

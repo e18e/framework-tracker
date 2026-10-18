@@ -1,21 +1,11 @@
 ---
 import { ssrRequestThroughputStats } from '../lib/collections'
+import { prepareSsrRequestThroughputTestsBodySizeKbComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = ssrRequestThroughputStats
-  .filter((f) => Number.isFinite(f.ssrRequestThroughputTests.bodySizeKb))
-  .map((f) => ({
-    name: f.name,
-    value: f.ssrRequestThroughputTests.bodySizeKb,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
+const chart = prepareSsrRequestThroughputTestsBodySizeKbComparison(
+  ssrRequestThroughputStats,
+)
 ---
 
-<ComparisonBarChart
-  title="Body Size"
-  data={data}
-  valueFormat="kb"
-  yAxisLabel="Kilobytes"
-/>
+<ComparisonBarChart {...chart} />

@@ -1,21 +1,11 @@
 ---
 import { ssrRequestThroughputStats } from '../lib/collections'
+import { prepareSsrRequestThroughputTestsMedianLatencyMsComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = ssrRequestThroughputStats
-  .map((f) => ({
-    name: f.name,
-    value: f.ssrRequestThroughputTests.medianLatencyMs,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-  .filter((f) => f?.name != null && Number.isFinite(f.value))
-  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
+const chart = prepareSsrRequestThroughputTestsMedianLatencyMsComparison(
+  ssrRequestThroughputStats,
+)
 ---
 
-<ComparisonBarChart
-  title="Median Latency"
-  data={data}
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
-/>
+<ComparisonBarChart {...chart} />

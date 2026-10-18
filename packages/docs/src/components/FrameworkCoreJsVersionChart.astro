@@ -1,19 +1,13 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import { prepareCoreJsSizeHistory } from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
 }
 
 const { versions } = Astro.props
 ---
 
-<VersionLineChart
-  title="Size of JS Files Containing Core-JS"
-  description="Combined size of matching build output files, including any other code in those files."
-  versions={versions}
-  metric="vendoredCoreJsSize"
-  transform="bytesToKb"
-  valueFormat="kb"
-  yAxisLabel="KB"
-/>
+<VersionLineChart {...prepareCoreJsSizeHistory(versions)} />

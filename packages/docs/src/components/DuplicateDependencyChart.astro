@@ -1,15 +1,9 @@
 ---
-import { chartDuplicateDependencyData } from '../lib/collections'
+import { starterStats } from '../lib/collections'
+import { prepareDuplicateDependenciesComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = [...chartDuplicateDependencyData].sort(
-  (a, b) => a.value - b.value || a.name.localeCompare(b.name),
-)
+const chart = prepareDuplicateDependenciesComparison(starterStats)
 ---
 
-<ComparisonBarChart
-  title="Starter Project Duplicate Dependencies"
-  data={data}
-  valueFormat="count"
-  yAxisLabel="Dependency count"
-/>
+<ComparisonBarChart {...chart} />

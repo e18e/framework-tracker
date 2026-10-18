@@ -1,25 +1,9 @@
 ---
 import { starterStats } from '../lib/collections'
-import { BYTES_PER_MB } from '../lib/utils'
+import { prepareNodeModulesSizeComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const validEntries = starterStats.filter(
-  (f) => f?.name != null && Number.isFinite(f.nodeModulesSize),
-)
-
-const data = validEntries
-  .map((f) => ({
-    name: f.name,
-    value: f.nodeModulesSize / BYTES_PER_MB,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
+const chart = prepareNodeModulesSizeComparison(starterStats)
 ---
 
-<ComparisonBarChart
-  title="Node modules size"
-  data={data}
-  valueFormat="mb"
-  yAxisLabel="Megabytes"
-/>
+<ComparisonBarChart {...chart} />

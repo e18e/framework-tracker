@@ -1,34 +1,19 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import {
+  prepareColdBuildTimeHistory,
+  prepareInstallTimeHistory,
+  prepareWarmBuildTimeHistory,
+} from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
 }
 
 const { versions } = Astro.props
 ---
 
-<VersionLineChart
-  title="Average Install Time"
-  versions={versions}
-  metric="installTime.avgMs"
-  transform="msToSeconds"
-  valueFormat="s"
-  yAxisLabel="Seconds"
-/>
-<VersionLineChart
-  title="Average Cold Build Time"
-  versions={versions}
-  metric="coldBuildTime.avgMs"
-  transform="msToSeconds"
-  valueFormat="s"
-  yAxisLabel="Seconds"
-/>
-<VersionLineChart
-  title="Average Warm Build Time"
-  versions={versions}
-  metric="warmBuildTime.avgMs"
-  transform="msToSeconds"
-  valueFormat="s"
-  yAxisLabel="Seconds"
-/>
+<VersionLineChart {...prepareInstallTimeHistory(versions)} />
+<VersionLineChart {...prepareColdBuildTimeHistory(versions)} />
+<VersionLineChart {...prepareWarmBuildTimeHistory(versions)} />

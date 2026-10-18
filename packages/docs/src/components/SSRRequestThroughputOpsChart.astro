@@ -1,21 +1,11 @@
 ---
 import { ssrRequestThroughputStats } from '../lib/collections'
+import { prepareSsrRequestThroughputTestsOpsPerSecComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const data = ssrRequestThroughputStats
-  .filter((f) => Number.isFinite(f.ssrRequestThroughputTests.opsPerSec))
-  .map((f) => ({
-    name: f.name,
-    value: f.ssrRequestThroughputTests.opsPerSec,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-  .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name))
+const chart = prepareSsrRequestThroughputTestsOpsPerSecComparison(
+  ssrRequestThroughputStats,
+)
 ---
 
-<ComparisonBarChart
-  title="Ops/sec"
-  data={data}
-  valueFormat="count"
-  yAxisLabel="Operations per second"
-/>
+<ComparisonBarChart {...chart} />

@@ -1,107 +1,26 @@
 ---
 import { formatChartValue } from '../lib/chart'
-import type { ChartValueFormat } from '../lib/types'
+import type { VersionLineChartPayload } from '../lib/types'
 
-type ValueTransform = 'bytesToKb' | 'bytesToMb' | 'msToSeconds'
-
-interface Props {
-  title: string
-  description?: string
-  versions?: unknown[]
-  metric?: string
-  transform?: ValueTransform
-  stageKey?: 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
-  stageWorkers?: number
-  stageMetric?: string
-  valueFormat: ChartValueFormat
-  yAxisLabel: string
-}
+type Props = VersionLineChartPayload
 
 const CHART_HEIGHT_PX = 340
 const MOBILE_CHART_HEIGHT_PX = 260
-
 const {
   title,
   description,
-  versions = [],
-  metric,
-  transform,
-  stageKey = 'ssrLoadTests',
-  stageWorkers,
-  stageMetric,
+  data: chartData,
   valueFormat,
   yAxisLabel,
 } = Astro.props
-
-function getRecord(value: unknown) {
-  return value != null && typeof value === 'object'
-    ? (value as Record<string, unknown>)
-    : null
-}
-
-function readPath(source: unknown, path: string) {
-  return path.split('.').reduce<unknown>((current, key) => {
-    const record = getRecord(current)
-    return record?.[key]
-  }, source)
-}
-
-function getStageMetricValue(stats: unknown) {
-  if (stageWorkers == null || stageMetric == null) return undefined
-
-  const ssrLoadTests = getRecord(readPath(stats, stageKey))
-  const stages = ssrLoadTests?.stages
-  if (!Array.isArray(stages)) return undefined
-
-  const stage = stages.find(
-    (stage) => getRecord(stage)?.workers === stageWorkers,
-  )
-  return readPath(stage, stageMetric)
-}
-
-function transformValue(value: number) {
-  if (transform === 'bytesToKb') return value / 1024
-  if (transform === 'bytesToMb') return value / 1024 / 1024
-  if (transform === 'msToSeconds') return value / 1000
-  return value
-}
+const chartPayload = JSON.stringify(Astro.props)
 
 function formatLatestChange(value: number | null) {
   if (value == null) return null
   if (value === 0) return 'No change'
-
-  const sign = value > 0 ? '+' : '−'
-  return `${sign}${formatChartValue(Math.abs(value), valueFormat)}`
+  return `${value > 0 ? '+' : '−'}${formatChartValue(Math.abs(value), valueFormat)}`
 }
 
-function getVersionChartData(): { name: string; value: number | null }[] {
-  return versions.map((stats) => {
-    const rawValue =
-      stageWorkers != null && stageMetric != null
-        ? getStageMetricValue(stats)
-        : metric != null
-          ? readPath(stats, metric)
-          : undefined
-
-    return {
-      name: String(readPath(stats, 'frameworkVersion') ?? 'Unknown'),
-      value:
-        typeof rawValue === 'number' && Number.isFinite(rawValue)
-          ? transformValue(rawValue)
-          : null,
-    }
-  })
-}
-
-const chartData = getVersionChartData().map((d) => ({
-  name: String(d?.name ?? ''),
-  value: d.value == null ? null : Math.max(0, d.value),
-}))
-const chartPayload = JSON.stringify({
-  data: chartData,
-  valueFormat,
-  yAxisLabel,
-})
 const hasChartData = chartData.some((d) => d.value != null)
 const latestDatum = chartData.at(-1)
 const previousDatum = chartData.at(-2)

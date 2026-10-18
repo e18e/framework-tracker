@@ -1,18 +1,13 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import { prepareDevServerStartTimeHistory } from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
 }
 
 const { versions } = Astro.props
 ---
 
-<VersionLineChart
-  title="Average Dev Server Startup Time"
-  versions={versions}
-  metric="devServerStartTime.avgMs"
-  transform="msToSeconds"
-  valueFormat="s"
-  yAxisLabel="Seconds"
-/>
+<VersionLineChart {...prepareDevServerStartTimeHistory(versions)} />

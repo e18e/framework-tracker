@@ -1,8 +1,13 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import {
+  prepareSSRLatencyHistory,
+  prepareSSRTotalRequestsHistory,
+} from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
   testsKey?: 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
 }
 
@@ -17,95 +22,37 @@ const hasMeasurements = versions.some(
   hasMeasurements ? (
     <>
       <VersionLineChart
-        title="Total Requests"
-        versions={versions}
-        metric={`${testsKey}.totalRequests`}
-        valueFormat="count"
-        yAxisLabel="Requests"
+        {...prepareSSRTotalRequestsHistory(versions, testsKey)}
       />
 
       <VersionLineChart
-        title="P99 Latency at 25 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={25}
-        stageMetric="p99LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 25, 'p99LatencyMs', testsKey)}
       />
       <VersionLineChart
-        title="P99 Latency at 50 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={50}
-        stageMetric="p99LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 50, 'p99LatencyMs', testsKey)}
       />
       <VersionLineChart
-        title="P99 Latency at 100 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={100}
-        stageMetric="p99LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 100, 'p99LatencyMs', testsKey)}
       />
 
       <VersionLineChart
-        title="P90 Latency at 25 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={25}
-        stageMetric="p90LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 25, 'p90LatencyMs', testsKey)}
       />
       <VersionLineChart
-        title="P90 Latency at 50 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={50}
-        stageMetric="p90LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 50, 'p90LatencyMs', testsKey)}
       />
       <VersionLineChart
-        title="P90 Latency at 100 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={100}
-        stageMetric="p90LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 100, 'p90LatencyMs', testsKey)}
       />
 
       <VersionLineChart
-        title="P75 Latency at 25 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={25}
-        stageMetric="p75LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 25, 'p75LatencyMs', testsKey)}
       />
       <VersionLineChart
-        title="P75 Latency at 50 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={50}
-        stageMetric="p75LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 50, 'p75LatencyMs', testsKey)}
       />
       <VersionLineChart
-        title="P75 Latency at 100 Connections"
-        versions={versions}
-        stageKey={testsKey}
-        stageWorkers={100}
-        stageMetric="p75LatencyMs"
-        valueFormat="ms"
-        yAxisLabel="Milliseconds"
+        {...prepareSSRLatencyHistory(versions, 100, 'p75LatencyMs', testsKey)}
       />
     </>
   ) : (

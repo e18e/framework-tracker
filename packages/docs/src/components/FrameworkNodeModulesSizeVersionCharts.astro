@@ -1,26 +1,17 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import {
+  prepareDependencyInstallSizeHistory,
+  prepareNodeModulesSizeHistory,
+} from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
 }
 
 const { versions } = Astro.props
 ---
 
-<VersionLineChart
-  title="Node Modules Size"
-  versions={versions}
-  metric="nodeModulesSize"
-  transform="bytesToMb"
-  valueFormat="mb"
-  yAxisLabel="MB"
-/>
-<VersionLineChart
-  title="Dependency Install Size"
-  versions={versions}
-  metric="depInstallSize"
-  transform="bytesToMb"
-  valueFormat="mb"
-  yAxisLabel="MB"
-/>
+<VersionLineChart {...prepareNodeModulesSizeHistory(versions)} />
+<VersionLineChart {...prepareDependencyInstallSizeHistory(versions)} />

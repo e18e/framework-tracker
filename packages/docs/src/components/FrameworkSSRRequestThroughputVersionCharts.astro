@@ -1,31 +1,25 @@
 ---
+import type { ChartMeasurement } from '../lib/types'
+import {
+  prepareSsrRequestThroughputTestsBodySizeKbHistory,
+  prepareSsrRequestThroughputTestsMedianLatencyMsHistory,
+  prepareSsrRequestThroughputTestsOpsPerSecHistory,
+} from '../lib/prepare-chart'
 import VersionLineChart from './VersionLineChart.astro'
 
 interface Props {
-  versions: unknown[]
+  versions: ChartMeasurement[]
 }
 
 const { versions } = Astro.props
 ---
 
 <VersionLineChart
-  title="Ops/sec"
-  versions={versions}
-  metric="ssrRequestThroughputTests.opsPerSec"
-  valueFormat="count"
-  yAxisLabel="Operations per second"
+  {...prepareSsrRequestThroughputTestsOpsPerSecHistory(versions)}
 />
 <VersionLineChart
-  title="Body Size"
-  versions={versions}
-  metric="ssrRequestThroughputTests.bodySizeKb"
-  valueFormat="kb"
-  yAxisLabel="Kilobytes"
+  {...prepareSsrRequestThroughputTestsBodySizeKbHistory(versions)}
 />
 <VersionLineChart
-  title="Median Latency"
-  versions={versions}
-  metric="ssrRequestThroughputTests.medianLatencyMs"
-  valueFormat="ms"
-  yAxisLabel="Milliseconds"
+  {...prepareSsrRequestThroughputTestsMedianLatencyMsHistory(versions)}
 />

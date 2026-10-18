@@ -3,6 +3,7 @@ import { formatChartValue, getComparisonChartHeight } from '../lib/chart'
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 interface Props {
+  id?: string
   title: string
   description?: string
   data: ChartDatum[]
@@ -10,8 +11,9 @@ interface Props {
   yAxisLabel: string
 }
 
-const { title, description, data, valueFormat, yAxisLabel } = Astro.props
+const { id, title, description, data, valueFormat, yAxisLabel } = Astro.props
 const chartData = data.map((d) => ({
+  id: d.id,
   name: String(d?.name ?? ''),
   value: Math.max(0, Number(d.value) || 0),
   focused: d.focused,
@@ -20,6 +22,7 @@ const chartData = data.map((d) => ({
 const chartHeight = getComparisonChartHeight(chartData.length)
 
 const chartPayload = JSON.stringify({
+  id,
   data: chartData,
   valueFormat,
   yAxisLabel,

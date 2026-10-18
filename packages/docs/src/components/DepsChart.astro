@@ -1,24 +1,9 @@
 ---
 import { starterStats } from '../lib/collections'
+import { prepareDevDependenciesComparison } from '../lib/prepare-chart'
 import ComparisonBarChart from './ComparisonBarChart.astro'
 
-const validEntries = starterStats.filter(
-  (f) => f?.name != null && Number.isFinite(f.devDependencies),
-)
-
-const data = validEntries
-  .map((f) => ({
-    name: f.name,
-    value: f.devDependencies,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-  .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
+const chart = prepareDevDependenciesComparison(starterStats)
 ---
 
-<ComparisonBarChart
-  title="Starter Project Dev Dependencies"
-  data={data}
-  valueFormat="count"
-  yAxisLabel="Dependency count"
-/>
+<ComparisonBarChart {...chart} />

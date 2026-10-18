@@ -9,17 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SsrThroughputRouteImport } from './routes/ssr-throughput'
-import { Route as ServerSideRenderedPlainLinksRouteImport } from './routes/server-side-rendered-plain-links'
-import { Route as ServerSideRenderedRouteImport } from './routes/server-side-rendered'
-import { Route as ClientSideRenderedRouteImport } from './routes/client-side-rendered'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ServerSideRenderedIdRouteImport } from './routes/server-side-rendered_.$id'
+import { Route as ClientSideRenderedRouteImport } from './routes/client-side-rendered'
+import { Route as ServerSideRenderedRouteImport } from './routes/server-side-rendered'
+import { Route as ServerSideRenderedPlainLinksRouteImport } from './routes/server-side-rendered-plain-links'
+import { Route as SsrThroughputRouteImport } from './routes/ssr-throughput'
 import { Route as ClientSideRenderedIdRouteImport } from './routes/client-side-rendered_.$id'
+import { Route as ServerSideRenderedIdRouteImport } from './routes/server-side-rendered_.$id'
 
-const SsrThroughputRoute = SsrThroughputRouteImport.update({
-  id: '/ssr-throughput',
-  path: '/ssr-throughput',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientSideRenderedRoute = ClientSideRenderedRouteImport.update({
+  id: '/client-side-rendered',
+  path: '/client-side-rendered',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServerSideRenderedRoute = ServerSideRenderedRouteImport.update({
+  id: '/server-side-rendered',
+  path: '/server-side-rendered',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServerSideRenderedPlainLinksRoute =
@@ -28,29 +38,19 @@ const ServerSideRenderedPlainLinksRoute =
     path: '/server-side-rendered-plain-links',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ServerSideRenderedRoute = ServerSideRenderedRouteImport.update({
-  id: '/server-side-rendered',
-  path: '/server-side-rendered',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClientSideRenderedRoute = ClientSideRenderedRouteImport.update({
-  id: '/client-side-rendered',
-  path: '/client-side-rendered',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServerSideRenderedIdRoute = ServerSideRenderedIdRouteImport.update({
-  id: '/server-side-rendered_/$id',
-  path: '/server-side-rendered/$id',
+const SsrThroughputRoute = SsrThroughputRouteImport.update({
+  id: '/ssr-throughput',
+  path: '/ssr-throughput',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClientSideRenderedIdRoute = ClientSideRenderedIdRouteImport.update({
   id: '/client-side-rendered_/$id',
   path: '/client-side-rendered/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServerSideRenderedIdRoute = ServerSideRenderedIdRouteImport.update({
+  id: '/server-side-rendered_/$id',
+  path: '/server-side-rendered/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -124,25 +124,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/ssr-throughput': {
-      id: '/ssr-throughput'
-      path: '/ssr-throughput'
-      fullPath: '/ssr-throughput'
-      preLoaderRoute: typeof SsrThroughputRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/server-side-rendered-plain-links': {
-      id: '/server-side-rendered-plain-links'
-      path: '/server-side-rendered-plain-links'
-      fullPath: '/server-side-rendered-plain-links'
-      preLoaderRoute: typeof ServerSideRenderedPlainLinksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/server-side-rendered': {
-      id: '/server-side-rendered'
-      path: '/server-side-rendered'
-      fullPath: '/server-side-rendered'
-      preLoaderRoute: typeof ServerSideRenderedRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/client-side-rendered': {
@@ -152,18 +138,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClientSideRenderedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/server-side-rendered': {
+      id: '/server-side-rendered'
+      path: '/server-side-rendered'
+      fullPath: '/server-side-rendered'
+      preLoaderRoute: typeof ServerSideRenderedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/server-side-rendered_/$id': {
-      id: '/server-side-rendered_/$id'
-      path: '/server-side-rendered/$id'
-      fullPath: '/server-side-rendered/$id'
-      preLoaderRoute: typeof ServerSideRenderedIdRouteImport
+    '/server-side-rendered-plain-links': {
+      id: '/server-side-rendered-plain-links'
+      path: '/server-side-rendered-plain-links'
+      fullPath: '/server-side-rendered-plain-links'
+      preLoaderRoute: typeof ServerSideRenderedPlainLinksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ssr-throughput': {
+      id: '/ssr-throughput'
+      path: '/ssr-throughput'
+      fullPath: '/ssr-throughput'
+      preLoaderRoute: typeof SsrThroughputRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/client-side-rendered_/$id': {
@@ -171,6 +164,13 @@ declare module '@tanstack/react-router' {
       path: '/client-side-rendered/$id'
       fullPath: '/client-side-rendered/$id'
       preLoaderRoute: typeof ClientSideRenderedIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/server-side-rendered_/$id': {
+      id: '/server-side-rendered_/$id'
+      path: '/server-side-rendered/$id'
+      fullPath: '/server-side-rendered/$id'
+      preLoaderRoute: typeof ServerSideRenderedIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

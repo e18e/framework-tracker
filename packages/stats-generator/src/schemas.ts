@@ -1,5 +1,82 @@
 import { z } from 'zod'
 
+/** Summary of one metric; units belong to the metric being measured. */
+export const MetricBaseSchema = z.object({
+  /** Arithmetic mean of this metric across all measured runs. */
+  mean: z.number(),
+  /** Lowest value observed across the measured runs. */
+  min: z.number(),
+  /** Highest value observed across the measured runs. */
+  max: z.number(),
+  /** Sample variance in squared metric units (n - 1 divisor); zero for one run. */
+  variance: z.number().nonnegative(),
+})
+export type MetricBase = z.infer<typeof MetricBaseSchema>
+
+/** Framework identifiers configured in .github/frameworks.json. */
+export const FrameworkSchema = z.enum([
+  'baseline-html',
+  'astro',
+  'next',
+  'nuxt',
+  'pracht',
+  'react-router',
+  'solid-start',
+  'sveltekit',
+  'tanstack',
+])
+
+/** Tested package folders configured in .github/frameworks.json. */
+export const PackagePathSchema = z.enum([
+  'packages/app-baseline-html',
+  'packages/starter-astro',
+  'packages/app-astro',
+  'packages/starter-next-js',
+  'packages/app-next-js',
+  'packages/starter-nuxt',
+  'packages/app-nuxt',
+  'packages/starter-pracht',
+  'packages/app-pracht',
+  'packages/starter-react-router',
+  'packages/app-react-router',
+  'packages/starter-solid-start',
+  'packages/app-solid-start',
+  'packages/starter-sveltekit',
+  'packages/app-sveltekit',
+  'packages/starter-tanstack-start-react',
+  'packages/app-tanstack-start-react',
+])
+
+/** Identity shared by benchmarks and exact-value scans. */
+export const TestBaseSchema = z.object({
+  /** Stable test identifier, such as install or ssrLoad. */
+  name: z.string().min(1),
+  /** Configured framework identifier being tested, such as next or astro. */
+  framework: FrameworkSchema,
+  /** Repository-relative path to the tested package folder, such as packages/app-astro. */
+  packagePath: PackagePathSchema,
+})
+export type TestBase = z.infer<typeof TestBaseSchema>
+
+/**
+ * Repeated benchmark result with benchmark-specific raw iterations.
+ * Use safeExtend() to preserve the iteration-count check when adding fields.
+ */
+export function createBenchmarkBaseSchema<T extends z.ZodType>(iteration: T) {
+  return TestBaseSchema.extend({
+    /** Number of measured runs contributing to the metrics, excluding warmups. */
+    runs: z.number().int().positive(),
+    /** Complete raw result for each measured run. */
+    iterations: z.array(iteration),
+  }).refine((stats) => stats.iterations.length === stats.runs, {
+    message: 'Expected one iteration per run',
+    path: ['iterations'],
+  })
+}
+
+export const BenchmarkBaseSchema = createBenchmarkBaseSchema(z.unknown())
+export type BenchmarkBase = z.infer<typeof BenchmarkBaseSchema>
+
 const TimeStatSchema = z
   .object({
     avgMs: z.number(),

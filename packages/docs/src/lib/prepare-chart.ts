@@ -32,6 +32,7 @@ function history(
 function comparison(
   metric: MetricDefinition,
   measurements: Measurement[],
+  sortOrder: 'ascending' | 'descending' = 'ascending',
 ): PreparedComparisonChart {
   return {
     ...metric,
@@ -51,7 +52,11 @@ function comparison(
               },
             ],
       )
-      .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name)),
+      .sort(
+        (a, b) =>
+          (sortOrder === 'descending' ? b.value - a.value : a.value - b.value) ||
+          a.name.localeCompare(b.name),
+      ),
   }
 }
 
@@ -460,6 +465,7 @@ export function prepareSsrRequestThroughputTestsOpsPerSecComparison(
       record,
       value: finiteValue(record.ssrRequestThroughputTests?.opsPerSec),
     })),
+    'descending',
   )
 }
 

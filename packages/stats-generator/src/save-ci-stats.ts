@@ -29,7 +29,6 @@ const publishTimesCache = new Map<string, Promise<Record<string, string>>>()
 async function getReleasedAt(
   frameworkPackage: string,
   frameworkVersion: string | undefined,
-  existingStats: CIStats | null,
 ): Promise<string | undefined> {
   if (!frameworkVersion || frameworkVersion === 'unknown') return undefined
 
@@ -47,13 +46,10 @@ async function getReleasedAt(
     }
     return releasedAt
   } catch (error) {
-    console.warn(
-      `Failed to fetch publish time for ${frameworkPackage}@${frameworkVersion}:`,
-      error,
+    throw new Error(
+      `Failed to fetch publish time for ${frameworkPackage}@${frameworkVersion}`,
+      { cause: error },
     )
-    return existingStats?.frameworkVersion === frameworkVersion
-      ? existingStats.releasedAt
-      : undefined
   }
 }
 
@@ -266,16 +262,19 @@ async function main() {
         console.warn(`No e18e stats artifact found at ${e18eArtifactPath}`)
       }
 
+      // check for releasedAt, if not fetch from repository
+      const releasedAt =
+        existingStats?.frameworkVersion === frameworkVersion &&
+        existingStats?.releasedAt
+          ? existingStats?.releasedAt
+          : await getReleasedAt(framework.frameworkPackage, frameworkVersion)
+
       stats = withReleasedAt(
         {
           ...stats,
           packageJson: getPackageJsonDeps(packageName),
         },
-        await getReleasedAt(
-          framework.frameworkPackage,
-          frameworkVersion,
-          existingStats,
-        ),
+        releasedAt,
       )
 
       // Save to ci-stats.json
@@ -448,16 +447,19 @@ async function main() {
         )
       }
 
+      // check for releasedAt, if not fetch from repository
+      const releasedAt =
+        existingStats?.frameworkVersion === frameworkVersion &&
+        existingStats?.releasedAt
+          ? existingStats?.releasedAt
+          : await getReleasedAt(framework.frameworkPackage, frameworkVersion)
+
       stats = withReleasedAt(
         {
           ...stats,
           packageJson: getPackageJsonDeps(packageName),
         },
-        await getReleasedAt(
-          framework.frameworkPackage,
-          frameworkVersion,
-          existingStats,
-        ),
+        releasedAt,
       )
 
       // Save to ci-stats.json

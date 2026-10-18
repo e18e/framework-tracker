@@ -74,9 +74,6 @@ export function createBenchmarkBaseSchema<T extends z.ZodType>(iteration: T) {
   })
 }
 
-export const BenchmarkBaseSchema = createBenchmarkBaseSchema(z.unknown())
-export type BenchmarkBase = z.infer<typeof BenchmarkBaseSchema>
-
 const TimeStatSchema = z
   .object({
     avgMs: z.number(),

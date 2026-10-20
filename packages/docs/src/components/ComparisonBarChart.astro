@@ -26,6 +26,7 @@ const chartPayload = JSON.stringify({
   data: chartData,
   valueFormat,
   yAxisLabel,
+  title,
 })
 ---
 
@@ -37,12 +38,14 @@ const chartPayload = JSON.stringify({
     data-comparison={chartPayload}
     style={`--comparison-chart-height: ${chartHeight}px`}
   >
-    <canvas
-      aria-label={`${title}. Horizontal bar chart; a data table follows.`}
-      role="img"
-    >
-      {title} chart
-    </canvas>
+    <div class="comparison-chart-host"></div>
+    <div class="comparison-logo-layer" aria-hidden="true"></div>
+    <svg class="comparison-median-defs" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient gradientUnits="userSpaceOnUse" x1="0" x2="0"
+        ></linearGradient>
+      </defs>
+    </svg>
     <div class="comparison-chart-data sr-only">
       <table aria-label={`${title} data`}>
         <caption>{title} data</caption>
@@ -84,7 +87,44 @@ const chartPayload = JSON.stringify({
   .comparison-chart-wrapper {
     position: relative;
     width: 100%;
-    height: var(--comparison-chart-height);
+    min-height: var(--comparison-chart-height);
+    color: var(--ft-text, #1f2933);
+  }
+
+  .comparison-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
+  }
+
+  .comparison-logo-layer {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .comparison-median-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .comparison-chart-wrapper :global(.comparison-logo) {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    transform: translate(-100%, -50%);
+  }
+
+  .comparison-chart-wrapper :global(.comparison-logo-fallback) {
+    display: grid;
+    place-items: center;
+    font:
+      700 12px system-ui,
+      sans-serif;
   }
 
   :global([data-framework-scope='focused'])
@@ -96,376 +136,287 @@ const chartPayload = JSON.stringify({
 
 <script>
   import {
-    BarController,
-    BarElement,
-    CategoryScale,
-    Chart,
-    Legend,
-    LinearScale,
-    Tooltip,
-  } from 'chart.js'
-  import { formatChartValue, getComparisonChartHeight } from '../lib/chart'
+    barX,
+    defineChart,
+    mountChart,
+    ruleX,
+    text,
+    type ChartHost,
+    type ChartRenderContext,
+  } from '@tanstack/charts'
+  import { scaleBand } from '@tanstack/charts/scales/band'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { decorative } from '@tanstack/charts/mark/decorative'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import {
+    formatChartValue,
+    getComparisonChartHeight,
+    getFrameworkLogoSource,
+  } from '../lib/chart'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
 
-  Chart.register(
-    BarController,
-    BarElement,
-    CategoryScale,
-    Legend,
-    LinearScale,
-    Tooltip,
-  )
+  type Payload = ComparisonChartPayload & { title: string }
+  type RenderContext = ChartRenderContext<ChartDatum, number, string>
 
-  const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
   const BAR_COLOR = '#c0b9dd'
   const BAR_HOVER_COLOR = '#b2a8d8'
-  const TEXT_COLOR_FALLBACK = '#1f2933'
-  const MUTED_COLOR_FALLBACK = '#697586'
-  const LOGO_SIZE = 20
-  const BAR_RADIUS = 8
-  const MEDIAN_LABEL_PADDING = 20
-  const LOGO_AXIS_PADDING = LOGO_SIZE + 12
-  const VALUE_LABEL_PADDING = 16
   const MEDIAN_COLORS = ['#ec8f5e', '#f2ca60', '#bece57', '#7bb560']
-  const FRAMEWORK_LOGO_SOURCES: Record<string, string> = {
-    Astro: '/framework-logos/astro-gradient.svg',
-    'Baseline HTML': '/framework-logos/html5.svg',
-    Gatsby: '/framework-logos/gatsby.svg',
-    'Next.js': '/framework-logos/nextdotjs.svg',
-    Nuxt: '/framework-logos/nuxt.svg',
-    'Nuxt.js': '/framework-logos/nuxt.svg',
-    Pracht: '/framework-logos/pracht.svg',
-    'React Router': '/framework-logos/reactrouter.svg',
-    SolidStart: '/framework-logos/solid-start.svg',
-    SvelteKit: '/framework-logos/svelte.svg',
-    'TanStack Start': '/framework-logos/tanstack.svg',
-    WordPress: '/framework-logos/wordpress.svg',
-  }
-  const logoCache = new Map<string, Promise<HTMLImageElement | null>>()
+  const LOGO_SIZE = 20
+  const LOGO_MARGIN = LOGO_SIZE + 16
+  const MEDIAN_LABEL_MARGIN = 24
+  const MEDIAN_LABEL_GAP = 12
+  const BAND_PADDING = 0.18
+  const hosts = new WeakMap<
+    HTMLElement,
+    ChartHost<ChartDatum, number, string>
+  >()
 
-  function getCssVar(element: Element, name: string, fallback: string) {
-    return getComputedStyle(element).getPropertyValue(name).trim() || fallback
-  }
+  let medianGradientCount = 0
 
-  function getFrameworkLogoSource(name: string) {
-    if (
-      name === 'Astro' &&
-      document.documentElement.dataset.theme === 'light'
-    ) {
-      return '/framework-logos/astro-dark.svg'
-    }
-
-    if (
-      name === 'Next.js' &&
-      document.documentElement.dataset.theme !== 'light'
-    ) {
-      return '/framework-logos/nextdotjs-light.svg'
-    }
-
-    return FRAMEWORK_LOGO_SOURCES[name]
+  function getCssVar(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
   }
 
-  function loadFrameworkLogo(source: string | undefined) {
-    if (source == null) return Promise.resolve(null)
+  function getMedian(values: number[]) {
+    const sorted = [...values].sort((a, b) => a - b)
+    const mid = Math.floor(sorted.length / 2)
+    return sorted.length % 2 === 0
+      ? (sorted[mid - 1]! + sorted[mid]!) / 2
+      : sorted[mid]!
+  }
 
-    const cachedLogo = logoCache.get(source)
-    if (cachedLogo != null) return cachedLogo
+  function renderLogoLayer(wrapper: HTMLElement, names: string[]) {
+    const layer = wrapper.querySelector<HTMLElement>('.comparison-logo-layer')!
+    layer.style.visibility = 'hidden'
+    layer.replaceChildren(
+      ...names.map((name) => {
+        const source = getFrameworkLogoSource(name)
+        if (source == null) {
+          const fallback = document.createElement('span')
+          fallback.className = 'comparison-logo comparison-logo-fallback'
+          fallback.textContent = name.slice(0, 1) || '?'
+          fallback.title = name
+          return fallback
+        }
+        const logo = document.createElement('img')
+        logo.className = 'comparison-logo'
+        logo.src = source
+        logo.alt = name
+        logo.title = name
+        logo.width = LOGO_SIZE
+        logo.height = LOGO_SIZE
+        return logo
+      }),
+    )
+    return layer
+  }
 
-    const logo = new Image()
-    const loadPromise = new Promise<HTMLImageElement | null>((resolve) => {
-      logo.addEventListener('load', () => resolve(logo), { once: true })
-      logo.addEventListener('error', () => resolve(null), { once: true })
+  function positionLogos(
+    layer: HTMLElement,
+    names: string[],
+    { scene }: RenderContext,
+  ) {
+    const yScale = scene.scales.y
+    if (!yScale) return
+    Array.from(layer.children).forEach((child, index) => {
+      const logo = child as HTMLElement
+      logo.style.top = `${yScale.map(names[index])}px`
+      logo.style.left = `${scene.chart.x - 8}px`
     })
-
-    logo.src = source
-    logoCache.set(source, loadPromise)
-    return loadPromise
+    layer.style.visibility = 'visible'
   }
 
-  function getData(wrapper: HTMLElement): {
-    payload: ComparisonChartPayload
-    data: ChartDatum[]
-  } | null {
+  function setupMedianGradient(wrapper: HTMLElement) {
+    const gradient = wrapper.querySelector('linearGradient')!
+    if (!gradient.id) {
+      gradient.id = `comparison-median-gradient-${++medianGradientCount}`
+      gradient.replaceChildren(
+        ...MEDIAN_COLORS.map((_, index) => {
+          const stop = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'stop',
+          )
+          stop.setAttribute(
+            'offset',
+            String(index / (MEDIAN_COLORS.length - 1)),
+          )
+          stop.setAttribute(
+            'stop-color',
+            MEDIAN_COLORS[MEDIAN_COLORS.length - 1 - index]!,
+          )
+          return stop
+        }),
+      )
+    }
+    return gradient
+  }
+
+  function positionMedianGradient(
+    gradient: SVGLinearGradientElement,
+    { scene }: RenderContext,
+  ) {
+    gradient.setAttribute('y1', String(scene.chart.y))
+    gradient.setAttribute('y2', String(scene.chart.y + scene.chart.height))
+  }
+
+  function getPayload(wrapper: HTMLElement): Payload | null {
     const dataAttr = wrapper.dataset.comparison
     if (!dataAttr) return null
 
-    let payload: ComparisonChartPayload
     try {
-      payload = JSON.parse(dataAttr) as ComparisonChartPayload
+      return JSON.parse(dataAttr) as Payload
     } catch (e) {
       console.warn('[ComparisonBarChart] Invalid chart data:', e)
       return null
     }
-
-    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
-    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
-    const data = payload.data.filter((d) => !focusedOnly || d.focused !== false)
-
-    return { payload, data }
-  }
-
-  function getMedian(values: number[]) {
-    const sortedValues = [...values].sort((a, b) => a - b)
-    const middleIndex = Math.floor(sortedValues.length / 2)
-
-    return sortedValues.length % 2 === 0
-      ? (sortedValues[middleIndex - 1]! + sortedValues[middleIndex]!) / 2
-      : sortedValues[middleIndex]!
-  }
-
-  function drawMedianReference(
-    chart: Chart<'bar'>,
-    median: number,
-    valueFormat: ComparisonChartPayload['valueFormat'],
-    titleColor: string,
-  ) {
-    const { chartArea, ctx } = chart
-    const medianX = chart.scales.x!.getPixelForValue(median)
-    const gradient = ctx.createLinearGradient(
-      medianX,
-      chartArea.top,
-      medianX,
-      chartArea.bottom,
-    )
-
-    MEDIAN_COLORS.forEach((_, index) => {
-      gradient.addColorStop(
-        index / (MEDIAN_COLORS.length - 1),
-        MEDIAN_COLORS[MEDIAN_COLORS.length - 1 - index]!,
-      )
-    })
-
-    ctx.strokeStyle = gradient
-    ctx.lineWidth = 3
-    ctx.setLineDash([5, 4])
-    ctx.beginPath()
-    ctx.moveTo(medianX, chartArea.top)
-    ctx.lineTo(medianX, chartArea.bottom)
-    ctx.stroke()
-    ctx.setLineDash([])
-
-    const label = `Median: ${formatChartValue(median, valueFormat)}`
-    const labelWidth = ctx.measureText(label).width
-    const labelX = Math.max(
-      chartArea.left + labelWidth / 2,
-      Math.min(medianX, chartArea.right - labelWidth / 2),
-    )
-
-    ctx.fillStyle = titleColor
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'bottom'
-    ctx.fillText(label, labelX, chartArea.top - 6)
-    ctx.textAlign = 'left'
-    ctx.textBaseline = 'middle'
-  }
-
-  function drawAxisLogo(
-    ctx: CanvasRenderingContext2D,
-    chart: Chart<'bar'>,
-    logo: HTMLImageElement | null,
-    frameworkName: string,
-    y: number,
-    textColor: string,
-  ) {
-    const logoX = chart.chartArea.left - LOGO_SIZE - 8
-
-    if (logo != null) {
-      ctx.drawImage(logo, logoX, y - LOGO_SIZE / 2, LOGO_SIZE, LOGO_SIZE)
-      return
-    }
-
-    ctx.save()
-    ctx.fillStyle = textColor
-    ctx.font = '700 12px system-ui, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText(frameworkName.slice(0, 1) || '?', logoX + 10, y)
-    ctx.restore()
-  }
-
-  function drawValueLabel(
-    ctx: CanvasRenderingContext2D,
-    chart: Chart<'bar'>,
-    value: number,
-    valueFormat: ComparisonChartPayload['valueFormat'],
-    x: number,
-    y: number,
-    mutedColor: string,
-    valueOnBarColor: string,
-  ) {
-    const { left } = chart.chartArea
-    const label = formatChartValue(value, valueFormat)
-    const labelMinimumX = left + 12
-    const labelRightLimit = chart.width - 8
-    const outsideLabelX = Math.max(
-      labelMinimumX,
-      Math.min(x + 10, labelRightLimit),
-    )
-    const placeLabelInsideBar =
-      outsideLabelX + ctx.measureText(label).width > labelRightLimit
-
-    ctx.fillStyle = placeLabelInsideBar ? valueOnBarColor : mutedColor
-    ctx.textAlign = placeLabelInsideBar ? 'right' : 'left'
-    ctx.fillText(
-      label,
-      placeLabelInsideBar
-        ? Math.max(labelMinimumX, Math.min(x - 10, labelRightLimit))
-        : outsideLabelX,
-      y,
-    )
   }
 
   function initChart(wrapper: HTMLElement) {
-    const canvas = wrapper.querySelector('canvas')
-    if (!canvas) return
-    const result = getData(wrapper)
-    if (!result || result.data.length === 0) return
+    const payload = getPayload(wrapper)
+    if (!payload) return
 
-    const { payload, data } = result
-    wrapper.style.setProperty(
-      '--comparison-chart-height',
-      `${getComparisonChartHeight(data.length)}px`,
-    )
-    const values = data.map((d) => d.value)
+    const format = (value: number, prefix?: boolean) =>
+      formatChartValue(value, payload.valueFormat, prefix)
+
+    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
+    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
+    const rows = payload.data.filter((d) => !focusedOnly || d.focused !== false)
+    if (rows.length === 0) return
+
+    const values = rows.map((d) => d.value)
     const max = Math.max(...values)
-    const root = document.documentElement
-    const textColor = getCssVar(root, '--ft-text', TEXT_COLOR_FALLBACK)
-    const titleColor = getCssVar(root, '--sl-color-text-accent', textColor)
-    const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
-    const valueOnBarColor = getCssVar(
-      root,
-      '--ft-chart-value-on-bar',
-      '#ffffff',
+    const median = getMedian(values)
+    const height = getComparisonChartHeight(rows.length)
+    wrapper.style.setProperty('--comparison-chart-height', `${height}px`)
+
+    const barColor = getCssVar('--ft-chart-bar', BAR_COLOR)
+    const barHoverColor = getCssVar('--ft-chart-bar-hover', BAR_HOVER_COLOR)
+    const mutedColor = getCssVar('--ft-muted', '#697586')
+    const accentColor = getCssVar(
+      '--sl-color-text-accent',
+      getCssVar('--ft-text', '#1f2933'),
     )
-    const barColor = getCssVar(root, '--ft-chart-bar', BAR_COLOR)
-    const barHoverColor = getCssVar(
-      root,
-      '--ft-chart-bar-hover',
-      BAR_HOVER_COLOR,
-    )
-    const axisLogos: Array<HTMLImageElement | null> = data.map(() => null)
 
-    const comparisonLabelsPlugin = {
-      id: 'comparisonLabels',
-      afterDatasetsDraw(chart: Chart<'bar'>) {
-        const { ctx } = chart
-        const elements = chart.getDatasetMeta(0).data
+    const names = rows.map((d) => d.name)
+    const logoLayer = renderLogoLayer(wrapper, names)
+    const medianGradient = setupMedianGradient(wrapper)
 
-        ctx.save()
-        ctx.font = '600 13px system-ui, sans-serif'
-        ctx.textAlign = 'left'
-        ctx.textBaseline = 'middle'
-
-        drawMedianReference(
-          chart,
-          getMedian(values),
-          payload.valueFormat,
-          titleColor,
-        )
-
-        elements.forEach((element, index) => {
-          const { x, y } = element.getProps(['x', 'y'], true) as {
-            x: number
-            y: number
+    const definition = defineChart({
+      margin: { left: LOGO_MARGIN, top: MEDIAN_LABEL_MARGIN, bottom: 0 },
+      focusRing: false,
+      marks: [
+        barX(rows, {
+          id: 'values',
+          x: 'value',
+          y: 'name',
+          fill: barColor,
+          radius: 8,
+          inset: 3,
+          states: [
+            {
+              when: { focus: 'primary' },
+              style: { fill: barHoverColor },
+              transition: { type: 'tween', duration: 140, easing: 'ease-out' },
+            },
+          ],
+        }),
+        ruleX([median], {
+          id: 'median',
+          stroke: `url(#${medianGradient.id})`,
+          strokeOpacity: 1,
+          strokeWidth: 3,
+          strokeDasharray: '5 4',
+        }),
+        decorative(
+          text([median], {
+            id: 'median-label',
+            x: (d) => d,
+            y: () => rows[0]!.name,
+            dy: () => {
+              const step =
+                (height - MEDIAN_LABEL_MARGIN) / (rows.length + BAND_PADDING)
+              const firstBandCenter =
+                step * (BAND_PADDING + (1 - BAND_PADDING) / 2)
+              return -(firstBandCenter + MEDIAN_LABEL_GAP)
+            },
+            text: () => `Median: ${format(median)}`,
+            fill: accentColor,
+            fontWeight: 600,
+            fontSize: 13,
+            anchor: 'middle',
+          }),
+        ),
+        text(rows, {
+          id: 'value-labels',
+          x: 'value',
+          y: 'name',
+          text: (d) => format(d.value),
+          fill: mutedColor,
+          fontWeight: 600,
+          fontSize: 13,
+          anchor: 'start',
+          dx: 10,
+        }),
+      ],
+      scales: {
+        x: {
+          scale: () => scaleLinear().domain([0, max > 0 ? max * 1.15 : 1]),
+          axis: false,
+        },
+        y: {
+          scale: () =>
+            scaleBand<string>()
+              .domain(rows.map((d) => d.name))
+              .padding(BAND_PADDING),
+          axis: false,
+        },
+      },
+      tooltip: {
+        use: tooltip,
+        content: (points) => {
+          const datum = points[0]!.datum
+          return {
+            title: datum.version
+              ? `${datum.name}: v${datum.version}`
+              : datum.name,
+            rows: [
+              { label: payload.yAxisLabel, value: format(datum.value) },
+              {
+                label: 'Median',
+                value: format(datum.value - median, true),
+              },
+            ],
           }
-          drawAxisLogo(
-            ctx,
-            chart,
-            axisLogos[index] ?? null,
-            data[index]?.name ?? '',
-            y,
-            textColor,
-          )
-          drawValueLabel(
-            ctx,
-            chart,
-            values[index] ?? 0,
-            payload.valueFormat,
-            x,
-            y,
-            mutedColor,
-            valueOnBarColor,
-          )
-        })
-        ctx.restore()
+        },
+      },
+    })
+
+    const options = {
+      definition,
+      height,
+      ariaLabel: `${payload.title}. Horizontal bar chart; a data table follows.`,
+      onRender: (context: RenderContext) => {
+        positionLogos(logoLayer, names, context)
+        positionMedianGradient(medianGradient, context)
       },
     }
 
-    chartCache.get(canvas)?.destroy()
-
-    const chart = new Chart<'bar'>(canvas, {
-      type: 'bar',
-      data: {
-        labels: data.map((d) => d.name),
-        datasets: [
-          {
-            label: payload.yAxisLabel,
-            data: values,
-            backgroundColor: barColor,
-            borderRadius: BAR_RADIUS,
-            borderSkipped: false,
-            borderWidth: 0,
-            categoryPercentage: 0.82,
-            barPercentage: 1,
-            hoverBackgroundColor: barHoverColor,
-          },
-        ],
-      },
-      options: {
-        animation: { duration: 500 },
-        indexAxis: 'y',
-        layout: {
-          padding: {
-            top: MEDIAN_LABEL_PADDING,
-            right: VALUE_LABEL_PADDING,
-            left: LOGO_AXIS_PADDING,
-          },
-        },
-        maintainAspectRatio: false,
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            displayColors: false,
-
-            callbacks: {
-              label: (context) =>
-                formatChartValue(Number(context.raw ?? 0), payload.valueFormat),
-              afterLabel: (context) => {
-                const version = data[context.dataIndex]?.version
-                return version ? `v${version}` : ''
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            display: false,
-            max: max > 0 ? max * 1.06 : 1,
-          },
-          y: {
-            border: { display: false },
-            grid: { display: false },
-            ticks: {
-              display: false,
-            },
-          },
-        },
-      },
-      plugins: [comparisonLabelsPlugin],
-    })
-
-    chartCache.set(canvas, chart)
-
-    data.forEach((datum, index) => {
-      void loadFrameworkLogo(getFrameworkLogoSource(datum.name)).then(
-        (axisLogo) => {
-          axisLogos[index] = axisLogo
-
-          if (chartCache.get(canvas) === chart) chart.draw()
-        },
+    const existing = hosts.get(wrapper)
+    if (existing) {
+      existing.update(options)
+    } else {
+      hosts.set(
+        wrapper,
+        mountChart(
+          wrapper.querySelector<HTMLElement>('.comparison-chart-host')!,
+          options,
+        ),
       )
-    })
+    }
   }
 
   function initCharts() {
@@ -474,33 +425,14 @@ const chartPayload = JSON.stringify({
       .forEach(initChart)
   }
 
-  function scheduleInit() {
-    requestAnimationFrame(initCharts)
-  }
-
-  function observeThemeChanges() {
-    if (typeof MutationObserver === 'undefined') return
-
-    let lastThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
-    const observer = new MutationObserver(() => {
-      const nextThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
-      if (nextThemeState === lastThemeState) return
-
-      lastThemeState = nextThemeState
-      scheduleInit()
-    })
-
-    observer.observe(document.documentElement, {
-      attributeFilter: ['class', 'data-theme'],
-      attributes: true,
-    })
-  }
-
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initCharts())
+    document.addEventListener('DOMContentLoaded', initCharts)
   } else {
     initCharts()
   }
 
-  observeThemeChanges()
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributeFilter: ['class', 'data-theme'], attributes: true },
+  )
 </script>

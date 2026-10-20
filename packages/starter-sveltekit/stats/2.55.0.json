@@ -3,10 +3,6 @@
   "runner": "Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)",
   "frameworkVersion": "2.55.0",
   "releasedAt": "2026-03-12T22:01:52.202Z",
-  "avgInstallTimeMs": 2195,
-  "minInstallTimeMs": 1945,
-  "maxInstallTimeMs": 2904,
-  "nodeModulesSize": 99569664,
   "coldBuildTimeMs": 4220,
   "warmBuildTimeMs": 3910,
   "coldBuildTime": {
@@ -14,21 +10,26 @@
     "standardDeviationMs": 91.97,
     "minMs": 1742,
     "maxMs": 1959,
-    "samplesMs": [1742, 1743, 1959, 1799, 1756]
+    "samplesMs": [
+      1742,
+      1743,
+      1959,
+      1799,
+      1756
+    ]
   },
   "warmBuildTime": {
     "avgMs": 1630.4,
     "standardDeviationMs": 55,
     "minMs": 1566,
     "maxMs": 1718,
-    "samplesMs": [1566, 1615, 1629, 1718, 1624]
-  },
-  "installTime": {
-    "avgMs": 1605.2,
-    "standardDeviationMs": 176.1,
-    "minMs": 1367,
-    "maxMs": 1837,
-    "samplesMs": [1367, 1529, 1600, 1693, 1837]
+    "samplesMs": [
+      1566,
+      1615,
+      1629,
+      1718,
+      1624
+    ]
   },
   "prodDependencies": 0,
   "devDependencies": 7,
@@ -42,12 +43,12 @@
       "message": "The package \u001b[1mpublishes internal tests or config files\u001b[22m (\u001b[1m/eslint.config.js\u001b[22m). You can use \u001b[1mpkg.files\u001b[22m to only publish certain files and save user bandwidth."
     },
     {
-      "message": "[duplicate dependency] is-reference has 2 installed versions:\n1.2.1 via the following 1 package(s) @rollup/plugin-commonjs@29.0.3\n3.0.3 via the following 1 package(s) svelte@5.55.1\n💡 Suggestions\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
+      "message": "[duplicate dependency] is-reference has 2 installed versions:\n1.2.1 via the following 1 package(s) @rollup/plugin-commonjs@29.0.3\n3.0.3 via the following 1 package(s) svelte@5.55.1\n\ud83d\udca1 Suggestions\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
       "severity": "warning",
       "score": 0
     },
     {
-      "message": "[duplicate dependency] picomatch has 2 installed versions:\n4.0.3 via the following 4 package(s) @rollup/pluginutils@5.3.0, fdir@6.5.0, @rollup/plugin-commonjs@29.0.3, tinyglobby@0.2.15\n4.0.5 via the following 1 package(s) vite@8.0.3\n💡 Suggestions\n- Consider standardizing on version 4.0.3 as this version is the most commonly used.\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
+      "message": "[duplicate dependency] picomatch has 2 installed versions:\n4.0.3 via the following 4 package(s) @rollup/pluginutils@5.3.0, fdir@6.5.0, @rollup/plugin-commonjs@29.0.3, tinyglobby@0.2.15\n4.0.5 via the following 1 package(s) vite@8.0.3\n\ud83d\udca1 Suggestions\n- Consider standardizing on version 4.0.3 as this version is the most commonly used.\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
       "severity": "warning",
       "score": 0
     }
@@ -78,18 +79,56 @@
     "allDependencies": 25
   },
   "minimumNodeVersion": "22.20.0",
-  "minimumNodeVersionImposedBy": ["@napi-rs/lzma-linux-x64-gnu"],
+  "minimumNodeVersionImposedBy": [
+    "@napi-rs/lzma-linux-x64-gnu"
+  ],
   "devServerStartTime": {
     "avgMs": 1195.4,
     "standardDeviationMs": 99.14,
     "minMs": 1129,
     "maxMs": 1370,
-    "samplesMs": [1176, 1129, 1144, 1158, 1370]
+    "samplesMs": [
+      1176,
+      1129,
+      1144,
+      1158,
+      1370
+    ]
   },
   "firstPartyDependencies": {
     "prodDependencies": 0,
     "devDependencies": 5,
     "allDependencies": 34,
     "duplicateDependencies": 2
-  }
+  },
+  "install": {
+    "name": "install",
+    "runs": 5,
+    "iterations": [
+      {
+        "installTimeMs": 1367
+      },
+      {
+        "installTimeMs": 1529
+      },
+      {
+        "installTimeMs": 1600
+      },
+      {
+        "installTimeMs": 1693
+      },
+      {
+        "installTimeMs": 1837
+      }
+    ],
+    "installTimeMs": {
+      "mean": 1605.2,
+      "min": 1367,
+      "max": 1837,
+      "variance": 31003.199999999997
+    },
+    "nodeModulesSizeBytes": 99569664
+  },
+  "framework": "sveltekit",
+  "packagePath": "packages/starter-sveltekit"
 }

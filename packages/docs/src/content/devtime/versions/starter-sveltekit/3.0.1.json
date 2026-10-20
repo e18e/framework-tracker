@@ -8,10 +8,6 @@
   "runner": "Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)",
   "frameworkVersion": "3.0.1",
   "releasedAt": "2026-10-06T01:34:11.275Z",
-  "avgInstallTimeMs": 2195,
-  "minInstallTimeMs": 1945,
-  "maxInstallTimeMs": 2904,
-  "nodeModulesSize": 92606464,
   "coldBuildTimeMs": 4220,
   "warmBuildTimeMs": 3910,
   "coldBuildTime": {
@@ -19,21 +15,26 @@
     "standardDeviationMs": 33.16,
     "minMs": 1727,
     "maxMs": 1807,
-    "samplesMs": [1727, 1745, 1752, 1807, 1790]
+    "samplesMs": [
+      1727,
+      1745,
+      1752,
+      1807,
+      1790
+    ]
   },
   "warmBuildTime": {
     "avgMs": 1657.8,
     "standardDeviationMs": 186.93,
     "minMs": 1542,
     "maxMs": 1990,
-    "samplesMs": [1990, 1542, 1577, 1602, 1578]
-  },
-  "installTime": {
-    "avgMs": 1405.8,
-    "standardDeviationMs": 122.7,
-    "minMs": 1296,
-    "maxMs": 1558,
-    "samplesMs": [1343, 1296, 1314, 1558, 1518]
+    "samplesMs": [
+      1990,
+      1542,
+      1577,
+      1602,
+      1578
+    ]
   },
   "prodDependencies": 0,
   "devDependencies": 8,
@@ -47,7 +48,7 @@
       "message": "The package \u001b[1mpublishes internal tests or config files\u001b[22m (\u001b[1m/eslint.config.js\u001b[22m). You can use \u001b[1mpkg.files\u001b[22m to only publish certain files and save user bandwidth."
     },
     {
-      "message": "[duplicate dependency] magic-string has 2 installed versions:\n1.4.3 via the following 2 package(s) @sveltejs/vite-plugin-svelte@7.3.1, @sveltejs/kit@3.0.1\n0.30.21 via the following 1 package(s) svelte@5.57.1\n💡 Suggestions\n- Consider standardizing on version 1.4.3 as this version is the most commonly used.\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
+      "message": "[duplicate dependency] magic-string has 2 installed versions:\n1.4.3 via the following 2 package(s) @sveltejs/vite-plugin-svelte@7.3.1, @sveltejs/kit@3.0.1\n0.30.21 via the following 1 package(s) svelte@5.57.1\n\ud83d\udca1 Suggestions\n- Consider standardizing on version 1.4.3 as this version is the most commonly used.\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
       "severity": "warning",
       "score": 0
     }
@@ -66,18 +67,56 @@
     "allDependencies": 23
   },
   "minimumNodeVersion": "22.17.0",
-  "minimumNodeVersionImposedBy": ["@sveltejs/kit"],
+  "minimumNodeVersionImposedBy": [
+    "@sveltejs/kit"
+  ],
   "devServerStartTime": {
     "avgMs": 1254.8,
     "standardDeviationMs": 67.05,
     "minMs": 1178,
     "maxMs": 1346,
-    "samplesMs": [1178, 1237, 1215, 1298, 1346]
+    "samplesMs": [
+      1178,
+      1237,
+      1215,
+      1298,
+      1346
+    ]
   },
   "firstPartyDependencies": {
     "prodDependencies": 0,
     "devDependencies": 5,
     "allDependencies": 108,
     "duplicateDependencies": 1
-  }
+  },
+  "install": {
+    "name": "install",
+    "runs": 5,
+    "iterations": [
+      {
+        "installTimeMs": 1343
+      },
+      {
+        "installTimeMs": 1296
+      },
+      {
+        "installTimeMs": 1314
+      },
+      {
+        "installTimeMs": 1558
+      },
+      {
+        "installTimeMs": 1518
+      }
+    ],
+    "installTimeMs": {
+      "mean": 1405.8,
+      "min": 1296,
+      "max": 1558,
+      "variance": 15045.2
+    },
+    "nodeModulesSizeBytes": 92606464
+  },
+  "framework": "sveltekit",
+  "packagePath": "packages/starter-sveltekit"
 }

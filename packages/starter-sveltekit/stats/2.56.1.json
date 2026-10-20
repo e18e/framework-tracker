@@ -3,10 +3,6 @@
   "runner": "Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)",
   "frameworkVersion": "2.56.1",
   "releasedAt": "2026-04-03T21:19:38.831Z",
-  "avgInstallTimeMs": 2195,
-  "minInstallTimeMs": 1945,
-  "maxInstallTimeMs": 2904,
-  "nodeModulesSize": 100298752,
   "coldBuildTimeMs": 4220,
   "warmBuildTimeMs": 3910,
   "coldBuildTime": {
@@ -14,21 +10,26 @@
     "standardDeviationMs": 96.83,
     "minMs": 1768,
     "maxMs": 1998,
-    "samplesMs": [1777, 1780, 1998, 1768, 1818]
+    "samplesMs": [
+      1777,
+      1780,
+      1998,
+      1768,
+      1818
+    ]
   },
   "warmBuildTime": {
     "avgMs": 1643.8,
     "standardDeviationMs": 21.65,
     "minMs": 1611,
     "maxMs": 1664,
-    "samplesMs": [1664, 1661, 1635, 1611, 1648]
-  },
-  "installTime": {
-    "avgMs": 1595.6,
-    "standardDeviationMs": 129.3,
-    "minMs": 1390,
-    "maxMs": 1734,
-    "samplesMs": [1390, 1595, 1669, 1590, 1734]
+    "samplesMs": [
+      1664,
+      1661,
+      1635,
+      1611,
+      1648
+    ]
   },
   "prodDependencies": 0,
   "devDependencies": 7,
@@ -42,7 +43,7 @@
       "message": "The package \u001b[1mpublishes internal tests or config files\u001b[22m (\u001b[1m/eslint.config.js\u001b[22m). You can use \u001b[1mpkg.files\u001b[22m to only publish certain files and save user bandwidth."
     },
     {
-      "message": "[duplicate dependency] is-reference has 2 installed versions:\n1.2.1 via the following 1 package(s) @rollup/plugin-commonjs@29.0.3\n3.0.3 via the following 1 package(s) svelte@5.55.2\n💡 Suggestions\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
+      "message": "[duplicate dependency] is-reference has 2 installed versions:\n1.2.1 via the following 1 package(s) @rollup/plugin-commonjs@29.0.3\n3.0.3 via the following 1 package(s) svelte@5.55.2\n\ud83d\udca1 Suggestions\n- Consider upgrading consuming packages as this may resolve this duplicate version.\n",
       "severity": "warning",
       "score": 0
     }
@@ -73,18 +74,56 @@
     "allDependencies": 24
   },
   "minimumNodeVersion": "22.20.0",
-  "minimumNodeVersionImposedBy": ["@napi-rs/lzma-linux-x64-gnu"],
+  "minimumNodeVersionImposedBy": [
+    "@napi-rs/lzma-linux-x64-gnu"
+  ],
   "devServerStartTime": {
     "avgMs": 1405.6,
     "standardDeviationMs": 131.47,
     "minMs": 1267,
     "maxMs": 1612,
-    "samplesMs": [1433, 1326, 1267, 1612, 1390]
+    "samplesMs": [
+      1433,
+      1326,
+      1267,
+      1612,
+      1390
+    ]
   },
   "firstPartyDependencies": {
     "prodDependencies": 0,
     "devDependencies": 5,
     "allDependencies": 34,
     "duplicateDependencies": 1
-  }
+  },
+  "install": {
+    "name": "install",
+    "runs": 5,
+    "iterations": [
+      {
+        "installTimeMs": 1390
+      },
+      {
+        "installTimeMs": 1595
+      },
+      {
+        "installTimeMs": 1669
+      },
+      {
+        "installTimeMs": 1590
+      },
+      {
+        "installTimeMs": 1734
+      }
+    ],
+    "installTimeMs": {
+      "mean": 1595.6,
+      "min": 1390,
+      "max": 1734,
+      "variance": 16711.3
+    },
+    "nodeModulesSizeBytes": 100298752
+  },
+  "framework": "sveltekit",
+  "packagePath": "packages/starter-sveltekit"
 }

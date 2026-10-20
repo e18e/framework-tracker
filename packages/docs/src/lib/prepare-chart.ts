@@ -1,6 +1,7 @@
 import { metricCatalogue } from './metrics.ts'
 import type {
   ChartMeasurement,
+  InstallChartMeasurement,
   MetricDefinition,
   PreparedComparisonChart,
   VersionLineChartPayload,
@@ -302,25 +303,25 @@ export function prepareClientSideRenderedTestsFcpMsComparison(
 }
 
 export function prepareInstallTimeHistory(
-  records: readonly ChartMeasurement[],
+  records: readonly InstallChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
     metricCatalogue['installTime.avgMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.installTime?.avgMs, 1000),
+      value: finiteValue(record.install.installTimeMs.mean, 1000),
     })),
   )
 }
 
 export function prepareInstallTimeComparison(
-  records: readonly ChartMeasurement[],
+  records: readonly InstallChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
     metricCatalogue['installTime.avgMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.installTime?.avgMs, 1000),
+      value: finiteValue(record.install.installTimeMs.mean, 1000),
     })),
   )
 }
@@ -519,25 +520,25 @@ export function prepareSsrRequestThroughputTestsMedianLatencyMsComparison(
 }
 
 export function prepareNodeModulesSizeHistory(
-  records: readonly ChartMeasurement[],
+  records: readonly InstallChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
     metricCatalogue['nodeModulesSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.nodeModulesSize, 1048576),
+      value: finiteValue(record.install.nodeModulesSizeBytes, 1048576),
     })),
   )
 }
 
 export function prepareNodeModulesSizeComparison(
-  records: readonly ChartMeasurement[],
+  records: readonly InstallChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
     metricCatalogue['nodeModulesSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.nodeModulesSize, 1048576),
+      value: finiteValue(record.install.nodeModulesSizeBytes, 1048576),
     })),
   )
 }

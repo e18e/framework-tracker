@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import type { InstallBenchmarkSchema, InstallResultSchema } from './schemas.ts'
 import type { SSRLoadTests } from './ssrLoad/types.ts'
 type MeasurementType =
   | 'install'
@@ -58,14 +60,15 @@ export interface FrameworkConfig {
 }
 
 export interface CIStats {
+  framework?: string
+  packagePath?: string
   timingMeasuredAt?: string
   runner?: string
   browserVersion?: string
   frameworkVersion?: string
   releasedAt?: string
+  install?: z.infer<typeof InstallBenchmarkSchema>
   // Install stats
-  installTime?: TimeStat
-  nodeModulesSize?: number
   // Build stats
   coldBuildTime?: TimeStat
   warmBuildTime?: TimeStat
@@ -141,11 +144,7 @@ export interface FirstPartyDependencyStats extends DependencyStats {
   duplicateDependencies?: number
 }
 
-export interface InstallStats {
-  frameworkVersion: string
-  installTime: TimeStat
-  nodeModulesSize: number
-}
+export type InstallResult = z.infer<typeof InstallResultSchema>
 
 export interface BuildStats {
   coldBuildTime: TimeStat

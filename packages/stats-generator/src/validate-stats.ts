@@ -4,7 +4,7 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { readJsonFile } from './utils.ts'
 import {
-  InstallStatsSchema,
+  InstallResultSchema,
   BuildStatsSchema,
   DevServerStatsSchema,
   BrowserBaselineStatsSchema,
@@ -35,7 +35,7 @@ interface BenchmarkConfig {
 }
 
 const STARTER_BENCHMARKS: BenchmarkConfig[] = [
-  { type: 'install', file: 'install-stats.json', schema: InstallStatsSchema },
+  { type: 'install', file: 'install-stats.json', schema: InstallResultSchema },
   { type: 'build', file: 'build-stats.json', schema: BuildStatsSchema },
   {
     type: 'devServer',

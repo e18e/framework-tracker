@@ -37,6 +37,8 @@ const firstPartyDependencyStatsSchema = dependencyStatsSchema.extend({
 })
 
 const devtimeSchema = z.object({
+  framework: z.string(),
+  packagePath: z.string(),
   name: z.string(),
   type: z.string(),
   package: z.string(),
@@ -47,11 +49,21 @@ const devtimeSchema = z.object({
   allDependencies: z.number(),
   firstPartyDependencies: firstPartyDependencyStatsSchema,
   frameworkDependencies: dependencyStatsSchema.optional(),
-  installTime: timeSchema,
+  install: z.object({
+    name: z.literal('install'),
+    runs: z.number().int().positive(),
+    iterations: z.array(z.object({ installTimeMs: z.number().nonnegative() })),
+    installTimeMs: z.object({
+      mean: z.number(),
+      min: z.number(),
+      max: z.number(),
+      variance: z.number().nonnegative(),
+    }),
+    nodeModulesSizeBytes: z.number().nonnegative(),
+  }),
   coldBuildTime: timeSchema,
   warmBuildTime: timeSchema,
   devServerStartTime: timeSchema.optional(),
-  nodeModulesSize: z.number(),
   duplicateDependencies: z.number().optional(),
   depInstallSize: z.number().optional(),
   e18eMessages: z

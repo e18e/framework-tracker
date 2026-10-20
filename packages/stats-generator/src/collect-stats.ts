@@ -63,6 +63,8 @@ async function processStarter(framework: FrameworkConfig, order: number) {
     ...dependencyStats,
     ...browserBaselineStats,
     ...ciStats,
+    framework: framework.name,
+    packagePath: `packages/${pkgDir}`,
   }
 
   await saveStats(pkgDir, stats, 'devtime')
@@ -85,6 +87,8 @@ async function processApp(framework: FrameworkConfig, order: number) {
     isFocused: framework.focusedFramework,
     order,
     ...ciStats,
+    framework: framework.name,
+    packagePath: `packages/${pkgDir}`,
   }
 
   await saveStats(pkgDir, stats, 'runtime')

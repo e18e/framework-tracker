@@ -10,8 +10,21 @@ import {
   getFrameworkByPackage,
   parseArgs,
 } from './utils.ts'
-import type { InstallStats } from './types.ts'
-import { summarizeSamples } from './sample-statistics.ts'
+import { InstallBenchmarkSchema, InstallResultSchema } from './schemas.ts'
+
+function summarizeMetric(values: number[]) {
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length
+  return {
+    mean,
+    min: Math.min(...values),
+    max: Math.max(...values),
+    variance:
+      values.length === 1
+        ? 0
+        : values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+          (values.length - 1),
+  }
+}
 
 function execCommand(command: string, cwd: string): string {
   return execSync(command, {
@@ -83,7 +96,9 @@ async function main() {
   console.info(`Using isolated benchmark directory ${tempDir}...`)
 
   try {
-    const installTimes: number[] = []
+    const iterations: {
+      installTimeMs: number
+    }[] = []
     let finalProjectDir = ''
     let previousRunDir = ''
 
@@ -99,7 +114,9 @@ async function main() {
 
       console.info(`\nInstall run ${i}/${runFrequency}...`)
       const time = measureInstallTime(projectDir, storeDir, cacheDir)
-      installTimes.push(time)
+      iterations.push({
+        installTimeMs: time,
+      })
       console.info(`  Install time: ${time}ms`)
 
       finalProjectDir = projectDir
@@ -116,22 +133,29 @@ async function main() {
     const nodeModulesSize = getDirectorySize(nodeModulesPath)
     console.info(`node_modules size: ${nodeModulesSize} bytes`)
 
-    const stats: InstallStats = {
+    const stats = InstallResultSchema.parse({
       frameworkVersion,
-      installTime: summarizeSamples(installTimes, 1),
-      nodeModulesSize,
-    }
+      install: InstallBenchmarkSchema.parse({
+        name: 'install',
+        runs: iterations.length,
+        iterations,
+        installTimeMs: summarizeMetric(
+          iterations.map((run) => run.installTimeMs),
+        ),
+        nodeModulesSizeBytes: nodeModulesSize,
+      }),
+    })
 
     const outputPath = join(packagesDir, packageName, 'install-stats.json')
     writeJsonFile(outputPath, stats)
 
     console.info(`\n✓ Saved install stats to ${outputPath}`)
-    console.info(`  Average: ${stats.installTime.avgMs}ms`)
+    console.info(`  Average: ${stats.install.installTimeMs.mean}ms`)
     console.info(
-      `  Standard deviation: ${stats.installTime.standardDeviationMs}ms`,
+      `  Standard deviation: ${Math.sqrt(stats.install.installTimeMs.variance)}ms`,
     )
-    console.info(`  Min: ${stats.installTime.minMs}ms`)
-    console.info(`  Max: ${stats.installTime.maxMs}ms`)
+    console.info(`  Min: ${stats.install.installTimeMs.min}ms`)
+    console.info(`  Max: ${stats.install.installTimeMs.max}ms`)
   } finally {
     rmSync(tempDir, { recursive: true, force: true })
   }

@@ -61,9 +61,6 @@ export interface ChartMeasurement {
     firstPaintMs?: number
     fcpMs?: number
   }
-  installTime?: {
-    avgMs?: number
-  }
   coldBuildTime?: {
     avgMs?: number
   }
@@ -80,7 +77,6 @@ export interface ChartMeasurement {
     bodySizeKb?: number
     medianLatencyMs?: number
   }
-  nodeModulesSize?: number
   depInstallSize?: number
   ssrLoadTests?: SSRLoadMeasurements
   ssrRouterLinkLoadTests?: SSRLoadMeasurements
@@ -94,4 +90,12 @@ interface SSRLoadMeasurements {
     p90LatencyMs?: number
     p99LatencyMs?: number
   }[]
+}
+
+/** Install charts require a completed install benchmark. */
+export type InstallChartMeasurement = ChartMeasurement & {
+  install: {
+    installTimeMs: { mean: number }
+    nodeModulesSizeBytes: number
+  }
 }

@@ -47,14 +47,18 @@ export const PackagePathSchema = z.enum([
   'packages/app-tanstack-start-react',
 ])
 
+/** Shared metadata for the overall result document. */
+export const BaseResultSchema = z.object({
+  framework: FrameworkSchema,
+  packagePath: PackagePathSchema,
+  timingMeasuredAt: z.iso.datetime(),
+  runner: z.string().min(1),
+})
+
 /** Identity shared by benchmarks and exact-value scans. */
 export const TestBaseSchema = z.object({
   /** Stable test identifier, such as install or ssrLoad. */
   name: z.string().min(1),
-  /** Configured framework identifier being tested, such as next or astro. */
-  framework: FrameworkSchema,
-  /** Repository-relative path to the tested package folder, such as packages/app-astro. */
-  packagePath: PackagePathSchema,
 })
 export type TestBase = z.infer<typeof TestBaseSchema>
 
@@ -89,10 +93,22 @@ const TimeStatSchema = z
     { message: 'Expected standard deviation and samples together' },
   )
 
-export const InstallStatsSchema = z.object({
+export const InstallIterationSchema = z.object({
+  installTimeMs: z.number().nonnegative(),
+})
+
+export const InstallBenchmarkSchema = createBenchmarkBaseSchema(
+  InstallIterationSchema,
+).safeExtend({
+  name: z.literal('install'),
+  installTimeMs: MetricBaseSchema,
+  nodeModulesSizeBytes: z.number().nonnegative(),
+})
+
+/** Artifact emitted by the install runner, before overall result assembly. */
+export const InstallResultSchema = z.object({
   frameworkVersion: z.string().min(1),
-  installTime: TimeStatSchema,
-  nodeModulesSize: z.number().nonnegative(),
+  install: InstallBenchmarkSchema,
 })
 
 export const BuildStatsSchema = z.object({

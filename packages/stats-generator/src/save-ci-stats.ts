@@ -1,3 +1,4 @@
+import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
@@ -13,7 +14,7 @@ import {
 } from './utils.ts'
 import type {
   CIStats,
-  InstallStats,
+  InstallResult,
   BuildStats,
   DevServerStats,
   CoreJsStats,
@@ -78,8 +79,12 @@ async function main() {
 
       let stats: CIStats = {
         ...(existingStats ? normalizeCIStats(existingStats) : {}),
-        timingMeasuredAt: timestamp,
-        runner,
+        ...BaseResultSchema.parse({
+          framework: framework.name,
+          packagePath: `packages/${packageName}`,
+          timingMeasuredAt: timestamp,
+          runner,
+        }),
       }
 
       let frameworkVersion = existingStats?.frameworkVersion
@@ -90,15 +95,15 @@ async function main() {
         `install-stats-${name}`,
         'install-stats.json',
       )
-      const installStats = readJsonFile<InstallStats>(installStatsPath)
+      const installStats = readJsonFile<InstallResult>(installStatsPath)
 
       if (installStats) {
+        InstallResultSchema.parse(installStats)
         console.info(`  ✓ Found install stats artifact`)
         stats = {
           ...stats,
           frameworkVersion: installStats.frameworkVersion,
-          installTime: installStats.installTime,
-          nodeModulesSize: installStats.nodeModulesSize,
+          install: installStats.install,
         }
         frameworkVersion = installStats.frameworkVersion
       } else {
@@ -307,8 +312,12 @@ async function main() {
 
       let stats: CIStats = {
         ...(existingStats ? normalizeCIStats(existingStats) : {}),
-        timingMeasuredAt: timestamp,
-        runner,
+        ...BaseResultSchema.parse({
+          framework: framework.name,
+          packagePath: `packages/${packageName}`,
+          timingMeasuredAt: timestamp,
+          runner,
+        }),
       }
 
       let frameworkVersion = existingStats?.frameworkVersion

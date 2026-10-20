@@ -66,15 +66,6 @@ const devtimeSchema = z.object({
   devServerStartTime: timeSchema.optional(),
   duplicateDependencies: z.number().optional(),
   depInstallSize: z.number().optional(),
-  e18eMessages: z
-    .array(
-      z.object({
-        severity: z.string(),
-        message: z.string(),
-        fixableBy: z.string().optional(),
-      }),
-    )
-    .optional(),
   vendoredCoreJsSize: z.number().optional(),
   vendoredCoreJsUnnecessaryModules: z.array(z.string()).optional(),
   browserBaselineTests: z

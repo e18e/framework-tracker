@@ -122,11 +122,6 @@ export interface CIStats {
   firstPartyDependencies?: FirstPartyDependencyStats
   duplicateDependencies?: number
   depInstallSize?: number
-  e18eMessages?: Array<{
-    severity: string
-    message: string
-    fixableBy?: string
-  }>
   // Snapshot of the package.json dependencies at measurement time
   packageJson?: {
     dependencies?: Record<string, string>

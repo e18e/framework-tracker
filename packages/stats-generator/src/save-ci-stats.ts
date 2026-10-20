@@ -261,7 +261,6 @@ async function main() {
           ...stats,
           ...getDependencyStatsFromE18e(e18eStats),
           allDependencies: packageDependencyCounts.allDependencies,
-          e18eMessages: e18eStats.messages,
         }
       } else {
         console.warn(`No e18e stats artifact found at ${e18eArtifactPath}`)

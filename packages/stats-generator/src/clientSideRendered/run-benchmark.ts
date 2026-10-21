@@ -1,3 +1,4 @@
+import { assembleClientRendering } from '../client-rendering.ts'
 import { existsSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import puppeteer from 'puppeteer-core'
@@ -9,12 +10,10 @@ import {
   INTERACTION_SOURCE,
   prepareInteractionTraceForLighthouse,
 } from '../interaction-timing.ts'
-import type { InteractionTestStats } from '../types.ts'
 import type {
   ClientSideRenderedBenchmarkResult,
   ClientSideRenderedRunResult,
 } from './types.ts'
-import { standardDeviation } from '../sample-statistics.ts'
 
 const CLIENT_SIDE_RENDERED_PATH = '/client-side-rendered'
 
@@ -142,11 +141,6 @@ async function runOnce(
   }
 }
 
-function avg(values: number[]): number {
-  if (values.length === 0) return 0
-  return Number((values.reduce((a, b) => a + b, 0) / values.length).toFixed(2))
-}
-
 export async function runBenchmark(
   url: string,
   packageName: string,
@@ -191,55 +185,16 @@ export async function runBenchmark(
     )
   }
 
-  const firstPaintMs = avg(fp)
-  const fcpMs = avg(fcp)
-  const interactionTests: InteractionTestStats = {
-    scenario: INTERACTION_SCENARIO,
-    source: INTERACTION_SOURCE,
-    interactionLatencyMs: avg(
-      interactions.map((value) => value.interactionLatencyMs),
-    ),
-    inputDelayMs: avg(interactions.map((value) => value.inputDelayMs)),
-    processingDurationMs: avg(
-      interactions.map((value) => value.processingDurationMs),
-    ),
-    presentationDelayMs: avg(
-      interactions.map((value) => value.presentationDelayMs),
-    ),
-  }
   const samples = results.map((_, index) => ({
     firstPaintMs: fp[index],
     fcpMs: fcp[index],
     interactionTests: interactions[index],
   }))
-  const standardDeviationStats = {
-    firstPaintMs: standardDeviation(fp),
-    fcpMs: standardDeviation(fcp),
-    interactionLatencyMs: standardDeviation(
-      interactions.map((value) => value.interactionLatencyMs),
-    ),
-    inputDelayMs: standardDeviation(
-      interactions.map((value) => value.inputDelayMs),
-    ),
-    processingDurationMs: standardDeviation(
-      interactions.map((value) => value.processingDurationMs),
-    ),
-    presentationDelayMs: standardDeviation(
-      interactions.map((value) => value.presentationDelayMs),
-    ),
-  }
   return {
     name: packageName,
     displayName,
     package: packageName,
     browserVersion,
-    clientSideRenderedTests: {
-      firstPaintMs,
-      fcpMs,
-      interactionTests,
-      runs: results.length,
-      standardDeviation: standardDeviationStats,
-      samples,
-    },
+    clientSideRenderedTests: assembleClientRendering(samples),
   }
 }

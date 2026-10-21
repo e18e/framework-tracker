@@ -90,15 +90,19 @@ export interface CIStats {
   ssrLoadTests?: SSRLoadTests
   ssrRouterLinkLoadTests?: CIStats['ssrLoadTests']
   // Client-side rendered stats (browser paint + interaction timings)
-  clientSideRenderedTests?: {
-    firstPaintMs: number
-    fcpMs: number
-    inpMs?: number
-    interactionTests?: InteractionTestStats
-    runs: number
-    standardDeviation?: RenderedTestStandardDeviation
-    samples?: RenderedTestSample[]
-  }
+  clientSideRenderedTests?:
+    | import('zod').infer<
+        typeof import('./schemas.ts').ClientRenderingBenchmarkSchema
+      >
+    | {
+        firstPaintMs: number
+        fcpMs: number
+        inpMs?: number
+        interactionTests?: InteractionTestStats
+        runs: number
+        standardDeviation?: RenderedTestStandardDeviation
+        samples?: RenderedTestSample[]
+      }
   // Server-side rendered route stats (browser paint + interaction timings)
   serverSideRenderedTests?: {
     firstPaintMs: number

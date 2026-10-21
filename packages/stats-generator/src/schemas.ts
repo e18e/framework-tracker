@@ -274,8 +274,25 @@ const RenderedTestsSchema = z
     { message: 'Expected standard deviation and samples together' },
   )
 
+export const ClientRenderingIterationSchema = RenderedTestSampleSchema
+export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
+  ClientRenderingIterationSchema,
+).safeExtend({
+  name: z.literal('clientSideRendered'),
+  firstPaintMs: MetricBaseSchema,
+  fcpMs: MetricBaseSchema,
+  interactionTests: z.object({
+    scenario: z.literal('first-row-detail-navigation'),
+    source: z.literal('lighthouse-inp-breakdown'),
+    interactionLatencyMs: MetricBaseSchema,
+    inputDelayMs: MetricBaseSchema,
+    processingDurationMs: MetricBaseSchema,
+    presentationDelayMs: MetricBaseSchema,
+  }),
+})
+
 export const ClientSideRenderedStatsSchema = z.object({
-  clientSideRenderedTests: RenderedTestsSchema,
+  clientSideRenderedTests: ClientRenderingBenchmarkSchema,
   browserVersion: z.string().min(1),
 })
 

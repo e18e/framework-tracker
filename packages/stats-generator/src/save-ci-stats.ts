@@ -1,3 +1,4 @@
+import { ClientSideRenderedStatsSchema } from './schemas.ts'
 import { BuildStatsSchema, DevServerStatsSchema } from './schemas.ts'
 import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
@@ -413,6 +414,7 @@ async function main() {
         : null
 
       if (clientSideRenderedStats) {
+        ClientSideRenderedStatsSchema.parse(clientSideRenderedStats)
         console.info(`  ✓ Found client-side rendered stats artifact`)
         stats = {
           ...stats,

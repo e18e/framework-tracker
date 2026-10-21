@@ -74,6 +74,30 @@ const renderedTestSampleSchema = z.object({
   interactionTests: interactionTimingSchema,
 })
 
+const metricSchema = z.object({
+  mean: z.number(),
+  min: z.number(),
+  max: z.number(),
+  variance: z.number().nonnegative(),
+})
+const ClientRenderingBenchmarkSchema = z
+  .object({
+    name: z.literal('clientSideRendered'),
+    runs: z.number().int().positive(),
+    iterations: z.array(renderedTestSampleSchema),
+    firstPaintMs: metricSchema,
+    fcpMs: metricSchema,
+    interactionTests: z.object({
+      scenario: z.literal('first-row-detail-navigation'),
+      source: z.literal('lighthouse-inp-breakdown'),
+      interactionLatencyMs: metricSchema,
+      inputDelayMs: metricSchema,
+      processingDurationMs: metricSchema,
+      presentationDelayMs: metricSchema,
+    }),
+  })
+  .refine((value) => value.iterations.length === value.runs)
+
 const dependencyStatsSchema = z.object({
   prodDependencies: z.number().int().nonnegative(),
   devDependencies: z.number().int().nonnegative(),
@@ -190,29 +214,45 @@ const runtimeSchema = z.object({
   ssrLoadTests: ssrLoadTestsSchema.optional(),
   ssrRouterLinkLoadTests: ssrLoadTestsSchema.optional(),
   clientSideRenderedTests: z
-    .object({
-      firstPaintMs: z.number(),
-      fcpMs: z.number(),
-      inpMs: z.number().optional(),
-      interactionTests: z
-        .object({
-          scenario: z.literal('first-row-detail-navigation'),
-          source: z.literal('lighthouse-inp-breakdown'),
-          interactionLatencyMs: z.number().positive(),
-          inputDelayMs: z.number().nonnegative(),
-          processingDurationMs: z.number().nonnegative(),
-          presentationDelayMs: z.number().nonnegative(),
-        })
-        .optional(),
-      runs: z.number(),
-      standardDeviation: interactionTimingSchema
-        .extend({
-          firstPaintMs: z.number().nonnegative(),
-          fcpMs: z.number().nonnegative(),
-        })
-        .optional(),
-      samples: z.array(renderedTestSampleSchema).nonempty().optional(),
-    })
+    .union([
+      ClientRenderingBenchmarkSchema.transform((value) => ({
+        ...value,
+        firstPaintMs: value.firstPaintMs.mean,
+        fcpMs: value.fcpMs.mean,
+        interactionTests: {
+          ...value.interactionTests,
+          interactionLatencyMs:
+            value.interactionTests.interactionLatencyMs.mean,
+          inputDelayMs: value.interactionTests.inputDelayMs.mean,
+          processingDurationMs:
+            value.interactionTests.processingDurationMs.mean,
+          presentationDelayMs: value.interactionTests.presentationDelayMs.mean,
+        },
+      })),
+      z.object({
+        firstPaintMs: z.number(),
+        fcpMs: z.number(),
+        inpMs: z.number().optional(),
+        interactionTests: z
+          .object({
+            scenario: z.literal('first-row-detail-navigation'),
+            source: z.literal('lighthouse-inp-breakdown'),
+            interactionLatencyMs: z.number().positive(),
+            inputDelayMs: z.number().nonnegative(),
+            processingDurationMs: z.number().nonnegative(),
+            presentationDelayMs: z.number().nonnegative(),
+          })
+          .optional(),
+        runs: z.number(),
+        standardDeviation: interactionTimingSchema
+          .extend({
+            firstPaintMs: z.number().nonnegative(),
+            fcpMs: z.number().nonnegative(),
+          })
+          .optional(),
+        samples: z.array(renderedTestSampleSchema).nonempty().optional(),
+      }),
+    ])
     .optional(),
   serverSideRenderedTests: z
     .object({

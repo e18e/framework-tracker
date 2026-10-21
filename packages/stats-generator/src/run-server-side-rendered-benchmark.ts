@@ -1,3 +1,4 @@
+import { ServerSideRenderedStatsSchema } from './schemas.ts'
 import { join } from 'node:path'
 import { runServerSideRenderedBenchmark } from './serverSideRendered/index.ts'
 import { packagesDir } from './constants.ts'
@@ -46,22 +47,23 @@ async function main() {
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
+  ServerSideRenderedStatsSchema.parse(ciStats)
   writeJsonFile(outputPath, ciStats)
 
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
   console.info(
-    `  First Paint: ${result.serverSideRenderedTests.firstPaintMs}ms ± ${result.serverSideRenderedTests.standardDeviation.firstPaintMs}ms`,
+    `  First Paint: ${result.serverSideRenderedTests.firstPaintMs.mean}ms ± ${Math.sqrt(result.serverSideRenderedTests.firstPaintMs.variance)}ms`,
   )
   console.info(
-    `  FCP:         ${result.serverSideRenderedTests.fcpMs}ms ± ${result.serverSideRenderedTests.standardDeviation.fcpMs}ms`,
+    `  FCP:         ${result.serverSideRenderedTests.fcpMs.mean}ms ± ${Math.sqrt(result.serverSideRenderedTests.fcpMs.variance)}ms`,
   )
   const interaction = result.serverSideRenderedTests.interactionTests
-  console.info(`  Interaction: ${interaction.interactionLatencyMs}ms`)
-  console.info(`    Input delay:  ${interaction.inputDelayMs}ms`)
-  console.info(`    Processing:   ${interaction.processingDurationMs}ms`)
-  console.info(`    Presentation: ${interaction.presentationDelayMs}ms`)
+  console.info(`  Interaction: ${interaction.interactionLatencyMs.mean}ms`)
+  console.info(`    Input delay:  ${interaction.inputDelayMs.mean}ms`)
+  console.info(`    Processing:   ${interaction.processingDurationMs.mean}ms`)
+  console.info(`    Presentation: ${interaction.presentationDelayMs.mean}ms`)
 }
 
 main().catch((error) => {

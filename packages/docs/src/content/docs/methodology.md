@@ -274,8 +274,14 @@ Installed using the CLI with the following setup:
   benchmark cannot change how the framework behaves. Astro, for example,
   switches to a detached background server when it detects an AI agent
   terminal.
-- Dev server benchmarks run 5 times by default and report average, minimum,
-  and maximum duration.
+- Dev server benchmarks run 5 times by default. New results record the test
+  `name`, measured `runs`, raw `iterations` in milliseconds, and `timeMs`
+  statistics (mean, minimum, maximum, and sample variance). Framework and
+  package identity stay on the overall result.
+- All 146 historical startup records contained raw samples and were converted
+  using those samples, including recalculating sample variance. No measurements
+  or iterations were invented. The site can still display legacy summaries,
+  but new benchmark artifacts require complete iterations.
 
 ### Core-JS Polyfills
 

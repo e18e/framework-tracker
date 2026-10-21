@@ -8,18 +8,62 @@
   "runner": "Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)",
   "frameworkVersion": "0.18.0",
   "coldBuildTime": {
-    "avgMs": 971,
-    "standardDeviationMs": 8.89,
-    "minMs": 958,
-    "maxMs": 979,
-    "samplesMs": [978, 974, 979, 966, 958]
+    "name": "coldBuild",
+    "runs": 5,
+    "iterations": [
+      {
+        "timeMs": 978
+      },
+      {
+        "timeMs": 974
+      },
+      {
+        "timeMs": 979
+      },
+      {
+        "timeMs": 966
+      },
+      {
+        "timeMs": 958
+      }
+    ],
+    "framework": "pracht",
+    "packagePath": "packages/starter-pracht",
+    "timeMs": {
+      "mean": 971,
+      "min": 958,
+      "max": 979,
+      "variance": 79
+    }
   },
   "warmBuildTime": {
-    "avgMs": 976.6,
-    "standardDeviationMs": 6.69,
-    "minMs": 969,
-    "maxMs": 986,
-    "samplesMs": [976, 986, 980, 969, 972]
+    "name": "warmBuild",
+    "runs": 5,
+    "iterations": [
+      {
+        "timeMs": 976
+      },
+      {
+        "timeMs": 986
+      },
+      {
+        "timeMs": 980
+      },
+      {
+        "timeMs": 969
+      },
+      {
+        "timeMs": 972
+      }
+    ],
+    "framework": "pracht",
+    "packagePath": "packages/starter-pracht",
+    "timeMs": {
+      "mean": 976.6,
+      "min": 969,
+      "max": 986,
+      "variance": 44.8
+    }
   },
   "devServerStartTime": {
     "avgMs": 911.6,

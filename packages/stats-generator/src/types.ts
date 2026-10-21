@@ -1,6 +1,7 @@
 import type { z } from 'zod'
 import type {
   BuildStatsSchema,
+  ClientRenderingBenchmarkSchema,
   DevServerStatsSchema,
   InstallBenchmarkSchema,
   InstallResultSchema,
@@ -91,9 +92,7 @@ export interface CIStats {
   ssrRouterLinkLoadTests?: CIStats['ssrLoadTests']
   // Client-side rendered stats (browser paint + interaction timings)
   clientSideRenderedTests?:
-    | import('zod').infer<
-        typeof import('./schemas.ts').ClientRenderingBenchmarkSchema
-      >
+    | z.infer<typeof ClientRenderingBenchmarkSchema>
     | {
         firstPaintMs: number
         fcpMs: number

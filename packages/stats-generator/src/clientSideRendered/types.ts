@@ -1,3 +1,5 @@
+import type { z } from 'zod'
+import type { ClientRenderingBenchmarkSchema } from '../schemas.ts'
 import type { InteractionTiming } from '../types.ts'
 
 export interface ClientSideRenderedRunResult {
@@ -11,7 +13,5 @@ export interface ClientSideRenderedBenchmarkResult {
   displayName: string
   package: string
   browserVersion: string
-  clientSideRenderedTests: import('zod').infer<
-    typeof import('../schemas.ts').ClientRenderingBenchmarkSchema
-  >
+  clientSideRenderedTests: z.infer<typeof ClientRenderingBenchmarkSchema>
 }

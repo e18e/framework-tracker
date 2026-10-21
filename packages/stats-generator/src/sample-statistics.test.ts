@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { standardDeviation, summarizeSamples } from './sample-statistics.ts'
+import {
+  standardDeviation,
+  summarizeSamples,
+  summarizeMetric,
+} from './sample-statistics.ts'
 
 describe('sample statistics', () => {
   it('keeps raw samples and calculates their summary', () => {
@@ -19,5 +23,28 @@ describe('sample statistics', () => {
 
   it('rejects an empty sample set', () => {
     assert.throws(() => summarizeSamples([]), /empty sample set/)
+  })
+})
+
+describe('metric summaries', () => {
+  it('calculates mean, extrema and sample variance without rounding', () => {
+    assert.deepEqual(summarizeMetric([10, 20, 30]), {
+      mean: 20,
+      min: 10,
+      max: 30,
+      variance: 100,
+    })
+    assert.equal(summarizeMetric([0, 1, 1]).mean, 2 / 3)
+  })
+  it('reports zero variance for one sample', () => {
+    assert.deepEqual(summarizeMetric([5]), {
+      mean: 5,
+      min: 5,
+      max: 5,
+      variance: 0,
+    })
+  })
+  it('rejects empty input', () => {
+    assert.throws(() => summarizeMetric([]), /empty sample set/)
   })
 })

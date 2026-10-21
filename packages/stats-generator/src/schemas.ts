@@ -111,9 +111,24 @@ export const InstallResultSchema = z.object({
   install: InstallBenchmarkSchema,
 })
 
+export const BuildIterationSchema = z.object({
+  timeMs: z.number().nonnegative(),
+})
+export const BuildBenchmarkSchema = createBenchmarkBaseSchema(
+  BuildIterationSchema,
+).safeExtend({
+  name: z.enum(['coldBuild', 'warmBuild']),
+  framework: FrameworkSchema,
+  packagePath: PackagePathSchema,
+  timeMs: MetricBaseSchema,
+})
 export const BuildStatsSchema = z.object({
-  coldBuildTime: TimeStatSchema,
-  warmBuildTime: TimeStatSchema,
+  coldBuildTime: BuildBenchmarkSchema.safeExtend({
+    name: z.literal('coldBuild'),
+  }),
+  warmBuildTime: BuildBenchmarkSchema.safeExtend({
+    name: z.literal('warmBuild'),
+  }),
 })
 
 export const DevServerStatsSchema = z.object({

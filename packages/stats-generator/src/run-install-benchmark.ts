@@ -1,3 +1,4 @@
+import { summarizeMetric } from './sample-statistics.ts'
 import { execSync } from 'node:child_process'
 import { cpSync, mkdirSync, rmSync } from 'node:fs'
 import { basename, join } from 'node:path'
@@ -11,20 +12,6 @@ import {
   parseArgs,
 } from './utils.ts'
 import { InstallBenchmarkSchema, InstallResultSchema } from './schemas.ts'
-
-function summarizeMetric(values: number[]) {
-  const mean = values.reduce((sum, value) => sum + value, 0) / values.length
-  return {
-    mean,
-    min: Math.min(...values),
-    max: Math.max(...values),
-    variance:
-      values.length === 1
-        ? 0
-        : values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
-          (values.length - 1),
-  }
-}
 
 function execCommand(command: string, cwd: string): string {
   return execSync(command, {

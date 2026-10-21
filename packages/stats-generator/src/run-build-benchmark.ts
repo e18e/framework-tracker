@@ -9,7 +9,7 @@ import {
 } from './benchmark-utils.ts'
 import { packagesDir } from './constants.ts'
 import { writeJsonFile, getFrameworkByPackage, parseArgs } from './utils.ts'
-import type { BuildStats } from './types.ts'
+import { createBuildStats } from './build-statistics.ts'
 import { summarizeSamples } from './sample-statistics.ts'
 
 function measureBuildTime(cwd: string, buildScript: string): number {
@@ -124,10 +124,12 @@ async function main() {
     console.info(`\nMin warm build time: ${warmBuildTime.minMs} ms`)
     console.info(`\nMax warm build time: ${warmBuildTime.maxMs} ms`)
 
-    const stats: BuildStats = {
-      coldBuildTime,
-      warmBuildTime,
-    }
+    const stats = createBuildStats(
+      framework.name,
+      `packages/${packageName}`,
+      coldBuildTimesMs,
+      warmBuildTimesMs,
+    )
 
     const outputPath = join(packagesDir, packageName, 'build-stats.json')
     writeJsonFile(outputPath, stats)

@@ -13,6 +13,32 @@ const timeSchema = z.object({
   samplesMs: z.array(z.number()).nonempty().optional(),
 })
 
+const buildTimeSchema = z.union([
+  z
+    .object({
+      name: z.enum(['coldBuild', 'warmBuild']),
+      framework: z.string(),
+      packagePath: z.string(),
+      runs: z.number().int().positive(),
+      iterations: z.array(z.object({ timeMs: z.number().nonnegative() })),
+      timeMs: z.object({
+        mean: z.number(),
+        min: z.number(),
+        max: z.number(),
+        variance: z.number().nonnegative(),
+      }),
+    })
+    .refine((value) => value.iterations.length === value.runs)
+    .transform((value) => ({
+      avgMs: value.timeMs.mean,
+      minMs: value.timeMs.min,
+      maxMs: value.timeMs.max,
+      standardDeviationMs: Math.sqrt(value.timeMs.variance),
+      samplesMs: value.iterations.map((run) => run.timeMs),
+    })),
+  timeSchema,
+])
+
 const interactionTimingSchema = z.object({
   interactionLatencyMs: z.number().nonnegative(),
   inputDelayMs: z.number().nonnegative(),
@@ -61,8 +87,8 @@ const devtimeSchema = z.object({
     }),
     nodeModulesSizeBytes: z.number().nonnegative(),
   }),
-  coldBuildTime: timeSchema,
-  warmBuildTime: timeSchema,
+  coldBuildTime: buildTimeSchema,
+  warmBuildTime: buildTimeSchema,
   devServerStartTime: timeSchema.optional(),
   duplicateDependencies: z.number().optional(),
   depInstallSize: z.number().optional(),

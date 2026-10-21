@@ -118,8 +118,6 @@ export const BuildBenchmarkSchema = createBenchmarkBaseSchema(
   BuildIterationSchema,
 ).safeExtend({
   name: z.enum(['coldBuild', 'warmBuild']),
-  framework: FrameworkSchema,
-  packagePath: PackagePathSchema,
   timeMs: MetricBaseSchema,
 })
 export const BuildStatsSchema = z.object({

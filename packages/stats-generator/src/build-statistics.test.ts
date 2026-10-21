@@ -4,17 +4,14 @@ import { createBuildStats } from './build-statistics.ts'
 import { BuildStatsSchema } from './schemas.ts'
 
 test('build schema requires identity and complete iterations', () => {
-  const result = createBuildStats(
-    'astro',
-    'packages/starter-astro',
-    [10, 20, 30],
-    [5],
-  )
+  const result = createBuildStats([10, 20, 30], [5])
+  for (const benchmark of [result.coldBuildTime, result.warmBuildTime]) {
+    assert.equal(Object.hasOwn(benchmark, 'framework'), false)
+    assert.equal(Object.hasOwn(benchmark, 'packagePath'), false)
+  }
   for (const patch of [
     { runs: 2 },
     { iterations: undefined },
-    { framework: undefined },
-    { packagePath: undefined },
     { name: 'warmBuild' },
   ]) {
     assert.equal(

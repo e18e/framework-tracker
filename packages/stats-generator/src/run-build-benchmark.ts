@@ -124,12 +124,7 @@ async function main() {
     console.info(`\nMin warm build time: ${warmBuildTime.minMs} ms`)
     console.info(`\nMax warm build time: ${warmBuildTime.maxMs} ms`)
 
-    const stats = createBuildStats(
-      framework.name,
-      `packages/${packageName}`,
-      coldBuildTimesMs,
-      warmBuildTimesMs,
-    )
+    const stats = createBuildStats(coldBuildTimesMs, warmBuildTimesMs)
 
     const outputPath = join(packagesDir, packageName, 'build-stats.json')
     writeJsonFile(outputPath, stats)

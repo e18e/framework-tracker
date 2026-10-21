@@ -17,8 +17,6 @@ const buildTimeSchema = z.union([
   z
     .object({
       name: z.enum(['coldBuild', 'warmBuild']),
-      framework: z.string(),
-      packagePath: z.string(),
       runs: z.number().int().positive(),
       iterations: z.array(z.object({ timeMs: z.number().nonnegative() })),
       timeMs: z.object({

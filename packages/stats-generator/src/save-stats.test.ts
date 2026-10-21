@@ -1,3 +1,4 @@
+import type * as SaveStatsModule from './save-stats.ts'
 import assert from 'node:assert/strict'
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -17,7 +18,7 @@ test('regenerating documentation preserves migrated router-link histories', asyn
   await writeFile(join(root, 'package.json'), '{"type":"module"}')
   const { saveStats } = (await import(
     pathToFileURL(join(generator, 'save-stats.ts')).href
-  )) as typeof import('./save-stats.ts')
+  )) as typeof SaveStatsModule
   const docsDir = join('docs', 'src', 'content', 'runtime')
   await mkdir(join(fixturePackages, docsDir), { recursive: true })
 

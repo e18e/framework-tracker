@@ -1,4 +1,7 @@
-import { ClientSideRenderedStatsSchema } from './schemas.ts'
+import {
+  ServerSideRenderedStatsSchema,
+  ClientSideRenderedStatsSchema,
+} from './schemas.ts'
 import { BuildStatsSchema, DevServerStatsSchema } from './schemas.ts'
 import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
@@ -439,7 +442,10 @@ async function main() {
         serverSideRenderedStatsArtifactPath,
       )
       const serverSideRenderedStats = rawServerSideRenderedStats
-        ? normalizeCIStats(rawServerSideRenderedStats)
+        ? {
+            ...normalizeCIStats(rawServerSideRenderedStats),
+            ...ServerSideRenderedStatsSchema.parse(rawServerSideRenderedStats),
+          }
         : null
 
       if (serverSideRenderedStats) {

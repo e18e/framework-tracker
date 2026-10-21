@@ -242,7 +242,7 @@ const RenderedTestSampleSchema = z.object({
   interactionTests: InteractionTimingSchema,
 })
 
-const RenderedTestsSchema = z
+export const LegacyRenderedTestsSchema = z
   .object({
     firstPaintMs: z.number().positive(),
     fcpMs: z.number().positive(),
@@ -291,12 +291,29 @@ export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
   }),
 })
 
+export const ServerRenderingIterationSchema = RenderedTestSampleSchema
+export const ServerRenderingBenchmarkSchema = createBenchmarkBaseSchema(
+  ServerRenderingIterationSchema,
+).safeExtend({
+  name: z.literal('serverSideRendered'),
+  firstPaintMs: MetricBaseSchema,
+  fcpMs: MetricBaseSchema,
+  interactionTests: z.object({
+    scenario: z.literal('first-row-detail-navigation'),
+    source: z.literal('lighthouse-inp-breakdown'),
+    interactionLatencyMs: MetricBaseSchema,
+    inputDelayMs: MetricBaseSchema,
+    processingDurationMs: MetricBaseSchema,
+    presentationDelayMs: MetricBaseSchema,
+  }),
+})
+
 export const ClientSideRenderedStatsSchema = z.object({
   clientSideRenderedTests: ClientRenderingBenchmarkSchema,
   browserVersion: z.string().min(1),
 })
 
 export const ServerSideRenderedStatsSchema = z.object({
-  serverSideRenderedTests: RenderedTestsSchema,
+  serverSideRenderedTests: ServerRenderingBenchmarkSchema,
   browserVersion: z.string().min(1),
 })

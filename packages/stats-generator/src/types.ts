@@ -2,6 +2,8 @@ import type { z } from 'zod'
 import type {
   BuildStatsSchema,
   ClientRenderingBenchmarkSchema,
+  ServerRenderingBenchmarkSchema,
+  LegacyRenderedTestsSchema,
   DevServerStatsSchema,
   InstallBenchmarkSchema,
   InstallResultSchema,
@@ -103,15 +105,9 @@ export interface CIStats {
         samples?: RenderedTestSample[]
       }
   // Server-side rendered route stats (browser paint + interaction timings)
-  serverSideRenderedTests?: {
-    firstPaintMs: number
-    fcpMs: number
-    inpMs?: number
-    interactionTests?: InteractionTestStats
-    runs: number
-    standardDeviation?: RenderedTestStandardDeviation
-    samples?: RenderedTestSample[]
-  }
+  serverSideRenderedTests?:
+    | z.infer<typeof ServerRenderingBenchmarkSchema>
+    | z.infer<typeof LegacyRenderedTestsSchema>
   // Core-js vendored polyfill stats
   vendoredCoreJsSize?: number
   vendoredCoreJsUnnecessaryModules?: string[]

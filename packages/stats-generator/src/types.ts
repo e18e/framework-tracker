@@ -1,6 +1,7 @@
 import type { z } from 'zod'
 import type {
   BuildStatsSchema,
+  DevServerStatsSchema,
   InstallBenchmarkSchema,
   InstallResultSchema,
 } from './schemas.ts'
@@ -74,7 +75,7 @@ export interface CIStats {
   install?: z.infer<typeof InstallBenchmarkSchema>
   coldBuildTime?: z.infer<typeof BuildStatsSchema>['coldBuildTime'] | TimeStat
   warmBuildTime?: z.infer<typeof BuildStatsSchema>['warmBuildTime'] | TimeStat
-  devServerStartTime?: TimeStat
+  devServerStartTime?: DevServerStats['devServerStartTime'] | TimeStat
   testTimeMs?: number
   // Direct SSR request throughput stats
   ssrRequestThroughputTests?: {
@@ -145,9 +146,7 @@ export type InstallResult = z.infer<typeof InstallResultSchema>
 
 export type BuildStats = z.infer<typeof BuildStatsSchema>
 
-export interface DevServerStats {
-  devServerStartTime: TimeStat
-}
+export type DevServerStats = z.infer<typeof DevServerStatsSchema>
 
 export interface CoreJsStats {
   vendoredFiles: Array<{

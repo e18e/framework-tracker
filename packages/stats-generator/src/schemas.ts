@@ -78,21 +78,6 @@ export function createBenchmarkBaseSchema<T extends z.ZodType>(iteration: T) {
   })
 }
 
-const TimeStatSchema = z
-  .object({
-    avgMs: z.number(),
-    standardDeviationMs: z.number().nonnegative().optional(),
-    minMs: z.number(),
-    maxMs: z.number(),
-    samplesMs: z.array(z.number()).nonempty().optional(),
-  })
-  .refine(
-    (stats) =>
-      (stats.standardDeviationMs === undefined) ===
-      (stats.samplesMs === undefined),
-    { message: 'Expected standard deviation and samples together' },
-  )
-
 export const InstallIterationSchema = z.object({
   installTimeMs: z.number().nonnegative(),
 })
@@ -129,8 +114,19 @@ export const BuildStatsSchema = z.object({
   }),
 })
 
+export const DevServerIterationSchema = z.object({
+  timeMs: z.number().nonnegative(),
+})
+
+export const DevServerBenchmarkSchema = createBenchmarkBaseSchema(
+  DevServerIterationSchema,
+).safeExtend({
+  name: z.literal('devServer'),
+  timeMs: MetricBaseSchema,
+})
+
 export const DevServerStatsSchema = z.object({
-  devServerStartTime: TimeStatSchema,
+  devServerStartTime: DevServerBenchmarkSchema,
 })
 
 export const BrowserBaselineStatsSchema = z.object({

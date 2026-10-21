@@ -16,7 +16,7 @@ import {
   type DevServerHandle,
 } from './dev-server.ts'
 import { summarizeSamples } from './sample-statistics.ts'
-import type { DevServerStats } from './types.ts'
+import { createDevServerStats } from './dev-server-statistics.ts'
 import { getFrameworkByPackage, parseArgs, writeJsonFile } from './utils.ts'
 
 const READY_TIMEOUT_MS = 120_000
@@ -150,7 +150,7 @@ async function main() {
     console.info(`\nMin dev server start time: ${devServerStartTime.minMs} ms`)
     console.info(`\nMax dev server start time: ${devServerStartTime.maxMs} ms`)
 
-    const stats: DevServerStats = { devServerStartTime }
+    const stats = createDevServerStats(startTimesMs)
     const outputPath = join(packagesDir, packageName, 'dev-server-stats.json')
     writeJsonFile(outputPath, stats)
 

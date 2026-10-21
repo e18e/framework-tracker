@@ -37,6 +37,30 @@ const buildTimeSchema = z.union([
   timeSchema,
 ])
 
+const devServerTimeSchema = z.union([
+  z
+    .object({
+      name: z.literal('devServer'),
+      runs: z.number().int().positive(),
+      iterations: z.array(z.object({ timeMs: z.number().nonnegative() })),
+      timeMs: z.object({
+        mean: z.number(),
+        min: z.number(),
+        max: z.number(),
+        variance: z.number().nonnegative(),
+      }),
+    })
+    .refine((value) => value.iterations.length === value.runs)
+    .transform((value) => ({
+      avgMs: value.timeMs.mean,
+      minMs: value.timeMs.min,
+      maxMs: value.timeMs.max,
+      standardDeviationMs: Math.sqrt(value.timeMs.variance),
+      samplesMs: value.iterations.map((run) => run.timeMs),
+    })),
+  timeSchema,
+])
+
 const interactionTimingSchema = z.object({
   interactionLatencyMs: z.number().nonnegative(),
   inputDelayMs: z.number().nonnegative(),
@@ -87,7 +111,7 @@ const devtimeSchema = z.object({
   }),
   coldBuildTime: buildTimeSchema,
   warmBuildTime: buildTimeSchema,
-  devServerStartTime: timeSchema.optional(),
+  devServerStartTime: devServerTimeSchema.optional(),
   duplicateDependencies: z.number().optional(),
   depInstallSize: z.number().optional(),
   vendoredCoreJsSize: z.number().optional(),

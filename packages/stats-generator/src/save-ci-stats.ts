@@ -1,4 +1,4 @@
-import { BuildStatsSchema } from './schemas.ts'
+import { BuildStatsSchema, DevServerStatsSchema } from './schemas.ts'
 import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
@@ -139,6 +139,7 @@ async function main() {
       const devServerStats = readJsonFile<DevServerStats>(devServerStatsPath)
 
       if (devServerStats) {
+        DevServerStatsSchema.parse(devServerStats)
         console.info(`  ✓ Found dev server stats artifact`)
         stats = {
           ...stats,

@@ -576,3 +576,20 @@ is written by hand rather than generated, so it carries its own rules.
   thing on screen.
 - Snippets are verified by writing them into a fresh copy of the starter,
   starting its dev server with `pnpm dev`, and requesting the routes they add.
+
+### Client rendering result schema
+
+Client rendering benchmarks store `name`, `runs`, and one raw `iteration` per
+measured run (in `iterations`). Paint and interaction metrics each contain the
+arithmetic mean, minimum, maximum, and sample variance, calculated from exact raw
+measurements. A single measurement has zero variance. Browser metadata remains
+on the result document; interaction scenario and source remain with the interaction
+metrics. Framework and package identity belong to the overall result.
+
+The schema migration converted 146 package and documentation records, including
+versioned history, using their complete raw browser samples. Raw measurements and
+unrelated result fields were preserved. Summary-only records cannot supply raw
+iterations or sample variance; the documentation loader retains support for their
+numeric summaries and historical INP fields without treating INP as interaction
+timing. New artifacts require the complete benchmark schema before persistence.
+Charts consume arithmetic means in milliseconds through content normalization.

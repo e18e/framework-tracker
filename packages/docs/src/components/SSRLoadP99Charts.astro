@@ -1,9 +1,10 @@
 ---
+import type { SSRLoadKey } from '../lib/collections'
 import SSRLoadWorker25P99LatencyChart from './SSRLoadWorker25P99LatencyChart.astro'
 import SSRLoadWorker50P99LatencyChart from './SSRLoadWorker50P99LatencyChart.astro'
 import SSRLoadWorker100P99LatencyChart from './SSRLoadWorker100P99LatencyChart.astro'
 interface Props {
-  testsKey?: import('../lib/collections').SSRLoadKey
+  testsKey?: SSRLoadKey
 }
 const { testsKey = 'ssrLoadTests' } = Astro.props
 ---

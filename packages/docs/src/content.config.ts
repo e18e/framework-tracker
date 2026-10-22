@@ -1,3 +1,4 @@
+import { requestThroughputContentSchema } from './lib/request-throughput'
 import { defineCollection } from 'astro:content'
 import { file, glob } from 'astro/loaders'
 import { docsLoader } from '@astrojs/starlight/loaders'
@@ -203,14 +204,7 @@ const runtimeSchema = z.object({
   package: z.string(),
   isFocused: z.boolean(),
   order: z.number(),
-  ssrRequestThroughputTests: z.object({
-    opsPerSec: z.number(),
-    avgLatencyMs: z.number(),
-    medianLatencyMs: z.number(),
-    samples: z.number(),
-    bodySizeKb: z.number(),
-    duplicationFactor: z.number(),
-  }),
+  ssrRequestThroughputTests: requestThroughputContentSchema,
   ssrLoadTests: ssrLoadTestsSchema.optional(),
   ssrRouterLinkLoadTests: ssrLoadTestsSchema.optional(),
   clientSideRenderedTests: z
@@ -309,7 +303,10 @@ const runtimeVersionsCollection = defineCollection({
     pattern: '**/*.json',
     base: './src/content/runtime/versions',
   }),
-  schema: runtimeSchema,
+  schema: runtimeSchema.extend({
+    ssrRequestThroughputTests:
+      runtimeSchema.shape.ssrRequestThroughputTests.optional(),
+  }),
 })
 
 const cwvCollection = defineCollection({

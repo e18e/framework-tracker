@@ -48,3 +48,12 @@ describe('metric summaries', () => {
     assert.throws(() => summarizeMetric([]), /empty sample set/)
   })
 })
+
+it('summarizes large request sample populations without spreading arguments', () => {
+  assert.deepEqual(summarizeMetric(Array.from({ length: 250_000 }, () => 5)), {
+    mean: 5,
+    min: 5,
+    max: 5,
+    variance: 0,
+  })
+})

@@ -149,20 +149,69 @@ export const NodeEnginesStatsSchema = z.object({
   unsatisfiableRanges: z.array(z.string()),
 })
 
-export const SSRRequestThroughputStatsSchema = z.object({
-  ssrRequestThroughputTests: z.object({
-    opsPerSec: z.number().positive(),
-    avgLatencyMs: z.number().nonnegative(),
-    medianLatencyMs: z.number().nonnegative(),
-    samples: z.number().positive(),
+export const LegacySSRRequestThroughputSchema = z.object({
+  opsPerSec: z.number().positive(),
+  avgLatencyMs: z.number().nonnegative(),
+  medianLatencyMs: z.number().nonnegative(),
+  samples: z.number().positive(),
+  bodySizeKb: z.number().positive(),
+  duplicationFactor: z.number().nonnegative(),
+})
+
+export const RequestThroughputIterationSchema = z.object({
+  opsPerSec: MetricBaseSchema,
+  latencyMs: MetricBaseSchema,
+  medianLatencyMs: z.number().nonnegative(),
+  samples: z.number().int().positive(),
+})
+export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
+  RequestThroughputIterationSchema,
+)
+  .safeExtend({
+    name: z.literal('ssrRequestThroughput'),
+    opsPerSec: MetricBaseSchema,
+    avgLatencyMs: MetricBaseSchema,
+    /** Distribution of per-run latency medians, not the request latency mean. */
+    medianLatencyMs: MetricBaseSchema,
+    samples: z.number().int().positive(),
     bodySizeKb: z.number().positive(),
     duplicationFactor: z.number().nonnegative(),
-  }),
+    durationMs: z.number().positive(),
+    warmupDurationMs: z.number().nonnegative(),
+    minimumSamples: z.number().int().positive(),
+    warmupMinimumSamples: z.number().int().nonnegative(),
+    source: z.literal('tinybench'),
+    path: z.literal('/ssr-throughput'),
+  })
+  .refine(
+    (value) =>
+      value.samples ===
+      value.iterations.reduce(
+        (count, iteration) => count + iteration.samples,
+        0,
+      ),
+    {
+      message: 'Expected total HTTP sample count to match iterations',
+      path: ['samples'],
+    },
+  )
+
+export const RequestThroughputResultSchema = z.object({
+  ssrRequestThroughputTests: RequestThroughputBenchmarkSchema,
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
   browserVersion: z.string().optional(),
 })
+
+/** Compatibility for current checked-in summaries that predate raw retention. */
+export const SSRRequestThroughputStatsSchema =
+  RequestThroughputResultSchema.extend({
+    ssrRequestThroughputTests: z.union([
+      RequestThroughputBenchmarkSchema,
+      LegacySSRRequestThroughputSchema,
+    ]),
+  })
 
 const SSRLoadSweepSchema = z.object({
   peakWorkers: z.number().positive(),

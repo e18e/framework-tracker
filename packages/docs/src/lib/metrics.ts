@@ -115,6 +115,8 @@ export const metricCatalogue = {
   'ssrRequestThroughputTests.medianLatencyMs': {
     id: 'ssrRequestThroughputTests.medianLatencyMs',
     title: 'Median Latency',
+    description:
+      'Mean of measured run medians; historical current results retain their reported median.',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },

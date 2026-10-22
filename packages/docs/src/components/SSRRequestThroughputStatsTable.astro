@@ -23,8 +23,8 @@ const tableData = ssrRequestThroughputStats.map((f) => ({
   name: f.name,
   package: f.package,
   isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
-  opsPerSec: f.ssrRequestThroughputTests.opsPerSec.toLocaleString(),
-  medianLatencyMs: `${f.ssrRequestThroughputTests.medianLatencyMs}ms`,
+  opsPerSec: Math.round(f.ssrRequestThroughputTests.opsPerSec).toLocaleString(),
+  medianLatencyMs: `${Number(f.ssrRequestThroughputTests.medianLatencyMs.toFixed(3))}ms`,
   bodySizeKb: `${f.ssrRequestThroughputTests.bodySizeKb}kb`,
   duplicationFactor: `${f.ssrRequestThroughputTests.duplicationFactor}x`,
 }))

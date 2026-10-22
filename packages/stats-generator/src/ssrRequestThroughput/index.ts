@@ -88,6 +88,7 @@ export function supportsSSRRequestThroughputBenchmark(
 
 export async function runSSRRequestThroughputBenchmark(
   packageName: string,
+  runs = 5,
 ): Promise<SSRRequestThroughputBenchmarkResult> {
   const config = SSR_REQUEST_THROUGHPUT_FRAMEWORKS.find(
     (f) => f.package === packageName,
@@ -104,14 +105,17 @@ export async function runSSRRequestThroughputBenchmark(
 
   try {
     const handler = await config.buildHandler()
-    const results = await runBenchmark([
-      {
-        name: config.name,
-        displayName: config.displayName,
-        package: config.package,
-        handler,
-      },
-    ])
+    const results = await runBenchmark(
+      [
+        {
+          name: config.name,
+          displayName: config.displayName,
+          package: config.package,
+          handler,
+        },
+      ],
+      runs,
+    )
 
     return results[0]
   } finally {

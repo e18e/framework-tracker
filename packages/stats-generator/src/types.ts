@@ -1,5 +1,6 @@
 import type { z } from 'zod'
 import type {
+  SSRRequestThroughputStatsSchema,
   BuildStatsSchema,
   ClientRenderingBenchmarkSchema,
   DevServerStatsSchema,
@@ -79,14 +80,9 @@ export interface CIStats {
   devServerStartTime?: DevServerStats['devServerStartTime'] | TimeStat
   testTimeMs?: number
   // Direct SSR request throughput stats
-  ssrRequestThroughputTests?: {
-    opsPerSec: number
-    avgLatencyMs: number
-    medianLatencyMs: number
-    samples: number
-    bodySizeKb: number
-    duplicationFactor: number
-  }
+  ssrRequestThroughputTests?: z.infer<
+    typeof SSRRequestThroughputStatsSchema
+  >['ssrRequestThroughputTests']
   // Real server SSR load stats
   ssrLoadTests?: SSRLoadTests
   ssrRouterLinkLoadTests?: CIStats['ssrLoadTests']

@@ -1,3 +1,5 @@
+import { parseRunFrequency } from './benchmark-utils.ts'
+import { RequestThroughputResultSchema } from './schemas.ts'
 import { join } from 'node:path'
 import {
   runSSRRequestThroughputBenchmark,
@@ -15,12 +17,14 @@ import {
 import type { CIStats } from './types.ts'
 
 async function main() {
-  const { packageName } = parseArgs(
-    'Usage: run-ssr-request-throughput-benchmark <package-name>\nExample: run-ssr-request-throughput-benchmark app-astro',
+  const { packageName, args } = parseArgs(
+    'Usage: run-ssr-request-throughput-benchmark <package-name> [runs]\nExample: run-ssr-request-throughput-benchmark app-astro 5',
   )
 
+  const runs = parseRunFrequency(args[0])
+
   console.info(
-    `Running SSR request throughput benchmark for ${packageName}...\n`,
+    `Running SSR request throughput benchmark for ${packageName} (${runs} runs)...\n`,
   )
 
   if (!supportsSSRRequestThroughputBenchmark(packageName)) {
@@ -32,7 +36,7 @@ async function main() {
 
   const { framework } = await getFrameworkByPackage(packageName)
 
-  const result = await runSSRRequestThroughputBenchmark(packageName)
+  const result = await runSSRRequestThroughputBenchmark(packageName, runs)
   const timestamp = new Date().toISOString()
   const frameworkVersion = await getFrameworkVersion(
     packageName,
@@ -49,17 +53,11 @@ async function main() {
     timingMeasuredAt: timestamp,
     runner: process.env.RUNNER_LABEL || 'local',
     frameworkVersion: frameworkVersion ?? existingStats.frameworkVersion,
-    ssrRequestThroughputTests: {
-      opsPerSec: result.opsPerSec,
-      avgLatencyMs: result.avgLatencyMs,
-      medianLatencyMs: result.medianLatencyMs,
-      samples: result.samples,
-      bodySizeKb: result.bodySizeKb,
-      duplicationFactor: result.duplicationFactor,
-    },
+    ssrRequestThroughputTests: result.benchmark,
   }
 
   const outputPath = join(packagesDir, result.package, 'ci-stats.json')
+  RequestThroughputResultSchema.parse(ciStats)
   writeJsonFile(outputPath, ciStats)
 
   console.info(

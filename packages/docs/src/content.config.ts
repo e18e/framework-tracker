@@ -8,6 +8,7 @@ import { readdirSync } from 'node:fs'
 
 const timeSchema = z.object({
   avgMs: z.number(),
+  medianMs: z.number().optional(),
   standardDeviationMs: z.number().nonnegative().optional(),
   minMs: z.number(),
   maxMs: z.number(),
@@ -22,6 +23,7 @@ const buildTimeSchema = z.union([
       iterations: z.array(z.object({ timeMs: z.number().nonnegative() })),
       timeMs: z.object({
         mean: z.number(),
+        median: z.number(),
         min: z.number(),
         max: z.number(),
         variance: z.number().nonnegative(),
@@ -30,6 +32,7 @@ const buildTimeSchema = z.union([
     .refine((value) => value.iterations.length === value.runs)
     .transform((value) => ({
       avgMs: value.timeMs.mean,
+      medianMs: value.timeMs.median,
       minMs: value.timeMs.min,
       maxMs: value.timeMs.max,
       standardDeviationMs: Math.sqrt(value.timeMs.variance),
@@ -46,6 +49,7 @@ const devServerTimeSchema = z.union([
       iterations: z.array(z.object({ timeMs: z.number().nonnegative() })),
       timeMs: z.object({
         mean: z.number(),
+        median: z.number(),
         min: z.number(),
         max: z.number(),
         variance: z.number().nonnegative(),
@@ -54,6 +58,7 @@ const devServerTimeSchema = z.union([
     .refine((value) => value.iterations.length === value.runs)
     .transform((value) => ({
       avgMs: value.timeMs.mean,
+      medianMs: value.timeMs.median,
       minMs: value.timeMs.min,
       maxMs: value.timeMs.max,
       standardDeviationMs: Math.sqrt(value.timeMs.variance),
@@ -77,6 +82,7 @@ const renderedTestSampleSchema = z.object({
 
 const metricSchema = z.object({
   mean: z.number(),
+  median: z.number(),
   min: z.number(),
   max: z.number(),
   variance: z.number().nonnegative(),
@@ -146,6 +152,7 @@ const devtimeSchema = z.object({
     iterations: z.array(z.object({ installTimeMs: z.number().nonnegative() })),
     installTimeMs: z.object({
       mean: z.number(),
+      median: z.number(),
       min: z.number(),
       max: z.number(),
       variance: z.number().nonnegative(),

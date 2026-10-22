@@ -495,26 +495,26 @@ export function prepareSsrRequestThroughputTestsBodySizeKbComparison(
   )
 }
 
-export function prepareSsrRequestThroughputTestsMedianLatencyMsHistory(
+export function prepareSsrRequestThroughputTestsLatencyMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['ssrRequestThroughputTests.medianLatencyMs'],
+    metricCatalogue['ssrRequestThroughputTests.latencyMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.medianLatencyMs),
+      value: finiteValue(record.ssrRequestThroughputTests?.latencyMs),
     })),
   )
 }
 
-export function prepareSsrRequestThroughputTestsMedianLatencyMsComparison(
+export function prepareSsrRequestThroughputTestsLatencyMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['ssrRequestThroughputTests.medianLatencyMs'],
+    metricCatalogue['ssrRequestThroughputTests.latencyMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.medianLatencyMs),
+      value: finiteValue(record.ssrRequestThroughputTests?.latencyMs),
     })),
   )
 }

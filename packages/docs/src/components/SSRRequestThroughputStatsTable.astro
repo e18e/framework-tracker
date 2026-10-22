@@ -14,7 +14,7 @@ const columns = [
         : null,
   },
   { key: 'opsPerSec', header: 'Ops/sec' },
-  { key: 'medianLatencyMs', header: 'Median Latency' },
+  { key: 'latencyMs', header: 'Mean Latency' },
   { key: 'bodySizeKb', header: 'Body Size' },
   { key: 'duplicationFactor', header: 'Duplication' },
 ]
@@ -24,7 +24,7 @@ const tableData = ssrRequestThroughputStats.map((f) => ({
   package: f.package,
   isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
   opsPerSec: Math.round(f.ssrRequestThroughputTests.opsPerSec).toLocaleString(),
-  medianLatencyMs: `${Number(f.ssrRequestThroughputTests.medianLatencyMs.toFixed(3))}ms`,
+  latencyMs: `${Number(f.ssrRequestThroughputTests.latencyMs.toFixed(3))}ms`,
   bodySizeKb: `${f.ssrRequestThroughputTests.bodySizeKb}kb`,
   duplicationFactor: `${f.ssrRequestThroughputTests.duplicationFactor}x`,
 }))

@@ -38,8 +38,15 @@ export function summarizeMetric(values: number[]): MetricBase {
     if (value < min) min = value
     if (value > max) max = value
   }
+  const sorted = values.toSorted((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  const median =
+    sorted.length % 2 === 1
+      ? sorted[middle]
+      : sorted[middle - 1] / 2 + sorted[middle] / 2
   return {
     mean,
+    median,
     min,
     max,
     variance:

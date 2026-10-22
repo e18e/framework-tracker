@@ -15,7 +15,6 @@ export type RequestThroughputIteration = z.infer<
 export function createRequestThroughputIteration(
   throughputSamples: number[],
   latencySamplesMs: number[],
-  medianLatencyMs: number,
 ): RequestThroughputIteration {
   if (throughputSamples.length !== latencySamplesMs.length) {
     throw new Error(
@@ -25,7 +24,6 @@ export function createRequestThroughputIteration(
   return RequestThroughputIterationSchema.parse({
     opsPerSec: summarizeMetric(throughputSamples),
     latencyMs: summarizeMetric(latencySamplesMs),
-    medianLatencyMs,
     samples: latencySamplesMs.length,
   })
 }
@@ -56,12 +54,7 @@ export function assembleRequestThroughput(
       0,
     ),
     opsPerSec: summarizeMetric(iterations.map((value) => value.opsPerSec.mean)),
-    avgLatencyMs: summarizeMetric(
-      iterations.map((value) => value.latencyMs.mean),
-    ),
-    medianLatencyMs: summarizeMetric(
-      iterations.map((value) => value.medianLatencyMs),
-    ),
+    latencyMs: summarizeMetric(iterations.map((value) => value.latencyMs.mean)),
   })
 }
 

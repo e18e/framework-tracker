@@ -472,8 +472,9 @@ Current pinned dependencies are listed in each project's `package.json`:
   each run.
   One Tinybench task execution is one benchmark run; the `samples` count records
   measured HTTP requests and excludes warmup requests. Each iteration retains
-  the arithmetic mean, minimum, maximum, and sample variance of request
-  throughput (ops/sec) and latency (ms), plus the measured latency median.
+  the arithmetic mean, median, minimum, maximum, and sample variance of request
+  throughput (ops/sec) and latency (ms). Overall metrics summarize the five
+  per-run arithmetic means; their median describes run means, not all requests.
 - Frameworks are invoked through their production request handlers where
   possible. Web API handlers receive `Request` objects; Node.js handlers receive
   mock `IncomingMessage` and `ServerResponse` objects.

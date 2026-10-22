@@ -2,6 +2,7 @@ import { z } from 'astro/zod'
 
 const metricSchema = z.object({
   mean: z.number(),
+  median: z.number(),
   min: z.number(),
   max: z.number(),
   variance: z.number().nonnegative(),
@@ -10,7 +11,6 @@ const metricSchema = z.object({
 const iterationSchema = z.object({
   opsPerSec: metricSchema,
   latencyMs: metricSchema,
-  medianLatencyMs: z.number().nonnegative(),
   samples: z.number().int().positive(),
 })
 
@@ -21,8 +21,7 @@ export const requestThroughputContentSchema = z.union([
       runs: z.number().int().positive(),
       iterations: z.array(iterationSchema),
       opsPerSec: metricSchema,
-      avgLatencyMs: metricSchema,
-      medianLatencyMs: metricSchema,
+      latencyMs: metricSchema,
       samples: z.number().int().positive(),
       bodySizeKb: z.number().positive(),
       duplicationFactor: z.number().nonnegative(),
@@ -45,16 +44,17 @@ export const requestThroughputContentSchema = z.union([
     .transform((value) => ({
       ...value,
       opsPerSec: value.opsPerSec.mean,
-      avgLatencyMs: value.avgLatencyMs.mean,
-      medianLatencyMs: value.medianLatencyMs.mean,
+      latencyMs: value.latencyMs.mean,
     })),
   // Current checked-in records have rounded summaries and no recoverable samples.
-  z.object({
-    opsPerSec: z.number().positive(),
-    avgLatencyMs: z.number().nonnegative(),
-    medianLatencyMs: z.number().nonnegative(),
-    samples: z.number().positive(),
-    bodySizeKb: z.number().positive(),
-    duplicationFactor: z.number().nonnegative(),
-  }),
+  z
+    .object({
+      opsPerSec: z.number().positive(),
+      avgLatencyMs: z.number().nonnegative(),
+      medianLatencyMs: z.number().nonnegative(),
+      samples: z.number().positive(),
+      bodySizeKb: z.number().positive(),
+      duplicationFactor: z.number().nonnegative(),
+    })
+    .transform((value) => ({ ...value, latencyMs: value.avgLatencyMs })),
 ])

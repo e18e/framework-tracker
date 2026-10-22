@@ -185,7 +185,6 @@ export async function runBenchmark(
           createRequestThroughputIteration(
             [...(task.result.throughput.samples ?? [])],
             [...(task.result.latency.samples ?? [])],
-            task.result.latency.p50,
           ),
         )
     }

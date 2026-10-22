@@ -2,13 +2,14 @@ import { z } from 'zod'
 
 /** Summary of one metric; units belong to the metric being measured. */
 export const MetricBaseSchema = z.object({
-  /** Arithmetic mean of this metric across all measured runs. */
+  /** Arithmetic mean of the measured values. */
   mean: z.number(),
-  /** Lowest value observed across the measured runs. */
+  median: z.number(),
+  /** Lowest measured value. */
   min: z.number(),
-  /** Highest value observed across the measured runs. */
+  /** Highest measured value. */
   max: z.number(),
-  /** Sample variance in squared metric units (n - 1 divisor); zero for one run. */
+  /** Sample variance in squared metric units (n - 1 divisor); zero for one value. */
   variance: z.number().nonnegative(),
 })
 export type MetricBase = z.infer<typeof MetricBaseSchema>
@@ -161,7 +162,6 @@ export const LegacySSRRequestThroughputSchema = z.object({
 export const RequestThroughputIterationSchema = z.object({
   opsPerSec: MetricBaseSchema,
   latencyMs: MetricBaseSchema,
-  medianLatencyMs: z.number().nonnegative(),
   samples: z.number().int().positive(),
 })
 export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
@@ -170,9 +170,7 @@ export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
   .safeExtend({
     name: z.literal('ssrRequestThroughput'),
     opsPerSec: MetricBaseSchema,
-    avgLatencyMs: MetricBaseSchema,
-    /** Distribution of per-run latency medians, not the request latency mean. */
-    medianLatencyMs: MetricBaseSchema,
+    latencyMs: MetricBaseSchema,
     samples: z.number().int().positive(),
     bodySizeKb: z.number().positive(),
     duplicationFactor: z.number().nonnegative(),

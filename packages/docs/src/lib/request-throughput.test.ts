@@ -3,25 +3,29 @@ import { test } from 'node:test'
 import { requestThroughputContentSchema } from './request-throughput.ts'
 import {
   prepareSsrRequestThroughputTestsOpsPerSecComparison,
-  prepareSsrRequestThroughputTestsMedianLatencyMsComparison,
+  prepareSsrRequestThroughputTestsLatencyMsComparison,
   prepareSsrRequestThroughputTestsOpsPerSecHistory,
 } from './prepare-chart.ts'
 
-const metric = (mean: number) => ({ mean, min: mean, max: mean, variance: 0 })
+const metric = (mean: number) => ({
+  mean,
+  median: mean,
+  min: mean,
+  max: mean,
+  variance: 0,
+})
 const benchmark = {
   name: 'ssrRequestThroughput',
   runs: 1,
   iterations: [
     {
       opsPerSec: metric(100.125),
-      latencyMs: metric(4),
-      medianLatencyMs: 2,
+      latencyMs: { ...metric(4), median: 2 },
       samples: 3,
     },
   ],
   opsPerSec: metric(100.125),
-  avgLatencyMs: metric(4),
-  medianLatencyMs: metric(2),
+  latencyMs: metric(4),
   samples: 3,
   bodySizeKb: 20.5,
   duplicationFactor: 1.25,
@@ -33,11 +37,10 @@ const benchmark = {
   path: '/ssr-throughput',
 }
 
-test('content loader normalizes arithmetic means and keeps median latency separate', () => {
+test('content loader uses run means without relabeling request medians', () => {
   const normalized = requestThroughputContentSchema.parse(benchmark)
   assert.equal(normalized.opsPerSec, 100.125)
-  assert.equal(normalized.avgLatencyMs, 4)
-  assert.equal(normalized.medianLatencyMs, 2)
+  assert.equal(normalized.latencyMs, 4)
   const records = [
     { package: 'app-astro', ssrRequestThroughputTests: normalized },
   ]
@@ -46,9 +49,8 @@ test('content loader normalizes arithmetic means and keeps median latency separa
     100.125,
   )
   assert.equal(
-    prepareSsrRequestThroughputTestsMedianLatencyMsComparison(records).data[0]
-      ?.value,
-    2,
+    prepareSsrRequestThroughputTestsLatencyMsComparison(records).data[0]?.value,
+    4,
   )
   assert.equal(
     prepareSsrRequestThroughputTestsOpsPerSecHistory(records).data[0]?.value,
@@ -59,4 +61,17 @@ test('content loader normalizes arithmetic means and keeps median latency separa
       .success,
     false,
   )
+})
+
+test('legacy mean latency remains distinct from the reported request median', () => {
+  const legacy = {
+    opsPerSec: 100,
+    avgLatencyMs: 4,
+    medianLatencyMs: 2,
+    samples: 64,
+    bodySizeKb: 20,
+    duplicationFactor: 1,
+  }
+  const normalized = requestThroughputContentSchema.parse(legacy)
+  assert.equal(normalized.latencyMs, 4)
 })

@@ -18,7 +18,9 @@ export function createRequestThroughputIteration(
   medianLatencyMs: number,
 ): RequestThroughputIteration {
   if (throughputSamples.length !== latencySamplesMs.length) {
-    throw new Error('Expected one throughput and latency sample per measured HTTP request')
+    throw new Error(
+      'Expected one throughput and latency sample per measured HTTP request',
+    )
   }
   return RequestThroughputIterationSchema.parse({
     opsPerSec: summarizeMetric(throughputSamples),

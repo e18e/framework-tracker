@@ -59,7 +59,10 @@ test('artifact merge validates before merging and preserves unrelated results an
   assert.ok('iterations' in result)
   assert.equal(result.samples, 4)
   assert.deepEqual(result.iterations[0].latencyMs, {
-    mean: 4, min: 1, max: 9, variance: 19,
+    mean: 4,
+    min: 1,
+    max: 9,
+    variance: 19,
   })
   assert.equal(result.opsPerSec.mean, 650.25)
   assert.equal(result.avgLatencyMs.mean, 2.125)

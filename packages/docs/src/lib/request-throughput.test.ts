@@ -60,4 +60,3 @@ test('content loader normalizes arithmetic means and keeps median latency separa
     false,
   )
 })
-

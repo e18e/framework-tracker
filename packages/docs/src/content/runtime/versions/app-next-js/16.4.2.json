@@ -105,26 +105,9 @@
     }
   },
   "serverSideRenderedTests": {
-    "firstPaintMs": 369.2,
-    "fcpMs": 369.13,
-    "interactionTests": {
-      "scenario": "first-row-detail-navigation",
-      "source": "lighthouse-inp-breakdown",
-      "interactionLatencyMs": 19.12,
-      "inputDelayMs": 1.34,
-      "processingDurationMs": 5.98,
-      "presentationDelayMs": 11.81
-    },
+    "name": "serverSideRendered",
     "runs": 5,
-    "standardDeviation": {
-      "firstPaintMs": 9.18,
-      "fcpMs": 8.99,
-      "interactionLatencyMs": 3.17,
-      "inputDelayMs": 0.39,
-      "processingDurationMs": 1.72,
-      "presentationDelayMs": 3.23
-    },
-    "samples": [
+    "iterations": [
       {
         "firstPaintMs": 363,
         "fcpMs": 362.956,
@@ -175,7 +158,47 @@
           "presentationDelayMs": 7.552
         }
       }
-    ]
+    ],
+    "firstPaintMs": {
+      "mean": 369.2,
+      "min": 363,
+      "max": 385,
+      "variance": 84.2
+    },
+    "fcpMs": {
+      "mean": 369.1276,
+      "min": 362.783,
+      "max": 384.56,
+      "variance": 80.90662029999991
+    },
+    "interactionTests": {
+      "scenario": "first-row-detail-navigation",
+      "source": "lighthouse-inp-breakdown",
+      "interactionLatencyMs": {
+        "mean": 19.121599999999997,
+        "min": 15.474,
+        "max": 21.813000000000002,
+        "variance": 10.078364800000001
+      },
+      "inputDelayMs": {
+        "mean": 1.3350000000000002,
+        "min": 0.756,
+        "max": 1.817,
+        "variance": 0.14910400000000001
+      },
+      "processingDurationMs": {
+        "mean": 5.9792000000000005,
+        "min": 4.198,
+        "max": 8.055,
+        "variance": 2.9563417
+      },
+      "presentationDelayMs": {
+        "mean": 11.8074,
+        "min": 7.552,
+        "max": 15.793,
+        "variance": 10.407897300000002
+      }
+    }
   },
   "ssrRouterLinkLoadTests": {
     "peakWorkers": 10,

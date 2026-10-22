@@ -598,3 +598,17 @@ iterations or sample variance; the documentation loader retains support for thei
 numeric summaries and historical INP fields without treating INP as interaction
 timing. New artifacts require the complete benchmark schema before persistence.
 Charts consume arithmetic means in milliseconds through content normalization.
+
+### Server rendering result schema
+
+Server rendering browser benchmarks use the `serverSideRendered` identity and
+require one exact raw iteration per run. Paint and interaction metrics contain
+arithmetic mean, minimum, maximum, and sample variance (zero for one sample).
+Browser metadata stays on the result document; scenario and source stay with
+interaction metrics. Framework and package identity belong to the overall result.
+These browser measurements are separate from SSR throughput and load tests.
+
+All 146 existing package and documentation records, including versioned history,
+were converted from complete raw samples. No records lacked samples. The loader
+also supports legacy numeric summaries and INP without relabeling INP as interaction
+timing. Charts and tables receive arithmetic means in milliseconds.

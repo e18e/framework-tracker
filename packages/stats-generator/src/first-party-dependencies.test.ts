@@ -83,6 +83,7 @@ test('counts the first-party graph within the starter lockfile', () => {
     {
       prodDependencies: 1,
       devDependencies: 1,
+      name: 'firstPartyDependencies',
       allDependencies: 6,
       duplicateDependencies: 1,
     },

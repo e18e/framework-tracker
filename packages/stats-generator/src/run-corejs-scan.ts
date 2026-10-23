@@ -1,3 +1,4 @@
+import { CoreJsStatsSchema } from './schemas.ts'
 import { readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { glob } from 'tinyglobby'
@@ -57,7 +58,12 @@ async function main() {
     absolute: true,
   }).catch(() => [])
 
-  const vendoredFiles: CoreJsStats['vendoredFiles'] = []
+  const vendoredFiles: Array<{
+    file: string
+    version: string
+    sizeBytes: number
+    unnecessaryModules: string[]
+  }> = []
   let totalVendoredBytes = 0
 
   for (const filePath of jsFiles) {
@@ -111,13 +117,13 @@ async function main() {
     ...new Set(vendoredFiles.flatMap((f) => f.unnecessaryModules)),
   ]
   const stats: CoreJsStats = {
-    vendoredFiles,
+    name: 'corejs',
     totalVendoredBytes,
     unnecessaryModules,
   }
 
   const outputPath = join(packagesDir, packageName, 'corejs-stats.json')
-  writeJsonFile(outputPath, stats)
+  writeJsonFile(outputPath, CoreJsStatsSchema.parse(stats))
 
   console.info(`\n✓ Saved core-js stats to ${outputPath}`)
 }

@@ -98,6 +98,7 @@ test('universal, garbage, blank, and missing ranges are skipped but counted', ()
 
 test('empty input resolves to nothing', () => {
   assert.deepEqual(resolveMinimumNodeVersion([]), {
+    name: 'nodeEngines',
     minimumNodeVersion: null,
     imposedBy: [],
     packagesScanned: 0,

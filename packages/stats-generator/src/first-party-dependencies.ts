@@ -178,6 +178,7 @@ export function getFirstPartyDependencyStats(
   }
 
   return {
+    name: 'firstPartyDependencies',
     prodDependencies: Object.keys(manifest.dependencies ?? {}).length,
     devDependencies: Object.keys(manifest.devDependencies ?? {}).length,
     allDependencies: packageKeys.size,

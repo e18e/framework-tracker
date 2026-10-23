@@ -4,6 +4,9 @@ import { getFrameworks } from './get-frameworks.ts'
 import { packagesDir } from './constants.ts'
 import { readJsonFile } from './utils.ts'
 import {
+  CoreJsStatsSchema,
+  FrameworkDependencyScanSchema,
+  FirstPartyDependencyScanSchema,
   InstallResultSchema,
   BuildStatsSchema,
   DevServerStatsSchema,
@@ -17,6 +20,7 @@ import {
 } from './schemas.ts'
 
 type BenchmarkType =
+  | 'dependencies'
   | 'install'
   | 'build'
   | 'devServer'
@@ -35,6 +39,22 @@ interface BenchmarkConfig {
 }
 
 const STARTER_BENCHMARKS: BenchmarkConfig[] = [
+  {
+    type: 'dependencies',
+    file: 'corejs-stats.json',
+    schema: CoreJsStatsSchema,
+  },
+  {
+    type: 'dependencies',
+    file: 'framework-dependency-stats.json',
+    schema: FrameworkDependencyScanSchema,
+  },
+  {
+    type: 'dependencies',
+    file: 'first-party-dependency-stats.json',
+    schema: FirstPartyDependencyScanSchema,
+  },
+
   { type: 'install', file: 'install-stats.json', schema: InstallResultSchema },
   { type: 'build', file: 'build-stats.json', schema: BuildStatsSchema },
   {

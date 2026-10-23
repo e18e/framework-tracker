@@ -1,3 +1,4 @@
+import { FrameworkDependencyScanSchema } from './schemas.ts'
 import { join } from 'node:path'
 import { packagesDir } from './constants.ts'
 import {
@@ -22,7 +23,13 @@ async function main() {
     framework.frameworkPackage,
   )
 
-  writeJsonFile(outputPath, stats)
+  writeJsonFile(
+    outputPath,
+    FrameworkDependencyScanSchema.parse({
+      ...stats,
+      name: 'frameworkDependencies',
+    }),
+  )
   console.info(`Saved framework dependency stats to ${outputPath}`)
 }
 

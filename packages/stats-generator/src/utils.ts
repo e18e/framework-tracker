@@ -323,6 +323,7 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.baselineFeatureCount === 'number'
   ) {
     stats.browserBaselineTests = {
+      name: 'browserBaseline',
       baselineStatus: legacyStats.baselineStatus,
       baselineYear: legacyStats.baselineYear,
       baselineReason: legacyStats.baselineReason,

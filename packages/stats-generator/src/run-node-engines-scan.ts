@@ -1,3 +1,4 @@
+import { NodeEnginesStatsSchema } from './schemas.ts'
 import { lstatSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { packagesDir } from './constants.ts'
@@ -174,7 +175,7 @@ async function main() {
   }
 
   const outputPath = join(packagesDir, packageName, 'node-engines-stats.json')
-  writeJsonFile(outputPath, stats)
+  writeJsonFile(outputPath, NodeEnginesStatsSchema.parse(stats))
 
   console.info(`\n✓ Saved Node engines stats to ${outputPath}`)
 }

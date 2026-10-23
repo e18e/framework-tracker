@@ -1,6 +1,12 @@
 import type { z } from 'zod'
 import type {
   BuildStatsSchema,
+  DependencyCountsSchema,
+  DependencyScanSchema,
+  FirstPartyDependencyScanSchema,
+  CoreJsStatsSchema,
+  BrowserBaselineStatsSchema,
+  NodeEnginesStatsSchema,
   ClientRenderingBenchmarkSchema,
   ServerRenderingBenchmarkSchema,
   LegacyRenderedTestsSchema,
@@ -117,6 +123,13 @@ export interface CIStats {
   minimumNodeVersion?: string
   minimumNodeVersionImposedBy?: string[]
   // Dependency stats (from e18e analysis)
+  corejs?: CoreJsStats
+  nodeEngines?: Pick<
+    z.infer<typeof NodeEnginesStatsSchema>,
+    'name' | 'minimumNodeVersion' | 'imposedBy'
+  > &
+    Partial<z.infer<typeof NodeEnginesStatsSchema>>
+  dependencyScan?: z.infer<typeof DependencyScanSchema>
   prodDependencies?: number
   devDependencies?: number
   allDependencies?: number
@@ -131,15 +144,10 @@ export interface CIStats {
   }
 }
 
-export interface DependencyStats {
-  prodDependencies: number
-  devDependencies: number
-  allDependencies: number
-}
-
-export interface FirstPartyDependencyStats extends DependencyStats {
-  duplicateDependencies?: number
-}
+export type DependencyStats = z.infer<typeof DependencyCountsSchema>
+export type FirstPartyDependencyStats = z.infer<
+  typeof FirstPartyDependencyScanSchema
+>
 
 export type InstallResult = z.infer<typeof InstallResultSchema>
 
@@ -147,31 +155,9 @@ export type BuildStats = z.infer<typeof BuildStatsSchema>
 
 export type DevServerStats = z.infer<typeof DevServerStatsSchema>
 
-export interface CoreJsStats {
-  vendoredFiles: Array<{
-    file: string
-    version: string
-    sizeBytes: number
-    unnecessaryModules: string[]
-  }>
-  totalVendoredBytes: number
-  unnecessaryModules: string[]
-}
-
-export interface BrowserBaselineStats {
-  baselineStatus: 'high' | 'low' | false | null
-  baselineYear: number | null
-  baselineReason: string | null
-  baselineFeatureCount: number
-}
-
-export interface NodeEnginesStats {
-  minimumNodeVersion: string | null
-  imposedBy: string[]
-  packagesScanned: number
-  packagesDeclaringNodeEngine: number
-  unsatisfiableRanges: string[]
-}
+export type CoreJsStats = z.infer<typeof CoreJsStatsSchema>
+export type BrowserBaselineStats = z.infer<typeof BrowserBaselineStatsSchema>
+export type NodeEnginesStats = z.infer<typeof NodeEnginesStatsSchema>
 
 export interface TimeStat {
   avgMs: number

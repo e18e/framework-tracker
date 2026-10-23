@@ -1,3 +1,4 @@
+import { BrowserBaselineStatsSchema } from './schemas.ts'
 import { access, copyFile, mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -115,6 +116,7 @@ async function main() {
     ].sort()
     const target = normalizeBaselineTarget(featureIds, detectedTarget)
     const stats: BrowserBaselineStats = {
+      name: 'browserBaseline',
       baselineStatus: target.status,
       baselineYear: featureIds.length === 0 ? null : detectedBaselineYear,
       baselineReason: target.reason,
@@ -137,7 +139,7 @@ async function main() {
       packageName,
       'browser-baseline-stats.json',
     )
-    writeJsonFile(outputPath, stats)
+    writeJsonFile(outputPath, BrowserBaselineStatsSchema.parse(stats))
 
     console.info(`\n✓ Saved browser baseline stats to ${outputPath}`)
   } finally {

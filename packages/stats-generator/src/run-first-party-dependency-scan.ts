@@ -1,3 +1,4 @@
+import { FirstPartyDependencyScanSchema } from './schemas.ts'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
@@ -21,7 +22,7 @@ async function main() {
     'utf-8',
   )
   const stats = getFirstPartyDependencyStats(manifest, lockfile)
-  writeJsonFile(outputPath, stats)
+  writeJsonFile(outputPath, FirstPartyDependencyScanSchema.parse(stats))
   console.info(`Saved first-party dependency stats to ${outputPath}`)
 }
 

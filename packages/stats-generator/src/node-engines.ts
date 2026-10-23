@@ -91,6 +91,7 @@ export function resolveMinimumNodeVersion(
   }
 
   return {
+    name: 'nodeEngines',
     minimumNodeVersion: version,
     imposedBy: [...imposedBy].sort(),
     packagesScanned: entries.length,

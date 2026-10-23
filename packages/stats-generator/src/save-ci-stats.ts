@@ -1,4 +1,12 @@
 import {
+  DependencyScanSchema,
+  CoreJsStatsSchema,
+  NodeEnginesStatsSchema,
+  BrowserBaselineStatsSchema,
+  FrameworkDependencyScanSchema,
+  FirstPartyDependencyScanSchema,
+} from './schemas.ts'
+import {
   ServerSideRenderedStatsSchema,
   ClientSideRenderedStatsSchema,
 } from './schemas.ts'
@@ -166,6 +174,7 @@ async function main() {
         console.info(`  ✓ Found core-js stats artifact`)
         stats = {
           ...stats,
+          corejs: CoreJsStatsSchema.parse({ ...coreJsStats, name: 'corejs' }),
           vendoredCoreJsSize: coreJsStats.totalVendoredBytes,
           vendoredCoreJsUnnecessaryModules: coreJsStats.unnecessaryModules,
         }
@@ -188,7 +197,10 @@ async function main() {
         console.info(`  ✓ Found browser baseline stats artifact`)
         stats = {
           ...stats,
-          browserBaselineTests: browserBaselineStats,
+          browserBaselineTests: BrowserBaselineStatsSchema.parse({
+            ...browserBaselineStats,
+            name: 'browserBaseline',
+          }),
         }
       } else {
         console.warn(
@@ -206,6 +218,10 @@ async function main() {
       )
       if (nodeEnginesStats) {
         console.info(`  ✓ Found Node engines stats artifact`)
+        stats.nodeEngines = NodeEnginesStatsSchema.parse({
+          ...nodeEnginesStats,
+          name: 'nodeEngines',
+        })
         if (nodeEnginesStats.minimumNodeVersion) {
           stats = {
             ...stats,
@@ -235,7 +251,13 @@ async function main() {
       )
       if (frameworkDependencies) {
         console.info(`  ✓ Found framework dependency stats artifact`)
-        stats = { ...stats, frameworkDependencies }
+        stats = {
+          ...stats,
+          frameworkDependencies: FrameworkDependencyScanSchema.parse({
+            ...frameworkDependencies,
+            name: 'frameworkDependencies',
+          }),
+        }
       } else {
         console.warn(
           `No framework dependency stats artifact found at ${frameworkDependencyStatsPath}`,
@@ -252,7 +274,13 @@ async function main() {
       )
       if (firstPartyDependencies) {
         console.info(`  ✓ Found first-party dependency stats artifact`)
-        stats = { ...stats, firstPartyDependencies }
+        stats = {
+          ...stats,
+          firstPartyDependencies: FirstPartyDependencyScanSchema.parse({
+            ...firstPartyDependencies,
+            name: 'firstPartyDependencies',
+          }),
+        }
       } else {
         console.warn(
           `No first-party dependency stats artifact found at ${firstPartyDependencyStatsPath}`,
@@ -266,8 +294,15 @@ async function main() {
           getDependencyCountsFromPackageMetadata(packageName)
         stats = {
           ...stats,
-          ...getDependencyStatsFromE18e(e18eStats),
-          allDependencies: packageDependencyCounts.allDependencies,
+          ...DependencyScanSchema.omit({ name: true }).parse({
+            ...getDependencyStatsFromE18e(e18eStats),
+            allDependencies: packageDependencyCounts.allDependencies,
+          }),
+          dependencyScan: DependencyScanSchema.parse({
+            name: 'dependencies',
+            ...getDependencyStatsFromE18e(e18eStats),
+            allDependencies: packageDependencyCounts.allDependencies,
+          }),
         }
       } else {
         console.warn(`No e18e stats artifact found at ${e18eArtifactPath}`)

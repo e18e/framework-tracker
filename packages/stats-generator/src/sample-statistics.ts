@@ -32,10 +32,23 @@ export function summarizeMetric(values: number[]): MetricBase {
   if (values.length === 0)
     throw new Error('Cannot summarize an empty sample set')
   const mean = values.reduce((sum, value) => sum + value, 0) / values.length
+  let min = values[0]
+  let max = values[0]
+  for (const value of values) {
+    if (value < min) min = value
+    if (value > max) max = value
+  }
+  const sorted = values.toSorted((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  const median =
+    sorted.length % 2 === 1
+      ? sorted[middle]
+      : sorted[middle - 1] / 2 + sorted[middle] / 2
   return {
     mean,
-    min: Math.min(...values),
-    max: Math.max(...values),
+    median,
+    min,
+    max,
     variance:
       values.length === 1
         ? 0

@@ -30,6 +30,7 @@ describe('metric summaries', () => {
   it('calculates mean, extrema and sample variance without rounding', () => {
     assert.deepEqual(summarizeMetric([10, 20, 30]), {
       mean: 20,
+      median: 20,
       min: 10,
       max: 30,
       variance: 100,
@@ -39,6 +40,7 @@ describe('metric summaries', () => {
   it('reports zero variance for one sample', () => {
     assert.deepEqual(summarizeMetric([5]), {
       mean: 5,
+      median: 5,
       min: 5,
       max: 5,
       variance: 0,
@@ -47,4 +49,23 @@ describe('metric summaries', () => {
   it('rejects empty input', () => {
     assert.throws(() => summarizeMetric([]), /empty sample set/)
   })
+})
+
+it('summarizes large request sample populations without spreading arguments', () => {
+  assert.deepEqual(summarizeMetric(Array.from({ length: 250_000 }, () => 5)), {
+    mean: 5,
+    median: 5,
+    min: 5,
+    max: 5,
+    variance: 0,
+  })
+})
+
+it('calculates odd and even medians without mutating raw measurements', () => {
+  const odd = [9, 1, 2]
+  const even = [20, 1, 9, 2]
+  assert.equal(summarizeMetric(odd).median, 2)
+  assert.equal(summarizeMetric(even).median, 5.5)
+  assert.deepEqual(odd, [9, 1, 2])
+  assert.deepEqual(even, [20, 1, 9, 2])
 })

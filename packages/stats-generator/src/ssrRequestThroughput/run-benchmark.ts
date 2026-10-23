@@ -1,3 +1,9 @@
+import { parseRunFrequency } from '../benchmark-utils.ts'
+import type { RequestThroughputIteration } from '../request-throughput.ts'
+import {
+  assembleRequestThroughput,
+  createRequestThroughputIteration,
+} from '../request-throughput.ts'
 import { Bench } from 'tinybench'
 import { IncomingMessage, ServerResponse } from './mock-http.ts'
 import type {
@@ -133,34 +139,59 @@ function getDuplicationFactor(body: string): number {
 
 export async function runBenchmark(
   handlers: HandlerConfig[],
+  runs = 5,
 ): Promise<SSRRequestThroughputBenchmarkResult[]> {
-  const bench = new Bench({
+  parseRunFrequency(String(runs))
+  const options = {
     time: 10_000,
-    setup: async (task, mode) => {
-      if (mode === 'run' && task !== undefined) {
-        console.info(`Running ${task.name} benchmark...`)
-      }
-    },
-  })
-
+    warmupTime: 250,
+    iterations: 64,
+    warmupIterations: 16,
+    retainSamples: true,
+  }
+  const iterationsByName = new Map<string, RequestThroughputIteration[]>()
   for (const config of handlers) {
     validateHandlerResult(config, await runHandler(config.handler, true))
-
-    bench.add(config.name, async () => {
-      await runHandler(config.handler)
-    })
+    iterationsByName.set(config.name, [])
   }
 
-  await bench.run()
+  for (let run = 1; run <= runs; run++) {
+    // A fresh Bench excludes warmups and previous runs from each iteration.
+    const bench = new Bench({
+      ...options,
+      setup: async (task, mode) => {
+        if (mode === 'run' && task !== undefined) {
+          console.info(`Running ${task.name} benchmark (${run}/${runs})...`)
+        }
+      },
+    })
+    for (const config of handlers) {
+      bench.add(config.name, async () => {
+        await runHandler(config.handler)
+      })
+    }
+    await bench.run()
+
+    for (const config of handlers) {
+      const task = bench.getTask(config.name)
+      if (!task || !task.result || task.result.state !== 'completed') {
+        throw new Error(
+          `Benchmark run ${run} did not complete for ${config.name}`,
+        )
+      }
+      iterationsByName
+        .get(config.name)!
+        .push(
+          createRequestThroughputIteration(
+            [...(task.result.throughput.samples ?? [])],
+            [...(task.result.latency.samples ?? [])],
+          ),
+        )
+    }
+  }
 
   const results: SSRRequestThroughputBenchmarkResult[] = []
-
   for (const config of handlers) {
-    const task = bench.getTask(config.name)
-    if (!task || !task.result || task.result.state !== 'completed') {
-      throw new Error(`Benchmark did not complete for ${config.name}`)
-    }
-
     const handlerResult = await runHandler(config.handler, true)
     validateHandlerResult(config, handlerResult)
     const { body, length } = handlerResult
@@ -170,14 +201,15 @@ export async function runBenchmark(
       name: config.name,
       displayName: config.displayName,
       package: config.package,
-      opsPerSec: Math.round(task.result.throughput.mean),
-      avgLatencyMs: Number(task.result.latency.mean.toFixed(3)),
-      medianLatencyMs: Number(task.result.latency.p50.toFixed(3)),
-      samples: task.result.throughput.samplesCount,
-      bodySizeKb: Number((length / 1024).toFixed(2)),
-      duplicationFactor: Number(duplicationFactor.toFixed(2)),
+      benchmark: assembleRequestThroughput(iterationsByName.get(config.name)!, {
+        durationMs: options.time,
+        warmupDurationMs: options.warmupTime,
+        minimumSamples: options.iterations,
+        warmupMinimumSamples: options.warmupIterations,
+        bodySizeKb: Number((length / 1024).toFixed(2)),
+        duplicationFactor: Number(duplicationFactor.toFixed(2)),
+      }),
     })
   }
-
   return results
 }

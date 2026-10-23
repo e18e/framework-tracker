@@ -1,6 +1,14 @@
 import type * as SaveStatsModule from './save-stats.ts'
 import assert from 'node:assert/strict'
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import {
+  cp,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -15,6 +23,11 @@ test('regenerating documentation preserves migrated router-link histories', asyn
   const generator = join(fixturePackages, 'stats-generator', 'src')
   // Run the real writer in an isolated repository so tests cannot alter stats.
   await cp(new URL('.', import.meta.url), generator, { recursive: true })
+  await symlink(
+    join(packagesDir, 'stats-generator', 'node_modules'),
+    join(fixturePackages, 'stats-generator', 'node_modules'),
+    'dir',
+  )
   await writeFile(join(root, 'package.json'), '{"type":"module"}')
   const { saveStats } = (await import(
     pathToFileURL(join(generator, 'save-stats.ts')).href
@@ -60,6 +73,31 @@ test('regenerating documentation preserves migrated router-link histories', asyn
         expected.ssrLoadTests,
         `${relativePath}: do not reclassify router-link results as anchors`,
       )
+      assert.equal(
+        actual.ssrRequestThroughputTests,
+        undefined,
+        `${relativePath}: do not restore removed throughput history from current results`,
+      )
     }
+    const outputPath = join(fixturePackages, docsDir, `${pkg}.json`)
+    const saved = await readFile(outputPath, 'utf8')
+    await assert.rejects(
+      saveStats(
+        pkg,
+        {
+          ...current,
+          ssrRequestThroughputTests: {
+            ...current.ssrRequestThroughputTests!,
+            samples: -1,
+          },
+        },
+        'runtime',
+      ),
+    )
+    assert.equal(
+      await readFile(outputPath, 'utf8'),
+      saved,
+      'invalid incoming throughput must not overwrite the existing documentation file',
+    )
   }
 })

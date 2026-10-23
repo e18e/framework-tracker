@@ -1,3 +1,4 @@
+import { validateRequestThroughputForPersistence } from './request-throughput.ts'
 import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { packagesDir } from './constants.ts'
@@ -60,6 +61,7 @@ async function saveVersionedStats(
       const fileStats = normalizeCIStats(
         JSON.parse(await readFile(sourcePath, 'utf-8')) as FrameworkStats,
       )
+      validateRequestThroughputForPersistence(fileStats)
       const outputPath = join(outputDir, fileName)
       const versionedStats = {
         ...metadata,
@@ -92,12 +94,14 @@ export async function saveStats(
   const fileName = `${packageName}.json`
   const filePath = join(outputDir, fileName)
 
+  validateRequestThroughputForPersistence(stats)
   let mergedStats = normalizeCIStats(stats)
   try {
     const existingContent = await readFile(filePath, 'utf-8')
     const existingStats = normalizeCIStats(
       JSON.parse(existingContent) as FrameworkStats,
     )
+    validateRequestThroughputForPersistence(existingStats)
     mergedStats = { ...existingStats, ...stats }
   } catch (error) {
     if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
@@ -109,6 +113,7 @@ export async function saveStats(
     }
   }
 
+  validateRequestThroughputForPersistence(mergedStats)
   const docsStats = getDocsStats(mergedStats)
 
   await writeFile(filePath, `${JSON.stringify(docsStats, null, 2)}\n`, 'utf-8')

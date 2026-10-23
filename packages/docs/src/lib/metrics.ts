@@ -112,9 +112,10 @@ export const metricCatalogue = {
     valueFormat: 'kb',
     yAxisLabel: 'Kilobytes',
   },
-  'ssrRequestThroughputTests.medianLatencyMs': {
-    id: 'ssrRequestThroughputTests.medianLatencyMs',
-    title: 'Median Latency',
+  'ssrRequestThroughputTests.latencyMs': {
+    id: 'ssrRequestThroughputTests.latencyMs',
+    title: 'Mean Latency',
+    description: 'Arithmetic mean of measured run average latencies.',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },

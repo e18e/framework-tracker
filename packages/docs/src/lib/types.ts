@@ -75,7 +75,7 @@ export interface ChartMeasurement {
   ssrRequestThroughputTests?: {
     opsPerSec?: number
     bodySizeKb?: number
-    medianLatencyMs?: number
+    latencyMs?: number
   }
   depInstallSize?: number
   ssrLoadTests?: SSRLoadMeasurements

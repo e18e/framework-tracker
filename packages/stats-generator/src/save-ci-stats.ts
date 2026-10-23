@@ -7,6 +7,10 @@ import {
   FirstPartyDependencyScanSchema,
 } from './schemas.ts'
 import {
+  mergeRequestThroughputArtifact,
+  validateRequestThroughputForPersistence,
+} from './request-throughput.ts'
+import {
   ServerSideRenderedStatsSchema,
   ClientSideRenderedStatsSchema,
 } from './schemas.ts'
@@ -325,6 +329,7 @@ async function main() {
 
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      validateRequestThroughputForPersistence(stats)
       writeJsonFile(ciStatsPath, stats)
       console.info(`  ✓ Saved ${ciStatsPath}`)
 
@@ -378,13 +383,8 @@ async function main() {
 
       if (ssrRequestThroughputStats) {
         console.info(`  ✓ Found SSR request throughput stats artifact`)
-        stats = {
-          ...stats,
-          frameworkVersion: ssrRequestThroughputStats.frameworkVersion,
-          ssrRequestThroughputTests:
-            ssrRequestThroughputStats.ssrRequestThroughputTests,
-        }
-        frameworkVersion = ssrRequestThroughputStats.frameworkVersion
+        stats = mergeRequestThroughputArtifact(stats, ssrRequestThroughputStats)
+        frameworkVersion = stats.frameworkVersion
       } else {
         console.warn(
           `No SSR request throughput stats artifact found at ${ssrRequestThroughputStatsPath}`,
@@ -518,6 +518,7 @@ async function main() {
 
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      validateRequestThroughputForPersistence(stats)
       writeJsonFile(ciStatsPath, stats)
       console.info(`  ✓ Saved ${ciStatsPath}`)
 

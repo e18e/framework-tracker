@@ -14,7 +14,18 @@ export function summarizeSamples(
 
   return {
     avgMs: round(metric.mean, decimalPlaces),
-    standardDeviationMs: round(Math.sqrt(metric.variance), decimalPlaces),
+    standardDeviationMs: round(
+      Math.sqrt(
+        samplesMs.length === 1
+          ? 0
+          : samplesMs.reduce(
+              (sum, value) => sum + (value - metric.mean) ** 2,
+              0,
+            ) /
+              (samplesMs.length - 1),
+      ),
+      decimalPlaces,
+    ),
     minMs: metric.min,
     maxMs: metric.max,
     samplesMs: [...samplesMs],
@@ -49,10 +60,5 @@ export function summarizeMetric(values: number[]): MetricBase {
     median,
     min,
     max,
-    variance:
-      values.length === 1
-        ? 0
-        : values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
-          (values.length - 1),
   }
 }

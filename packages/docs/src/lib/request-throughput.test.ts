@@ -12,7 +12,6 @@ const metric = (mean: number) => ({
   median: mean,
   min: mean,
   max: mean,
-  variance: 0,
 })
 const benchmark = {
   name: 'ssrRequestThroughput',

@@ -26,7 +26,6 @@ const buildTimeSchema = z.union([
         median: z.number(),
         min: z.number(),
         max: z.number(),
-        variance: z.number().nonnegative(),
       }),
     })
     .refine((value) => value.iterations.length === value.runs)
@@ -35,7 +34,6 @@ const buildTimeSchema = z.union([
       medianMs: value.timeMs.median,
       minMs: value.timeMs.min,
       maxMs: value.timeMs.max,
-      standardDeviationMs: Math.sqrt(value.timeMs.variance),
       samplesMs: value.iterations.map((run) => run.timeMs),
     })),
   timeSchema,
@@ -52,7 +50,6 @@ const devServerTimeSchema = z.union([
         median: z.number(),
         min: z.number(),
         max: z.number(),
-        variance: z.number().nonnegative(),
       }),
     })
     .refine((value) => value.iterations.length === value.runs)
@@ -61,7 +58,6 @@ const devServerTimeSchema = z.union([
       medianMs: value.timeMs.median,
       minMs: value.timeMs.min,
       maxMs: value.timeMs.max,
-      standardDeviationMs: Math.sqrt(value.timeMs.variance),
       samplesMs: value.iterations.map((run) => run.timeMs),
     })),
   timeSchema,
@@ -85,7 +81,6 @@ const metricSchema = z.object({
   median: z.number(),
   min: z.number(),
   max: z.number(),
-  variance: z.number().nonnegative(),
 })
 const ClientRenderingBenchmarkSchema = z
   .object({
@@ -155,7 +150,6 @@ const devtimeSchema = z.object({
       median: z.number(),
       min: z.number(),
       max: z.number(),
-      variance: z.number().nonnegative(),
     }),
     nodeModulesSizeBytes: z.number().nonnegative(),
   }),

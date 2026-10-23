@@ -9,8 +9,6 @@ export const MetricBaseSchema = z.object({
   min: z.number(),
   /** Highest measured value. */
   max: z.number(),
-  /** Sample variance in squared metric units (n - 1 divisor); zero for one value. */
-  variance: z.number().nonnegative(),
 })
 export type MetricBase = z.infer<typeof MetricBaseSchema>
 

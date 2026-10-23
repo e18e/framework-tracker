@@ -59,7 +59,6 @@ test('artifact merge validates before merging and preserves unrelated results an
     median: 2,
     min: 1,
     max: 9,
-    variance: 19,
   })
   assert.equal(result.opsPerSec.mean, 650.25)
   assert.equal(result.latencyMs.mean, 2.125)

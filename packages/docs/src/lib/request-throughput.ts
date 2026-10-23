@@ -5,7 +5,6 @@ const metricSchema = z.object({
   median: z.number(),
   min: z.number(),
   max: z.number(),
-  variance: z.number().nonnegative(),
 })
 
 const iterationSchema = z.object({

@@ -138,9 +138,6 @@ async function main() {
 
     console.info(`\n✓ Saved install stats to ${outputPath}`)
     console.info(`  Average: ${stats.install.installTimeMs.mean}ms`)
-    console.info(
-      `  Standard deviation: ${Math.sqrt(stats.install.installTimeMs.variance)}ms`,
-    )
     console.info(`  Min: ${stats.install.installTimeMs.min}ms`)
     console.info(`  Max: ${stats.install.installTimeMs.max}ms`)
   } finally {

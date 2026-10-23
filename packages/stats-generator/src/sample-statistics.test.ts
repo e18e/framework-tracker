@@ -27,23 +27,21 @@ describe('sample statistics', () => {
 })
 
 describe('metric summaries', () => {
-  it('calculates mean, extrema and sample variance without rounding', () => {
+  it('calculates mean, median and extrema without rounding', () => {
     assert.deepEqual(summarizeMetric([10, 20, 30]), {
       mean: 20,
       median: 20,
       min: 10,
       max: 30,
-      variance: 100,
     })
     assert.equal(summarizeMetric([0, 1, 1]).mean, 2 / 3)
   })
-  it('reports zero variance for one sample', () => {
+  it('summarizes one sample', () => {
     assert.deepEqual(summarizeMetric([5]), {
       mean: 5,
       median: 5,
       min: 5,
       max: 5,
-      variance: 0,
     })
   })
   it('rejects empty input', () => {
@@ -57,7 +55,6 @@ it('summarizes large request sample populations without spreading arguments', ()
     median: 5,
     min: 5,
     max: 5,
-    variance: 0,
   })
 })
 

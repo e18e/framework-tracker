@@ -1,3 +1,4 @@
+import { measurements } from './measurements.ts'
 import { rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -97,13 +98,13 @@ async function main() {
     'Usage: run-dev-server-benchmark <package-name> [run-frequency]\nExample: run-dev-server-benchmark starter-astro 5',
   )
 
-  const runFrequency = parseRunFrequency(args[0])
+  const runFrequency = parseRunFrequency(args[0], measurements.devServer.runs)
 
   const { framework, testConfig } = await getFrameworkByPackage(packageName)
   const port = testConfig.devServerPort
   if (port === undefined) {
     throw new Error(
-      `${packageName} has no devServerPort in .github/frameworks.json`,
+      `${packageName} has no devServerPort in packages/stats-generator/src/frameworks.ts`,
     )
   }
 

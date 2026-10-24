@@ -7,7 +7,7 @@ on:
       - '.github/workflows/generate-stats.yml'
       - '.github/workflows/measure-framework.yml'
       - '.github/workflows/validate-stats.yml'
-      - '.github/frameworks.json'
+      - 'packages/stats-generator/src/frameworks.ts'
       - 'packages/app-*/**'
       - '!packages/app-*/ci-stats.json'
       - '!packages/app-*/stats/**'
@@ -46,7 +46,7 @@ jobs:
 
       - name: Install all package dependencies
         run: |
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
           for PKG in $(echo "$FRAMEWORKS" | jq -r '.[].starter.package // empty, .[].app.package // empty'); do
             echo "Installing $PKG..."
             (cd packages/$PKG && pnpm install --frozen-lockfile)
@@ -57,8 +57,8 @@ jobs:
           set -e
 
           echo "=== Running SSR request throughput benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | contains(["ssrRequestThroughput"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
             (cd packages/$PKG && pnpm build)
@@ -68,8 +68,8 @@ jobs:
 
           echo ""
           echo "=== Running SSR load benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrLoad"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | contains(["ssrLoad"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
             (cd packages/$PKG && pnpm build)
@@ -79,8 +79,8 @@ jobs:
 
           echo ""
           echo "=== Running SSR router link load benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRouterLinkLoad"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | contains(["ssrRouterLinkLoad"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building $PKG..."
             (cd packages/$PKG && pnpm build)
@@ -90,23 +90,23 @@ jobs:
 
           echo ""
           echo "=== Running starter benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
           echo "$FRAMEWORKS" | jq -c '.[] | select(.starter)' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
-            echo "Running install benchmark for $PKG (1 run)..."
-            pnpm --filter @framework-tracker/stats-generator run:install $PKG 1
+            echo "Running install benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:install $PKG
             echo "Running build benchmark for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:build $PKG
-            echo "Running dev server benchmark for $PKG (1 run)..."
-            pnpm --filter @framework-tracker/stats-generator run:dev-server $PKG 1
+            echo "Running dev server benchmark for $PKG..."
+            pnpm --filter @framework-tracker/stats-generator run:dev-server $PKG
             echo "Running Node engines scan for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:node-engines $PKG
           done
 
           echo ""
           echo "=== Running dependency scans ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | contains(["dependencies"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Running e18e analysis for $PKG..."
             (cd packages/$PKG && npx @e18e/cli@0.5.0 analyze --json > e18e-stats.json || true)
@@ -120,8 +120,8 @@ jobs:
 
           echo ""
           echo "=== Running browser baseline scans ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | map(.type) | contains(["browserBaseline"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.starter) | select(.starter.measurements | contains(["browserBaseline"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.starter.package')
             echo "Scanning browser baseline requirements for $PKG..."
             pnpm --filter @framework-tracker/stats-generator run:browser-baseline $PKG
@@ -129,8 +129,8 @@ jobs:
 
           echo ""
           echo "=== Running client-side rendered benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["clientSideRendered"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | contains(["clientSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building client-side rendered app for $PKG..."
             (cd packages/$PKG && pnpm build)
@@ -140,8 +140,8 @@ jobs:
 
           echo ""
           echo "=== Running server-side rendered benchmarks ==="
-          FRAMEWORKS=$(cat .github/frameworks.json)
-          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | map(.type) | contains(["serverSideRendered"]))' | while read -r framework; do
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
+          echo "$FRAMEWORKS" | jq -c '.[] | select(.app) | select(.app.measurements | contains(["serverSideRendered"]))' | while read -r framework; do
             PKG=$(echo "$framework" | jq -r '.app.package')
             echo "Building server-side rendered app for $PKG..."
             (cd packages/$PKG && pnpm build)

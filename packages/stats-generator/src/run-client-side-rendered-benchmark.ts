@@ -1,3 +1,5 @@
+import { parseRunFrequency } from './benchmark-utils.ts'
+import { measurements } from './measurements.ts'
 import { ClientSideRenderedStatsSchema } from './schemas.ts'
 import { join } from 'node:path'
 import { runClientSideRenderedBenchmark } from './clientSideRendered/index.ts'
@@ -16,7 +18,7 @@ async function main() {
   const { packageName, args } = parseArgs(
     'Usage: run-client-side-rendered-benchmark <package-name> [runs]\nExample: run-client-side-rendered-benchmark app-astro 5',
   )
-  const runs = args[0] ? Number.parseInt(args[0], 10) : 5
+  const runs = parseRunFrequency(args[0], measurements.clientSideRendered.runs)
 
   console.info(
     `Running client-side rendered benchmark for ${packageName} (${runs} runs)...\n`,

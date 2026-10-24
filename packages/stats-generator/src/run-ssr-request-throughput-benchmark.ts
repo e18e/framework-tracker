@@ -1,3 +1,4 @@
+import { measurements } from './measurements.ts'
 import { parseRunFrequency } from './benchmark-utils.ts'
 import { RequestThroughputResultSchema } from './schemas.ts'
 import { join } from 'node:path'
@@ -21,7 +22,10 @@ async function main() {
     'Usage: run-ssr-request-throughput-benchmark <package-name> [runs]\nExample: run-ssr-request-throughput-benchmark app-astro 5',
   )
 
-  const runs = parseRunFrequency(args[0])
+  const runs = parseRunFrequency(
+    args[0],
+    measurements.ssrRequestThroughput.runs,
+  )
 
   console.info(
     `Running SSR request throughput benchmark for ${packageName} (${runs} runs)...\n`,

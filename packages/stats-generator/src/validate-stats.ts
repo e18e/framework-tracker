@@ -1,3 +1,5 @@
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
+import type { CIStats } from './types.ts'
 import { join } from 'node:path'
 import { z } from 'zod'
 import { getFrameworks } from './get-frameworks.ts'
@@ -111,6 +113,16 @@ function validateFile(filePath: string, schema: z.ZodSchema): string[] {
 
   const result = schema.safeParse(data)
   if (result.success) {
+    if (
+      schema === SSRLoadStatsSchema ||
+      schema === SSRRouterLinkLoadStatsSchema
+    ) {
+      try {
+        validateSSRLoadForPersistence(data as CIStats)
+      } catch (error) {
+        return [error instanceof Error ? error.message : String(error)]
+      }
+    }
     return []
   }
 

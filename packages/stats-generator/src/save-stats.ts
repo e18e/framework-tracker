@@ -1,3 +1,4 @@
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { validateRequestThroughputForPersistence } from './request-throughput.ts'
 import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -61,6 +62,7 @@ async function saveVersionedStats(
       const fileStats = normalizeCIStats(
         JSON.parse(await readFile(sourcePath, 'utf-8')) as FrameworkStats,
       )
+      validateSSRLoadForPersistence(fileStats)
       validateRequestThroughputForPersistence(fileStats)
       const outputPath = join(outputDir, fileName)
       const versionedStats = {
@@ -94,6 +96,8 @@ export async function saveStats(
   const fileName = `${packageName}.json`
   const filePath = join(outputDir, fileName)
 
+  validateSSRLoadForPersistence(stats)
+
   validateRequestThroughputForPersistence(stats)
   let mergedStats = normalizeCIStats(stats)
   try {
@@ -101,6 +105,7 @@ export async function saveStats(
     const existingStats = normalizeCIStats(
       JSON.parse(existingContent) as FrameworkStats,
     )
+    validateSSRLoadForPersistence(existingStats)
     validateRequestThroughputForPersistence(existingStats)
     mergedStats = { ...existingStats, ...stats }
   } catch (error) {
@@ -112,6 +117,8 @@ export async function saveStats(
       )
     }
   }
+
+  validateSSRLoadForPersistence(mergedStats)
 
   validateRequestThroughputForPersistence(mergedStats)
   const docsStats = getDocsStats(mergedStats)

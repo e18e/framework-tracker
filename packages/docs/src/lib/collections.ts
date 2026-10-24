@@ -145,7 +145,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
     .filter(
       (framework) =>
         framework[key] != null &&
-        Number.isFinite(framework[key].peakRequestsPerSec) &&
+        Number.isFinite(framework[key].representativePeak.requestsPerSec) &&
         getSSRLoadLatencyStage(framework, 25, key) != null &&
         getSSRLoadLatencyStage(framework, 50, key) != null &&
         getSSRLoadLatencyStage(framework, 100, key) != null,
@@ -162,11 +162,13 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
           framework.package === 'app-baseline-html'
             ? true
             : framework.isFocused,
-        peakRequestsPerSec: framework[key]!.peakRequestsPerSec.toLocaleString(),
-        peakWorkers: framework[key]!.peakWorkers.toLocaleString(),
-        worker25P99LatencyMs: `${worker25Stage.p99LatencyMs}ms`,
-        worker50P99LatencyMs: `${worker50Stage.p99LatencyMs}ms`,
-        worker100P99LatencyMs: `${worker100Stage.p99LatencyMs}ms`,
+        peakRequestsPerSec:
+          framework[key]!.representativePeak.requestsPerSec.toLocaleString(),
+        peakWorkers:
+          framework[key]!.representativePeak.workers.toLocaleString(),
+        worker25P99LatencyMs: `${worker25Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
+        worker50P99LatencyMs: `${worker50Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
+        worker100P99LatencyMs: `${worker100Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         totalRequests: framework[key]!.totalRequests.toLocaleString(),
       }
     })

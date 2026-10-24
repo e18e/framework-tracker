@@ -276,10 +276,10 @@ Installed using the CLI with the following setup:
   terminal.
 - Dev server benchmarks run 5 times by default. New results record the test
   `name`, measured `runs`, raw `iterations` in milliseconds, and `timeMs`
-  statistics (mean, minimum, maximum, and sample variance). Framework and
+  statistics (mean, median, minimum, and maximum). Framework and
   package identity stay on the overall result.
 - All 146 historical startup records contained raw samples and were converted
-  using those samples, including recalculating sample variance. No measurements
+  using those samples. No measurements
   or iterations were invented. The site can still display legacy summaries,
   but new benchmark artifacts require complete iterations.
 
@@ -472,7 +472,7 @@ Current pinned dependencies are listed in each project's `package.json`:
   each run.
   One Tinybench task execution is one benchmark run; the `samples` count records
   measured HTTP requests and excludes warmup requests. Each iteration retains
-  the arithmetic mean, median, minimum, maximum, and sample variance of request
+  the arithmetic mean, median, minimum, and maximum of request
   throughput (ops/sec) and latency (ms). Overall metrics summarize the five
   per-run arithmetic means; their median describes run means, not all requests.
 - Frameworks are invoked through their production request handlers where
@@ -511,11 +511,22 @@ The server gets five seconds of recovery between sweeps. An unhealthy warm-up
 is retried up to twice, with five seconds of recovery before each retry; a sweep
 only starts after a warm-up with requests and no errors. Persistent failures abort
 the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
-The summary and latency charts use the actual sweep with the median peak requests
-per second; other metrics belong to that same sweep, rather than independently
-computed medians. Individual samples are stored for future variability reporting.
-Historical measurements retain their original values as one sample, with unknown
-variability and no assumed warm-up. Both use the same production server setup and Node 24
+The representative peak throughput and connection count come from the actual
+sweep with median peak requests per second. Its complete measurements remain together in the iteration selected by
+`representativeIterationIndex`; peak values are derived from its fastest
+error-free stage. Each measured sweep is stored as one iteration containing an array of
+measured stages. Benchmark-level `stage1` through `stage7` summaries include their connection
+count and summarize those iterations. Configured stage duration is five seconds;
+iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
+arithmetic mean, median, minimum, and maximum across sweeps at
+each matching connection count. Latency charts show the arithmetic mean of each
+sweep's reported percentile; these are summaries of sweep percentiles, not pooled
+request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
+per-stage counts remain in every iteration. All retained historical load
+records contain complete sweeps and have been migrated without reconstructing
+request-level latency samples. Historical settings absent from the records remain
+unspecified.
+Both use the same production server setup and Node 24
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
@@ -546,11 +557,22 @@ The server gets five seconds of recovery between sweeps. An unhealthy warm-up
 is retried up to twice, with five seconds of recovery before each retry; a sweep
 only starts after a warm-up with requests and no errors. Persistent failures abort
 the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
-The summary and latency charts use the actual sweep with the median peak requests
-per second; other metrics belong to that same sweep, rather than independently
-computed medians. Individual samples are stored for future variability reporting.
-Historical measurements retain their original values as one sample, with unknown
-variability and no assumed warm-up. Both use the same production server setup and Node 24
+The representative peak throughput and connection count come from the actual
+sweep with median peak requests per second. Its complete measurements remain together in the iteration selected by
+`representativeIterationIndex`; peak values are derived from its fastest
+error-free stage. Each measured sweep is stored as one iteration containing an array of
+measured stages. Benchmark-level `stage1` through `stage7` summaries include their connection
+count and summarize those iterations. Configured stage duration is five seconds;
+iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
+arithmetic mean, median, minimum, and maximum across sweeps at
+each matching connection count. Latency charts show the arithmetic mean of each
+sweep's reported percentile; these are summaries of sweep percentiles, not pooled
+request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
+per-stage counts remain in every iteration. All retained historical load
+records contain complete sweeps and have been migrated without reconstructing
+request-level latency samples. Historical settings absent from the records remain
+unspecified.
+Both use the same production server setup and Node 24
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
@@ -587,15 +609,15 @@ is written by hand rather than generated, so it carries its own rules.
 
 Client rendering benchmarks store `name`, `runs`, and one raw `iteration` per
 measured run (in `iterations`). Paint and interaction metrics each contain the
-arithmetic mean, minimum, maximum, and sample variance, calculated from exact raw
-measurements. A single measurement has zero variance. Browser metadata remains
+arithmetic mean, median, minimum, and maximum, calculated from exact raw
+measurements. Browser metadata remains
 on the result document; interaction scenario and source remain with the interaction
 metrics. Framework and package identity belong to the overall result.
 
 The schema migration converted 146 package and documentation records, including
 versioned history, using their complete raw browser samples. Raw measurements and
 unrelated result fields were preserved. Summary-only records cannot supply raw
-iterations or sample variance; the documentation loader retains support for their
+iterations; the documentation loader retains support for their
 numeric summaries and historical INP fields without treating INP as interaction
 timing. New artifacts require the complete benchmark schema before persistence.
 Charts consume arithmetic means in milliseconds through content normalization.
@@ -604,7 +626,7 @@ Charts consume arithmetic means in milliseconds through content normalization.
 
 Server rendering browser benchmarks use the `serverSideRendered` identity and
 require one exact raw iteration per run. Paint and interaction metrics contain
-arithmetic mean, minimum, maximum, and sample variance (zero for one sample).
+arithmetic mean, median, minimum, and maximum.
 Browser metadata stays on the result document; scenario and source stay with
 interaction metrics. Framework and package identity belong to the overall result.
 These browser measurements are separate from SSR throughput and load tests.

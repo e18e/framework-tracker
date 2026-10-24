@@ -1,3 +1,4 @@
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   DependencyScanSchema,
   CoreJsStatsSchema,
@@ -329,6 +330,7 @@ async function main() {
 
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      validateSSRLoadForPersistence(stats)
       validateRequestThroughputForPersistence(stats)
       writeJsonFile(ciStatsPath, stats)
       console.info(`  ✓ Saved ${ciStatsPath}`)
@@ -518,6 +520,7 @@ async function main() {
 
       // Save to ci-stats.json
       const ciStatsPath = join(packagesDir, packageName, 'ci-stats.json')
+      validateSSRLoadForPersistence(stats)
       validateRequestThroughputForPersistence(stats)
       writeJsonFile(ciStatsPath, stats)
       console.info(`  ✓ Saved ${ciStatsPath}`)

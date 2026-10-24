@@ -1,3 +1,5 @@
+import { getLoadPeakStage } from './ssrLoad/selection.ts'
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { getSSRLoadKind, getSSRLoadStatsKey } from './ssrLoad/config.ts'
 import { join } from 'node:path'
 import {
@@ -56,10 +58,14 @@ async function main() {
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
+  validateSSRLoadForPersistence(ciStats)
   writeJsonFile(outputPath, ciStats)
 
+  const peak = getLoadPeakStage(
+    result.tests.iterations[result.tests.representativeIterationIndex]!,
+  )
   console.info(
-    `\n✓ Saved ${label} stats for ${packageName}: ${result.tests.peakRequestsPerSec} req/s at ${result.tests.peakWorkers} workers`,
+    `\n✓ Saved ${label} stats for ${packageName}: ${peak.requestsPerSec} req/s at ${peak.workers} workers`,
   )
 }
 

@@ -1,37 +1,10 @@
-export interface SSRLoadStageStats {
-  workers: number
-  durationMs: number
-  requests: number
-  errors: number
-  requestsPerSec: number
-  avgLatencyMs: number
-  medianLatencyMs: number
-  p50LatencyMs: number
-  p75LatencyMs: number
-  p90LatencyMs: number
-  p99LatencyMs: number
-  maxLatencyMs: number
-  bytesPerSec: number
-}
+import type { z } from 'zod'
+import type { SSRLoadTestsSchema, SSRLoadSweepSchema } from '../schemas.ts'
 
-export interface SSRLoadSweep {
-  peakWorkers: number
-  peakRequestsPerSec: number
-  peakAvgLatencyMs: number
-  peakP50LatencyMs: number
-  peakP75LatencyMs: number
-  peakP90LatencyMs: number
-  peakP99LatencyMs: number
-  totalRequests: number
-  totalErrors: number
-  stages: SSRLoadStageStats[]
-}
+export type SSRLoadStageStats = z.infer<typeof SSRLoadSweepSchema>[number]
+export type SSRLoadSweep = z.infer<typeof SSRLoadSweepSchema>
 
-export interface SSRLoadTests extends SSRLoadSweep {
-  runs?: number
-  samples?: SSRLoadSweep[]
-  warmupDurationMs?: number
-}
+export type SSRLoadTests = z.infer<typeof SSRLoadTestsSchema>
 
 export interface SSRLoadBenchmarkResult {
   name: string

@@ -86,6 +86,18 @@ test('regenerating documentation preserves migrated router-link histories', asyn
         pkg,
         {
           ...current,
+          ssrLoadTests: { ...current.ssrLoadTests!, iterations: [] },
+        },
+        'runtime',
+      ),
+    )
+    assert.equal(await readFile(outputPath, 'utf8'), saved)
+
+    await assert.rejects(
+      saveStats(
+        pkg,
+        {
+          ...current,
           ssrRequestThroughputTests: {
             ...current.ssrRequestThroughputTests!,
             samples: -1,

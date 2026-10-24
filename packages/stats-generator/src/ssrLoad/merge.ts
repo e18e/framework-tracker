@@ -1,3 +1,4 @@
+import { validateSSRLoadForPersistence } from './persistence.ts'
 import type { CIStats } from '../types.ts'
 import { SSRLoadStatsSchema, SSRRouterLinkLoadStatsSchema } from '../schemas.ts'
 import { getSSRLoadStatsKey, type SSRLoadKind } from './config.ts'
@@ -14,6 +15,7 @@ export function mergeSSRLoadArtifact(
     kind === 'ssrLoad' ? SSRLoadStatsSchema : SSRRouterLinkLoadStatsSchema
   const validated = schema.parse(artifact)
   const key = getSSRLoadStatsKey(kind)
+  validateSSRLoadForPersistence({ [key]: artifact[key] })
   return {
     ...stats,
     frameworkVersion: validated.frameworkVersion ?? stats.frameworkVersion,

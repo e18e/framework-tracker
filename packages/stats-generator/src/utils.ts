@@ -279,20 +279,9 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.ssrLoadTotalErrors === 'number' &&
     Array.isArray(legacyStats.ssrLoadStages)
   ) {
-    stats.ssrLoadTests = {
-      peakWorkers: legacyStats.ssrLoadPeakWorkers,
-      peakRequestsPerSec: legacyStats.ssrLoadPeakRequestsPerSec,
-      peakAvgLatencyMs: legacyStats.ssrLoadPeakAvgLatencyMs,
-      peakP50LatencyMs: legacyStats.ssrLoadPeakP50LatencyMs,
-      peakP75LatencyMs: legacyStats.ssrLoadPeakP75LatencyMs,
-      peakP90LatencyMs: legacyStats.ssrLoadPeakP90LatencyMs,
-      peakP99LatencyMs: legacyStats.ssrLoadPeakP99LatencyMs,
-      totalRequests: legacyStats.ssrLoadTotalRequests,
-      totalErrors: legacyStats.ssrLoadTotalErrors,
-      stages: legacyStats.ssrLoadStages as NonNullable<
-        CIStats['ssrLoadTests']
-      >['stages'],
-    }
+    throw new Error(
+      'Legacy flat SSR load result retains only a representative sweep; repeated sweeps cannot be recovered',
+    )
   }
 
   if (

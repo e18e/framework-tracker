@@ -1,3 +1,4 @@
+import { selectRepresentativeIteration } from './ssrLoad/selection.ts'
 import { z } from 'zod'
 
 /** Summary of one metric; units belong to the metric being measured. */
@@ -211,50 +212,113 @@ export const SSRRequestThroughputStatsSchema =
     ]),
   })
 
-const SSRLoadSweepSchema = z.object({
-  peakWorkers: z.number().positive(),
-  peakRequestsPerSec: z.number().positive(),
-  peakAvgLatencyMs: z.number().nonnegative(),
-  peakP50LatencyMs: z.number().nonnegative(),
-  peakP75LatencyMs: z.number().nonnegative(),
-  peakP90LatencyMs: z.number().nonnegative(),
-  peakP99LatencyMs: z.number().nonnegative(),
-  totalRequests: z.number().positive(),
-  totalErrors: z.number().nonnegative(),
-  stages: z
-    .array(
-      z.object({
-        workers: z.number().positive(),
-        durationMs: z.number().positive(),
-        requests: z.number().nonnegative(),
-        errors: z.number().nonnegative(),
-        requestsPerSec: z.number().nonnegative(),
-        avgLatencyMs: z.number().nonnegative(),
-        medianLatencyMs: z.number().nonnegative(),
-        p50LatencyMs: z.number().nonnegative(),
-        p75LatencyMs: z.number().nonnegative(),
-        p90LatencyMs: z.number().nonnegative(),
-        p99LatencyMs: z.number().nonnegative(),
-        maxLatencyMs: z.number().nonnegative(),
-        bytesPerSec: z.number().nonnegative(),
-      }),
-    )
-    .nonempty(),
+export const SSRLoadStageSchema = z
+  .object({
+    workers: z.number().int().positive(),
+    elapsedTimeMs: z.number().positive(),
+    requests: z.number().int().nonnegative(),
+    errors: z.number().int().nonnegative(),
+    requestsPerSec: z.number().nonnegative(),
+    avgLatencyMs: z.number().nonnegative(),
+    p50LatencyMs: z.number().nonnegative(),
+    p75LatencyMs: z.number().nonnegative(),
+    p90LatencyMs: z.number().nonnegative(),
+    p99LatencyMs: z.number().nonnegative(),
+    maxLatencyMs: z.number().nonnegative(),
+    bytesPerSec: z.number().nonnegative(),
+  })
+  .strict()
+
+export const SSRLoadSweepSchema = z.array(SSRLoadStageSchema).nonempty()
+
+export const SSRLoadStageSummarySchema = z.object({
+  connections: z.number().int().positive(),
+  requests: MetricBaseSchema,
+  errors: MetricBaseSchema,
+  requestsPerSec: MetricBaseSchema,
+  avgLatencyMs: MetricBaseSchema,
+  p50LatencyMs: MetricBaseSchema,
+  p75LatencyMs: MetricBaseSchema,
+  p90LatencyMs: MetricBaseSchema,
+  p99LatencyMs: MetricBaseSchema,
+  maxLatencyMs: MetricBaseSchema,
+  bytesPerSec: MetricBaseSchema,
 })
 
-export const SSRLoadTestsSchema = SSRLoadSweepSchema.extend({
-  runs: z.number().int().positive().optional(),
-  samples: z.array(SSRLoadSweepSchema).nonempty().optional(),
-  warmupDurationMs: z.number().positive().optional(),
-}).refine(
-  (stats) =>
-    (stats.runs === undefined && stats.samples === undefined) ||
-    (stats.samples !== undefined && stats.samples.length === stats.runs),
-  { message: 'Expected one load sweep sample per run' },
-)
+export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
+  .safeExtend({
+    name: z.enum(['ssrLoad', 'ssrRouterLinkLoad']),
+    configuration: z.object({
+      workerStages: z.array(z.number().int().positive()).nonempty(),
+      warmupDurationMs: z.number().positive().optional(),
+      recoveryMs: z.number().nonnegative().optional(),
+      warmupAttempts: z.number().int().positive().optional(),
+      stageDurationMs: z.number().positive().optional(),
+    }),
+    representativeIterationIndex: z.number().int().nonnegative(),
+    source: z.literal('autocannon'),
+    path: z.enum([
+      '/server-side-rendered',
+      '/server-side-rendered-plain-links',
+    ]),
+    totalRequests: z.number().int().nonnegative(),
+    totalErrors: z.number().int().nonnegative(),
+    stage1: SSRLoadStageSummarySchema,
+    stage2: SSRLoadStageSummarySchema.optional(),
+    stage3: SSRLoadStageSummarySchema.optional(),
+    stage4: SSRLoadStageSummarySchema.optional(),
+    stage5: SSRLoadStageSummarySchema.optional(),
+    stage6: SSRLoadStageSummarySchema.optional(),
+    stage7: SSRLoadStageSummarySchema.optional(),
+  })
+  .strict()
+  .refine(
+    (value) => {
+      const workers = value.iterations[0]?.map((stage) => stage.workers)
+      return (
+        workers !== undefined &&
+        new Set(workers).size === workers.length &&
+        JSON.stringify(value.configuration.workerStages) ===
+          JSON.stringify(workers) &&
+        [
+          value.stage1,
+          value.stage2,
+          value.stage3,
+          value.stage4,
+          value.stage5,
+          value.stage6,
+          value.stage7,
+        ].every((stage, index) =>
+          index < workers.length
+            ? stage?.connections === workers[index]
+            : stage === undefined,
+        ) &&
+        workers.length <= 7 &&
+        value.iterations.every(
+          (sweep) =>
+            sweep.length === workers.length &&
+            sweep.every((stage, index) => stage.workers === workers[index]),
+        )
+      )
+    },
+    { message: 'Expected matching worker stages in every sweep' },
+  )
+  .refine(
+    (value) => {
+      try {
+        return (
+          value.representativeIterationIndex ===
+          selectRepresentativeIteration(value.iterations)
+        )
+      } catch {
+        return false
+      }
+    },
+    { message: 'Expected the actual median peak throughput sweep' },
+  )
 
 export const SSRLoadStatsSchema = z.object({
-  ssrLoadTests: SSRLoadTestsSchema,
+  ssrLoadTests: SSRLoadTestsSchema.refine((value) => value.name === 'ssrLoad'),
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
@@ -264,7 +328,9 @@ export const SSRLoadStatsSchema = z.object({
 export const SSRRouterLinkLoadStatsSchema = SSRLoadStatsSchema.omit({
   ssrLoadTests: true,
 }).extend({
-  ssrRouterLinkLoadTests: SSRLoadStatsSchema.shape.ssrLoadTests,
+  ssrRouterLinkLoadTests: SSRLoadTestsSchema.refine(
+    (value) => value.name === 'ssrRouterLinkLoad',
+  ),
 })
 
 const InteractionTestsSchema = z.object({

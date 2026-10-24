@@ -151,11 +151,7 @@ async function main() {
       const errors: string[] = []
       for (const { type: benchType, file, schema } of STARTER_BENCHMARKS) {
         if (filterType && filterType !== benchType) continue
-        if (
-          !framework.starter.measurements.some(
-            (measurement) => measurement.type === benchType,
-          )
-        ) {
+        if (!framework.starter.measurements.includes(benchType)) {
           continue
         }
 
@@ -185,11 +181,7 @@ async function main() {
       const errors: string[] = []
       for (const { type: benchType, file, schema } of APP_BENCHMARKS) {
         if (filterType && filterType !== benchType) continue
-        if (
-          !framework.app.measurements.some(
-            (measurement) => measurement.type === benchType,
-          )
-        ) {
+        if (!framework.app.measurements.includes(benchType)) {
           continue
         }
 

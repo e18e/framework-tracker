@@ -1,19 +1,14 @@
 import { selectRepresentativeIteration } from './selection.ts'
 import { z } from 'zod'
 
-/** Summary of one metric; units belong to the metric being measured. */
 export const MetricBaseSchema = z.object({
-  /** Arithmetic mean of the measured values. */
   mean: z.number(),
   median: z.number(),
-  /** Lowest measured value. */
   min: z.number(),
-  /** Highest measured value. */
   max: z.number(),
 })
 export type MetricBase = z.infer<typeof MetricBaseSchema>
 
-/** Framework identifiers configured in packages/stats-generator/src/frameworks.ts. */
 export const FrameworkSchema = z.enum([
   'baseline-html',
   'astro',
@@ -26,7 +21,6 @@ export const FrameworkSchema = z.enum([
   'tanstack',
 ])
 
-/** Tested package folders configured in packages/stats-generator/src/frameworks.ts. */
 export const PackagePathSchema = z.enum([
   'packages/app-baseline-html',
   'packages/starter-astro',
@@ -47,7 +41,6 @@ export const PackagePathSchema = z.enum([
   'packages/app-tanstack-start-react',
 ])
 
-/** Shared metadata for the overall result document. */
 export const BaseResultSchema = z.object({
   framework: FrameworkSchema,
   packagePath: PackagePathSchema,
@@ -55,7 +48,6 @@ export const BaseResultSchema = z.object({
   runner: z.string().min(1),
 })
 
-/** Identity shared by benchmarks and exact-value scans. */
 export const TestBaseSchema = z.object({
   /** Stable test identifier, such as install or ssrLoad. */
   name: z.string().min(1),
@@ -212,22 +204,20 @@ export const SSRRequestThroughputStatsSchema =
     ]),
   })
 
-export const SSRLoadStageSchema = z
-  .object({
-    workers: z.number().int().positive(),
-    elapsedTimeMs: z.number().positive(),
-    requests: z.number().int().nonnegative(),
-    errors: z.number().int().nonnegative(),
-    requestsPerSec: z.number().nonnegative(),
-    avgLatencyMs: z.number().nonnegative(),
-    p50LatencyMs: z.number().nonnegative(),
-    p75LatencyMs: z.number().nonnegative(),
-    p90LatencyMs: z.number().nonnegative(),
-    p99LatencyMs: z.number().nonnegative(),
-    maxLatencyMs: z.number().nonnegative(),
-    bytesPerSec: z.number().nonnegative(),
-  })
-  .strict()
+export const SSRLoadStageSchema = z.strictObject({
+  workers: z.number().int().positive(),
+  elapsedTimeMs: z.number().positive(),
+  requests: z.number().int().nonnegative(),
+  errors: z.number().int().nonnegative(),
+  requestsPerSec: z.number().nonnegative(),
+  avgLatencyMs: z.number().nonnegative(),
+  p50LatencyMs: z.number().nonnegative(),
+  p75LatencyMs: z.number().nonnegative(),
+  p90LatencyMs: z.number().nonnegative(),
+  p99LatencyMs: z.number().nonnegative(),
+  maxLatencyMs: z.number().nonnegative(),
+  bytesPerSec: z.number().nonnegative(),
+})
 
 export const SSRLoadSweepSchema = z.array(SSRLoadStageSchema).nonempty()
 
@@ -459,3 +449,68 @@ export const CoreJsStatsSchema = TestBaseSchema.extend({
   totalVendoredBytes: z.number().int().nonnegative(),
   unnecessaryModules: z.array(z.string()),
 })
+
+export const FrameworkResultSchema = z.object({
+  framework: FrameworkSchema.optional(),
+  packagePath: PackagePathSchema.optional(),
+  name: z.string().optional(),
+  type: z.enum(['starter-kit', 'runtime-app']).optional(),
+  package: z.string().optional(),
+  isFocused: z.boolean().optional(),
+  order: z.number().optional(),
+  timingMeasuredAt: z.string().optional(),
+  runner: z.string().optional(),
+  browserVersion: z.string().optional(),
+  frameworkVersion: z.string().optional(),
+  releasedAt: z.string().optional(),
+  install: InstallBenchmarkSchema.optional(),
+  coldBuildTime: BuildStatsSchema.shape.coldBuildTime.optional(),
+  warmBuildTime: BuildStatsSchema.shape.warmBuildTime.optional(),
+  devServerStartTime: DevServerBenchmarkSchema.optional(),
+  ssrRequestThroughputTests: z
+    .union([RequestThroughputBenchmarkSchema, LegacySSRRequestThroughputSchema])
+    .optional(),
+  ssrLoadTests: SSRLoadTestsSchema.refine(
+    (value) => value.name === 'ssrLoad',
+  ).optional(),
+  ssrRouterLinkLoadTests: SSRLoadTestsSchema.refine(
+    (value) => value.name === 'ssrRouterLinkLoad',
+  ).optional(),
+  clientSideRenderedTests: z
+    .union([ClientRenderingBenchmarkSchema, LegacyRenderedTestsSchema])
+    .optional(),
+  serverSideRenderedTests: z
+    .union([ServerRenderingBenchmarkSchema, LegacyRenderedTestsSchema])
+    .optional(),
+  corejs: CoreJsStatsSchema.optional(),
+  nodeEngines: NodeEnginesStatsSchema.partial()
+    .required({ name: true, minimumNodeVersion: true, imposedBy: true })
+    .optional(),
+  dependencyScan: DependencyScanSchema.optional(),
+  prodDependencies: z.number().nonnegative().optional(),
+  devDependencies: z.number().nonnegative().optional(),
+  allDependencies: z.number().nonnegative().optional(),
+  frameworkDependencies: DependencyCountsSchema.extend({
+    name: z.literal('frameworkDependencies').optional(),
+  }).optional(),
+  firstPartyDependencies: FirstPartyDependencyScanSchema.extend({
+    name: z.literal('firstPartyDependencies').optional(),
+  }).optional(),
+  duplicateDependencies: z.number().nonnegative().optional(),
+  depInstallSize: z.number().nonnegative().optional(),
+  vendoredCoreJsSize: z.number().nonnegative().optional(),
+  vendoredCoreJsUnnecessaryModules: z.array(z.string()).optional(),
+  browserBaselineTests: BrowserBaselineStatsSchema.extend({
+    name: z.literal('browserBaseline').optional(),
+  }).optional(),
+  minimumNodeVersion: z.string().optional(),
+  minimumNodeVersionImposedBy: z.array(z.string()).optional(),
+  testTimeMs: z.number().optional(),
+  packageJson: z
+    .object({
+      dependencies: z.record(z.string(), z.string()).optional(),
+      devDependencies: z.record(z.string(), z.string()).optional(),
+    })
+    .optional(),
+})
+export type FrameworkResult = z.infer<typeof FrameworkResultSchema>

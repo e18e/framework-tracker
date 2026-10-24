@@ -37,7 +37,7 @@ type BenchmarkType =
 interface BenchmarkConfig {
   type: BenchmarkType
   file: string
-  schema: z.ZodSchema
+  schema: z.ZodType
 }
 
 const STARTER_BENCHMARKS: BenchmarkConfig[] = [
@@ -104,7 +104,7 @@ const APP_BENCHMARKS: BenchmarkConfig[] = [
   },
 ]
 
-function validateFile(filePath: string, schema: z.ZodSchema): string[] {
+function validateFile(filePath: string, schema: z.ZodType): string[] {
   const data = readJsonFile(filePath)
 
   if (!data) {

@@ -266,7 +266,7 @@ Installed using the CLI with the following setup:
   response body is not read, because several dev servers stream the page and
   body time would measure page size rather than startup.
 - The port is the starter's default dev port, recorded as `devServerPort` in
-  `.github/frameworks.json`. The starters are not modified, so whatever they
+  `packages/stats-generator/src/frameworks.ts`. The starters are not modified, so whatever they
   ship is inside the measurement: Nuxt and TanStack Start enable devtools,
   and Astro and React Router generate types at boot.
 - The dev server runs with a minimal environment (`PATH`, `HOME`, `TMPDIR`,

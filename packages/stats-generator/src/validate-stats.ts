@@ -37,7 +37,7 @@ type BenchmarkType =
 interface BenchmarkConfig {
   type: BenchmarkType
   file: string
-  schema: z.ZodSchema
+  schema: z.ZodType
 }
 
 const STARTER_BENCHMARKS: BenchmarkConfig[] = [
@@ -104,7 +104,7 @@ const APP_BENCHMARKS: BenchmarkConfig[] = [
   },
 ]
 
-function validateFile(filePath: string, schema: z.ZodSchema): string[] {
+function validateFile(filePath: string, schema: z.ZodType): string[] {
   const data = readJsonFile(filePath)
 
   if (!data) {
@@ -151,11 +151,7 @@ async function main() {
       const errors: string[] = []
       for (const { type: benchType, file, schema } of STARTER_BENCHMARKS) {
         if (filterType && filterType !== benchType) continue
-        if (
-          !framework.starter.measurements.some(
-            (measurement) => measurement.type === benchType,
-          )
-        ) {
+        if (!framework.starter.measurements.includes(benchType)) {
           continue
         }
 
@@ -185,11 +181,7 @@ async function main() {
       const errors: string[] = []
       for (const { type: benchType, file, schema } of APP_BENCHMARKS) {
         if (filterType && filterType !== benchType) continue
-        if (
-          !framework.app.measurements.some(
-            (measurement) => measurement.type === benchType,
-          )
-        ) {
+        if (!framework.app.measurements.includes(benchType)) {
           continue
         }
 

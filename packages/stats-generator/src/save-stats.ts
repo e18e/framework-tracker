@@ -1,3 +1,4 @@
+import { FrameworkResultSchema } from '@framework-tracker/results'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { validateRequestThroughputForPersistence } from './request-throughput.ts'
 import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
@@ -64,6 +65,7 @@ async function saveVersionedStats(
       )
       validateSSRLoadForPersistence(fileStats)
       validateRequestThroughputForPersistence(fileStats)
+      FrameworkResultSchema.parse(fileStats)
       const outputPath = join(outputDir, fileName)
       const versionedStats = {
         ...metadata,
@@ -122,6 +124,7 @@ export async function saveStats(
 
   validateRequestThroughputForPersistence(mergedStats)
   const docsStats = getDocsStats(mergedStats)
+  FrameworkResultSchema.parse(docsStats)
 
   await writeFile(filePath, `${JSON.stringify(docsStats, null, 2)}\n`, 'utf-8')
   await saveVersionedStats(packageName, docsStats, collection)

@@ -38,7 +38,7 @@ async function processStarter(framework: FrameworkConfig, order: number) {
 
   const ciStats = (await getCIStats(pkgDir)) ?? {}
 
-  const hasDependencies = measurements.some((m) => m.type === 'dependencies')
+  const hasDependencies = measurements.includes('dependencies')
   const dependencyStats =
     hasDependencies &&
     (ciStats.prodDependencies === undefined ||
@@ -46,9 +46,7 @@ async function processStarter(framework: FrameworkConfig, order: number) {
       ciStats.allDependencies === undefined)
       ? getDependencyCountsFromPackageMetadata(pkgDir)
       : {}
-  const hasBrowserBaseline = measurements.some(
-    (m) => m.type === 'browserBaseline',
-  )
+  const hasBrowserBaseline = measurements.includes('browserBaseline')
   const browserBaselineStats =
     hasBrowserBaseline && ciStats.browserBaselineTests === undefined
       ? await getBrowserBaselineStats(pkgDir)

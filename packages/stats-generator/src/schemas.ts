@@ -13,7 +13,7 @@ export const MetricBaseSchema = z.object({
 })
 export type MetricBase = z.infer<typeof MetricBaseSchema>
 
-/** Framework identifiers configured in .github/frameworks.json. */
+/** Framework identifiers configured in packages/stats-generator/src/frameworks.ts. */
 export const FrameworkSchema = z.enum([
   'baseline-html',
   'astro',
@@ -26,7 +26,7 @@ export const FrameworkSchema = z.enum([
   'tanstack',
 ])
 
-/** Tested package folders configured in .github/frameworks.json. */
+/** Tested package folders configured in packages/stats-generator/src/frameworks.ts. */
 export const PackagePathSchema = z.enum([
   'packages/app-baseline-html',
   'packages/starter-astro',

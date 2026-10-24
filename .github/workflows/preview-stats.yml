@@ -26,6 +26,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+
       - name: Detect PR, changed frameworks, and build matrices
         id: detect
         env:
@@ -41,7 +46,7 @@ jobs:
           echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "Detected PR #$PR_NUMBER targeting $BASE_REF"
 
-          FRAMEWORKS=$(cat .github/frameworks.json)
+          FRAMEWORKS=$(node packages/stats-generator/src/print-frameworks.ts)
 
           CHANGED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD -- 'packages/starter-*/package.json' 'packages/starter-*/pnpm-lock.yaml' 'packages/starter-*/first-party-dependencies.json' 'packages/app-*/package.json')
 
@@ -75,13 +80,13 @@ jobs:
           echo "has-changes=true" >> $GITHUB_OUTPUT
           echo "framework-names=$NAMES_JSON" >> $GITHUB_OUTPUT
 
-          echo "install=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
-          echo "build=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
-          echo "dev-server=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["devServer"])) | {name, displayName, package: .starter.package, devServerPort: .starter.devServerPort, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
-          echo "ssr-request-throughput=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRequestThroughput"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
-          echo "ssr-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | map(.type) | contains(["ssrLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
-          echo "ssr-router-link-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | map(.type) | contains(["ssrRouterLinkLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
-          echo "deps=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | map(.type) | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
+          echo "install=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | contains(["install"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "build=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | contains(["build"])) | {name, displayName, package: .starter.package, buildScript: .starter.buildScript, buildOutputDir: .starter.buildOutputDir, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "dev-server=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | contains(["devServer"])) | {name, displayName, package: .starter.package, devServerPort: .starter.devServerPort, measurements: .starter.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr-request-throughput=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["ssrRequestThroughput"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["ssrLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "ssr-router-link-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["ssrRouterLinkLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "deps=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
 
   measure:
     needs: setup

@@ -16,30 +16,14 @@ import type {
   InstallResultSchema,
 } from './schemas.ts'
 import type { SSRLoadTests } from './ssrLoad/types.ts'
-type MeasurementType =
-  | 'install'
-  | 'build'
-  | 'devServer'
-  | 'test'
-  | 'dependencies'
-  | 'browserBaseline'
-  | 'ssrRequestThroughput'
-  | 'ssrLoad'
-  | 'ssrRouterLinkLoad'
-  | 'clientSideRendered'
-  | 'serverSideRendered'
-
-interface MeasurementConfig {
-  type: MeasurementType
-  runFrequency?: number
-}
+import type { MeasurementName } from './measurements.ts'
 
 export interface TestConfig {
   package: string
   buildScript: string
   buildOutputDir: string
   devServerPort?: number
-  measurements: MeasurementConfig[]
+  measurements: MeasurementName[]
 }
 
 export interface InteractionTiming {

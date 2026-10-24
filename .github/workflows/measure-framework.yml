@@ -74,8 +74,7 @@ jobs:
 
       - name: Run install benchmark
         run: |
-          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "install") | .runFrequency')
-          pnpm --filter @framework-tracker/stats-generator run:install ${{ matrix.framework.package }} $RUN_FREQUENCY
+          pnpm --filter @framework-tracker/stats-generator run:install ${{ matrix.framework.package }}
 
       - name: Upload install stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -110,8 +109,7 @@ jobs:
 
       - name: Run build benchmark
         run: |
-          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "build") | .runFrequency')
-          pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }} $RUN_FREQUENCY
+          pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }}
 
       - name: Scan build output for vendored core-js
         run: pnpm --filter @framework-tracker/stats-generator run:corejs ${{ matrix.framework.package }}
@@ -171,8 +169,7 @@ jobs:
 
       - name: Run dev server benchmark
         run: |
-          RUN_FREQUENCY=$(echo '${{ toJson(matrix.framework) }}' | jq -r '.measurements[] | select(.type == "devServer") | .runFrequency')
-          pnpm --filter @framework-tracker/stats-generator run:dev-server ${{ matrix.framework.package }} $RUN_FREQUENCY
+          pnpm --filter @framework-tracker/stats-generator run:dev-server ${{ matrix.framework.package }}
 
       - name: Upload dev server stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

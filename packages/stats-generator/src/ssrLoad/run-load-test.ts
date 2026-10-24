@@ -1,3 +1,4 @@
+import { measurements } from '../measurements.ts'
 import { getLoadPeakStage, selectRepresentativeIteration } from './selection.ts'
 import { SSRLoadTestsSchema } from '../schemas.ts'
 import { summarizeMetric } from '../sample-statistics.ts'
@@ -7,7 +8,7 @@ import autocannon from 'autocannon'
 import type { SSRLoadStageStats, SSRLoadSweep, SSRLoadTests } from './types.ts'
 
 const STAGE_DURATION_SECONDS = 5
-const LOAD_SWEEP_COUNT = 3
+
 const WARMUP_ATTEMPTS = 3
 const RECOVERY_MS = 5000
 const WORKER_STAGES = [1, 5, 10, 25, 50, 100, 200] as const
@@ -50,21 +51,21 @@ export async function runLoadTest(
   pause: (ms: number) => Promise<void> = delay,
 ): Promise<SSRLoadTests> {
   const samples: SSRLoadSweep[] = []
-  for (let run = 1; run <= LOAD_SWEEP_COUNT; run++) {
+  for (let run = 1; run <= measurements[getSSRLoadKind()].runs; run++) {
     if (run > 1) {
       console.info(
-        `  Sweep ${run}/${LOAD_SWEEP_COUNT}: recovering for ${RECOVERY_MS / 1000}s`,
+        `  Sweep ${run}/${measurements[getSSRLoadKind()].runs}: recovering for ${RECOVERY_MS / 1000}s`,
       )
       await pause(RECOVERY_MS)
     }
     for (let attempt = 1; attempt <= WARMUP_ATTEMPTS; attempt++) {
       console.info(
-        `  Sweep ${run}/${LOAD_SWEEP_COUNT}: warm-up ${attempt}/${WARMUP_ATTEMPTS} for ${STAGE_DURATION_SECONDS}s`,
+        `  Sweep ${run}/${measurements[getSSRLoadKind()].runs}: warm-up ${attempt}/${WARMUP_ATTEMPTS} for ${STAGE_DURATION_SECONDS}s`,
       )
       const warmup = await measureStage(url, WORKER_STAGES[0])
       if (warmup.errors === 0 && warmup.requests > 0) break
 
-      const details = `sweep ${run}/${LOAD_SWEEP_COUNT}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests} requests, ${warmup.errors} errors, ${warmup.elapsedTimeMs}ms`
+      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests} requests, ${warmup.errors} errors, ${warmup.elapsedTimeMs}ms`
       if (attempt === WARMUP_ATTEMPTS) {
         throw new Error(
           `SSR load warm-up failed (${details}); expected requests without errors after recovery.`,

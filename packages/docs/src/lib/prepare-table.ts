@@ -1,60 +1,26 @@
+import { frameworks } from '@framework-tracker/results/frameworks'
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
 
-const devtimeEntries = await getCollection('devtime')
-const devtimeVersionEntries = await getCollection('devtimeVersions')
-const runtimeEntries = await getCollection('runtime')
-const runtimeVersionEntries = await getCollection('runtimeVersions')
+import type { CombinedResult } from '@framework-tracker/results/storage'
+import { prepareStarterResult, prepareRuntimeResult } from './result-content'
+const resultFiles = import.meta.glob<CombinedResult>(
+  '../../../../results/**/latest.json',
+  { eager: true, import: 'default' },
+)
+const results = Object.values(resultFiles).sort(
+  (a, b) =>
+    frameworks.findIndex((f) => f.name === a.framework) -
+    frameworks.findIndex((f) => f.name === b.framework),
+)
+const starterStats = results
+  .filter((result) => result.projects.starter)
+  .map(prepareStarterResult)
+const ssrRequestThroughputStats = results
+  .filter((result) => result.projects.app)
+  .map(prepareRuntimeResult)
 const cwvEntries = await getCollection('cwv')
 const codeComparisonEntries = await getCollection('codeComparison')
-
-type DevtimeVersionData = (typeof devtimeVersionEntries)[number]['data']
-type RuntimeVersionData = (typeof runtimeVersionEntries)[number]['data']
-
-function getVersionSortOrder(versions: string[]) {
-  return new Map(versions.map((version, index) => [version, index]))
-}
-
-function compareVersionLabels(a: string, b: string) {
-  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-}
-
-function getVersionedStats<
-  T extends { package: string; frameworkVersion?: string },
->(entries: Array<{ data: T }>, packageName: string, versions?: string[]) {
-  const versionSortOrder =
-    versions != null ? getVersionSortOrder(versions) : undefined
-
-  return entries
-    .map((entry) => entry.data)
-    .filter(
-      (entry) =>
-        entry.package === packageName &&
-        entry.frameworkVersion != null &&
-        (versionSortOrder == null ||
-          versionSortOrder.has(entry.frameworkVersion)),
-    )
-    .sort((a, b) =>
-      versionSortOrder != null
-        ? versionSortOrder.get(a.frameworkVersion!)! -
-          versionSortOrder.get(b.frameworkVersion!)!
-        : compareVersionLabels(a.frameworkVersion!, b.frameworkVersion!),
-    )
-}
-
-export function getStarterVersionStats(
-  packageName: string,
-  versions?: string[],
-): DevtimeVersionData[] {
-  return getVersionedStats(devtimeVersionEntries, packageName, versions)
-}
-
-export function getRuntimeVersionStats(
-  packageName: string,
-  versions?: string[],
-): RuntimeVersionData[] {
-  return getVersionedStats(runtimeVersionEntries, packageName, versions)
-}
 
 export type Device = 'desktop' | 'mobile'
 
@@ -73,22 +39,6 @@ export const cwvStats = (device: Device) =>
     }))
     .sort((a, b) => b.overallPercent - a.overallPercent)
 
-export type CWV = 'lcp' | 'cls' | 'fcp' | 'ttfb' | 'inp'
-
-export function getCWVStatsChartData(cwv: CWV, device: Device) {
-  return cwvStats(device)
-    .sort((a, b) => b[`${cwv}Percent`] - a[`${cwv}Percent`])
-    .map((stat) => ({
-      name: stat.name,
-      value: stat[`${cwv}Percent`],
-      focused: true,
-    }))
-}
-
-export const starterStats = devtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
-
 export function getCodeComparison(example: string) {
   return starterStats.map((framework) => {
     const slug = getFrameworkSlug(framework.package)
@@ -103,11 +53,7 @@ export function getCodeComparison(example: string) {
   })
 }
 
-export const ssrRequestThroughputStats = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
-
-type RuntimeData = (typeof runtimeEntries)[number]['data']
+type RuntimeData = (typeof ssrRequestThroughputStats)[number]
 
 export type SSRLoadKey = 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
 
@@ -119,29 +65,8 @@ function getSSRLoadLatencyStage(
   return framework[key]?.stages.find((stage) => stage.workers === workers)
 }
 
-export function getSSRLoadChartData(
-  workers: number,
-  percentile: 'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs',
-  key: SSRLoadKey = 'ssrLoadTests',
-) {
-  return runtimeEntries
-    .map((entry) => entry.data)
-    .sort((a, b) => a.order - b.order)
-    .filter((f) => {
-      const stage = getSSRLoadLatencyStage(f, workers, key)
-      return stage != null && Number.isFinite(stage[percentile])
-    })
-    .map((f) => ({
-      name: f.name,
-      value: getSSRLoadLatencyStage(f, workers, key)![percentile],
-      focused: f.package === 'app-baseline-html' ? true : f.isFocused,
-      version: f.frameworkVersion,
-    }))
-}
-
 export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
-  runtimeEntries
-    .map((entry) => entry.data)
+  ssrRequestThroughputStats
     .filter(
       (framework) =>
         framework[key] != null &&
@@ -150,7 +75,6 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
         getSSRLoadLatencyStage(framework, 50, key) != null &&
         getSSRLoadLatencyStage(framework, 100, key) != null,
     )
-    .sort((a, b) => a.order - b.order)
     .map((framework) => {
       const worker25Stage = getSSRLoadLatencyStage(framework, 25, key)!
       const worker50Stage = getSSRLoadLatencyStage(framework, 50, key)!
@@ -173,9 +97,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
       }
     })
 
-export const serverSideRenderedStats = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
+export const serverSideRenderedStats = ssrRequestThroughputStats
   .filter(
     (framework) =>
       framework.serverSideRenderedTests != null &&
@@ -202,14 +124,12 @@ export const serverSideRenderedStats = runtimeEntries
     }
   })
 
-export const clientSideRenderedStats = runtimeEntries
-  .map((entry) => entry.data)
+export const clientSideRenderedStats = ssrRequestThroughputStats
   .filter(
     (framework) =>
       framework.clientSideRenderedTests != null &&
       Number.isFinite(framework.clientSideRenderedTests.firstPaintMs),
   )
-  .sort((a, b) => a.order - b.order)
   .map((framework) => {
     const tests = framework.clientSideRenderedTests!
     const interaction = tests.interactionTests
@@ -339,94 +259,6 @@ export const devServerStartData = starterStats.map((f) => ({
   maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
 }))
 
-export const chartDuplicateDependencyData = starterStats
-  .filter((f) => Number.isFinite(f.duplicateDependencies))
-  .map((f) => ({
-    name: f.name,
-    value: f.duplicateDependencies!,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-
-export const chartServerSideRenderedFPData = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
-  .filter(
-    (f) =>
-      f.serverSideRenderedTests != null &&
-      Number.isFinite(f.serverSideRenderedTests.firstPaintMs),
-  )
-  .map((f) => ({
-    name: f.name,
-    value: f.serverSideRenderedTests!.firstPaintMs,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-
-export const chartServerSideRenderedFCPData = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
-  .filter(
-    (f) =>
-      f.serverSideRenderedTests != null &&
-      Number.isFinite(f.serverSideRenderedTests.fcpMs),
-  )
-  .map((f) => ({
-    name: f.name,
-    value: f.serverSideRenderedTests!.fcpMs,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-
-export const chartClientSideRenderedFPData = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
-  .filter(
-    (f) =>
-      f.clientSideRenderedTests != null &&
-      Number.isFinite(f.clientSideRenderedTests.firstPaintMs),
-  )
-  .map((f) => ({
-    name: f.name,
-    value: f.clientSideRenderedTests!.firstPaintMs,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-
-export const chartClientSideRenderedFCPData = runtimeEntries
-  .map((entry) => entry.data)
-  .sort((a, b) => a.order - b.order)
-  .filter(
-    (f) =>
-      f.clientSideRenderedTests != null &&
-      Number.isFinite(f.clientSideRenderedTests.fcpMs),
-  )
-  .map((f) => ({
-    name: f.name,
-    value: f.clientSideRenderedTests!.fcpMs,
-    focused: f.isFocused,
-    version: f.frameworkVersion,
-  }))
-
-type RenderedTestsKey = 'clientSideRenderedTests' | 'serverSideRenderedTests'
-export function getRenderedInteractionBreakdownData(
-  testsKey: RenderedTestsKey,
-) {
-  return runtimeEntries
-    .map((entry) => entry.data)
-    .sort((a, b) => a.order - b.order)
-    .flatMap((framework) => {
-      const interaction = framework[testsKey]?.interactionTests
-      if (interaction == null) return []
-
-      return {
-        name: framework.name,
-        focused: framework.isFocused,
-        ...interaction,
-      }
-    })
-}
-
 export const coreJsTableData = starterStats.map((f) => {
   const hasCorejs = (f.vendoredCoreJsSize ?? 0) > 0
   return {
@@ -484,3 +316,21 @@ export const browserBaselineTableData = starterStats.map((f) => {
         : '—',
   }
 })
+
+export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
+  (f) => {
+    const tests = f.ssrRequestThroughputTests
+    if (!tests) return []
+    return [
+      {
+        name: f.name,
+        package: f.package,
+        isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
+        opsPerSec: Math.round(tests.opsPerSec).toLocaleString(),
+        latencyMs: `${Number(tests.latencyMs.toFixed(3))}ms`,
+        bodySizeKb: `${tests.bodySizeKb}kb`,
+        duplicationFactor: `${tests.duplicationFactor}x`,
+      },
+    ]
+  },
+)

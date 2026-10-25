@@ -377,9 +377,8 @@ export const LegacyRenderedTestsSchema = z
     { message: 'Expected standard deviation and samples together' },
   )
 
-export const ClientRenderingIterationSchema = RenderedTestSampleSchema
 export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
-  ClientRenderingIterationSchema,
+  RenderedTestSampleSchema,
 ).safeExtend({
   name: z.literal('clientSideRendered'),
   firstPaintMs: MetricBaseSchema,
@@ -394,9 +393,8 @@ export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
   }),
 })
 
-export const ServerRenderingIterationSchema = RenderedTestSampleSchema
 export const ServerRenderingBenchmarkSchema = createBenchmarkBaseSchema(
-  ServerRenderingIterationSchema,
+  RenderedTestSampleSchema,
 ).safeExtend({
   name: z.literal('serverSideRendered'),
   firstPaintMs: MetricBaseSchema,
@@ -506,6 +504,8 @@ export const FrameworkResultSchema = z.object({
   minimumNodeVersion: z.string().optional(),
   minimumNodeVersionImposedBy: z.array(z.string()).optional(),
   testTimeMs: z.number().optional(),
+  coldBuildTimeMs: z.number().nonnegative().optional(),
+  warmBuildTimeMs: z.number().nonnegative().optional(),
   packageJson: z
     .object({
       dependencies: z.record(z.string(), z.string()).optional(),

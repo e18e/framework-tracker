@@ -1,7 +1,6 @@
-import {
-  FrameworkResultSchema,
-  type FrameworkResult,
-} from '@framework-tracker/results'
+import type { CombinedResult } from '@framework-tracker/results/storage'
+import { frameworks } from '@framework-tracker/results/frameworks'
+import type { FrameworkResult } from '@framework-tracker/results'
 
 function formatTime(
   value: NonNullable<
@@ -38,7 +37,7 @@ function formatRendered(
     },
   }
 }
-function formatThroughput(
+export function formatThroughput(
   value: NonNullable<FrameworkResult['ssrRequestThroughputTests']>,
 ) {
   if ('name' in value)
@@ -91,39 +90,46 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
   }
 }
 
-const displayMetadata = {
-  name: true,
-  type: true,
-  package: true,
-  isFocused: true,
-  order: true,
-} as const
-
-export const devtimeContentSchema = FrameworkResultSchema.required({
-  ...displayMetadata,
-  framework: true,
-  packagePath: true,
-  prodDependencies: true,
-  devDependencies: true,
-  allDependencies: true,
-  firstPartyDependencies: true,
-  install: true,
-  coldBuildTime: true,
-  warmBuildTime: true,
-  timingMeasuredAt: true,
-  runner: true,
-}).transform((value) => ({
-  ...formatRuntime(value),
-  coldBuildTime: formatTime(value.coldBuildTime),
-  warmBuildTime: formatTime(value.warmBuildTime),
-  devServerStartTime:
-    value.devServerStartTime && formatTime(value.devServerStartTime),
-}))
-
-const runtimeInputSchema = FrameworkResultSchema.required(displayMetadata)
-function formatRuntime<T extends ReturnType<typeof runtimeInputSchema.parse>>(
-  value: T,
-) {
+export function prepareRuntimeResult(result: CombinedResult) {
+  const framework = frameworks.find((f) => f.name === result.framework)!
+  const value = {
+    ...result.projects.app,
+    name: framework.displayName,
+    package: framework.app!.package,
+    isFocused: framework.focusedFramework ?? false,
+    coldBuildTime:
+      result.tests.coldBuildTime?.project === 'app'
+        ? result.tests.coldBuildTime.result
+        : undefined,
+    warmBuildTime:
+      result.tests.warmBuildTime?.project === 'app'
+        ? result.tests.warmBuildTime.result
+        : undefined,
+    devServerStartTime:
+      result.tests.devServerStartTime?.project === 'app'
+        ? result.tests.devServerStartTime.result
+        : undefined,
+    ssrRequestThroughputTests:
+      result.tests.ssrRequestThroughputTests?.project === 'app'
+        ? result.tests.ssrRequestThroughputTests.result
+        : undefined,
+    ssrLoadTests:
+      result.tests.ssrLoadTests?.project === 'app'
+        ? result.tests.ssrLoadTests.result
+        : undefined,
+    ssrRouterLinkLoadTests:
+      result.tests.ssrRouterLinkLoadTests?.project === 'app'
+        ? result.tests.ssrRouterLinkLoadTests.result
+        : undefined,
+    clientSideRenderedTests:
+      result.tests.clientSideRenderedTests?.project === 'app'
+        ? result.tests.clientSideRenderedTests.result
+        : undefined,
+    serverSideRenderedTests:
+      result.tests.serverSideRenderedTests?.project === 'app'
+        ? result.tests.serverSideRenderedTests.result
+        : undefined,
+  }
   return {
     ...value,
     coldBuildTime: value.coldBuildTime && formatTime(value.coldBuildTime),
@@ -144,13 +150,32 @@ function formatRuntime<T extends ReturnType<typeof runtimeInputSchema.parse>>(
       formatRendered(value.serverSideRenderedTests),
   }
 }
-export const runtimeContentSchema = runtimeInputSchema
-  .required({ ssrRequestThroughputTests: true })
-  .transform((value) => ({
-    ...formatRuntime(value),
-    ssrRequestThroughputTests: formatThroughput(
-      value.ssrRequestThroughputTests,
-    ),
-  }))
-export const runtimeVersionsContentSchema =
-  runtimeInputSchema.transform(formatRuntime)
+export function prepareStarterResult(result: CombinedResult) {
+  const framework = frameworks.find((f) => f.name === result.framework)!
+  return {
+    ...result.projects.starter,
+    name: framework.displayName,
+    package: framework.starter!.package,
+    isFocused: framework.focusedFramework ?? false,
+    prodDependencies: result.tests.prodDependencies!.result,
+    devDependencies: result.tests.devDependencies!.result,
+    allDependencies: result.tests.allDependencies!.result,
+    firstPartyDependencies: result.tests.firstPartyDependencies!.result,
+    install: result.tests.install!.result,
+    duplicateDependencies: result.tests.duplicateDependencies?.result,
+    depInstallSize: result.tests.depInstallSize?.result,
+    minimumNodeVersion: result.tests.minimumNodeVersion?.result,
+    minimumNodeVersionImposedBy:
+      result.tests.minimumNodeVersionImposedBy?.result,
+    frameworkDependencies: result.tests.frameworkDependencies?.result,
+    vendoredCoreJsSize: result.tests.vendoredCoreJsSize?.result,
+    vendoredCoreJsUnnecessaryModules:
+      result.tests.vendoredCoreJsUnnecessaryModules?.result,
+    browserBaselineTests: result.tests.browserBaselineTests?.result,
+    coldBuildTime: formatTime(result.tests.coldBuildTime!.result),
+    warmBuildTime: formatTime(result.tests.warmBuildTime!.result),
+    devServerStartTime:
+      result.tests.devServerStartTime &&
+      formatTime(result.tests.devServerStartTime.result),
+  }
+}

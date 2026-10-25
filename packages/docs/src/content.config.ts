@@ -1,40 +1,9 @@
-import {
-  devtimeContentSchema,
-  runtimeContentSchema,
-  runtimeVersionsContentSchema,
-} from './lib/result-content'
 import { defineCollection } from 'astro:content'
 import { file, glob } from 'astro/loaders'
 import { docsLoader } from '@astrojs/starlight/loaders'
 import { docsSchema } from '@astrojs/starlight/schema'
 import { z } from 'astro/zod'
-import { readdirSync } from 'node:fs'
-
-const devtimeCollection = defineCollection({
-  loader: glob({ pattern: '*.json', base: './src/content/devtime' }),
-  schema: devtimeContentSchema,
-})
-
-const devtimeVersionsCollection = defineCollection({
-  loader: glob({
-    pattern: '**/*.json',
-    base: './src/content/devtime/versions',
-  }),
-  schema: devtimeContentSchema,
-})
-
-const runtimeCollection = defineCollection({
-  loader: glob({ pattern: '*.json', base: './src/content/runtime' }),
-  schema: runtimeContentSchema,
-})
-
-const runtimeVersionsCollection = defineCollection({
-  loader: glob({
-    pattern: '**/*.json',
-    base: './src/content/runtime/versions',
-  }),
-  schema: runtimeVersionsContentSchema,
-})
+import { frameworks } from '@framework-tracker/results/frameworks'
 
 const cwvCollection = defineCollection({
   loader: file('src/content/cwv/cwv-stats.json'),
@@ -70,12 +39,12 @@ const cwvCollection = defineCollection({
   }),
 })
 
-// Derived from the devtime filenames rather than hardcoded, so adding a
-// framework does not silently break every code comparison example.
 const frameworkSlugs = new Set(
-  readdirSync(new URL('./content/devtime', import.meta.url))
-    .filter((file) => file.endsWith('.json'))
-    .map((file) => file.replace(/^starter-/, '').replace(/\.json$/, '')),
+  frameworks.flatMap((framework) =>
+    framework.starter
+      ? [framework.starter.package.replace(/^starter-/, '')]
+      : [],
+  ),
 )
 
 const codeComparisonCollection = defineCollection({
@@ -102,10 +71,6 @@ const docsCollection: ReturnType<typeof defineCollection> = defineCollection({
 
 export const collections = {
   docs: docsCollection,
-  devtime: devtimeCollection,
-  devtimeVersions: devtimeVersionsCollection,
-  runtime: runtimeCollection,
-  runtimeVersions: runtimeVersionsCollection,
   cwv: cwvCollection,
   codeComparison: codeComparisonCollection,
 }

@@ -1,9 +1,10 @@
+import { readFileSync } from 'node:fs'
 import { getLoadPeakStage } from './ssrLoad/selection.ts'
 import { normalizeCIStats } from './utils.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { SSRLoadTestsSchema } from './schemas.ts'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readProjectResult } from '@framework-tracker/results/storage'
 import { test } from 'node:test'
 import {
   getSSRLoadPath,
@@ -14,15 +15,11 @@ import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { verifySSRLoadTable } from './ssrLoad/verify-table.ts'
 import { renderBaselineHtml } from './baseline-html.ts'
 import { runLoadTest, summarizeLoadSweeps } from './ssrLoad/run-load-test.ts'
-import type { SSRLoadStageStats } from './ssrLoad/types.ts'
+import type { SSRLoadStageStats, SSRLoadTests } from './ssrLoad/types.ts'
 import { testData } from '../../testdata/src/ssr.ts'
 
-const historical = JSON.parse(
-  readFileSync(
-    new URL('../../app-next-js/ci-stats.json', import.meta.url),
-    'utf8',
-  ),
-).ssrRouterLinkLoadTests
+const historical = readProjectResult('app-next-js')!
+  .ssrRouterLinkLoadTests as SSRLoadTests
 
 function loadStage(
   overrides: Partial<SSRLoadStageStats> = {},

@@ -16,15 +16,10 @@ import type {
   InstallResultSchema,
 } from './schemas.ts'
 import type { SSRLoadTests } from './ssrLoad/types.ts'
-import type { MeasurementName } from './measurements.ts'
-
-export interface TestConfig {
-  package: string
-  buildScript: string
-  buildOutputDir: string
-  devServerPort?: number
-  measurements: MeasurementName[]
-}
+export type {
+  FrameworkConfig,
+  TestConfig,
+} from '@framework-tracker/results/frameworks'
 
 export interface InteractionTiming {
   interactionLatencyMs: number
@@ -33,7 +28,7 @@ export interface InteractionTiming {
   presentationDelayMs: number
 }
 
-export interface InteractionTestStats extends InteractionTiming {
+interface InteractionTestStats extends InteractionTiming {
   scenario: 'first-row-detail-navigation'
   source: 'lighthouse-inp-breakdown'
 }
@@ -44,18 +39,9 @@ export interface RenderedTestSample {
   interactionTests: InteractionTiming
 }
 
-export interface RenderedTestStandardDeviation extends InteractionTiming {
+interface RenderedTestStandardDeviation extends InteractionTiming {
   firstPaintMs: number
   fcpMs: number
-}
-
-export interface FrameworkConfig {
-  name: string
-  displayName: string
-  frameworkPackage: string
-  focusedFramework?: boolean
-  starter?: TestConfig
-  app?: TestConfig
 }
 
 export interface CIStats {
@@ -145,14 +131,6 @@ export interface TimeStat {
   minMs: number
   maxMs: number
   samplesMs: number[]
-}
-
-export interface FrameworkStats extends CIStats {
-  name?: string
-  package?: string
-  type?: string
-  order?: number
-  isFocused?: boolean
 }
 
 export interface PackageJson {

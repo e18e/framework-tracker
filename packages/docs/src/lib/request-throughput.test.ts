@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { requestThroughputContentSchema } from './request-throughput.ts'
+import { formatThroughput } from './result-content.ts'
+import type { FrameworkResult } from '@framework-tracker/results'
 import {
   prepareSsrRequestThroughputTestsOpsPerSecComparison,
   prepareSsrRequestThroughputTestsLatencyMsComparison,
   prepareSsrRequestThroughputTestsOpsPerSecHistory,
-} from './prepare-chart.ts'
+} from './chart-measurements.ts'
 
 const metric = (mean: number) => ({
   mean,
@@ -36,8 +37,10 @@ const benchmark = {
   path: '/ssr-throughput',
 }
 
-test('content loader uses run means without relabeling request medians', () => {
-  const normalized = requestThroughputContentSchema.parse(benchmark)
+test('throughput preparation uses run means without relabeling request medians', () => {
+  const normalized = formatThroughput(
+    benchmark as NonNullable<FrameworkResult['ssrRequestThroughputTests']>,
+  )
   assert.equal(normalized.opsPerSec, 100.125)
   assert.equal(normalized.latencyMs, 4)
   const records = [
@@ -55,11 +58,6 @@ test('content loader uses run means without relabeling request medians', () => {
     prepareSsrRequestThroughputTestsOpsPerSecHistory(records).data[0]?.value,
     100.125,
   )
-  assert.equal(
-    requestThroughputContentSchema.safeParse({ ...benchmark, iterations: [] })
-      .success,
-    false,
-  )
 })
 
 test('legacy mean latency remains distinct from the reported request median', () => {
@@ -71,6 +69,6 @@ test('legacy mean latency remains distinct from the reported request median', ()
     bodySizeKb: 20,
     duplicationFactor: 1,
   }
-  const normalized = requestThroughputContentSchema.parse(legacy)
+  const normalized = formatThroughput(legacy)
   assert.equal(normalized.latencyMs, 4)
 })

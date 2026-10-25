@@ -19,7 +19,7 @@ async function main() {
     encoding: 'utf-8',
   }).trim()
 
-  const fullDiff = execFileSync('git', ['diff', '--', 'packages/'], {
+  const fullDiff = execFileSync('git', ['diff', '--', 'results/'], {
     cwd: repoRoot,
     encoding: 'utf-8',
   })

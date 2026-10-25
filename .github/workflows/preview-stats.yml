@@ -134,9 +134,6 @@ jobs:
       - name: Save CI stats
         run: pnpm --filter @framework-tracker/stats-generator save:ci-stats $GITHUB_WORKSPACE/artifacts
 
-      - name: Collect stats for docs
-        run: pnpm collect:stats
-
       - name: Generate comment
         run: |
           FRAMEWORK_ARGS=$(echo '${{ needs.setup.outputs.framework-names }}' | jq -r '.[]' | tr '\n' ' ')

@@ -24,7 +24,7 @@ on:
       - 'packages/stats-generator/**'
       - '.github/workflows/generate-stats.yml'
       - '.github/workflows/measure-framework.yml'
-      - 'packages/stats-generator/src/frameworks.ts'
+      - 'packages/results/**'
       - 'package.json'
 
 jobs:
@@ -111,9 +111,6 @@ jobs:
       - name: Save CI stats
         run: pnpm --filter @framework-tracker/stats-generator save:ci-stats $GITHUB_WORKSPACE/artifacts
 
-      - name: Collect stats for docs
-        run: pnpm collect:stats
-
       - name: Format
         run: pnpm format
 
@@ -128,7 +125,7 @@ jobs:
           fi
 
           git checkout -B automated-stats-update
-          git add packages/
+          git add packages/ results/
           git commit -m "Update CI stats and generated stats after starter changes"
           git push --force-with-lease origin automated-stats-update
 
@@ -138,9 +135,9 @@ jobs:
               --body "Automated stats update triggered by changes to starter packages.
 
           Includes:
-          - CI build time measurements (ci-stats.json)
-          - Versioned stats history (stats/<version>.json)
-          - Generated framework comparison stats
+          - Combined framework measurements (results/<framework>/latest.json)
+          - Versioned stats history (results/<framework>/versions/<version>.json)
+          - Starter and app test results with project attribution
 
           This PR was automatically created and will auto-merge if all checks pass." \
               --base main \

@@ -68,7 +68,7 @@ export function getDependencyStatsFromE18e(e18eStats: E18eStats) {
   }
 }
 
-export function countPnpmLockPackages(lockfileContent: string): number {
+function countPnpmLockPackages(lockfileContent: string): number {
   const packageEntryPattern = /^ {2}\S.*:\s*$/
   const lines = lockfileContent.split(/\r?\n/)
   const packagesIndex = lines.findIndex((line) => line === 'packages:')

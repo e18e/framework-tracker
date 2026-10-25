@@ -1,4 +1,4 @@
-import { starterStats } from './collections'
+import { starterStats } from './prepare-chart'
 import { frameworkLogos } from './framework-logos'
 import { getFrameworkSlug } from './utils'
 

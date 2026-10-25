@@ -1,5 +1,5 @@
 ---
-import { clientSideRenderedStats } from '../lib/collections'
+import { clientSideRenderedStats } from '../lib/prepare-table'
 import { getFrameworkSlug } from '../lib/utils'
 import StatsTable from './StatsTable.astro'
 
@@ -20,12 +20,10 @@ const columns = [
   { key: 'processingDurationMs', header: 'Processing Duration' },
   { key: 'presentationDelayMs', header: 'Presentation Delay' },
 ]
-
-const tableData = clientSideRenderedStats
 ---
 
 <StatsTable
   label="Client side rendered performance by framework"
   columns={columns}
-  data={tableData}
+  data={clientSideRenderedStats}
 />

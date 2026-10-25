@@ -1,3 +1,4 @@
+import { readProjectResult } from '@framework-tracker/results/storage'
 import { getLoadPeakStage } from './ssrLoad/selection.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { getSSRLoadKind, getSSRLoadStatsKey } from './ssrLoad/config.ts'
@@ -46,6 +47,7 @@ async function main() {
 
   const existingStats = normalizeCIStats(
     readJsonFile<CIStats>(join(packagesDir, packageName, 'ci-stats.json')) ??
+      (readProjectResult(packageName) as CIStats | null) ??
       {},
   )
 

@@ -1,5 +1,5 @@
 ---
-import { ssrRequestThroughputStats } from '../lib/collections'
+import { requestThroughputTableData } from '../lib/prepare-table'
 import { getFrameworkSlug } from '../lib/utils'
 import StatsTable from './StatsTable.astro'
 
@@ -18,20 +18,10 @@ const columns = [
   { key: 'bodySizeKb', header: 'Body Size' },
   { key: 'duplicationFactor', header: 'Duplication' },
 ]
-
-const tableData = ssrRequestThroughputStats.map((f) => ({
-  name: f.name,
-  package: f.package,
-  isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
-  opsPerSec: Math.round(f.ssrRequestThroughputTests.opsPerSec).toLocaleString(),
-  latencyMs: `${Number(f.ssrRequestThroughputTests.latencyMs.toFixed(3))}ms`,
-  bodySizeKb: `${f.ssrRequestThroughputTests.bodySizeKb}kb`,
-  duplicationFactor: `${f.ssrRequestThroughputTests.duplicationFactor}x`,
-}))
 ---
 
 <StatsTable
   label="SSR request throughput by framework"
   columns={columns}
-  data={tableData}
+  data={requestThroughputTableData}
 />

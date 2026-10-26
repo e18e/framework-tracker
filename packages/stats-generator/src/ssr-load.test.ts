@@ -1,4 +1,4 @@
-import { getLoadPeakStage } from './ssrLoad/selection.ts'
+import { getLoadPeakStage } from '@framework-tracker/results/selection'
 import { normalizeCIStats } from './utils.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { SSRLoadTestsSchema } from '@framework-tracker/results'

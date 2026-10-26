@@ -1,4 +1,4 @@
-import { getLoadPeakStage } from './ssrLoad/selection.ts'
+import { getLoadPeakStage } from '@framework-tracker/results/selection'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import { getSSRLoadKind, getSSRLoadStatsKey } from './ssrLoad/config.ts'
 import { join } from 'node:path'

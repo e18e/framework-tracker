@@ -43,52 +43,26 @@ Having both a `starter` and `app` project for each framework allows us to get a 
 
 ### How Metrics Work
 
-Please note that metrics collection is in early stages and the process is likely to change as we iterate on it. The current process is as follows but is subject to change:
+The shared [measurement pipeline](./.github/workflows/measure.yml) uses
+[framework configuration](./packages/results/src/frameworks.ts) and the same
+runners, assembly, and schema validation in CI and locally.
 
-We currently run scripts in CI using GitHub Actions or if the test is more complex we run it locally in container and push the results to the repo.
+- Source PRs measure both configured projects for one changed framework. Multiple
+  changed frameworks or shared measurement code/configuration select all frameworks.
+  Docs-only and results-only changes skip benchmarks. PR results are temporary artifacts.
+- After source changes merge to `main`, measurements open or update the existing
+  `automated-stats-update` results PR. Scheduled runs measure all frameworks on
+  Monday and Thursday at 04:00 Australia/Perth. Manual runs accept a framework name
+  or `all`; runs on `main` also update the results PR.
+- Locally, use `pnpm measure --framework astro` or `pnpm measure --all`.
+  Validated results are saved under `artifacts/local/measurement-*/results/`,
+  without commits or publishing. Use Node 24+, pnpm, Chrome, and Docker on Linux
+  with CPUs 0–15 available for the isolated load benchmarks.
 
-#### CI Metrics Collection
-
-The current flow for collecting metrics is as follows:
-
-1. A PR is merged which triggers the CI Pipeline: `generate-stats` which uses functions from `packages/stats-generator` to run measurements for each framework
-2. The CI Pipeline reads the framework config from `.github/frameworks.json` and runs measurements based on each framework's `app` and `starter` config
-3. Repository benchmarks run on Depot; see [Default Benchmark Setup](./packages/docs/src/content/docs/methodology.md#default-benchmark-setup) for the shared environment and test-specific exceptions.
-4. The collected metrics are passed into the final step which runs the scripts from `packages/stats-generator`
-5. The `stats-generator` reads `frameworks.json` and generates stats only for the configured measurements
-6. Stats are then saved into each package and passed into `packages/docs`
-
-### Framework Configuration
-
-All frameworks are configured in `.github/frameworks.json`. Each entry specifies what measurements to run:
-
-```json
-{
-  "name": "astro",
-  "displayName": "Astro",
-  "frameworkPackage": "astro",
-  "starter": {
-    "package": "starter-astro",
-    "buildScript": "build:astro",
-    "buildOutputDir": "dist",
-    "measurements": [
-      { "type": "install", "runFrequency": 5 },
-      { "type": "build", "runFrequency": 5 },
-      { "type": "dependencies" }
-    ]
-  },
-  "app": {
-    "package": "app-astro",
-    "buildScript": "build:app-astro",
-    "buildOutputDir": "dist",
-    "measurements": [{ "type": "ssrRequestThroughput" }]
-  }
-},
-```
-
-#### Container Metrics Collection
-
-Coming soon but will also pull from `.github/frameworks.json`
+Canonical data lives in `results/<framework>/latest.json` and `versions/`.
+Starter and app versions remain separate, and every test identifies its project.
+The docs load these files directly. See [methodology](https://frameworks.e18e.dev/methodology/)
+for measurement details and runner resources.
 
 ### Versioning
 
@@ -98,18 +72,10 @@ the framework version, also update the other direct packages in its starter and
 app projects to the latest compatible versions available on the framework
 release date.
 
-For a newer patch within a major or minor version already tracked (for example,
-SolidStart `2.0.0` to `2.0.5`), update the exact framework version in both the
-starter and app `package.json` files, regenerate both lockfiles, and update the
-starter's `first-party-dependencies.json`. Update `frameworkVersion` and the
-framework package version in both `ci-stats.json` files, then rename the
-existing `stats/<old-version>.json` files to the new patch version and update
-their version fields. Make the same changes to the current and versioned stats
-JSON files under `packages/docs/src/content/devtime` and `runtime`. Replace the
-old patch entry rather than adding another point to the major or minor history.
-Leave measured values and diagnostic messages unchanged; they still reflect the
-previous patch until the Generate Stats workflow reruns after the change reaches
-`main` and opens a stats update PR.
+For a newer patch within a tracked major or minor version, update the exact
+framework version, dependencies, lockfiles, and starter first-party dependency
+manifest. CI measures the updated projects and opens a separate results PR after
+merge. Keep starter and app version metadata separate in stored results.
 
 Framework version bumps are currently manual; CI handles the measurements after
 the change reaches `main`.
@@ -142,7 +108,7 @@ new first-party package, remove one no longer declared, and leave third-party
 packages out. Confirm ownership from the package's source project rather than
 assuming matching names or scopes are first-party.
 
-The validation workflow checks that every entry remains in the same dependency
+The lint and type check workflow checks that every entry remains in the same dependency
 section with the same version as the starter's `package.json`.
 
 When an upgrade changes the build tool, adapter, starter setup, or benchmark
@@ -191,7 +157,7 @@ Adding a new framework increases the maintenance burden, so please open an issue
 
 2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 
-3. **Add an entry to `.github/frameworks.json`**: Configure the framework's measurements:
+3. **Add an entry to `packages/results/src/frameworks.ts`**: Configure the framework's measurements:
 
    ```json
    {
@@ -201,13 +167,9 @@ Adding a new framework increases the maintenance burden, so please open an issue
      "focusedFramework": false,
      "starter": {
        "package": "starter-my-framework",
-       "buildScript": "build:my-framework",
+       "buildScript": "build",
        "buildOutputDir": "dist",
-       "measurements": [
-         { "type": "install", "runFrequency": 5 },
-         { "type": "build", "runFrequency": 5 },
-         { "type": "dependencies" }
-       ]
+       "measurements": ["install", "build", "dependencies"]
      }
    }
    ```
@@ -218,7 +180,7 @@ Adding a new framework increases the maintenance burden, so please open an issue
 
 5. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory.
 
-6. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+6. The shared measurement pipeline automatically includes frameworks added to the configuration.
 
 7. **Submit a PR**: Open a pull request with the new packages, configuration, and methodology updates. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 

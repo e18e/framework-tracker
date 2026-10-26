@@ -1,4 +1,3 @@
-import { readProjectResult } from '@framework-tracker/results/storage'
 import { parseRunFrequency } from './benchmark-utils.ts'
 import { measurements } from './measurements.ts'
 import { ServerSideRenderedStatsSchema } from './schemas.ts'
@@ -37,7 +36,6 @@ async function main() {
 
   const existingStats = normalizeCIStats(
     readJsonFile<CIStats>(join(packagesDir, packageName, 'ci-stats.json')) ??
-      (readProjectResult(packageName) as CIStats | null) ??
       {},
   )
 

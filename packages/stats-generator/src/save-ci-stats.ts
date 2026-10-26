@@ -1,7 +1,4 @@
-import {
-  readProjectResult,
-  saveProjectResult,
-} from '@framework-tracker/results/storage'
+import { saveProjectResult } from '@framework-tracker/results/storage'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   DependencyScanSchema,
@@ -23,7 +20,8 @@ import { BuildStatsSchema, DevServerStatsSchema } from './schemas.ts'
 import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
-import { getFrameworks } from './get-frameworks.ts'
+import type { FrameworkConfig } from './types.ts'
+import { validateArtifacts, validateResults } from './validate-stats.ts'
 import { getPublishTimes, withReleasedAt } from './release-dates.ts'
 import {
   getDependencyCountsFromPackageMetadata,
@@ -74,8 +72,12 @@ async function getReleasedAt(
   }
 }
 
-async function main() {
-  const artifactsDir = process.argv[2] || 'artifacts'
+export async function assembleResults(
+  frameworks: FrameworkConfig[],
+  artifactsDir: string,
+  outputRoot: string,
+) {
+  validateArtifacts(frameworks, artifactsDir)
   const timestamp = new Date().toISOString()
   const runner = process.env.RUNNER_LABEL || 'local'
 
@@ -83,8 +85,6 @@ async function main() {
   console.info(`  Artifacts directory: ${artifactsDir}`)
   console.info(`  Timestamp: ${timestamp}`)
   console.info(`  Runner: ${runner}\n`)
-
-  const frameworks = await getFrameworks()
 
   for (const framework of frameworks) {
     const { name, displayName } = framework
@@ -94,10 +94,7 @@ async function main() {
       const packageName = framework.starter.package
       console.info(`Processing ${displayName} starter (${packageName})...`)
 
-      const existingStats = readProjectResult(packageName) as CIStats | null
-
       let stats: CIStats = {
-        ...(existingStats ? normalizeCIStats(existingStats) : {}),
         ...BaseResultSchema.parse({
           framework: framework.name,
           packagePath: `packages/${packageName}`,
@@ -106,7 +103,7 @@ async function main() {
         }),
       }
 
-      let frameworkVersion = existingStats?.frameworkVersion
+      let frameworkVersion: string | undefined
 
       // Load install stats from artifact
       const installStatsPath = join(
@@ -172,7 +169,7 @@ async function main() {
       // Load core-js stats from artifact
       const coreJsArtifactPath = join(
         artifactsDir,
-        `corejs-stats-${name}`,
+        `build-stats-${name}`,
         'corejs-stats.json',
       )
       const coreJsStats = readJsonFile<CoreJsStats>(coreJsArtifactPath)
@@ -193,7 +190,7 @@ async function main() {
       // Load browser baseline stats from artifact
       const browserBaselineArtifactPath = join(
         artifactsDir,
-        `browser-baseline-stats-${name}`,
+        `build-stats-${name}`,
         'browser-baseline-stats.json',
       )
       const browserBaselineStats = readJsonFile<BrowserBaselineStats>(
@@ -216,7 +213,7 @@ async function main() {
 
       const nodeEnginesArtifactPath = join(
         artifactsDir,
-        `node-engines-stats-${name}`,
+        `deps-stats-${name}`,
         'node-engines-stats.json',
       )
       const nodeEnginesStats = readJsonFile<NodeEnginesStats>(
@@ -244,12 +241,12 @@ async function main() {
       // Load dependency stats from artifacts
       const e18eArtifactPath = join(
         artifactsDir,
-        `e18e-stats-${name}`,
+        `deps-stats-${name}`,
         'e18e-stats.json',
       )
       const frameworkDependencyStatsPath = join(
         artifactsDir,
-        `e18e-stats-${name}`,
+        `deps-stats-${name}`,
         'framework-dependency-stats.json',
       )
       const frameworkDependencies = readJsonFile<DependencyStats>(
@@ -272,7 +269,7 @@ async function main() {
 
       const firstPartyDependencyStatsPath = join(
         artifactsDir,
-        `e18e-stats-${name}`,
+        `deps-stats-${name}`,
         'first-party-dependency-stats.json',
       )
       const firstPartyDependencies = readJsonFile<FirstPartyDependencyStats>(
@@ -315,11 +312,10 @@ async function main() {
       }
 
       // check for releasedAt, if not fetch from repository
-      const releasedAt =
-        existingStats?.frameworkVersion === frameworkVersion &&
-        existingStats?.releasedAt
-          ? existingStats?.releasedAt
-          : await getReleasedAt(framework.frameworkPackage, frameworkVersion)
+      const releasedAt = await getReleasedAt(
+        framework.frameworkPackage,
+        frameworkVersion,
+      )
 
       stats = withReleasedAt(
         {
@@ -329,7 +325,9 @@ async function main() {
         releasedAt,
       )
 
-      saveProjectResult(packageName, { ...stats })
+      validateSSRLoadForPersistence(stats)
+      validateRequestThroughputForPersistence(stats)
+      saveProjectResult(packageName, { ...stats }, outputRoot)
 
       console.info('')
     }
@@ -339,10 +337,7 @@ async function main() {
       const packageName = framework.app.package
       console.info(`Processing ${displayName} app (${packageName})...`)
 
-      const existingStats = readProjectResult(packageName) as CIStats | null
-
       let stats: CIStats = {
-        ...(existingStats ? normalizeCIStats(existingStats) : {}),
         ...BaseResultSchema.parse({
           framework: framework.name,
           packagePath: `packages/${packageName}`,
@@ -351,7 +346,7 @@ async function main() {
         }),
       }
 
-      let frameworkVersion = existingStats?.frameworkVersion
+      let frameworkVersion: string | undefined
 
       // Load SSR request throughput stats from artifact
       const ssrRequestThroughputStatsPath = join(
@@ -487,11 +482,10 @@ async function main() {
       }
 
       // check for releasedAt, if not fetch from repository
-      const releasedAt =
-        existingStats?.frameworkVersion === frameworkVersion &&
-        existingStats?.releasedAt
-          ? existingStats?.releasedAt
-          : await getReleasedAt(framework.frameworkPackage, frameworkVersion)
+      const releasedAt = await getReleasedAt(
+        framework.frameworkPackage,
+        frameworkVersion,
+      )
 
       stats = withReleasedAt(
         {
@@ -501,16 +495,14 @@ async function main() {
         releasedAt,
       )
 
-      saveProjectResult(packageName, { ...stats })
+      validateSSRLoadForPersistence(stats)
+      validateRequestThroughputForPersistence(stats)
+      saveProjectResult(packageName, { ...stats }, outputRoot)
 
       console.info('')
     }
   }
 
+  validateResults(frameworks, outputRoot)
   console.info('Done!')
 }
-
-main().catch((error) => {
-  console.error('Failed to save CI stats:', error)
-  process.exit(1)
-})

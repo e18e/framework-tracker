@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   CombinedResultSchema,
+  saveProjectResult,
+  readProjectResult,
   mergeProjectResult,
   projectResult,
 } from '@framework-tracker/results/storage'
@@ -75,4 +77,202 @@ test('stored tests always validate their result and require project metadata', (
     }).success,
     false,
   )
+})
+
+// Pipeline selection must stay independent of publishing and project package names.
+import { frameworks } from './frameworks.ts'
+import {
+  artifactFiles,
+  isLoadJob,
+  measurementJobs,
+  selectChangedFrameworks,
+  selectFrameworks,
+} from './measurement-pipeline.ts'
+import { validateArtifact, validateArtifacts } from './validate-stats.ts'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+
+test('source selection measures both projects, and broadens multiple or shared changes', () => {
+  const astro = selectChangedFrameworks([
+    'packages/app-astro/src/pages/index.astro',
+  ])
+  assert.deepEqual(
+    astro.map((item) => item.name),
+    ['astro'],
+  )
+  assert.deepEqual(
+    new Set(measurementJobs(astro).map((job) => job.package)),
+    new Set(['starter-astro', 'app-astro']),
+  )
+  for (const files of [
+    [
+      'packages/starter-astro/package.json',
+      'packages/app-next-js/pnpm-lock.yaml',
+    ],
+    ['packages/stats-generator/src/run-measurement.ts'],
+    ['packages/results/src/frameworks.ts'],
+    ['pnpm-lock.yaml'],
+    ['pnpm-workspace.yaml'],
+    ['.github/workflows/measure.yml'],
+    ['packages/testdata/data.json'],
+  ])
+    assert.deepEqual(selectChangedFrameworks(files), frameworks)
+})
+
+test('docs and generated results never select benchmarks', () => {
+  assert.deepEqual(
+    selectChangedFrameworks([
+      'README.md',
+      'CONTRIBUTING.md',
+      'packages/docs/src/pages/index.astro',
+      'packages/starter-astro/README.md',
+      'results/astro/latest.json',
+      'packages/starter-astro/ci-stats.json',
+      'packages/app-next-js/stats/1.json',
+      'packages/starter-next-js/build-stats.json',
+    ]),
+    [],
+  )
+})
+
+test('local selection accepts exactly one framework or all, without extra modes', () => {
+  assert.deepEqual(selectFrameworks(['--all']), frameworks)
+  assert.deepEqual(
+    selectFrameworks(['--framework', 'astro']).map((item) => item.name),
+    ['astro'],
+  )
+  for (const args of [
+    [],
+    ['astro'],
+    ['--framework', 'missing'],
+    ['--all', '--quick'],
+    ['--framework', 'astro', '--plan'],
+    ['--all', '--framework', 'astro'],
+  ])
+    assert.throws(() => selectFrameworks(args), /Usage/)
+})
+
+test('job manifest keeps load jobs separate and requires companion scan artifacts', () => {
+  const jobs = measurementJobs(selectFrameworks(['--framework', 'next']))
+  assert.deepEqual(
+    jobs.filter(isLoadJob).map((job) => job.task),
+    ['ssr-load', 'ssr-router-link-load'],
+  )
+  assert.deepEqual(artifactFiles(jobs.find((job) => job.task === 'build')!), [
+    'build-stats.json',
+    'corejs-stats.json',
+    'browser-baseline-stats.json',
+  ])
+  assert.ok(
+    artifactFiles(jobs.find((job) => job.task === 'deps')!).includes(
+      'first-party-dependency-stats.json',
+    ),
+  )
+})
+
+test('missing and malformed artifacts fail before results can be assembled', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'measurement-artifacts-'))
+  try {
+    const selected = selectFrameworks(['--framework', 'astro'])
+    assert.throws(
+      () => validateArtifacts(selected, directory),
+      /Missing or invalid result artifact/,
+    )
+    const job = measurementJobs(selected).find((job) => job.task === 'install')!
+    writeFileSync(join(directory, 'install-stats.json'), '{')
+    assert.throws(
+      () => validateArtifact(job, directory),
+      /Missing or invalid result artifact/,
+    )
+    writeFileSync(join(directory, 'install-stats.json'), '{}')
+    assert.throws(
+      () => validateArtifact(job, directory),
+      /Invalid result artifact/,
+    )
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+test('local storage keeps independent project versions inside the requested directory', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'measurement-results-'))
+  try {
+    saveProjectResult(
+      'starter-astro',
+      { frameworkVersion: '1.0.0', prodDependencies: 3 },
+      directory,
+    )
+    saveProjectResult(
+      'app-astro',
+      { frameworkVersion: '2.0.0', testTimeMs: 20 },
+      directory,
+    )
+    assert.equal(
+      readProjectResult('starter-astro', undefined, directory)
+        ?.frameworkVersion,
+      '1.0.0',
+    )
+    assert.equal(
+      readProjectResult('app-astro', undefined, directory)?.frameworkVersion,
+      '2.0.0',
+    )
+    assert.equal(
+      readProjectResult('starter-astro', '1.0.0', directory)?.prodDependencies,
+      3,
+    )
+    assert.equal(
+      readProjectResult('app-astro', '2.0.0', directory)?.testTimeMs,
+      20,
+    )
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
+test('dependency artifacts validate e18e output with package lockfile counts', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'measurement-dependencies-'))
+  try {
+    const job = measurementJobs(
+      selectFrameworks(['--framework', 'astro']),
+    ).find((job) => job.task === 'deps')!
+    const reports = {
+      'e18e-stats.json': {
+        stats: {
+          dependencyCount: { production: 2, development: 3 },
+          installSize: 1234,
+        },
+      },
+      'framework-dependency-stats.json': {
+        name: 'frameworkDependencies',
+        prodDependencies: 1,
+        devDependencies: 0,
+        allDependencies: 10,
+      },
+      'first-party-dependency-stats.json': {
+        name: 'firstPartyDependencies',
+        prodDependencies: 1,
+        devDependencies: 0,
+        allDependencies: 10,
+      },
+      'node-engines-stats.json': {
+        name: 'nodeEngines',
+        minimumNodeVersion: '24.0.0',
+        imposedBy: [],
+        packagesScanned: 10,
+        packagesDeclaringNodeEngine: 5,
+        unsatisfiableRanges: [],
+      },
+    }
+    for (const [file, report] of Object.entries(reports))
+      writeFileSync(join(directory, file), JSON.stringify(report))
+    assert.doesNotThrow(() => validateArtifact(job, directory))
+    writeFileSync(join(directory, 'e18e-stats.json'), '{}')
+    assert.throws(
+      () => validateArtifact(job, directory),
+      /Invalid result artifact/,
+    )
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
 })

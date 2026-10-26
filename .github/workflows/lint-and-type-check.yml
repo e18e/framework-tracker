@@ -31,3 +31,6 @@ jobs:
 
       - name: Run stats generator tests
         run: pnpm --filter @framework-tracker/stats-generator test
+
+      - name: Validate first-party dependency manifests
+        run: pnpm --filter @framework-tracker/stats-generator validate:first-party-dependencies

@@ -92,13 +92,17 @@ export function resultPath(
     ? join(root, framework, 'versions', `${version}.json`)
     : join(root, framework, 'latest.json')
 }
-export function readProjectResult(packageName: string, version?: string) {
+export function readProjectResult(
+  packageName: string,
+  version?: string,
+  root = resultsRoot,
+) {
   const location = resultLocation(packageName)
   try {
     return projectResult(
       CombinedResultSchema.parse(
         JSON.parse(
-          readFileSync(resultPath(location.framework, version), 'utf8'),
+          readFileSync(resultPath(location.framework, version, root), 'utf8'),
         ),
       ),
       location.project,
@@ -141,6 +145,7 @@ export function mergeProjectResult(
 export function saveProjectResult(
   packageName: string,
   stats: Record<string, unknown>,
+  root = resultsRoot,
 ) {
   const { framework } = resultLocation(packageName)
   const version =
@@ -149,8 +154,8 @@ export function saveProjectResult(
       ? stats.frameworkVersion
       : undefined
   for (const path of [
-    resultPath(framework),
-    ...(version ? [resultPath(framework, version)] : []),
+    resultPath(framework, undefined, root),
+    ...(version ? [resultPath(framework, version, root)] : []),
   ]) {
     let existing: CombinedResult | null = null
     try {

@@ -1,0 +1,140 @@
+name: Measure
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Monday and Thursday 04:00 Australia/Perth (UTC+8).
+    - cron: '0 20 * * 0,3'
+  workflow_dispatch:
+    inputs:
+      framework:
+        description: Framework name, or all
+        type: string
+        default: all
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: measure-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'results' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  select:
+    runs-on: depot-ubuntu-24.04
+    outputs:
+      frameworks: ${{ steps.select.outputs.frameworks }}
+      standard: ${{ steps.select.outputs.standard }}
+      load: ${{ steps.select.outputs.load }}
+      has-changes: ${{ steps.select.outputs.has-changes }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: select
+        run: node packages/stats-generator/src/measurement-ci.ts select
+
+  measure:
+    needs: select
+    if: needs.select.outputs.has-changes == 'true'
+    uses: ./.github/workflows/measure-framework.yml
+    with:
+      standard: ${{ needs.select.outputs.standard }}
+      load: ${{ needs.select.outputs.load }}
+
+  assemble:
+    needs: [select, measure]
+    if: always() && needs.select.outputs.has-changes == 'true' && needs.measure.result == 'success'
+    runs-on: depot-ubuntu-24.04
+    env:
+      SELECTED_FRAMEWORKS: ${{ needs.select.outputs.frameworks }}
+      RUNNER_LABEL: 'Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)'
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - name: Assemble and validate temporary results
+        run: node packages/stats-generator/src/measurement-ci.ts assemble artifacts artifacts/results
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: measured-results
+          path: artifacts/results/
+          retention-days: 7
+          if-no-files-found: error
+
+  results-pr:
+    needs: [select, assemble]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: depot-ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      SELECTED_FRAMEWORKS: ${{ needs.select.outputs.frameworks }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: measured-results
+          path: artifacts/results
+      - name: Preserve pending results PR updates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OPEN_PRS=$(gh pr list --head automated-stats-update --state open --json number --jq 'length')
+          if [[ "$OPEN_PRS" != "0" ]]; then
+            git fetch origin automated-stats-update
+            git diff --binary HEAD...FETCH_HEAD -- results/ > "$RUNNER_TEMP/pending-results.patch"
+            if [[ -s "$RUNNER_TEMP/pending-results.patch" ]]; then
+              git apply --3way "$RUNNER_TEMP/pending-results.patch"
+            fi
+          fi
+      - name: Update selected canonical results
+        run: node packages/stats-generator/src/measurement-ci.ts promote artifacts/results
+      - run: pnpm exec prettier --write results/
+      - name: Create or update results pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ -z $(git status --short -- results/) ]]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git checkout -B automated-stats-update
+          git add results/
+          git commit -m "Update framework measurements"
+          git push --force-with-lease origin automated-stats-update
+          if ! gh pr list --head automated-stats-update --state open | grep -q .; then
+            gh pr create --title "Update framework measurements" \
+              --body "Automated framework measurements with validated current results and version history under results/." \
+              --base main --head automated-stats-update
+          else
+            echo "PR already exists, updated with new commits"
+          fi

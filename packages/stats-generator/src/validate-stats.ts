@@ -1,215 +1,128 @@
-import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
-import type { CIStats } from './types.ts'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { z } from 'zod'
-import { getFrameworks } from './get-frameworks.ts'
-import { packagesDir } from './constants.ts'
-import { readJsonFile } from './utils.ts'
 import {
-  CoreJsStatsSchema,
-  FrameworkDependencyScanSchema,
-  FirstPartyDependencyScanSchema,
-  InstallResultSchema,
+  CombinedResultSchema,
+  projectResult,
+  resultPath,
+} from '@framework-tracker/results/storage'
+import type { FrameworkConfig, CIStats } from './types.ts'
+import {
+  artifactFiles,
+  artifactName,
+  measurementJobs,
+  type MeasurementJob,
+} from './measurement-pipeline.ts'
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
+import { validateRequestThroughputForPersistence } from './request-throughput.ts'
+import {
+  getDependencyCountsFromPackageMetadata,
+  getDependencyStatsFromE18e,
+} from './utils.ts'
+import type { E18eStats } from './types.ts'
+import {
   BuildStatsSchema,
+  CoreJsStatsSchema,
+  InstallResultSchema,
   DevServerStatsSchema,
   BrowserBaselineStatsSchema,
   NodeEnginesStatsSchema,
-  SSRRequestThroughputStatsSchema,
+  FrameworkDependencyScanSchema,
+  FirstPartyDependencyScanSchema,
+  DependencyScanSchema,
+  RequestThroughputResultSchema,
   SSRLoadStatsSchema,
   SSRRouterLinkLoadStatsSchema,
   ClientSideRenderedStatsSchema,
   ServerSideRenderedStatsSchema,
 } from './schemas.ts'
 
-type BenchmarkType =
-  | 'dependencies'
-  | 'install'
-  | 'build'
-  | 'devServer'
-  | 'browserBaseline'
-  | 'nodeEngines'
-  | 'ssrRequestThroughput'
-  | 'ssrLoad'
-  | 'ssrRouterLinkLoad'
-  | 'clientSideRendered'
-  | 'serverSideRendered'
-
-interface BenchmarkConfig {
-  type: BenchmarkType
-  file: string
-  schema: z.ZodType
+const fileSchemas: Record<string, z.ZodType> = {
+  'install-stats.json': InstallResultSchema,
+  'build-stats.json': BuildStatsSchema,
+  'corejs-stats.json': CoreJsStatsSchema,
+  'dev-server-stats.json': DevServerStatsSchema,
+  'browser-baseline-stats.json': BrowserBaselineStatsSchema,
+  'node-engines-stats.json': NodeEnginesStatsSchema,
+  'framework-dependency-stats.json': FrameworkDependencyScanSchema,
+  'first-party-dependency-stats.json': FirstPartyDependencyScanSchema,
 }
-
-const STARTER_BENCHMARKS: BenchmarkConfig[] = [
-  {
-    type: 'dependencies',
-    file: 'corejs-stats.json',
-    schema: CoreJsStatsSchema,
-  },
-  {
-    type: 'dependencies',
-    file: 'framework-dependency-stats.json',
-    schema: FrameworkDependencyScanSchema,
-  },
-  {
-    type: 'dependencies',
-    file: 'first-party-dependency-stats.json',
-    schema: FirstPartyDependencyScanSchema,
-  },
-
-  { type: 'install', file: 'install-stats.json', schema: InstallResultSchema },
-  { type: 'build', file: 'build-stats.json', schema: BuildStatsSchema },
-  {
-    type: 'devServer',
-    file: 'dev-server-stats.json',
-    schema: DevServerStatsSchema,
-  },
-  {
-    type: 'browserBaseline',
-    file: 'browser-baseline-stats.json',
-    schema: BrowserBaselineStatsSchema,
-  },
-  {
-    type: 'nodeEngines',
-    file: 'node-engines-stats.json',
-    schema: NodeEnginesStatsSchema,
-  },
-]
-
-const APP_BENCHMARKS: BenchmarkConfig[] = [
-  {
-    type: 'ssrRouterLinkLoad',
-    file: 'ci-stats.json',
-    schema: SSRRouterLinkLoadStatsSchema,
-  },
-  {
-    type: 'clientSideRendered',
-    file: 'ci-stats.json',
-    schema: ClientSideRenderedStatsSchema,
-  },
-  {
-    type: 'serverSideRendered',
-    file: 'ci-stats.json',
-    schema: ServerSideRenderedStatsSchema,
-  },
-  {
-    type: 'ssrRequestThroughput',
-    file: 'ci-stats.json',
-    schema: SSRRequestThroughputStatsSchema,
-  },
-  {
-    type: 'ssrLoad',
-    file: 'ci-stats.json',
-    schema: SSRLoadStatsSchema,
-  },
-]
-
-function validateFile(filePath: string, schema: z.ZodType): string[] {
-  const data = readJsonFile(filePath)
-
-  if (!data) {
-    return [`File not found: ${filePath}`]
-  }
-
-  const result = schema.safeParse(data)
-  if (result.success) {
-    if (
-      schema === SSRLoadStatsSchema ||
-      schema === SSRRouterLinkLoadStatsSchema
-    ) {
-      try {
-        validateSSRLoadForPersistence(data as CIStats)
-      } catch (error) {
-        return [error instanceof Error ? error.message : String(error)]
-      }
-    }
-    return []
-  }
-
-  return result.error.issues.map(
-    (issue) => `${issue.path.join('.') || 'root'}: ${issue.message}`,
-  )
+const appSchemas: Record<string, z.ZodType> = {
+  'ssr-request-throughput': RequestThroughputResultSchema,
+  'ssr-load': SSRLoadStatsSchema,
+  'ssr-router-link-load': SSRRouterLinkLoadStatsSchema,
+  'client-side-rendered': ClientSideRenderedStatsSchema,
+  'server-side-rendered': ServerSideRenderedStatsSchema,
 }
-
-async function main() {
-  const [target = 'all', filterType] = process.argv.slice(2)
-
-  console.info('Validating stats output...\n')
-
-  const frameworks = await getFrameworks()
-  let hasFailures = false
-
-  for (const framework of frameworks) {
-    // Validate starter
-    if (framework.starter) {
-      const pkg = framework.starter.package
-      if (target !== 'all' && target !== framework.name && target !== pkg)
-        continue
-
-      console.info(`Validating ${framework.displayName} starter (${pkg})...`)
-
-      const errors: string[] = []
-      for (const { type: benchType, file, schema } of STARTER_BENCHMARKS) {
-        if (filterType && filterType !== benchType) continue
-        if (!framework.starter.measurements.includes(benchType)) {
-          continue
-        }
-
-        const filePath = join(packagesDir, pkg, file)
-        const fileErrors = validateFile(filePath, schema)
-        errors.push(...fileErrors.map((e) => `[${benchType}] ${e}`))
+export function readRequiredJson(path: string): unknown {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'))
+  } catch (cause) {
+    throw new Error(`Missing or invalid result artifact: ${path}`, { cause })
+  }
+}
+export function validateArtifact(job: MeasurementJob, directory: string) {
+  for (const file of artifactFiles(job)) {
+    const path = join(directory, file)
+    const value = readRequiredJson(path)
+    try {
+      if (file === 'e18e-stats.json')
+        DependencyScanSchema.parse({
+          name: 'dependencies',
+          ...getDependencyStatsFromE18e(value as E18eStats),
+          allDependencies: getDependencyCountsFromPackageMetadata(job.package)
+            .allDependencies,
+        })
+      else
+        (file === 'ci-stats.json'
+          ? appSchemas[job.task]!
+          : fileSchemas[file]!
+        ).parse(value)
+      if (file === 'ci-stats.json') {
+        validateSSRLoadForPersistence(value as CIStats)
+        validateRequestThroughputForPersistence(value as CIStats)
       }
-
-      if (errors.length === 0) {
-        console.info('  ✓ Valid\n')
-      } else {
-        console.info('  ✗ Invalid')
-        errors.forEach((e) => console.error(`    ${e}`))
-        console.info('')
-        hasFailures = true
-      }
+    } catch (cause) {
+      throw new Error(`Invalid result artifact: ${path}`, { cause })
     }
-
-    // Validate app
-    if (framework.app) {
-      const pkg = framework.app.package
-      if (target !== 'all' && target !== framework.name && target !== pkg)
-        continue
-
-      console.info(`Validating ${framework.displayName} app (${pkg})...`)
-
-      const errors: string[] = []
-      for (const { type: benchType, file, schema } of APP_BENCHMARKS) {
-        if (filterType && filterType !== benchType) continue
-        if (!framework.app.measurements.includes(benchType)) {
-          continue
-        }
-
-        const filePath = join(packagesDir, pkg, file)
-        const fileErrors = validateFile(filePath, schema)
-        errors.push(...fileErrors.map((e) => `[${benchType}] ${e}`))
-      }
-
-      if (errors.length === 0) {
-        console.info('  ✓ Valid\n')
-      } else {
-        console.info('  ✗ Invalid')
-        errors.forEach((e) => console.error(`    ${e}`))
-        console.info('')
-        hasFailures = true
+  }
+}
+export function validateArtifacts(
+  selected: FrameworkConfig[],
+  directory: string,
+) {
+  for (const job of measurementJobs(selected))
+    validateArtifact(job, join(directory, artifactName(job)))
+}
+export function validateResults(selected: FrameworkConfig[], root: string) {
+  for (const framework of selected) {
+    const combined = CombinedResultSchema.parse(
+      readRequiredJson(resultPath(framework.name, undefined, root)),
+    )
+    if (combined.framework !== framework.name)
+      throw new Error(`Wrong framework result: ${framework.name}`)
+    for (const project of ['starter', 'app'] as const) {
+      if (!framework[project]) continue
+      if (!combined.projects[project])
+        throw new Error(`Missing ${framework.name} ${project} results`)
+      const result = projectResult(combined, project) as CIStats
+      validateSSRLoadForPersistence(result)
+      validateRequestThroughputForPersistence(result)
+      if (result.frameworkVersion && result.frameworkVersion !== 'unknown') {
+        const version = CombinedResultSchema.parse(
+          readRequiredJson(
+            resultPath(framework.name, result.frameworkVersion, root),
+          ),
+        )
+        if (
+          version.framework !== framework.name ||
+          version.projects[project]?.frameworkVersion !==
+            result.frameworkVersion
+        )
+          throw new Error(
+            `Missing version metadata for ${framework.name} ${project}`,
+          )
       }
     }
   }
-
-  if (hasFailures) {
-    console.error('Validation failed!')
-    process.exit(1)
-  }
-
-  console.info('✓ All validations passed!')
 }
-
-main().catch((error) => {
-  console.error('Validation failed:', error)
-  process.exit(1)
-})

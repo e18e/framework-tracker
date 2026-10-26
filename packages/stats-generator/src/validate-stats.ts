@@ -19,7 +19,7 @@ import {
   SSRRouterLinkLoadStatsSchema,
   ClientSideRenderedStatsSchema,
   ServerSideRenderedStatsSchema,
-} from './schemas.ts'
+} from '@framework-tracker/results'
 
 type BenchmarkType =
   | 'dependencies'

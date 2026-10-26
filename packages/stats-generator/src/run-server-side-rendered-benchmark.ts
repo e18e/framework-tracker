@@ -1,6 +1,6 @@
 import { parseRunFrequency } from './benchmark-utils.ts'
 import { measurements } from './measurements.ts'
-import { ServerSideRenderedStatsSchema } from './schemas.ts'
+import { ServerSideRenderedStatsSchema } from '@framework-tracker/results'
 import { join } from 'node:path'
 import { runServerSideRenderedBenchmark } from './serverSideRendered/index.ts'
 import { packagesDir } from './constants.ts'

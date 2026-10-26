@@ -1,7 +1,7 @@
 import { getLoadPeakStage } from './ssrLoad/selection.ts'
 import { normalizeCIStats } from './utils.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
-import { SSRLoadTestsSchema } from './schemas.ts'
+import { SSRLoadTestsSchema } from '@framework-tracker/results'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'

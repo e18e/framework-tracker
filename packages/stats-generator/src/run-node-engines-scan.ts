@@ -1,4 +1,4 @@
-import { NodeEnginesStatsSchema } from './schemas.ts'
+import { NodeEnginesStatsSchema } from '@framework-tracker/results'
 import { lstatSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { packagesDir } from './constants.ts'

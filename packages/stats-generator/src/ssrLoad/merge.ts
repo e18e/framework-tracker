@@ -1,6 +1,9 @@
 import { validateSSRLoadForPersistence } from './persistence.ts'
 import type { CIStats } from '../types.ts'
-import { SSRLoadStatsSchema, SSRRouterLinkLoadStatsSchema } from '../schemas.ts'
+import {
+  SSRLoadStatsSchema,
+  SSRRouterLinkLoadStatsSchema,
+} from '@framework-tracker/results'
 import { getSSRLoadStatsKey, type SSRLoadKind } from './config.ts'
 
 /** Jobs upload a full ci-stats file, including possibly stale sibling results.

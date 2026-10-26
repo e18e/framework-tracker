@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import type { ServerRenderingBenchmarkSchema } from '../schemas.ts'
+import type { ServerRenderingBenchmarkSchema } from '@framework-tracker/results'
 import type { InteractionTiming } from '../types.ts'
 export interface ServerSideRenderedRunResult {
   firstPaintMs: number | null

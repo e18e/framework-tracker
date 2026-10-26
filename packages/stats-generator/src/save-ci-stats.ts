@@ -1,23 +1,23 @@
-import { FrameworkResultSchema } from '@framework-tracker/results'
-import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
+  FrameworkResultSchema,
   DependencyScanSchema,
   CoreJsStatsSchema,
   NodeEnginesStatsSchema,
   BrowserBaselineStatsSchema,
   FrameworkDependencyScanSchema,
   FirstPartyDependencyScanSchema,
-} from './schemas.ts'
+  ServerSideRenderedStatsSchema,
+  ClientSideRenderedStatsSchema,
+  BuildStatsSchema,
+  DevServerStatsSchema,
+  BaseResultSchema,
+  InstallResultSchema,
+} from '@framework-tracker/results'
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   mergeRequestThroughputArtifact,
   validateRequestThroughputForPersistence,
 } from './request-throughput.ts'
-import {
-  ServerSideRenderedStatsSchema,
-  ClientSideRenderedStatsSchema,
-} from './schemas.ts'
-import { BuildStatsSchema, DevServerStatsSchema } from './schemas.ts'
-import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'

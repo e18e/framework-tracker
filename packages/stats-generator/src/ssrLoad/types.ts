@@ -1,5 +1,8 @@
 import type { z } from 'zod'
-import type { SSRLoadTestsSchema, SSRLoadSweepSchema } from '../schemas.ts'
+import type {
+  SSRLoadTestsSchema,
+  SSRLoadSweepSchema,
+} from '@framework-tracker/results'
 
 export type SSRLoadStageStats = z.infer<typeof SSRLoadSweepSchema>[number]
 export type SSRLoadSweep = z.infer<typeof SSRLoadSweepSchema>

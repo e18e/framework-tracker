@@ -1,6 +1,6 @@
 import { measurements } from '../measurements.ts'
 import { getLoadPeakStage, selectRepresentativeIteration } from './selection.ts'
-import { SSRLoadTestsSchema } from '../schemas.ts'
+import { SSRLoadTestsSchema } from '@framework-tracker/results'
 import { summarizeMetric } from '../sample-statistics.ts'
 import { getSSRLoadKind } from './config.ts'
 import { setTimeout as delay } from 'node:timers/promises'

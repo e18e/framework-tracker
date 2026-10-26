@@ -14,7 +14,7 @@ import type {
   DevServerStatsSchema,
   InstallBenchmarkSchema,
   InstallResultSchema,
-} from './schemas.ts'
+} from '@framework-tracker/results'
 import type { SSRLoadTests } from './ssrLoad/types.ts'
 import type { MeasurementName } from './measurements.ts'
 

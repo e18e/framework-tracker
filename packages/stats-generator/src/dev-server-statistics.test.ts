@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createDevServerStats } from './dev-server-statistics.ts'
-import { DevServerStatsSchema } from './schemas.ts'
+import { DevServerStatsSchema } from '@framework-tracker/results'
 
 test('startup results retain iterations and summarize measurements', () => {
   assert.deepEqual(createDevServerStats([10, 20, 30]), {

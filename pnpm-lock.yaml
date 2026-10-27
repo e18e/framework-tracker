@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    zod:
+      specifier: 4.6.7
+      version: 4.6.7
+
 overrides:
   zod@>=4: 4.6.7
 
@@ -42,7 +48,7 @@ importers:
   packages/cwv-stats:
     dependencies:
       zod:
-        specifier: 4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
       '@types/node':
@@ -86,7 +92,7 @@ importers:
   packages/results:
     dependencies:
       zod:
-        specifier: 4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
 
   packages/stats-generator:
@@ -122,7 +128,7 @@ importers:
         specifier: 2.9.0
         version: 2.9.0
       zod:
-        specifier: 4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
       '@types/autocannon':

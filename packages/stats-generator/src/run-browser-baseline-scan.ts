@@ -1,4 +1,4 @@
-import { BrowserBaselineStatsSchema } from './schemas.ts'
+import { BrowserBaselineStatsSchema } from '@framework-tracker/results'
 import { access, copyFile, mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'

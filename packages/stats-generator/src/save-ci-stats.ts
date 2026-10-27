@@ -1,5 +1,4 @@
 import { saveProjectResult } from '@framework-tracker/results/storage'
-import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   DependencyScanSchema,
   CoreJsStatsSchema,
@@ -7,17 +6,18 @@ import {
   BrowserBaselineStatsSchema,
   FrameworkDependencyScanSchema,
   FirstPartyDependencyScanSchema,
-} from './schemas.ts'
+  ServerSideRenderedStatsSchema,
+  ClientSideRenderedStatsSchema,
+  BuildStatsSchema,
+  DevServerStatsSchema,
+  BaseResultSchema,
+  InstallResultSchema,
+} from '@framework-tracker/results'
+import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   mergeRequestThroughputArtifact,
   validateRequestThroughputForPersistence,
 } from './request-throughput.ts'
-import {
-  ServerSideRenderedStatsSchema,
-  ClientSideRenderedStatsSchema,
-} from './schemas.ts'
-import { BuildStatsSchema, DevServerStatsSchema } from './schemas.ts'
-import { BaseResultSchema, InstallResultSchema } from './schemas.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
 import type { FrameworkConfig } from './types.ts'

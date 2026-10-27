@@ -4,7 +4,7 @@ import {
   RequestThroughputIterationSchema,
   RequestThroughputResultSchema,
   SSRRequestThroughputStatsSchema,
-} from './schemas.ts'
+} from '@framework-tracker/results'
 import { summarizeMetric } from './sample-statistics.ts'
 import type { CIStats } from './types.ts'
 

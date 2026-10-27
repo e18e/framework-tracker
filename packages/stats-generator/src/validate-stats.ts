@@ -35,7 +35,7 @@ import {
   SSRRouterLinkLoadStatsSchema,
   ClientSideRenderedStatsSchema,
   ServerSideRenderedStatsSchema,
-} from './schemas.ts'
+} from '@framework-tracker/results'
 
 const fileSchemas: Record<string, z.ZodType> = {
   'install-stats.json': InstallResultSchema,

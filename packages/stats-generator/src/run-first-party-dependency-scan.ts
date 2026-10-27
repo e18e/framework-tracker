@@ -1,4 +1,4 @@
-import { FirstPartyDependencyScanSchema } from './schemas.ts'
+import { FirstPartyDependencyScanSchema } from '@framework-tracker/results'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {

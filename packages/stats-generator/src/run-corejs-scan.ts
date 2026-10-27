@@ -1,4 +1,4 @@
-import { CoreJsStatsSchema } from './schemas.ts'
+import { CoreJsStatsSchema } from '@framework-tracker/results'
 import { readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { glob } from 'tinyglobby'

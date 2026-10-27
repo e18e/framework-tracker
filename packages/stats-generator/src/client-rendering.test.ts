@@ -4,7 +4,7 @@ import { assembleClientRendering } from './client-rendering.ts'
 import {
   ClientRenderingBenchmarkSchema,
   ClientSideRenderedStatsSchema,
-} from './schemas.ts'
+} from '@framework-tracker/results'
 
 test('assembles client rendering from exact raw browser measurements', () => {
   const iterations = [1, 3].map((value) => ({

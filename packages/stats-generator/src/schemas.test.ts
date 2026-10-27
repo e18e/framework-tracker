@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { z } from 'zod'
-import { createBenchmarkBaseSchema } from './schemas.ts'
+import { createBenchmarkBaseSchema } from '@framework-tracker/results'
 
 test('common benchmark schema requires identity and one iteration per measured run', () => {
   const schema = createBenchmarkBaseSchema(z.object({ value: z.number() }))

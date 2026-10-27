@@ -1,5 +1,5 @@
 import { summarizeMetric } from './sample-statistics.ts'
-import { BuildStatsSchema } from './schemas.ts'
+import { BuildStatsSchema } from '@framework-tracker/results'
 
 export function createBuildStats(cold: number[], warm: number[]) {
   function benchmark(name: 'coldBuild' | 'warmBuild', samples: number[]) {

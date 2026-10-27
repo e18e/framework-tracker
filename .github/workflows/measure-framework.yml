@@ -1,4 +1,4 @@
-name: Measure Framework
+name: Framework benchmarks
 
 env:
   RUNNER_LABEL: 'Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)'
@@ -51,6 +51,7 @@ on:
 
 jobs:
   measure-install:
+    name: ${{ matrix.framework.displayName }} · Install
     if: inputs.install-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     strategy:
@@ -85,6 +86,7 @@ jobs:
           if-no-files-found: error
 
   measure-build:
+    name: ${{ matrix.framework.displayName }} · Build
     if: inputs.build-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     strategy:
@@ -144,6 +146,7 @@ jobs:
           if-no-files-found: error
 
   measure-dev-server:
+    name: ${{ matrix.framework.displayName }} · Dev server
     if: inputs.dev-server-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     timeout-minutes: 30
@@ -180,6 +183,7 @@ jobs:
           if-no-files-found: error
 
   measure-ssr-request-throughput:
+    name: ${{ matrix.framework.displayName }} · SSR throughput
     if: inputs.ssr-request-throughput-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     strategy:
@@ -222,6 +226,7 @@ jobs:
           if-no-files-found: error
 
   measure-dependencies:
+    name: ${{ matrix.framework.displayName }} · Dependencies
     if: inputs.deps-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     strategy:
@@ -285,6 +290,7 @@ jobs:
           if-no-files-found: error
 
   measure-ssr-load:
+    name: ${{ matrix.framework.displayName }} · SSR load
     if: inputs.ssr-load-matrix != '[]'
     runs-on: depot-ubuntu-24.04-16
     env:
@@ -329,6 +335,7 @@ jobs:
           if-no-files-found: error
 
   measure-ssr-router-link-load:
+    name: ${{ matrix.framework.displayName }} · SSR router link load
     if: inputs.ssr-router-link-load-matrix != '[]'
     runs-on: depot-ubuntu-24.04-16
     env:
@@ -373,6 +380,7 @@ jobs:
           if-no-files-found: error
 
   measure-client-side-rendered:
+    name: ${{ matrix.framework.displayName }} · Client rendering
     if: inputs.client-side-rendered-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     strategy:
@@ -418,6 +426,7 @@ jobs:
           if-no-files-found: error
 
   measure-server-side-rendered:
+    name: ${{ matrix.framework.displayName }} · Server rendering
     if: inputs.server-side-rendered-matrix != '[]'
     runs-on: depot-ubuntu-24.04
     strategy:

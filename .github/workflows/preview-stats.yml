@@ -95,6 +95,7 @@ jobs:
           echo "deps=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
 
   measure:
+    name: Run
     needs: setup
     if: needs.setup.result == 'success' && needs.setup.outputs.has-changes == 'true'
     uses: ./.github/workflows/measure-framework.yml

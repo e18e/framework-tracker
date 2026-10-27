@@ -1,4 +1,4 @@
-name: Generate Stats
+name: Benchmarks
 
 env:
   RUNNER_LABEL: 'Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)'
@@ -57,6 +57,7 @@ permissions:
 
 jobs:
   setup:
+    name: Prepare benchmarks
     runs-on: depot-ubuntu-24.04
     outputs:
       install-matrix: ${{ steps.set-matrix.outputs.install }}
@@ -101,6 +102,7 @@ jobs:
           echo "server-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | contains(["serverSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
 
   measure:
+    name: Run
     needs: setup
     uses: ./.github/workflows/measure-framework.yml
     with:
@@ -115,6 +117,7 @@ jobs:
       server-side-rendered-matrix: ${{ needs.setup.outputs.server-side-rendered-matrix }}
 
   validate:
+    name: Validate results
     needs: [setup, measure]
     if: ${{ !cancelled() }}
     runs-on: depot-ubuntu-24.04
@@ -149,6 +152,7 @@ jobs:
         run: pnpm --filter @framework-tracker/stats-generator validate:ci-stats "$GITHUB_WORKSPACE/artifacts"
 
   generate-stats:
+    name: Create stats update PR
     needs: validate
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: depot-ubuntu-24.04

@@ -247,7 +247,7 @@ Installed using the CLI with the following setup:
 
 - Install time measures a clean `pnpm install --frozen-lockfile` in a fresh
   temporary copy of the starter package with an empty pnpm store and cache.
-- Install benchmarks run 5 times by default and report average, minimum, and
+- Install benchmarks run 5 times by default and report median, minimum, and
   maximum duration.
 - Each build repetition uses a fresh temporary copy of the tracked starter
   files. Dependencies are installed outside the timed region with a frozen
@@ -255,7 +255,7 @@ Installed using the CLI with the following setup:
 - Cold build time measures the first build in that fresh project. Warm build
   time measures a second build in the same project, preserving whatever cache
   or generated output the first build leaves in place.
-- Build benchmarks run 5 times by default and report average, minimum, and
+- Build benchmarks run 5 times by default and report median, minimum, and
   maximum duration.
 
 ### Dev Server Startup
@@ -282,7 +282,8 @@ Installed using the CLI with the following setup:
 - Dev server benchmarks run 5 times by default. New results record the test
   `name`, measured `runs`, raw `iterations` in milliseconds, and `timeMs`
   statistics (mean, median, minimum, and maximum). Framework and
-  package identity stay on the overall result.
+  package identity stay on the overall result. Charts and tables display the
+  median startup duration.
 - All 146 historical startup records contained raw samples and were converted
   using those samples. No measurements
   or iterations were invented. The site can still display legacy summaries,
@@ -401,8 +402,8 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
-- The arithmetic mean is reported. Raw samples and their sample standard
-  deviation are retained.
+- The median is displayed in charts and tables. Raw iterations and the mean,
+  median, minimum, and maximum are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement
   is invalid only when a required Chrome paint or interaction value is missing
   or not greater than zero.
@@ -445,8 +446,8 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
-- The arithmetic mean is reported. Raw samples and their sample standard
-  deviation are retained.
+- The median is displayed in charts and tables. Raw iterations and the mean,
+  median, minimum, and maximum are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement
   is invalid only when a required Chrome paint or interaction value is missing
   or not greater than zero.
@@ -479,7 +480,8 @@ Current pinned dependencies are listed in each project's `package.json`:
   measured HTTP requests and excludes warmup requests. Each iteration retains
   the arithmetic mean, median, minimum, and maximum of request
   throughput (ops/sec) and latency (ms). Overall metrics summarize the five
-  per-run arithmetic means; their median describes run means, not all requests.
+  per-run arithmetic means. Charts and tables display the median of those run
+  means for both throughput and latency, not a pooled request-level median.
 - Frameworks are invoked through their production request handlers where
   possible. Web API handlers receive `Request` objects; Node.js handlers receive
   mock `IncomingMessage` and `ServerResponse` objects.
@@ -524,7 +526,7 @@ measured stages. Benchmark-level `stage1` through `stage7` summaries include the
 count and summarize those iterations. Configured stage duration is five seconds;
 iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
 arithmetic mean, median, minimum, and maximum across sweeps at
-each matching connection count. Latency charts show the arithmetic mean of each
+each matching connection count. Latency charts and tables show the median of each
 sweep's reported percentile; these are summaries of sweep percentiles, not pooled
 request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
 per-stage counts remain in every iteration. All retained historical load
@@ -570,7 +572,7 @@ measured stages. Benchmark-level `stage1` through `stage7` summaries include the
 count and summarize those iterations. Configured stage duration is five seconds;
 iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
 arithmetic mean, median, minimum, and maximum across sweeps at
-each matching connection count. Latency charts show the arithmetic mean of each
+each matching connection count. Latency charts and tables show the median of each
 sweep's reported percentile; these are summaries of sweep percentiles, not pooled
 request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
 per-stage counts remain in every iteration. All retained historical load
@@ -625,7 +627,7 @@ unrelated result fields were preserved. Summary-only records cannot supply raw
 iterations; the documentation loader retains support for their
 numeric summaries and historical INP fields without treating INP as interaction
 timing. New artifacts require the complete benchmark schema before persistence.
-Charts consume arithmetic means in milliseconds through content normalization.
+Charts and tables consume medians in milliseconds through content normalization.
 
 ### Server rendering result schema
 
@@ -639,4 +641,4 @@ These browser measurements are separate from SSR throughput and load tests.
 All 146 existing package and documentation records, including versioned history,
 were converted from complete raw samples. No records lacked samples. The loader
 also supports legacy numeric summaries and INP without relabeling INP as interaction
-timing. Charts and tables receive arithmetic means in milliseconds.
+timing. Charts and tables receive medians in milliseconds.

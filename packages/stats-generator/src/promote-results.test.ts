@@ -8,10 +8,10 @@ import {
   resultPath,
   saveProjectResult,
 } from '@framework-tracker/results/storage'
-import { selectFrameworks } from './measurement-pipeline.ts'
+import { frameworks } from './frameworks.ts'
 import { promoteResults } from './promote-results.ts'
 
-const selectedFrameworks = selectFrameworks(['--framework', 'astro'])
+const selectedFrameworks = frameworks.filter((item) => item.name === 'astro')
 
 for (const upgradedProject of ['starter', 'app'] as const) {
   test(`promotion preserves sibling history when ${upgradedProject} advances to another version`, () => {

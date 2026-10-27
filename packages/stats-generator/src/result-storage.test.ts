@@ -79,33 +79,23 @@ test('stored tests always validate their result and require project metadata', (
   )
 })
 
-// Pipeline selection must stay independent of publishing and project package names.
+// Source changes trigger the full pipeline independently of publishing.
 import { frameworks } from './frameworks.ts'
 import {
   artifactFiles,
   isLoadJob,
   measurementJobs,
-  selectChangedFrameworks,
-  selectFrameworks,
+  shouldMeasure,
 } from './measurement-pipeline.ts'
 import { validateArtifact, validateArtifacts } from './validate-stats.ts'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-test('source selection measures both projects, and broadens multiple or shared changes', () => {
-  const astro = selectChangedFrameworks([
-    'packages/app-astro/src/pages/index.astro',
-  ])
-  assert.deepEqual(
-    astro.map((item) => item.name),
-    ['astro'],
-  )
-  assert.deepEqual(
-    new Set(measurementJobs(astro).map((job) => job.package)),
-    new Set(['starter-astro', 'app-astro']),
-  )
+test('any framework or shared source change triggers measurements', () => {
   for (const files of [
+    ['packages/app-astro/src/pages/index.astro'],
+    ['packages/starter-astro/package.json'],
     [
       'packages/starter-astro/package.json',
       'packages/app-next-js/pnpm-lock.yaml',
@@ -117,12 +107,12 @@ test('source selection measures both projects, and broadens multiple or shared c
     ['.github/workflows/measure.yml'],
     ['packages/testdata/data.json'],
   ])
-    assert.deepEqual(selectChangedFrameworks(files), frameworks)
+    assert.equal(shouldMeasure(files), true)
 })
 
 test('docs and generated results never select benchmarks', () => {
-  assert.deepEqual(
-    selectChangedFrameworks([
+  assert.equal(
+    shouldMeasure([
       'README.md',
       'CONTRIBUTING.md',
       'packages/docs/src/pages/index.astro',
@@ -132,29 +122,33 @@ test('docs and generated results never select benchmarks', () => {
       'packages/app-next-js/stats/1.json',
       'packages/starter-next-js/build-stats.json',
     ]),
-    [],
+    false,
   )
+  assert.equal(shouldMeasure([]), false)
 })
 
-test('local selection accepts exactly one framework or all, without extra modes', () => {
-  assert.deepEqual(selectFrameworks(['--all']), frameworks)
+test('measurement jobs cover every configured framework and project', () => {
+  const jobs = measurementJobs(frameworks)
   assert.deepEqual(
-    selectFrameworks(['--framework', 'astro']).map((item) => item.name),
-    ['astro'],
+    new Set(jobs.map((job) => job.framework)),
+    new Set(frameworks.map((framework) => framework.name)),
   )
-  for (const args of [
-    [],
-    ['astro'],
-    ['--framework', 'missing'],
-    ['--all', '--quick'],
-    ['--framework', 'astro', '--plan'],
-    ['--all', '--framework', 'astro'],
-  ])
-    assert.throws(() => selectFrameworks(args), /Usage/)
+  assert.deepEqual(
+    new Set(jobs.map((job) => job.package)),
+    new Set(
+      frameworks.flatMap((framework) =>
+        [framework.starter, framework.app].flatMap((project) =>
+          project ? [project.package] : [],
+        ),
+      ),
+    ),
+  )
 })
 
 test('job manifest keeps load jobs separate and requires companion scan artifacts', () => {
-  const jobs = measurementJobs(selectFrameworks(['--framework', 'next']))
+  const jobs = measurementJobs(
+    frameworks.filter((item) => item.name === 'next'),
+  )
   assert.deepEqual(
     jobs.filter(isLoadJob).map((job) => job.task),
     ['ssr-load', 'ssr-router-link-load'],
@@ -174,7 +168,7 @@ test('job manifest keeps load jobs separate and requires companion scan artifact
 test('missing and malformed artifacts fail before results can be assembled', () => {
   const directory = mkdtempSync(join(tmpdir(), 'measurement-artifacts-'))
   try {
-    const selected = selectFrameworks(['--framework', 'astro'])
+    const selected = frameworks.filter((item) => item.name === 'astro')
     assert.throws(
       () => validateArtifacts(selected, directory),
       /Missing or invalid result artifact/,
@@ -195,7 +189,7 @@ test('missing and malformed artifacts fail before results can be assembled', () 
   }
 })
 
-test('local storage keeps independent project versions inside the requested directory', () => {
+test('temporary result assembly keeps independent project versions', () => {
   const directory = mkdtempSync(join(tmpdir(), 'measurement-results-'))
   try {
     saveProjectResult(
@@ -234,7 +228,7 @@ test('dependency artifacts validate e18e output with package lockfile counts', (
   const directory = mkdtempSync(join(tmpdir(), 'measurement-dependencies-'))
   try {
     const job = measurementJobs(
-      selectFrameworks(['--framework', 'astro']),
+      frameworks.filter((item) => item.name === 'astro'),
     ).find((job) => job.task === 'deps')!
     const reports = {
       'e18e-stats.json': {

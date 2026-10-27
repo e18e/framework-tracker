@@ -98,37 +98,18 @@ export function isLoadJob(job: MeasurementJob) {
   return job.task === 'ssr-load' || job.task === 'ssr-router-link-load'
 }
 
-export function selectFrameworks(args: string[]): FrameworkConfig[] {
-  if (args.length === 1 && args[0] === '--all') return frameworks
-  if (args.length === 2 && args[0] === '--framework') {
-    const framework = frameworks.find((item) => item.name === args[1])
-    if (framework) return [framework]
-  }
-  throw new Error('Usage: pnpm measure --framework <name> | pnpm measure --all')
-}
-
 const generated = /(?:^|\/)(?:ci-stats\.json|[^/]*-stats\.json|stats\/.*)$/
-export function selectChangedFrameworks(files: string[]): FrameworkConfig[] {
-  const selected = new Set<string>()
-  let shared = false
-  for (const file of files) {
-    if (generated.test(file) || /\.(?:md|mdx)$/.test(file)) continue
-    const framework = frameworks.find((item) =>
-      [item.starter?.package, item.app?.package].some(
-        (pkg) => pkg && file.startsWith(`packages/${pkg}/`),
-      ),
-    )
-    if (framework) selected.add(framework.name)
-    else if (
-      /^packages\/(?:stats-generator|results|testdata)\//.test(file) ||
-      /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.json|Dockerfile|\.dockerignore|docker-compose\.yml|\.npmrc|\.nvmrc)$/.test(
+export function shouldMeasure(files: string[]): boolean {
+  return files.some(
+    (file) =>
+      !generated.test(file) &&
+      !/\.(?:md|mdx)$/.test(file) &&
+      (/^packages\/(?:starter-[^/]+|app-[^/]+|stats-generator|results|testdata)\//.test(
         file,
       ) ||
-      /^\.github\/workflows\/(?:measure|benchmark)/.test(file)
-    )
-      shared = true
-  }
-  return shared || selected.size > 1
-    ? frameworks
-    : frameworks.filter((item) => selected.has(item.name))
+        /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.json|Dockerfile|\.dockerignore|docker-compose\.yml|\.npmrc|\.nvmrc)$/.test(
+          file,
+        ) ||
+        /^\.github\/workflows\/(?:measure|benchmark)/.test(file)),
+  )
 }

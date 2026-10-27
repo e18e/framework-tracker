@@ -25,8 +25,7 @@
     "install:all:frozen": "for pkg in packages/starter-* packages/app-*; do (cd \"$pkg\" && pnpm install --frozen-lockfile); done",
     "build:apps": "for pkg in packages/app-*; do echo \"Building $pkg...\" && (cd \"$pkg\" && pnpm build) || exit 1; done",
     "check:all": "pnpm install:all && pnpm format:check && pnpm lint:all && pnpm type-check:all",
-    "check:all:ci": "pnpm install:all:frozen && pnpm format:check && pnpm lint:all && pnpm type-check:all",
-    "measure": "node packages/stats-generator/src/measure.ts"
+    "check:all:ci": "pnpm install:all:frozen && pnpm format:check && pnpm lint:all && pnpm type-check:all"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

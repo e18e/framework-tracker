@@ -6,15 +6,9 @@ on:
   push:
     branches: [main]
   schedule:
-    # Monday and Thursday 04:00 Australia/Perth (UTC+8).
-    - cron: '0 20 * * 0,3'
+    # Monday and Thursday at 04:00 UTC.
+    - cron: '0 4 * * 1,4'
   workflow_dispatch:
-    inputs:
-      framework:
-        description: Framework name, or all
-        type: string
-        default: all
-        required: true
 
 permissions:
   contents: read
@@ -27,7 +21,6 @@ jobs:
   select:
     runs-on: depot-ubuntu-24.04
     outputs:
-      frameworks: ${{ steps.select.outputs.frameworks }}
       standard: ${{ steps.select.outputs.standard }}
       load: ${{ steps.select.outputs.load }}
       has-changes: ${{ steps.select.outputs.has-changes }}
@@ -57,7 +50,6 @@ jobs:
     if: always() && needs.select.outputs.has-changes == 'true' && needs.measure.result == 'success'
     runs-on: depot-ubuntu-24.04
     env:
-      SELECTED_FRAMEWORKS: ${{ needs.select.outputs.frameworks }}
       RUNNER_LABEL: 'Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -86,8 +78,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    env:
-      SELECTED_FRAMEWORKS: ${{ needs.select.outputs.frameworks }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -114,7 +104,7 @@ jobs:
               git apply --3way "$RUNNER_TEMP/pending-results.patch"
             fi
           fi
-      - name: Update selected canonical results
+      - name: Update canonical results
         run: node packages/stats-generator/src/measurement-ci.ts promote artifacts/results
       - run: pnpm exec prettier --write results/
       - name: Create or update results pull request

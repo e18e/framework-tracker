@@ -45,19 +45,14 @@ Having both a `starter` and `app` project for each framework allows us to get a 
 
 The shared [measurement pipeline](./.github/workflows/measure.yml) uses
 [framework configuration](./packages/results/src/frameworks.ts) and the same
-runners, assembly, and schema validation in CI and locally.
+runners, assembly, and schema validation in CI.
 
-- Source PRs measure both configured projects for one changed framework. Multiple
-  changed frameworks or shared measurement code/configuration select all frameworks.
+- Source PRs measure all frameworks and their configured starter and app projects.
   Docs-only and results-only changes skip benchmarks. PR results are temporary artifacts.
 - After source changes merge to `main`, measurements open or update the existing
   `automated-stats-update` results PR. Scheduled runs measure all frameworks on
-  Monday and Thursday at 04:00 Australia/Perth. Manual runs accept a framework name
-  or `all`; runs on `main` also update the results PR.
-- Locally, use `pnpm measure --framework astro` or `pnpm measure --all`.
-  Validated results are saved under `artifacts/local/measurement-*/results/`,
-  without commits or publishing. Use Node 24+, pnpm, Chrome, and Docker on Linux
-  with CPUs 0–15 available for the isolated load benchmarks.
+  Monday and Thursday at 04:00 UTC. Manual runs also measure all frameworks;
+  runs on `main` update the results PR.
 
 Canonical data lives in `results/<framework>/latest.json` and `versions/`.
 Starter and app versions remain separate, and every test identifies its project.

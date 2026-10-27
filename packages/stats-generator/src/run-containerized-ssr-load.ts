@@ -1,8 +1,6 @@
 import { getSSRLoadKind, getSSRLoadPath } from './ssrLoad/config.ts'
 import { spawn } from 'node:child_process'
-import { env, exit, getgid, getuid, pid } from 'node:process'
-import { join } from 'node:path'
-import { packagesDir } from './constants.ts'
+import { cwd, env, exit, getgid, getuid, pid } from 'node:process'
 import { parseArgs } from './utils.ts'
 
 const RUN_SUFFIX = `${env.GITHUB_RUN_ID ?? 'local'}-${pid}`
@@ -48,7 +46,7 @@ async function main() {
   const { packageName } = parseArgs(
     'Usage: run-containerized-ssr-load <package-name>\nExample: run-containerized-ssr-load app-astro',
   )
-  const workspaceDir = env.GITHUB_WORKSPACE ?? join(packagesDir, '..')
+  const workspaceDir = env.GITHUB_WORKSPACE ?? cwd()
   const user = `${getuid?.() ?? 0}:${getgid?.() ?? 0}`
   let cleanupPromise: Promise<void> | undefined
 

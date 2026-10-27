@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createBuildStats } from './build-statistics.ts'
-import { BuildStatsSchema } from './schemas.ts'
+import { BuildStatsSchema } from '@framework-tracker/results'
 
 test('build schema requires identity and complete iterations', () => {
   const result = createBuildStats([10, 20, 30], [5])

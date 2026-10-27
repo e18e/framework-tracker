@@ -1,5 +1,8 @@
 import { isDeepStrictEqual } from 'node:util'
-import { SSRLoadStatsSchema, SSRRouterLinkLoadStatsSchema } from '../schemas.ts'
+import {
+  SSRLoadStatsSchema,
+  SSRRouterLinkLoadStatsSchema,
+} from '@framework-tracker/results'
 import type { CIStats } from '../types.ts'
 import { summarizeLoadSweeps } from './run-load-test.ts'
 

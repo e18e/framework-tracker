@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import type { RequestThroughputBenchmarkSchema } from '../schemas.ts'
+import type { RequestThroughputBenchmarkSchema } from '@framework-tracker/results'
 import type { IncomingMessage, ServerResponse } from './mock-http.ts'
 
 export type WebServerRenderHandler = (request: Request) => Promise<Response>

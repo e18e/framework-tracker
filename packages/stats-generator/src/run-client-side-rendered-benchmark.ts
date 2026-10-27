@@ -1,7 +1,7 @@
 import { readProjectResult } from '@framework-tracker/results/storage'
 import { parseRunFrequency } from './benchmark-utils.ts'
 import { measurements } from './measurements.ts'
-import { ClientSideRenderedStatsSchema } from './schemas.ts'
+import { ClientSideRenderedStatsSchema } from '@framework-tracker/results'
 import { join } from 'node:path'
 import { runClientSideRenderedBenchmark } from './clientSideRendered/index.ts'
 import { packagesDir } from './constants.ts'

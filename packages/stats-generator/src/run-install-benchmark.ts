@@ -12,7 +12,10 @@ import {
   getFrameworkByPackage,
   parseArgs,
 } from './utils.ts'
-import { InstallBenchmarkSchema, InstallResultSchema } from './schemas.ts'
+import {
+  InstallBenchmarkSchema,
+  InstallResultSchema,
+} from '@framework-tracker/results'
 
 function execCommand(command: string, cwd: string): string {
   return execSync(command, {

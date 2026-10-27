@@ -1,3 +1,5 @@
+export const VARIANCE_THRESHOLD_PERCENT = 10
+
 /** Shared defaults for every framework. Scans run once; benchmarks repeat. */
 export const measurements = {
   install: { runs: 5 },

@@ -18,7 +18,10 @@ import {
   DevServerStatsSchema,
   BaseResultSchema,
   InstallResultSchema,
+  FrameworkResultSchema,
+  type FrameworkResult,
 } from '@framework-tracker/results'
+import { withSummaryVariance } from '@framework-tracker/results/comparison'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   mergeRequestThroughputArtifact,
@@ -127,19 +130,31 @@ export async function processCIStats(
     }
   }
 
-  const projectStats = new Map<string, CIStats>()
+  const projectStats = new Map<string, FrameworkResult>()
   const combinedStats = new Map<string, CombinedResult>()
-  function collect(packageName: string, stats: CIStats) {
+  function collect(
+    packageName: string,
+    stats: CIStats,
+    existing: CIStats | null,
+  ) {
     validateSSRLoadForPersistence(stats)
     validateRequestThroughputForPersistence(stats)
     const { framework } = resultLocation(packageName)
+    const measuredTests = Object.keys(stats).filter(
+      (key) => stats[key as keyof CIStats] !== existing?.[key as keyof CIStats],
+    )
+    const comparedStats = withSummaryVariance(
+      FrameworkResultSchema.parse(stats),
+      FrameworkResultSchema.nullable().parse(existing),
+      measuredTests,
+    )
     combinedStats.set(
       framework,
       mergeProjectResult(combinedStats.get(framework) ?? null, packageName, {
-        ...stats,
+        ...comparedStats,
       }),
     )
-    projectStats.set(packageName, stats)
+    projectStats.set(packageName, comparedStats)
   }
 
   for (const framework of frameworks) {
@@ -418,7 +433,7 @@ export async function processCIStats(
         releasedAt,
       )
 
-      collect(packageName, stats)
+      collect(packageName, stats, existingStats)
 
       console.info('')
     }
@@ -607,7 +622,7 @@ export async function processCIStats(
         releasedAt,
       )
 
-      collect(packageName, stats)
+      collect(packageName, stats, existingStats)
 
       console.info('')
     }

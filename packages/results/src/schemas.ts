@@ -1,11 +1,20 @@
 import { selectRepresentativeIteration } from './selection.ts'
 import { z } from 'zod'
 
+export const MetricVarianceSchema = z.object({
+  comparedToMeasuredAt: z.string().nullable(),
+  meanPercent: z.number(),
+  medianPercent: z.number(),
+  minPercent: z.number(),
+  maxPercent: z.number(),
+})
+
 export const MetricBaseSchema = z.object({
   mean: z.number(),
   median: z.number(),
   min: z.number(),
   max: z.number(),
+  variance: MetricVarianceSchema.optional(),
 })
 export type MetricBase = z.infer<typeof MetricBaseSchema>
 

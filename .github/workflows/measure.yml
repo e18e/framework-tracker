@@ -21,8 +21,7 @@ jobs:
   select:
     runs-on: depot-ubuntu-24.04
     outputs:
-      standard: ${{ steps.select.outputs.standard }}
-      load: ${{ steps.select.outputs.load }}
+      measurements: ${{ steps.select.outputs.measurements }}
       has-changes: ${{ steps.select.outputs.has-changes }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -42,10 +41,10 @@ jobs:
     if: needs.select.outputs.has-changes == 'true'
     uses: ./.github/workflows/measure-framework.yml
     with:
-      standard: ${{ needs.select.outputs.standard }}
-      load: ${{ needs.select.outputs.load }}
+      measurements: ${{ needs.select.outputs.measurements }}
 
   assemble:
+    name: Validate results
     needs: [select, measure]
     if: always() && needs.select.outputs.has-changes == 'true' && needs.measure.result == 'success'
     runs-on: depot-ubuntu-24.04
@@ -72,8 +71,11 @@ jobs:
           if-no-files-found: error
 
   results-pr:
+    name: Save results
     needs: [select, assemble]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: >-
+      github.event_name != 'pull_request' && github.ref == 'refs/heads/main' &&
+      needs.select.outputs.has-changes == 'true' && needs.assemble.result == 'success'
     runs-on: depot-ubuntu-24.04
     permissions:
       contents: write

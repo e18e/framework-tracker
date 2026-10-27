@@ -46,9 +46,14 @@ Having both a `starter` and `app` project for each framework allows us to get a 
 The shared [measurement pipeline](./.github/workflows/measure.yml) uses
 [framework configuration](./packages/results/src/frameworks.ts) and the same
 runners, assembly, and schema validation in CI.
+Measurements are grouped by type (install, build, load, and so on), with a
+separate Depot runner for each framework and measurement. Load measurements use
+the larger Depot runners. All measurement types share the same worker workflow.
 
 - Source PRs measure all frameworks and their configured starter and app projects.
   Docs-only and results-only changes skip benchmarks. PR results are temporary artifacts.
+  The Validate results job assembles and validates the complete temporary results;
+  the Save results job never runs for PRs.
 - After source changes merge to `main`, measurements open or update the existing
   `automated-stats-update` results PR. Scheduled runs measure all frameworks on
   Monday and Thursday at 04:00 UTC. Manual runs also measure all frameworks;

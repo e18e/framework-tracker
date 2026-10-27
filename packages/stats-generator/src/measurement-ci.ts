@@ -3,9 +3,9 @@ import { appendFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { frameworks } from './frameworks.ts'
 import {
-  isLoadJob,
   measurementJobs,
   shouldMeasure,
+  tasks,
 } from './measurement-pipeline.ts'
 import { assembleResults } from './save-ci-stats.ts'
 import { promoteResults } from './promote-results.ts'
@@ -37,8 +37,12 @@ try {
     }
     const jobs = hasChanges ? measurementJobs(frameworks) : []
     const outputs = {
-      standard: jobs.filter((job) => !isLoadJob(job)),
-      load: jobs.filter(isLoadJob),
+      measurements: Object.fromEntries(
+        Object.keys(tasks).map((task) => [
+          task,
+          jobs.filter((job) => job.task === task).map((job) => job.framework),
+        ]),
+      ),
       'has-changes': hasChanges,
     }
     for (const [key, value] of Object.entries(outputs))

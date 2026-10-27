@@ -103,6 +103,8 @@ test('any framework or shared source change triggers measurements', () => {
     ['pnpm-lock.yaml'],
     ['pnpm-workspace.yaml'],
     ['.github/workflows/measure.yml'],
+    ['.github/workflows/measure-pr.yml'],
+    ['.github/scripts/measurement-control.ts'],
     ['packages/testdata/data.json'],
   ])
     assert.equal(shouldMeasure(files), true)

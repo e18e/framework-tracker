@@ -1,0 +1,39 @@
+name: Dispatch PR Measurements
+run-name: Measurements dispatch ${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+
+on:
+  workflow_run:
+    workflows: [Measure PR]
+    types: [in_progress, completed]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+concurrency:
+  group: measure-dispatch-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      (github.event.action == 'in_progress' || github.event.workflow_run.conclusion != 'success')
+    runs-on: depot-ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      # workflow_run uses the trusted default-branch revision. Never check out PR code here.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Start or cancel the separate worker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node .github/scripts/measurement-control.ts relay

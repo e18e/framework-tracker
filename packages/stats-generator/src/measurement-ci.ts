@@ -14,7 +14,27 @@ try {
   const [command, ...args] = process.argv.slice(2)
   if (command === 'select') {
     let hasChanges = true
-    if (['pull_request', 'push'].includes(process.env.GITHUB_EVENT_NAME!)) {
+    const selectedBase = process.env.MEASUREMENT_BASE_SHA
+    const selectedHead = process.env.MEASUREMENT_HEAD_SHA
+    if (selectedBase || selectedHead) {
+      if (
+        !/^[a-f0-9]{40}$/.test(selectedBase ?? '') ||
+        !/^[a-f0-9]{40}$/.test(selectedHead ?? '')
+      )
+        throw new Error(
+          'PR measurements require exact base and merge commit SHAs',
+        )
+      const files = execFileSync(
+        'git',
+        ['diff', '--name-only', '-z', `${selectedBase}...${selectedHead}`],
+        { encoding: 'utf8' },
+      )
+        .split('\0')
+        .filter(Boolean)
+      hasChanges = shouldMeasure(files)
+    } else if (
+      ['pull_request', 'push'].includes(process.env.GITHUB_EVENT_NAME!)
+    ) {
       const event = JSON.parse(
         readFileSync(process.env.GITHUB_EVENT_PATH!, 'utf8'),
       )

@@ -110,6 +110,7 @@ export function shouldMeasure(files: string[]): boolean {
         /^(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.json|Dockerfile|\.dockerignore|docker-compose\.yml|\.npmrc|\.nvmrc)$/.test(
           file,
         ) ||
-        /^\.github\/workflows\/(?:measure|benchmark)/.test(file)),
+        /^\.github\/workflows\/(?:measure|benchmark)/.test(file) ||
+        /^\.github\/scripts\/measurement-/.test(file)),
   )
 }

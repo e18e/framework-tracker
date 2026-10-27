@@ -3,59 +3,40 @@ title: Run Time Stats
 description: Focused framework browser and server runtime metrics.
 ---
 
-import ClientSideRenderedCharts from '../../components/ClientSideRenderedCharts.astro'
-import ClientSideRenderedStatsTable from '../../components/ClientSideRenderedStatsTable.astro'
-import CoreWebVitalsCharts from '../../components/CoreWebVitalsCharts.astro'
-import CoreWebVitalsTable from '../../components/CoreWebVitalsTable.astro'
-import ServerSideRenderedCharts from '../../components/ServerSideRenderedCharts.astro'
-import ServerSideRenderedStatsTable from '../../components/ServerSideRenderedStatsTable.astro'
-import SSRLoadP75Charts from '../../components/SSRLoadP75Charts.astro'
-import SSRLoadP90Charts from '../../components/SSRLoadP90Charts.astro'
-import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
+import { Content as RunTimeSetup } from '../../components/setup/RunTimeSetup.mdx'
+import ClientSideRenderedCompare from '../../components/benchmarks/client-side-rendered-tests/Compare.astro'
+import ServerSideRenderedCompare from '../../components/benchmarks/server-side-rendered-tests/Compare.astro'
+import SSRThroughputCompare from '../../components/benchmarks/server-side-throughput-tests/Compare.astro'
 import SSRLoadStatsTable from '../../components/SSRLoadStatsTable.astro'
-import SSRRequestThroughputCharts from '../../components/SSRRequestThroughputCharts.astro'
-import SSRRequestThroughputStatsTable from '../../components/SSRRequestThroughputStatsTable.astro'
+import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
+import SSRLoadP90Charts from '../../components/SSRLoadP90Charts.astro'
+import SSRLoadP75Charts from '../../components/SSRLoadP75Charts.astro'
+import { Content as SSRLoadDescription } from '../../components/benchmarks/ssr-load-test/Description.mdx'
+import { Content as SSRRouterLinkLoadDescription } from '../../components/benchmarks/ssr-router-link-load-test/Description.mdx'
+import { Content as CoreWebVitalsDescription } from '../../components/benchmarks/core-web-vitals/Description.mdx'
+import CoreWebVitalsResults from '../../components/benchmarks/core-web-vitals/Results.astro'
 
 ## Setup
 
-Runtime apps implement comparable benchmark routes across frameworks.
-See [Default Benchmark Setup](/methodology/#default-benchmark-setup) for the
-shared environment and each framework's build tool and adapter. Test-specific
-differences are documented in the linked methodology sections below.
+<RunTimeSetup />
 
 <div data-framework-scope="focused">
 
 ## Client Side Rendered Tests
 
-Methodology: [Client Side Rendered Tests](/methodology/#client-side-rendered-tests).
-
-Some frameworks have been moved off their golden path to make client side tests fair when comparing. See the methodology link above for the full details.
-
-<ClientSideRenderedStatsTable />
-<ClientSideRenderedCharts />
+<ClientSideRenderedCompare />
 
 ## Server Side Rendered Tests
 
-Methodology: [Server Side Rendered Tests](/methodology/#server-side-rendered-tests).
-
-<ServerSideRenderedStatsTable />
-<ServerSideRenderedCharts />
+<ServerSideRenderedCompare />
 
 ## Server Side Throughput Tests
 
-Methodology: [Server Side Throughput Tests](/methodology/#server-side-throughput-tests).
-
-<SSRRequestThroughputStatsTable />
-<SSRRequestThroughputCharts />
+<SSRThroughputCompare />
 
 ## SSR Load Test
 
-Methodology: [SSR Load Test](/methodology/#ssr-load-test).
-
-All eight frameworks render the same 1,000-row, three-column table using ordinary
-`<a>` links. This compares server rendering under HTTP load without the extra
-work of rendering framework router link components. Requests still pass through
-each framework’s server routing. No browser runs and no links are clicked.
+<SSRLoadDescription />
 
 <SSRLoadStatsTable />
 
@@ -73,10 +54,7 @@ each framework’s server routing. No browser runs and no links are clicked.
 
 ## SSR Router Link Load Test
 
-Methodology: [SSR Router Link Load Test](/methodology/#ssr-router-link-load-test).
-
-The same load test using framework router link components, showing how rendering
-those components affects server performance compared with ordinary HTML links.
+<SSRRouterLinkLoadDescription />
 
 <SSRLoadStatsTable testsKey="ssrRouterLinkLoadTests" />
 
@@ -94,16 +72,14 @@ those components affects server performance compared with ordinary HTML links.
 
 ## Core Web Vitals
 
+<CoreWebVitalsDescription />
+
 ### CWV Desktop
 
-<CoreWebVitalsTable device="desktop" />
-<CoreWebVitalsCharts device="desktop" />
+<CoreWebVitalsResults device="desktop" />
 
 ### CWV Mobile
 
-<CoreWebVitalsTable device="mobile" />
-<CoreWebVitalsCharts device="mobile" />
-
-Methodology: [Core Web Vitals](/methodology/#core-web-vitals).
+<CoreWebVitalsResults device="mobile" />
 
 </div>

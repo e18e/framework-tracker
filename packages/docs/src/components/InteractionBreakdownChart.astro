@@ -67,7 +67,7 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
 
 <figure class:list={['interaction-chart', orientation]}>
   <figcaption>
-    <h3>{title}</h3>
+    <p class="interaction-chart-title">{title}</p>
     <p>
       Total latency is split into the three consecutive phases reported by
       Lighthouse.
@@ -262,9 +262,12 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
     margin: 0 0 2em;
   }
 
-  figcaption h3 {
+  .interaction-chart-title {
     margin-bottom: 0.35rem;
+    color: var(--sl-color-white);
     font-size: 1rem;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
   }
 
   figcaption p {

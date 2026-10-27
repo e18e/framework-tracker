@@ -1,0 +1,12 @@
+---
+import type { ComponentProps } from 'astro/types'
+import { Content as Description } from './Description.mdx'
+import Charts from '../../FrameworkDependencyVersionCharts.astro'
+
+type Props = ComponentProps<typeof Charts>
+---
+
+<Description />
+<slot />
+
+<Charts {...Astro.props} />

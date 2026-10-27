@@ -1,173 +1,146 @@
 ---
 title: All Frameworks
 description: All tracked framework benchmark charts and JSON-driven tables.
+tableOfContents:
+  maxHeadingLevel: 4
 ---
 
-import BrowserBaselineTable from '../../components/BrowserBaselineTable.astro'
-import BuildInstallStatsTable from '../../components/BuildInstallStatsTable.astro'
-import BuildSizeCharts from '../../components/BuildSizeCharts.astro'
-import ClientSideRenderedCharts from '../../components/ClientSideRenderedCharts.astro'
-import ClientSideRenderedStatsTable from '../../components/ClientSideRenderedStatsTable.astro'
-import CoreJsTable from '../../components/CoreJsTable.astro'
-import CoreWebVitalsCharts from '../../components/CoreWebVitalsCharts.astro'
-import CoreWebVitalsTable from '../../components/CoreWebVitalsTable.astro'
-import DependencyCharts from '../../components/DependencyCharts.astro'
-import DependencyCountText from '../../components/DependencyCountText.astro'
-import DependencyStatsTable from '../../components/DependencyStatsTable.astro'
-import DevServerStartChart from '../../components/DevServerStartChart.astro'
-import DevServerStartTable from '../../components/DevServerStartTable.astro'
-import FrameworkDependencyCharts from '../../components/FrameworkDependencyCharts.astro'
-import FrameworkDependencyStatsTable from '../../components/FrameworkDependencyStatsTable.astro'
-import FirstPartyDependencyCharts from '../../components/FirstPartyDependencyCharts.astro'
-import FirstPartyDependencyStatsTable from '../../components/FirstPartyDependencyStatsTable.astro'
-import MinimumNodeVersionTable from '../../components/MinimumNodeVersionTable.astro'
-import NodeModulesSizeCharts from '../../components/NodeModulesSizeCharts.astro'
-import ServerSideRenderedCharts from '../../components/ServerSideRenderedCharts.astro'
-import ServerSideRenderedStatsTable from '../../components/ServerSideRenderedStatsTable.astro'
-import SSRLoadP90Charts from '../../components/SSRLoadP90Charts.astro'
-import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
+import { Content as DevTimeSetup } from '../../components/setup/DevTimeSetup.mdx'
+import { Content as RunTimeSetup } from '../../components/setup/RunTimeSetup.mdx'
+import { Content as DependencyCountsDescription } from '../../components/benchmarks/dependency-counts/Description.mdx'
+import FrameworkDependencyResults from '../../components/benchmarks/dependency-counts/FrameworkResults.astro'
+import FirstPartyDependencyResults from '../../components/benchmarks/dependency-counts/FirstPartyResults.astro'
+import StarterDependencyResults from '../../components/benchmarks/dependency-counts/StarterResults.astro'
+import NodeModulesSizeCompare from '../../components/benchmarks/node-modules-size/Compare.astro'
+import BuildInstallCompare from '../../components/benchmarks/build-and-install-times/Compare.astro'
+import DevServerStartupCompare from '../../components/benchmarks/dev-server-startup/Compare.astro'
+import CoreJsCompare from '../../components/benchmarks/core-js-polyfills/Compare.astro'
+import BrowserBaselineCompare from '../../components/benchmarks/browser-baseline/Compare.astro'
+import MinimumNodeVersionCompare from '../../components/benchmarks/minimum-node-version/Compare.astro'
+import ClientSideRenderedCompare from '../../components/benchmarks/client-side-rendered-tests/Compare.astro'
+import ServerSideRenderedCompare from '../../components/benchmarks/server-side-rendered-tests/Compare.astro'
+import SSRThroughputCompare from '../../components/benchmarks/server-side-throughput-tests/Compare.astro'
 import SSRLoadStatsTable from '../../components/SSRLoadStatsTable.astro'
-import SSRRequestThroughputCharts from '../../components/SSRRequestThroughputCharts.astro'
-import SSRRequestThroughputStatsTable from '../../components/SSRRequestThroughputStatsTable.astro'
+import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
+import SSRLoadP90Charts from '../../components/SSRLoadP90Charts.astro'
+import SSRLoadP75Charts from '../../components/SSRLoadP75Charts.astro'
+import { Content as SSRLoadDescription } from '../../components/benchmarks/ssr-load-test/Description.mdx'
+import { Content as SSRRouterLinkLoadDescription } from '../../components/benchmarks/ssr-router-link-load-test/Description.mdx'
+import { Content as CoreWebVitalsDescription } from '../../components/benchmarks/core-web-vitals/Description.mdx'
+import CoreWebVitalsResults from '../../components/benchmarks/core-web-vitals/Results.astro'
 
 <div data-framework-scope="all">
 
-## Dependency Counts
+## Dev Time
 
-Methodology: [Dependency Counts](/methodology/#dependency-counts).
+### Setup
 
-<DependencyCountText />
+<DevTimeSetup />
 
-### Meta-framework Direct Package Counts
+### Dependency Counts
 
-First, we look at the direct dependency counts of the meta-framework package itself.
+<DependencyCountsDescription />
 
-<FrameworkDependencyStatsTable />
-<FrameworkDependencyCharts />
+#### Meta-framework Direct Package Counts
 
-### Meta-framework Direct Packages
+<FrameworkDependencyResults />
 
-Next, we look at the direct framework-maintained packages that each starter
-declares. This excludes the starter's third-party setup packages.
+#### Meta-framework Direct Packages
 
-<FirstPartyDependencyStatsTable />
-<FirstPartyDependencyCharts />
+<FirstPartyDependencyResults />
 
-### Starter Projects
+#### Starter Projects
 
-Finally, we look at the complete dependency footprint of the default starter
-project, including third-party packages selected by its CLI or documented setup.
+<StarterDependencyResults />
 
-<DependencyStatsTable />
-<DependencyCharts />
+### Node Modules Size
 
-## Node Modules Size
+<NodeModulesSizeCompare />
 
-Methodology: [Node Modules Size](/methodology/#node-modules-size).
+### Build and Install Times
 
-<NodeModulesSizeCharts />
+<BuildInstallCompare />
 
-## Build and Install Times
+### Dev Server Startup
 
-Methodology: [Build and Install Times](/methodology/#build-and-install-times).
+<DevServerStartupCompare />
 
-<BuildInstallStatsTable />
-<BuildSizeCharts />
+### Core-JS Polyfills
 
-## Dev Server Startup
+<CoreJsCompare />
 
-Methodology: [Dev Server Startup](/methodology/#dev-server-startup).
+### Browser Baseline
 
-<DevServerStartTable />
-<DevServerStartChart />
+<BrowserBaselineCompare />
 
-## Core-JS Polyfills
+### Minimum Node Version
 
-Methodology: [Core-JS Polyfills](/methodology/#core-js-polyfills).
+<MinimumNodeVersionCompare />
 
-<CoreJsTable />
+## Run Time
 
-## Browser Baseline
+### Setup
 
-Methodology: [Browser Baseline](/methodology/#browser-baseline).
+<RunTimeSetup />
 
-<BrowserBaselineTable />
+### Client Side Rendered Tests
 
-## Minimum Node Version
+<ClientSideRenderedCompare />
 
-Methodology: [Minimum Node Version](/methodology/#minimum-node-version).
+### Server Side Rendered Tests
 
-<MinimumNodeVersionTable />
+<ServerSideRenderedCompare />
 
-## Client Side Rendered Tests
+### Server Side Throughput Tests
 
-Methodology: [Client Side Rendered Tests](/methodology/#client-side-rendered-tests).
+<SSRThroughputCompare />
 
-<ClientSideRenderedStatsTable />
-<ClientSideRenderedCharts />
+### SSR Load Test
 
-## Server Side Rendered Tests
-
-Methodology: [Server Side Rendered Tests](/methodology/#server-side-rendered-tests).
-
-<ServerSideRenderedStatsTable />
-<ServerSideRenderedCharts />
-
-## Server Side Throughput Tests
-
-Methodology: [Server Side Throughput Tests](/methodology/#server-side-throughput-tests).
-
-<SSRRequestThroughputStatsTable />
-<SSRRequestThroughputCharts />
-
-## SSR Load Test
-
-Methodology: [SSR Load Test](/methodology/#ssr-load-test).
-
-All eight frameworks render the same 1,000-row, three-column table using ordinary
-`<a>` links. This compares server rendering under HTTP load without the extra
-work of rendering framework router link components. Requests still pass through
-each framework’s server routing. No browser runs and no links are clicked.
+<SSRLoadDescription />
 
 <SSRLoadStatsTable />
 
-### P99 Latency
+#### P99 Latency
 
 <SSRLoadP99Charts />
 
-### P90 Latency
+#### P90 Latency
 
 <SSRLoadP90Charts />
 
-## SSR Router Link Load Test
+#### P75 Latency
 
-Methodology: [SSR Router Link Load Test](/methodology/#ssr-router-link-load-test).
+<SSRLoadP75Charts />
 
-The same load test using framework router link components, showing how rendering
-those components affects server performance compared with ordinary HTML links.
+### SSR Router Link Load Test
+
+<SSRRouterLinkLoadDescription />
 
 <SSRLoadStatsTable testsKey="ssrRouterLinkLoadTests" />
 
-### P99 Latency
+#### P99 Latency
 
 <SSRLoadP99Charts testsKey="ssrRouterLinkLoadTests" />
 
-### P90 Latency
+#### P90 Latency
 
 <SSRLoadP90Charts testsKey="ssrRouterLinkLoadTests" />
 
-## Core Web Vitals
+#### P75 Latency
 
-### CWV Desktop
+<SSRLoadP75Charts testsKey="ssrRouterLinkLoadTests" />
 
-<CoreWebVitalsTable device="desktop" />
-<CoreWebVitalsCharts device="desktop" />
+### Core Web Vitals
 
-### CWV Mobile
+<CoreWebVitalsDescription />
 
-<CoreWebVitalsTable device="mobile" />
-<CoreWebVitalsCharts device="mobile" />
+#### CWV Desktop
 
-Methodology: [Core Web Vitals](/methodology/#core-web-vitals).
+<CoreWebVitalsResults device="desktop" />
+
+#### CWV Mobile
+
+<CoreWebVitalsResults device="mobile" />
 
 </div>

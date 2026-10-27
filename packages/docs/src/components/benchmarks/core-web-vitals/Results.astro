@@ -1,0 +1,14 @@
+---
+import type { Device } from '../../../lib/prepare-chart'
+import CoreWebVitalsTable from '../../CoreWebVitalsTable.astro'
+import CoreWebVitalsCharts from '../../CoreWebVitalsCharts.astro'
+
+interface Props {
+  device: Device
+}
+
+const { device } = Astro.props
+---
+
+<CoreWebVitalsTable {device} />
+<CoreWebVitalsCharts {device} />

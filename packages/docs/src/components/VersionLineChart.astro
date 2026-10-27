@@ -36,7 +36,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
     <figure class="version-line-chart">
       <figcaption class="version-line-chart-heading">
         <div>
-          <h3 class="version-line-chart-title">{title}</h3>
+          <p class="version-line-chart-title">{title}</p>
           {description ? <p>{description}</p> : null}
         </div>
         {latestDatum?.value != null ? (
@@ -108,7 +108,10 @@ const latestChangeLabel = formatLatestChange(latestChange)
 
   .version-line-chart-title {
     margin: 0;
+    color: var(--sl-color-white);
     font-size: 1rem;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
   }
 
   .version-line-chart-heading {
@@ -119,7 +122,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
     margin-bottom: 0.75rem;
   }
 
-  .version-line-chart-heading p {
+  .version-line-chart-heading p:not(.version-line-chart-title) {
     margin-block: 0.35rem 0;
   }
 

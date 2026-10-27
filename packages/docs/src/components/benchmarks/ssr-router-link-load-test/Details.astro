@@ -1,0 +1,12 @@
+---
+import type { ComponentProps } from 'astro/types'
+import { Content as Description } from './Description.mdx'
+import Charts from '../../FrameworkSSRLoadVersionCharts.astro'
+
+type Props = Omit<ComponentProps<typeof Charts>, 'testsKey'>
+---
+
+<Description />
+<slot />
+
+<Charts {...Astro.props} testsKey="ssrRouterLinkLoadTests" />

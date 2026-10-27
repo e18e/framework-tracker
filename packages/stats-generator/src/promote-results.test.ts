@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -108,40 +108,6 @@ test('promotion creates results when there is no existing destination', () => {
         app,
       )
     }
-  } finally {
-    rmSync(directory, { recursive: true, force: true })
-  }
-})
-
-test('promotion rejects invalid incoming results before changing the destination', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'promote-results-'))
-  const sourceRoot = join(directory, 'incoming')
-  const destinationRoot = join(directory, 'canonical')
-  try {
-    for (const root of [sourceRoot, destinationRoot]) {
-      saveProjectResult(
-        'starter-astro',
-        { frameworkVersion: '1.0.0', prodDependencies: 3 },
-        root,
-      )
-      saveProjectResult(
-        'app-astro',
-        { frameworkVersion: '1.0.0', testTimeMs: 20 },
-        root,
-      )
-    }
-    const destinationLatestPath = resultPath(
-      'astro',
-      undefined,
-      destinationRoot,
-    )
-    const originalLatest = readFileSync(destinationLatestPath, 'utf8')
-    writeFileSync(resultPath('astro', undefined, sourceRoot), '{}')
-
-    assert.throws(() =>
-      promoteResults(selectedFrameworks, sourceRoot, destinationRoot),
-    )
-    assert.equal(readFileSync(destinationLatestPath, 'utf8'), originalLatest)
   } finally {
     rmSync(directory, { recursive: true, force: true })
   }

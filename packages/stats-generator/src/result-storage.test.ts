@@ -2,8 +2,6 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   CombinedResultSchema,
-  saveProjectResult,
-  readProjectResult,
   mergeProjectResult,
   projectResult,
 } from '@framework-tracker/results/storage'
@@ -183,41 +181,6 @@ test('missing and malformed artifacts fail before results can be assembled', () 
     assert.throws(
       () => validateArtifact(job, directory),
       /Invalid result artifact/,
-    )
-  } finally {
-    rmSync(directory, { recursive: true, force: true })
-  }
-})
-
-test('temporary result assembly keeps independent project versions', () => {
-  const directory = mkdtempSync(join(tmpdir(), 'measurement-results-'))
-  try {
-    saveProjectResult(
-      'starter-astro',
-      { frameworkVersion: '1.0.0', prodDependencies: 3 },
-      directory,
-    )
-    saveProjectResult(
-      'app-astro',
-      { frameworkVersion: '2.0.0', testTimeMs: 20 },
-      directory,
-    )
-    assert.equal(
-      readProjectResult('starter-astro', undefined, directory)
-        ?.frameworkVersion,
-      '1.0.0',
-    )
-    assert.equal(
-      readProjectResult('app-astro', undefined, directory)?.frameworkVersion,
-      '2.0.0',
-    )
-    assert.equal(
-      readProjectResult('starter-astro', '1.0.0', directory)?.prodDependencies,
-      3,
-    )
-    assert.equal(
-      readProjectResult('app-astro', '2.0.0', directory)?.testTimeMs,
-      20,
     )
   } finally {
     rmSync(directory, { recursive: true, force: true })

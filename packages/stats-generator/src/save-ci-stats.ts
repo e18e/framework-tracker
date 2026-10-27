@@ -1,6 +1,9 @@
 import {
   readProjectResult,
   saveProjectResult,
+  mergeProjectResult,
+  resultLocation,
+  type CombinedResult,
 } from '@framework-tracker/results/storage'
 import {
   DependencyScanSchema,
@@ -24,13 +27,13 @@ import {
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { join } from 'node:path'
 import { getFrameworks } from './get-frameworks.ts'
+import { readFileSync } from 'node:fs'
 import { getPublishTimes, withReleasedAt } from './release-dates.ts'
 import {
   getDependencyCountsFromPackageMetadata,
   getDependencyStatsFromE18e,
   getPackageJsonDeps,
   normalizeCIStats,
-  readJsonFile,
 } from './utils.ts'
 import type {
   CIStats,
@@ -43,6 +46,8 @@ import type {
   DependencyStats,
   FirstPartyDependencyStats,
   E18eStats,
+  FrameworkConfig,
+  TestConfig,
 } from './types.ts'
 
 const publishTimesCache = new Map<string, Promise<Record<string, string>>>()
@@ -74,17 +79,68 @@ async function getReleasedAt(
   }
 }
 
-async function main() {
-  const artifactsDir = process.argv[2] || 'artifacts'
+export async function processCIStats(
+  artifactsDir: string,
+  {
+    validateOnly = false,
+    requireAllArtifacts = false,
+    frameworks: configuredFrameworks,
+  }: {
+    validateOnly?: boolean
+    requireAllArtifacts?: boolean
+    frameworks?: FrameworkConfig[]
+  } = {},
+) {
   const timestamp = new Date().toISOString()
   const runner = process.env.RUNNER_LABEL || 'local'
 
-  console.info('Saving CI stats...')
+  console.info(validateOnly ? 'Validating CI stats...' : 'Saving CI stats...')
   console.info(`  Artifacts directory: ${artifactsDir}`)
   console.info(`  Timestamp: ${timestamp}`)
   console.info(`  Runner: ${runner}\n`)
 
-  const frameworks = await getFrameworks()
+  const frameworks = configuredFrameworks ?? (await getFrameworks())
+
+  function readArtifact<T>(
+    filePath: string,
+    project: TestConfig,
+    measurement: TestConfig['measurements'][number],
+  ): T | null {
+    const required =
+      requireAllArtifacts && project.measurements.includes(measurement)
+    try {
+      const data: unknown = JSON.parse(readFileSync(filePath, 'utf8'))
+      if (data === null || typeof data !== 'object' || Array.isArray(data))
+        throw new Error('Expected a stats object')
+      return data as T
+    } catch (error) {
+      if (
+        !required &&
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      )
+        return null
+      throw new Error(`Missing or invalid measurement artifact: ${filePath}`, {
+        cause: error,
+      })
+    }
+  }
+
+  const projectStats = new Map<string, CIStats>()
+  const combinedStats = new Map<string, CombinedResult>()
+  function collect(packageName: string, stats: CIStats) {
+    validateSSRLoadForPersistence(stats)
+    validateRequestThroughputForPersistence(stats)
+    const { framework } = resultLocation(packageName)
+    combinedStats.set(
+      framework,
+      mergeProjectResult(combinedStats.get(framework) ?? null, packageName, {
+        ...stats,
+      }),
+    )
+    projectStats.set(packageName, stats)
+  }
 
   for (const framework of frameworks) {
     const { name, displayName } = framework
@@ -97,7 +153,10 @@ async function main() {
       const existingStats = readProjectResult(packageName) as CIStats | null
 
       let stats: CIStats = {
-        ...(existingStats ? normalizeCIStats(existingStats) : {}),
+        // Partial previews can merge stored measurements; full CI uses fresh artifacts only.
+        ...(!requireAllArtifacts && existingStats
+          ? normalizeCIStats(existingStats)
+          : {}),
         ...BaseResultSchema.parse({
           framework: framework.name,
           packagePath: `packages/${packageName}`,
@@ -106,7 +165,9 @@ async function main() {
         }),
       }
 
-      let frameworkVersion = existingStats?.frameworkVersion
+      let frameworkVersion = requireAllArtifacts
+        ? undefined
+        : existingStats?.frameworkVersion
 
       // Load install stats from artifact
       const installStatsPath = join(
@@ -114,7 +175,11 @@ async function main() {
         `install-stats-${name}`,
         'install-stats.json',
       )
-      const installStats = readJsonFile<InstallResult>(installStatsPath)
+      const installStats = readArtifact<InstallResult>(
+        installStatsPath,
+        framework.starter,
+        'install',
+      )
 
       if (installStats) {
         InstallResultSchema.parse(installStats)
@@ -135,7 +200,11 @@ async function main() {
         `build-stats-${name}`,
         'build-stats.json',
       )
-      const buildStats = readJsonFile<BuildStats>(buildStatsPath)
+      const buildStats = readArtifact<BuildStats>(
+        buildStatsPath,
+        framework.starter,
+        'build',
+      )
 
       if (buildStats) {
         BuildStatsSchema.parse(buildStats)
@@ -154,7 +223,11 @@ async function main() {
         `dev-server-stats-${name}`,
         'dev-server-stats.json',
       )
-      const devServerStats = readJsonFile<DevServerStats>(devServerStatsPath)
+      const devServerStats = readArtifact<DevServerStats>(
+        devServerStatsPath,
+        framework.starter,
+        'devServer',
+      )
 
       if (devServerStats) {
         DevServerStatsSchema.parse(devServerStats)
@@ -175,7 +248,11 @@ async function main() {
         `corejs-stats-${name}`,
         'corejs-stats.json',
       )
-      const coreJsStats = readJsonFile<CoreJsStats>(coreJsArtifactPath)
+      const coreJsStats = readArtifact<CoreJsStats>(
+        coreJsArtifactPath,
+        framework.starter,
+        'build',
+      )
       if (coreJsStats) {
         console.info(`  ✓ Found core-js stats artifact`)
         stats = {
@@ -196,8 +273,10 @@ async function main() {
         `browser-baseline-stats-${name}`,
         'browser-baseline-stats.json',
       )
-      const browserBaselineStats = readJsonFile<BrowserBaselineStats>(
+      const browserBaselineStats = readArtifact<BrowserBaselineStats>(
         browserBaselineArtifactPath,
+        framework.starter,
+        'browserBaseline',
       )
       if (browserBaselineStats) {
         console.info(`  ✓ Found browser baseline stats artifact`)
@@ -219,8 +298,10 @@ async function main() {
         `node-engines-stats-${name}`,
         'node-engines-stats.json',
       )
-      const nodeEnginesStats = readJsonFile<NodeEnginesStats>(
+      const nodeEnginesStats = readArtifact<NodeEnginesStats>(
         nodeEnginesArtifactPath,
+        framework.starter,
+        'dependencies',
       )
       if (nodeEnginesStats) {
         console.info(`  ✓ Found Node engines stats artifact`)
@@ -252,8 +333,10 @@ async function main() {
         `e18e-stats-${name}`,
         'framework-dependency-stats.json',
       )
-      const frameworkDependencies = readJsonFile<DependencyStats>(
+      const frameworkDependencies = readArtifact<DependencyStats>(
         frameworkDependencyStatsPath,
+        framework.starter,
+        'dependencies',
       )
       if (frameworkDependencies) {
         console.info(`  ✓ Found framework dependency stats artifact`)
@@ -275,8 +358,10 @@ async function main() {
         `e18e-stats-${name}`,
         'first-party-dependency-stats.json',
       )
-      const firstPartyDependencies = readJsonFile<FirstPartyDependencyStats>(
+      const firstPartyDependencies = readArtifact<FirstPartyDependencyStats>(
         firstPartyDependencyStatsPath,
+        framework.starter,
+        'dependencies',
       )
       if (firstPartyDependencies) {
         console.info(`  ✓ Found first-party dependency stats artifact`)
@@ -293,7 +378,11 @@ async function main() {
         )
       }
 
-      const e18eStats = readJsonFile<E18eStats>(e18eArtifactPath)
+      const e18eStats = readArtifact<E18eStats>(
+        e18eArtifactPath,
+        framework.starter,
+        'dependencies',
+      )
       if (e18eStats) {
         console.info(`  ✓ Found e18e stats artifact`)
         const packageDependencyCounts =
@@ -329,9 +418,7 @@ async function main() {
         releasedAt,
       )
 
-      validateSSRLoadForPersistence(stats)
-      validateRequestThroughputForPersistence(stats)
-      saveProjectResult(packageName, { ...stats })
+      collect(packageName, stats)
 
       console.info('')
     }
@@ -344,7 +431,10 @@ async function main() {
       const existingStats = readProjectResult(packageName) as CIStats | null
 
       let stats: CIStats = {
-        ...(existingStats ? normalizeCIStats(existingStats) : {}),
+        // Partial previews can merge stored measurements; full CI uses fresh artifacts only.
+        ...(!requireAllArtifacts && existingStats
+          ? normalizeCIStats(existingStats)
+          : {}),
         ...BaseResultSchema.parse({
           framework: framework.name,
           packagePath: `packages/${packageName}`,
@@ -353,7 +443,9 @@ async function main() {
         }),
       }
 
-      let frameworkVersion = existingStats?.frameworkVersion
+      let frameworkVersion = requireAllArtifacts
+        ? undefined
+        : existingStats?.frameworkVersion
 
       // Load SSR request throughput stats from artifact
       const ssrRequestThroughputStatsPath = join(
@@ -361,8 +453,10 @@ async function main() {
         `ssr-request-throughput-stats-${name}`,
         'ci-stats.json',
       )
-      const rawSSRRequestThroughputStats = readJsonFile<CIStats>(
+      const rawSSRRequestThroughputStats = readArtifact<CIStats>(
         ssrRequestThroughputStatsPath,
+        framework.app,
+        'ssrRequestThroughput',
       )
       const ssrRequestThroughputStats = rawSSRRequestThroughputStats
         ? normalizeCIStats(rawSSRRequestThroughputStats)
@@ -384,7 +478,11 @@ async function main() {
         `ssr-load-stats-${name}`,
         'ci-stats.json',
       )
-      const rawSSRLoadStats = readJsonFile<CIStats>(ssrLoadStatsPath)
+      const rawSSRLoadStats = readArtifact<CIStats>(
+        ssrLoadStatsPath,
+        framework.app,
+        'ssrLoad',
+      )
       const ssrLoadStats = rawSSRLoadStats
         ? normalizeCIStats(rawSSRLoadStats)
         : null
@@ -403,8 +501,10 @@ async function main() {
         `ssr-router-link-load-stats-${name}`,
         'ci-stats.json',
       )
-      const rawSSRRouterLinkLoadStats = readJsonFile<CIStats>(
+      const rawSSRRouterLinkLoadStats = readArtifact<CIStats>(
         ssrRouterLinkLoadStatsPath,
+        framework.app,
+        'ssrRouterLinkLoad',
       )
       const ssrRouterLinkLoadStats = rawSSRRouterLinkLoadStats
         ? normalizeCIStats(rawSSRRouterLinkLoadStats)
@@ -431,8 +531,10 @@ async function main() {
         `client-side-rendered-stats-${name}`,
         'ci-stats.json',
       )
-      const rawClientSideRenderedStats = readJsonFile<CIStats>(
+      const rawClientSideRenderedStats = readArtifact<CIStats>(
         clientSideRenderedStatsArtifactPath,
+        framework.app,
+        'clientSideRendered',
       )
       const clientSideRenderedStats = rawClientSideRenderedStats
         ? normalizeCIStats(rawClientSideRenderedStats)
@@ -460,8 +562,10 @@ async function main() {
         `server-side-rendered-stats-${name}`,
         'ci-stats.json',
       )
-      const rawServerSideRenderedStats = readJsonFile<CIStats>(
+      const rawServerSideRenderedStats = readArtifact<CIStats>(
         serverSideRenderedStatsArtifactPath,
+        framework.app,
+        'serverSideRendered',
       )
       const serverSideRenderedStats = rawServerSideRenderedStats
         ? {
@@ -503,18 +607,29 @@ async function main() {
         releasedAt,
       )
 
-      validateSSRLoadForPersistence(stats)
-      validateRequestThroughputForPersistence(stats)
-      saveProjectResult(packageName, { ...stats })
+      collect(packageName, stats)
 
       console.info('')
     }
   }
 
-  console.info('Done!')
+  if (!validateOnly)
+    for (const [packageName, stats] of projectStats)
+      saveProjectResult(packageName, { ...stats })
+
+  console.info(
+    validateOnly ? 'All CI stats are valid; no results written.' : 'Done!',
+  )
+  return combinedStats
 }
 
-main().catch((error) => {
-  console.error('Failed to save CI stats:', error)
-  process.exit(1)
-})
+if (import.meta.main) {
+  const args = process.argv.slice(2)
+  processCIStats(args.find((arg) => !arg.startsWith('--')) ?? 'artifacts', {
+    validateOnly: args.includes('--validate-only'),
+    requireAllArtifacts: args.includes('--require-all-artifacts'),
+  }).catch((error) => {
+    console.error('Failed to process CI stats:', error)
+    process.exit(1)
+  })
+}

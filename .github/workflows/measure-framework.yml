@@ -132,7 +132,7 @@ jobs:
           name: corejs-stats-${{ matrix.framework.name }}
           path: packages/${{ matrix.framework.package }}/corejs-stats.json
           retention-days: 1
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Upload browser baseline stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

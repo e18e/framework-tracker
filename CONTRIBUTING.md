@@ -218,7 +218,7 @@ Adding a new framework increases the maintenance burden, so please open an issue
 
 5. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory.
 
-6. CI for `sync-version` and `validate-stats` will automatically run on the new framework once it's added to `frameworks.json`.
+6. CI for `sync-version` and `generate-stats` will automatically pick up the new framework from `packages/results/src/frameworks.ts`. Generate Stats runs the same measurements and validates their outputs on pull requests and on `main`; only runs on `main` save the results and create a stats update PR.
 
 7. **Submit a PR**: Open a pull request with the new packages, configuration, and methodology updates. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 

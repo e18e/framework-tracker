@@ -1,5 +1,6 @@
 import { getSSRLoadKind, getSSRLoadPath } from './ssrLoad/config.ts'
 import { spawn } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { cwd, env, exit, getgid, getuid, pid } from 'node:process'
 import { parseArgs } from './utils.ts'
 
@@ -7,7 +8,11 @@ const RUN_SUFFIX = `${env.GITHUB_RUN_ID ?? 'local'}-${pid}`
 const NETWORK_NAME = `framework-tracker-ssr-load-${RUN_SUFFIX}`
 const SERVER_NAME = `framework-tracker-ssr-load-server-${RUN_SUFFIX}`
 const LOAD_GENERATOR_NAME = `framework-tracker-ssr-load-generator-${RUN_SUFFIX}`
-const NODE_IMAGE = 'node:24-bookworm-slim'
+const nodeVersion = readFileSync(
+  new URL('../../../.nvmrc', import.meta.url),
+  'utf8',
+).trim()
+const NODE_IMAGE = `node:${nodeVersion}-bookworm-slim`
 
 function runDocker(
   args: string[],

@@ -255,7 +255,7 @@ Run `pnpm format` too. Prettier reformats `astro`, `vue`, `ts`, and `tsx` fences
 
 To get the project running locally:
 
-1. **Prerequisites**: Make sure you have [Node.js](https://nodejs.org/) (v24+) and [pnpm](https://pnpm.io/) installed.
+1. **Prerequisites**: Install [nvm](https://github.com/nvm-sh/nvm) and the pnpm version declared in the root `package.json`. Node.js is pinned to an exact version in `.nvmrc`.
 
 2. **Clone the repo**:
 
@@ -264,9 +264,12 @@ To get the project running locally:
    cd framework-tracker
    ```
 
-3. **Install workspace dependencies**:
+3. **Select the pinned Node.js version and install workspace dependencies**:
 
    ```bash
+   nvm install
+   nvm use
+   corepack enable
    pnpm install
    ```
 

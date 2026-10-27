@@ -26,8 +26,11 @@ with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. Depot runs each
 job on a fresh, single-tenant EC2 instance. Its x86 runners use AMD EC2
 instances and GitHub's standard runner image.
 
-- **Node.js:** CI uses Node 24. This is the benchmark runtime, separate from the
-  minimum supported Node version reported for each framework.
+- **Node.js:** Local development, CI, and benchmark containers use the exact
+  Node.js version pinned in the root `.nvmrc`. CI reads that file directly and SSR
+  load containers derive their image tag from it. Dockerfiles pin the same
+  version explicitly. This benchmark runtime is separate from the minimum
+  supported Node version reported for each framework.
 - **Package manager and dependencies:** CI uses the pnpm version declared in the
   root `package.json` and installs dependencies with frozen lockfiles.
 - **Framework, adapter, and build tool:** Each project uses the configuration
@@ -44,7 +47,9 @@ instances and GitHub's standard runner image.
   the benchmark.
 - **Recorded environment:** Results include runner details and the measured
   framework version; browser results also include the Chrome version used.
-  Node 24 and the host Chrome installation can receive updates between runs.
+  Node.js updates require an explicit change to the committed version pins and
+  can affect comparisons with earlier measurements. The host Chrome installation
+  can receive updates between runs.
 
 The browser results are relative comparisons on the CI host rather than
 estimates for typical devices or networks. The SSR load tests document their
@@ -526,7 +531,7 @@ per-stage counts remain in every iteration. All retained historical load
 records contain complete sweeps and have been migrated without reconstructing
 request-level latency samples. Historical settings absent from the records remain
 unspecified.
-Both use the same production server setup and Node 24
+Both use the same production server setup and Node.js 24.22.1
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
@@ -572,7 +577,7 @@ per-stage counts remain in every iteration. All retained historical load
 records contain complete sweeps and have been migrated without reconstructing
 request-level latency samples. Historical settings absent from the records remain
 unspecified.
-Both use the same production server setup and Node 24
+Both use the same production server setup and Node.js 24.22.1
 containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
 8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
 share memory, kernel, Docker runtime, and other host resources. Peak requests/sec

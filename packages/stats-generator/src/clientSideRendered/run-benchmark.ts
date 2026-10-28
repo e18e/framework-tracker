@@ -3,7 +3,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
-import { SERVER_WARMUP_REQUEST_COUNT, warmUpServer } from '../server-warmup.ts'
+import { warmUpServer } from '../server-warmup.ts'
 import {
   getInteractionTimingFromLighthouse,
   getNavigationInteractionTimingFromLighthouse,
@@ -156,11 +156,10 @@ export async function runBenchmark(
   }
   const results: ClientSideRenderedRunResult[] = []
 
+  console.info('  Warming the server list page before measurements...')
+  await warmUpServer(`${url}${CLIENT_SIDE_RENDERED_PATH}`)
+
   for (let i = 0; i < runs; i++) {
-    console.info(
-      `  Run ${i + 1}/${runs}: warming server with ${SERVER_WARMUP_REQUEST_COUNT} requests...`,
-    )
-    await warmUpServer(`${url}${CLIENT_SIDE_RENDERED_PATH}`)
     console.log(`  Run ${i + 1}/${runs}...`)
     results.push(await runOnce(url, chromiumPath, fullDocumentNavigation))
   }

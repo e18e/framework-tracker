@@ -1,13 +1,20 @@
-export const SERVER_WARMUP_REQUEST_COUNT = 5
+const SERVER_WARMUP_TIMEOUT_MS = 10_000
 
-export async function warmUpServer(url: string): Promise<void> {
-  for (let i = 0; i < SERVER_WARMUP_REQUEST_COUNT; i++) {
-    const response = await fetch(url)
-    await response.arrayBuffer()
-    if (!response.ok) {
-      throw new Error(
-        `Server warm-up failed for ${url}: HTTP ${response.status}`,
-      )
-    }
+async function fetchPage(url: string, signal: AbortSignal): Promise<void> {
+  const response = await fetch(url, { signal })
+  await response.arrayBuffer()
+  if (!response.ok) {
+    throw new Error(`Server warm-up failed for ${url}: HTTP ${response.status}`)
+  }
+}
+
+export async function warmUpServer(
+  url: string,
+  warmDetailPage = false,
+): Promise<void> {
+  const signal = AbortSignal.timeout(SERVER_WARMUP_TIMEOUT_MS)
+  await fetchPage(url, signal)
+  if (warmDetailPage) {
+    await fetchPage(`${url}/${crypto.randomUUID()}`, signal)
   }
 }

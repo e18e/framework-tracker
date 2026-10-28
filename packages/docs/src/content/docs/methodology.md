@@ -402,9 +402,10 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
-- Before each measurement, the server receives five sequential HTTP requests to
-  `/client-side-rendered`, fully consuming each response. This
-  server warm-up is excluded from results and does not warm the browser.
+- Before the five measurements, one HTTP request warms the server's
+  `/client-side-rendered` route, fully consuming the response. A single
+  ten-second abort timeout covers the warm-up. This server warm-up is excluded
+  from results and does not warm the measured browsers.
 - The median is displayed in charts and tables. Raw iterations and the mean,
   median, minimum, and maximum are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement
@@ -449,9 +450,10 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
-- Before each measurement, the server receives five sequential HTTP requests to
-  `/server-side-rendered`, fully consuming each response. This
-  server warm-up is excluded from results and does not warm the browser.
+- Before the five measurements, HTTP requests warm `/server-side-rendered` and
+  a detail URL with a random UUID, fully consuming both responses. A single
+  ten-second abort timeout covers the entire warm-up. This server warm-up is
+  excluded from results and does not warm the measured browsers.
 - The median is displayed in charts and tables. Raw iterations and the mean,
   median, minimum, and maximum are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement

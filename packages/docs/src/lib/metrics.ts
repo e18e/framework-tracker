@@ -10,19 +10,19 @@ export const metricCatalogue = {
   },
   'frameworkDependencies.prodDependencies': {
     id: 'frameworkDependencies.prodDependencies',
-    title: 'Metaframework \u00b7 Production Dependencies',
+    title: 'Core Package \u00b7 Production Dependencies',
     valueFormat: 'count',
     yAxisLabel: 'Dependencies',
   },
   'frameworkDependencies.devDependencies': {
     id: 'frameworkDependencies.devDependencies',
-    title: 'Metaframework \u00b7 Development Dependencies',
+    title: 'Core Package \u00b7 Development Dependencies',
     valueFormat: 'count',
     yAxisLabel: 'Dependencies',
   },
   'frameworkDependencies.allDependencies': {
     id: 'frameworkDependencies.allDependencies',
-    title: 'Metaframework \u00b7 All Dependencies',
+    title: 'Core Package \u00b7 All Dependencies',
     valueFormat: 'count',
     yAxisLabel: 'Dependencies',
   },

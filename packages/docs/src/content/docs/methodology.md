@@ -220,10 +220,13 @@ Installed using the CLI with the following setup:
 
 ### Dependency Counts
 
+- The core package view counts the direct production and development dependencies
+  declared by the meta-framework package itself.
+
 - The starter project view counts every direct production and development
   dependency in the starter's `package.json`, then reports its resolved graph,
   duplicates, and install size.
-- The meta-framework direct packages view uses the starter's
+- The first-party package view uses the starter's
   `first-party-dependencies.json`. It keeps only the direct packages maintained
   by the framework's ecosystem, preserving their production/development section
   and version from the starter's `package.json`. Its resolved graph and duplicate

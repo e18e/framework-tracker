@@ -10,10 +10,11 @@ import ComparisonComposition from './ComparisonComposition.astro'
 const bar = prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison(
   ssrRequestThroughputStats,
 )
-const line = prepareLighthouseServerSideRenderedTestsFirstPaintMsMonthlyComparison(
-  runtimeHistory,
-  ssrRequestThroughputStats,
-)
+const line =
+  prepareLighthouseServerSideRenderedTestsFirstPaintMsMonthlyComparison(
+    runtimeHistory,
+    ssrRequestThroughputStats,
+  )
 ---
 
 <ComparisonComposition bar={bar} line={line} />

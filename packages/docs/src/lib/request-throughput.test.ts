@@ -60,7 +60,7 @@ test('throughput charts use the median of run means, not the mean or request med
   const latencyHistory =
     prepareSsrRequestThroughputTestsLatencyMsHistory(records)
   assert.equal(latencyHistory.data[0]?.value, 4)
-  assert.equal(latencyHistory.title, 'Median Run Latency')
+  assert.equal(latencyHistory.title, 'Median Latency')
 })
 
 test('legacy mean latency remains distinct from the reported request median', () => {

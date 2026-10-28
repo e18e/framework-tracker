@@ -1,4 +1,19 @@
 Methodology: [Dependency Counts](/methodology/#dependency-counts).
 
-These views separate a framework's core package, the direct packages maintained by
-its ecosystem, and the complete default starter configuration.
+Measuring a meta-framework's dependencies isn't as straightforward as you might think. You could:
+
+- Measure just the meta-framework package itself
+- Maybe a full project set-up
+
+Both approaches have flaws. Some meta-frameworks need many other packages to work. A full project setup can include more packages than necessary. 
+
+To provide a clearer picture, we run the dependency-count tests three times, starting small and expanding in scope. In this order, we:
+
+1. Start with the meta-framework package itself, for example, `@sveltejs/kit`
+2. We then expand this to the meta-framework and its first party packages. Looking at `@sveltejs/kit` again, this means any package maintained by the meta-framework authors that's needed to run a project, for example, the `svelte` package.
+3. Finally we count the deps for the entire `starter-*` project. Their CLI or documentation recommends this set-up by default, so this is the default most people will start with
+
+
+
+
+

@@ -401,6 +401,9 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
+- Before each measurement, the server receives five sequential HTTP requests to
+  `/client-side-rendered`, fully consuming each response. This
+  server warm-up is excluded from results and does not warm the browser.
 - The arithmetic mean is reported. Raw samples and their sample standard
   deviation are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement
@@ -445,6 +448,9 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
+- Before each measurement, the server receives five sequential HTTP requests to
+  `/server-side-rendered`, fully consuming each response. This
+  server warm-up is excluded from results and does not warm the browser.
 - The arithmetic mean is reported. Raw samples and their sample standard
   deviation are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement

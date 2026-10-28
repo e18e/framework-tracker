@@ -22,9 +22,11 @@ with the affected test.
 
 Benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
-with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. Depot runs each
-job on a fresh, single-tenant EC2 instance. Its x86 runners use AMD EC2
-instances and GitHub's standard runner image.
+with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. EBS storage is
+provisioned with 8,000 IOPS and 250 MB/s throughput. Depot runs each job on a
+fresh, single-tenant EC2 instance. Its x86 runners use
+[4th Gen AMD EPYC Genoa CPUs](https://depot.dev/docs/github-actions/overview)
+and GitHub's standard runner image.
 
 - **Node.js:** Local development, CI, and benchmark containers use the exact
   Node.js version pinned in the root `.nvmrc`. CI reads that file directly and SSR
@@ -38,11 +40,12 @@ instances and GitHub's standard runner image.
   and framework configuration identify the UI library, adapter, build tool, and
   dependency versions. These choices can differ between frameworks.
 - **Browser tests:** Client- and server-rendered browser tests run directly on
-  the runner host using its Chrome installation in headless mode. Lighthouse
-  uses the desktop form factor, `throttlingMethod: provided`, and no screen
-  emulation or simulated CPU or network throttling. Requests use a local
-  connection to a production server. The Lighthouse flow collects only the
-  audits needed for the published First Paint, First Contentful Paint, and
+  the runner host using its Chrome installation in headless mode. Puppeteer
+  sets an 800 × 600 CSS pixel viewport with device scale factor 1.
+  Lighthouse uses the desktop form factor, `throttlingMethod: provided`, and
+  disables its screen emulation, with no simulated CPU or network throttling.
+  Requests use a local connection to a production server. The Lighthouse flow
+  collects only the audits needed for the published First Paint, First Contentful Paint, and
   interaction-latency measurements, so unrelated diagnostics do not affect
   the benchmark.
 - **Recorded environment:** Results include runner details and the measured

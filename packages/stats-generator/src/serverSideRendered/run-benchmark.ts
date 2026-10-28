@@ -61,6 +61,7 @@ async function runOnce(
   const browser = await puppeteer.launch({
     executablePath: chromiumPath,
     headless: true,
+    defaultViewport: { width: 800, height: 600, deviceScaleFactor: 1 },
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   })
 

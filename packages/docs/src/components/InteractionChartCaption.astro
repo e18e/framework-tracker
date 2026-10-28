@@ -1,0 +1,85 @@
+---
+import { INTERACTION_PHASES } from '../lib/interaction-phases'
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+---
+
+<figcaption>
+  <p class="interaction-chart-title">{title}</p>
+  <p>
+    Total latency is split into the three consecutive phases reported by
+    Lighthouse.
+  </p>
+  <ul class="phase-descriptions">
+    {
+      INTERACTION_PHASES.map(({ label, description }) => (
+        <li>
+          The <strong>{label.toLowerCase()}</strong>, {description}
+        </li>
+      ))
+    }
+  </ul>
+  <ul class="legend" aria-hidden="true">
+    {
+      INTERACTION_PHASES.map(({ label, colorVar }) => (
+        <li>
+          <span class="swatch" style={`background: var(${colorVar})`} />
+          {label}
+        </li>
+      ))
+    }
+  </ul>
+</figcaption>
+
+<style>
+  .interaction-chart-title {
+    margin-bottom: 0.35rem;
+    color: var(--sl-color-white);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+  }
+
+  p {
+    margin-top: 0;
+    color: var(--ft-muted);
+    font-size: 0.9rem;
+  }
+
+  .phase-descriptions {
+    margin-block: 0.5rem 1rem;
+    color: var(--ft-muted);
+    font-size: 0.85rem;
+  }
+
+  .phase-descriptions li {
+    margin-block: 0.2rem;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    margin: 1rem 0;
+    padding: 0;
+    color: var(--ft-muted);
+    font-size: 0.8rem;
+    list-style: none;
+  }
+
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.2rem;
+  }
+</style>

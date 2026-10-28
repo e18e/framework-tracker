@@ -1,6 +1,9 @@
+import { INTERACTION_PHASES } from './interaction-phases.ts'
 import { metricCatalogue } from './metrics.ts'
 import type {
   ChartMeasurement,
+  InteractionHistoryDatum,
+  InteractionTimings,
   InstallChartMeasurement,
   MetricDefinition,
   PreparedComparisonChart,
@@ -65,10 +68,10 @@ export function prepareDevServerStartTimeHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['devServerStartTime.avgMs'],
+    metricCatalogue['devServerStartTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.devServerStartTime?.avgMs, 1000),
+      value: finiteValue(record.devServerStartTime?.medianMs, 1000),
     })),
   )
 }
@@ -77,10 +80,10 @@ export function prepareDevServerStartTimeComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['devServerStartTime.avgMs'],
+    metricCatalogue['devServerStartTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.devServerStartTime?.avgMs, 1000),
+      value: finiteValue(record.devServerStartTime?.medianMs, 1000),
     })),
   )
 }
@@ -253,14 +256,72 @@ export function prepareClientSideRenderedTestsFcpMsComparison(
   )
 }
 
+const INTERACTION_KEYS = [
+  'interactionLatencyMs',
+  ...INTERACTION_PHASES.map(({ key }) => key),
+] as const
+
+function hasInteractionTimings(
+  timings: InteractionTimings | undefined,
+): timings is Required<InteractionTimings> {
+  return (
+    timings != null &&
+    INTERACTION_KEYS.every((key) => finiteValue(timings[key]) != null)
+  )
+}
+
+// Per-phase medians do not add up to the median total, so the stack uses the
+// run with the median total and its own phases.
+function medianRun(
+  iterations: readonly { interactionTests?: InteractionTimings }[] | undefined,
+) {
+  const runs = (iterations ?? [])
+    .map((run) => run.interactionTests)
+    .filter(hasInteractionTimings)
+    .sort((a, b) => a.interactionLatencyMs - b.interactionLatencyMs)
+  return runs[Math.floor(runs.length / 2)]
+}
+
+function interactionHistory(
+  records: readonly ChartMeasurement[],
+  testsKey: 'clientSideRenderedTests' | 'serverSideRenderedTests',
+): InteractionHistoryDatum[] {
+  return records.flatMap((record) => {
+    const timings = medianRun(record[testsKey]?.iterations)
+    if (timings == null) return []
+
+    const version = record.frameworkVersion ?? 'Unknown'
+    return {
+      id: `${record.package ?? 'unknown'}:${version}`,
+      name: `v${version}`,
+      interactionLatencyMs: timings.interactionLatencyMs,
+      inputDelayMs: timings.inputDelayMs,
+      processingDurationMs: timings.processingDurationMs,
+      presentationDelayMs: timings.presentationDelayMs,
+    }
+  })
+}
+
+export function prepareClientSideRenderedTestsInteractionHistory(
+  records: readonly ChartMeasurement[],
+): InteractionHistoryDatum[] {
+  return interactionHistory(records, 'clientSideRenderedTests')
+}
+
+export function prepareServerSideRenderedTestsInteractionHistory(
+  records: readonly ChartMeasurement[],
+): InteractionHistoryDatum[] {
+  return interactionHistory(records, 'serverSideRenderedTests')
+}
+
 export function prepareInstallTimeHistory(
   records: readonly InstallChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['installTime.avgMs'],
+    metricCatalogue['installTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.installTimeMs.mean, 1000),
+      value: finiteValue(record.install.installTimeMs.median, 1000),
     })),
   )
 }
@@ -269,10 +330,10 @@ export function prepareInstallTimeComparison(
   records: readonly InstallChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['installTime.avgMs'],
+    metricCatalogue['installTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.installTimeMs.mean, 1000),
+      value: finiteValue(record.install.installTimeMs.median, 1000),
     })),
   )
 }
@@ -281,10 +342,10 @@ export function prepareColdBuildTimeHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['coldBuildTime.avgMs'],
+    metricCatalogue['coldBuildTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.coldBuildTime?.avgMs, 1000),
+      value: finiteValue(record.coldBuildTime?.medianMs, 1000),
     })),
   )
 }
@@ -293,10 +354,10 @@ export function prepareColdBuildTimeComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['coldBuildTime.avgMs'],
+    metricCatalogue['coldBuildTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.coldBuildTime?.avgMs, 1000),
+      value: finiteValue(record.coldBuildTime?.medianMs, 1000),
     })),
   )
 }
@@ -305,10 +366,10 @@ export function prepareWarmBuildTimeHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['warmBuildTime.avgMs'],
+    metricCatalogue['warmBuildTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.warmBuildTime?.avgMs, 1000),
+      value: finiteValue(record.warmBuildTime?.medianMs, 1000),
     })),
   )
 }
@@ -317,10 +378,10 @@ export function prepareWarmBuildTimeComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['warmBuildTime.avgMs'],
+    metricCatalogue['warmBuildTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.warmBuildTime?.avgMs, 1000),
+      value: finiteValue(record.warmBuildTime?.medianMs, 1000),
     })),
   )
 }

@@ -10,7 +10,6 @@ function formatTime(
   >,
 ) {
   return {
-    avgMs: value.timeMs.mean,
     medianMs: value.timeMs.median,
     minMs: value.timeMs.min,
     maxMs: value.timeMs.max,
@@ -26,14 +25,14 @@ function formatRendered(
   if (!('name' in value)) return value
   return {
     ...value,
-    firstPaintMs: value.firstPaintMs.mean,
-    fcpMs: value.fcpMs.mean,
+    firstPaintMs: value.firstPaintMs.median,
+    fcpMs: value.fcpMs.median,
     interactionTests: {
       ...value.interactionTests,
-      interactionLatencyMs: value.interactionTests.interactionLatencyMs.mean,
-      inputDelayMs: value.interactionTests.inputDelayMs.mean,
-      processingDurationMs: value.interactionTests.processingDurationMs.mean,
-      presentationDelayMs: value.interactionTests.presentationDelayMs.mean,
+      interactionLatencyMs: value.interactionTests.interactionLatencyMs.median,
+      inputDelayMs: value.interactionTests.inputDelayMs.median,
+      processingDurationMs: value.interactionTests.processingDurationMs.median,
+      presentationDelayMs: value.interactionTests.presentationDelayMs.median,
     },
   }
 }
@@ -43,8 +42,8 @@ export function formatThroughput(
   if ('name' in value)
     return {
       ...value,
-      opsPerSec: value.opsPerSec.mean,
-      latencyMs: value.latencyMs.mean,
+      opsPerSec: value.opsPerSec.median,
+      latencyMs: value.latencyMs.median,
     }
   return { ...value, latencyMs: value.avgLatencyMs }
 }
@@ -73,16 +72,16 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
         ? [
             {
               workers: stage.connections,
-              requests: stage.requests.mean,
-              errors: stage.errors.mean,
-              requestsPerSec: stage.requestsPerSec.mean,
-              avgLatencyMs: stage.avgLatencyMs.mean,
-              p50LatencyMs: stage.p50LatencyMs.mean,
-              p75LatencyMs: stage.p75LatencyMs.mean,
-              p90LatencyMs: stage.p90LatencyMs.mean,
-              p99LatencyMs: stage.p99LatencyMs.mean,
-              maxLatencyMs: stage.maxLatencyMs.mean,
-              bytesPerSec: stage.bytesPerSec.mean,
+              requests: stage.requests.median,
+              errors: stage.errors.median,
+              requestsPerSec: stage.requestsPerSec.median,
+              avgLatencyMs: stage.avgLatencyMs.median,
+              p50LatencyMs: stage.p50LatencyMs.median,
+              p75LatencyMs: stage.p75LatencyMs.median,
+              p90LatencyMs: stage.p90LatencyMs.median,
+              p99LatencyMs: stage.p99LatencyMs.median,
+              maxLatencyMs: stage.maxLatencyMs.median,
+              bytesPerSec: stage.bytesPerSec.median,
             },
           ]
         : [],

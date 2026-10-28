@@ -39,6 +39,22 @@ export interface PreparedComparisonChart extends ComparisonChartPayload {
   data: (ChartDatum & { id: string })[]
 }
 
+export type InteractionPhaseKey =
+  'inputDelayMs' | 'processingDurationMs' | 'presentationDelayMs'
+
+export type InteractionTimings = Partial<
+  Record<InteractionPhaseKey | 'interactionLatencyMs', number>
+>
+
+/** One framework version's interaction latency split into its phases. */
+export interface InteractionHistoryDatum extends Record<
+  InteractionPhaseKey | 'interactionLatencyMs',
+  number
+> {
+  id: string
+  name: string
+}
+
 /** Measurement subset accepted by chart preparation; Astro collection records fit structurally. */
 export interface ChartMeasurement {
   package?: string
@@ -46,7 +62,7 @@ export interface ChartMeasurement {
   frameworkVersion?: string
   isFocused?: boolean
   devServerStartTime?: {
-    avgMs?: number
+    medianMs?: number
   }
   frameworkDependencies?: {
     prodDependencies?: number
@@ -60,17 +76,19 @@ export interface ChartMeasurement {
   clientSideRenderedTests?: {
     firstPaintMs?: number
     fcpMs?: number
+    iterations?: readonly { interactionTests?: InteractionTimings }[]
   }
   coldBuildTime?: {
-    avgMs?: number
+    medianMs?: number
   }
   warmBuildTime?: {
-    avgMs?: number
+    medianMs?: number
   }
   vendoredCoreJsSize?: number
   serverSideRenderedTests?: {
     firstPaintMs?: number
     fcpMs?: number
+    iterations?: readonly { interactionTests?: InteractionTimings }[]
   }
   ssrRequestThroughputTests?: {
     opsPerSec?: number
@@ -95,7 +113,7 @@ interface SSRLoadMeasurements {
 /** Install charts require a completed install benchmark. */
 export type InstallChartMeasurement = ChartMeasurement & {
   install: {
-    installTimeMs: { mean: number }
+    installTimeMs: { median: number }
     nodeModulesSizeBytes: number
   }
 }

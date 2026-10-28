@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from 'node:util'
+import { metricSummaries } from '@framework-tracker/results/comparison'
 import {
   SSRLoadStatsSchema,
   SSRRouterLinkLoadStatsSchema,
@@ -21,23 +22,19 @@ export function validateSSRLoadForPersistence(stats: CIStats): void {
       value.name,
       value.path,
     )
+    const summaries = new Map(
+      Array.from(
+        metricSummaries(value),
+        ([path, { variance: _variance, ...measurement }]) => [
+          path,
+          measurement,
+        ],
+      ),
+    )
     if (
-      ![
-        'totalRequests',
-        'totalErrors',
-        'stage1',
-        'stage2',
-        'stage3',
-        'stage4',
-        'stage5',
-        'stage6',
-        'stage7',
-      ].every((key) =>
-        isDeepStrictEqual(
-          value[key as keyof typeof value],
-          expected[key as keyof typeof expected],
-        ),
-      )
+      value.totalRequests !== expected.totalRequests ||
+      value.totalErrors !== expected.totalErrors ||
+      !isDeepStrictEqual(summaries, metricSummaries(expected))
     ) {
       throw new Error(
         `Invalid ${key} summaries: expected statistics from retained sweeps`,

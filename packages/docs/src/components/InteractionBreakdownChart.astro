@@ -1,5 +1,7 @@
 ---
 import { formatChartValue } from '../lib/chart'
+import { INTERACTION_PHASES } from '../lib/interaction-phases'
+import InteractionChartCaption from './InteractionChartCaption.astro'
 
 interface InteractionBreakdownDatum {
   name: string
@@ -13,10 +15,9 @@ interface InteractionBreakdownDatum {
 interface Props {
   title: string
   data: InteractionBreakdownDatum[]
-  orientation?: 'horizontal' | 'vertical'
 }
 
-const { title, data, orientation = 'horizontal' } = Astro.props
+const { title, data } = Astro.props
 const maxLatency = Math.max(
   1,
   ...data.map((datum) => datum.interactionLatencyMs),
@@ -65,168 +66,89 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
 }
 ---
 
-<figure class:list={['interaction-chart', orientation]}>
-  <figcaption>
-    <p class="interaction-chart-title">{title}</p>
-    <p>
-      Total latency is split into the three consecutive phases reported by
-      Lighthouse.
-    </p>
-    <ul class="phase-descriptions">
-      <li>
-        The <strong>input delay</strong>, which starts when the user initiates
-        an interaction with the page, and ends when the event callbacks for the
-        interaction begin to run.
-      </li>
-      <li>
-        The <strong>processing duration</strong>, which consists of the time it
-        takes for event callbacks to run to completion.
-      </li>
-      <li>
-        The <strong>presentation delay</strong>, which is the time it takes for
-        the browser to present the next frame which contains the visual result
-        of the interaction.
-      </li>
-    </ul>
-  </figcaption>
-  <ul class="legend" aria-hidden="true">
-    <li><span class="swatch input"></span>Input delay</li>
-    <li><span class="swatch processing"></span>Processing duration</li>
-    <li><span class="swatch presentation"></span>Presentation delay</li>
-  </ul>
-  {
-    orientation === 'horizontal' ? (
-      <div
-        class="horizontal-bars"
-        style={`--interaction-chart-height: ${chartHeight}px`}
-      >
-        <div class="median-layer all-median" aria-hidden="true">
-          <div class="median-plot">
-            <span
-              class="median-line"
-              style={`left: ${segmentSize(medianLatency)}`}
-            >
-              <span class="median-label">
-                Median: {formatChartValue(medianLatency, 'ms')}
-              </span>
-            </span>
-          </div>
-        </div>
-        <div class="median-layer focused-median" aria-hidden="true">
-          <div class="median-plot">
-            <span
-              class="median-line"
-              style={`left: ${segmentSize(focusedMedianLatency)}`}
-            >
-              <span class="median-label">
-                Median: {formatChartValue(focusedMedianLatency, 'ms')}
-              </span>
-            </span>
-          </div>
-        </div>
-        {data.map((datum) => {
-          const logo = FRAMEWORK_LOGOS[datum.name]
-          return (
-            <div
-              class="horizontal-row"
-              data-focused={datum.focused === false ? 'false' : 'true'}
-            >
-              <span class="framework-logo">
-                {logo ? (
-                  <>
+<figure class="interaction-chart">
+  <InteractionChartCaption title={title} />
+  <div
+    class="horizontal-bars"
+    style={`--interaction-chart-height: ${chartHeight}px`}
+  >
+    <div class="median-layer all-median" aria-hidden="true">
+      <div class="median-plot">
+        <span class="median-line" style={`left: ${segmentSize(medianLatency)}`}>
+          <span class="median-label">
+            Median: {formatChartValue(medianLatency, 'ms')}
+          </span>
+        </span>
+      </div>
+    </div>
+    <div class="median-layer focused-median" aria-hidden="true">
+      <div class="median-plot">
+        <span
+          class="median-line"
+          style={`left: ${segmentSize(focusedMedianLatency)}`}
+        >
+          <span class="median-label">
+            Median: {formatChartValue(focusedMedianLatency, 'ms')}
+          </span>
+        </span>
+      </div>
+    </div>
+    {
+      data.map((datum) => {
+        const logo = FRAMEWORK_LOGOS[datum.name]
+        return (
+          <div
+            class="horizontal-row"
+            data-focused={datum.focused === false ? 'false' : 'true'}
+          >
+            <span class="framework-logo">
+              {logo ? (
+                <>
+                  <img
+                    class:list={{ 'theme-logo': true, dark: logo.light }}
+                    src={logo.dark}
+                    alt={datum.name}
+                  />
+                  {logo.light ? (
                     <img
-                      class:list={{ 'theme-logo': true, dark: logo.light }}
-                      src={logo.dark}
+                      class="theme-logo light"
+                      src={logo.light}
                       alt={datum.name}
                     />
-                    {logo.light ? (
-                      <img
-                        class="theme-logo light"
-                        src={logo.light}
-                        alt={datum.name}
-                      />
-                    ) : null}
-                  </>
-                ) : (
-                  <span class="logo-fallback" title={datum.name}>
-                    {datum.name.slice(0, 1)}
-                  </span>
-                )}
-              </span>
-              <div class="horizontal-plot">
-                <div class="horizontal-bar" aria-hidden="true">
+                  ) : null}
+                </>
+              ) : (
+                <span class="logo-fallback" title={datum.name}>
+                  {datum.name.slice(0, 1)}
+                </span>
+              )}
+            </span>
+            <div class="horizontal-plot">
+              <div class="horizontal-bar" aria-hidden="true">
+                {INTERACTION_PHASES.map(({ key, label, colorVar }) => (
                   <span
-                    class="bar-segment input"
-                    style={`width: ${segmentSize(datum.inputDelayMs)}`}
-                    data-tooltip={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
-                    title={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
+                    class="bar-segment"
+                    style={`width: ${segmentSize(datum[key])}; background: var(${colorVar})`}
+                    data-tooltip={`${label}: ${formatChartValue(datum[key], 'ms')}`}
+                    title={`${label}: ${formatChartValue(datum[key], 'ms')}`}
                   />
-                  <span
-                    class="bar-segment processing"
-                    style={`width: ${segmentSize(datum.processingDurationMs)}`}
-                    data-tooltip={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
-                    title={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
-                  />
-                  <span
-                    class="bar-segment presentation"
-                    style={`width: ${segmentSize(datum.presentationDelayMs)}`}
-                    data-tooltip={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
-                    title={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
-                  />
-                </div>
-                <strong
-                  class:list={{
-                    'bar-value': true,
-                    inside: datum.interactionLatencyMs / maxLatency > 0.85,
-                  }}
-                  style={`left: ${segmentSize(datum.interactionLatencyMs)}`}
-                >
-                  {formatChartValue(datum.interactionLatencyMs, 'ms')}
-                </strong>
+                ))}
               </div>
-            </div>
-          )
-        })}
-      </div>
-    ) : (
-      <div class="vertical-scroll">
-        <div class="vertical-bars">
-          {data.map((datum) => (
-            <div class="vertical-column">
-              <strong>
+              <strong
+                class:list={{
+                  'bar-value': true,
+                  inside: datum.interactionLatencyMs / maxLatency > 0.85,
+                }}
+                style={`left: ${segmentSize(datum.interactionLatencyMs)}`}
+              >
                 {formatChartValue(datum.interactionLatencyMs, 'ms')}
               </strong>
-              <div
-                class="vertical-bar"
-                style={`height: ${segmentSize(datum.interactionLatencyMs)}`}
-                aria-hidden="true"
-              >
-                <span
-                  class="bar-segment presentation"
-                  style={`height: ${(datum.presentationDelayMs / datum.interactionLatencyMs) * 100}%`}
-                  data-tooltip={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
-                  title={`Presentation delay: ${formatChartValue(datum.presentationDelayMs, 'ms')}`}
-                />
-                <span
-                  class="bar-segment processing"
-                  style={`height: ${(datum.processingDurationMs / datum.interactionLatencyMs) * 100}%`}
-                  data-tooltip={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
-                  title={`Processing duration: ${formatChartValue(datum.processingDurationMs, 'ms')}`}
-                />
-                <span
-                  class="bar-segment input"
-                  style={`height: ${(datum.inputDelayMs / datum.interactionLatencyMs) * 100}%`}
-                  data-tooltip={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
-                  title={`Input delay: ${formatChartValue(datum.inputDelayMs, 'ms')}`}
-                />
-              </div>
-              <span class="version-name">{datum.name}</span>
             </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
+          </div>
+        )
+      })
+    }
+  </div>
   <div class="sr-only">
     <table>
       <caption>{title} data</caption>
@@ -234,9 +156,7 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
         <tr>
           <th scope="col">Framework or version</th>
           <th scope="col">Interaction latency</th>
-          <th scope="col">Input delay</th>
-          <th scope="col">Processing duration</th>
-          <th scope="col">Presentation delay</th>
+          {INTERACTION_PHASES.map(({ label }) => <th scope="col">{label}</th>)}
         </tr>
       </thead>
       <tbody>
@@ -245,9 +165,9 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
             <tr data-focused={datum.focused === false ? 'false' : 'true'}>
               <th scope="row">{datum.name}</th>
               <td>{formatChartValue(datum.interactionLatencyMs, 'ms')}</td>
-              <td>{formatChartValue(datum.inputDelayMs, 'ms')}</td>
-              <td>{formatChartValue(datum.processingDurationMs, 'ms')}</td>
-              <td>{formatChartValue(datum.presentationDelayMs, 'ms')}</td>
+              {INTERACTION_PHASES.map(({ key }) => (
+                <td>{formatChartValue(datum[key], 'ms')}</td>
+              ))}
             </tr>
           ))
         }
@@ -260,53 +180,6 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
   .interaction-chart {
     width: 100%;
     margin: 0 0 2em;
-  }
-
-  .interaction-chart-title {
-    margin-bottom: 0.35rem;
-    color: var(--sl-color-white);
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: var(--sl-line-height-headings);
-  }
-
-  figcaption p {
-    margin-top: 0;
-    color: var(--ft-muted);
-    font-size: 0.9rem;
-  }
-
-  .phase-descriptions {
-    margin-block: 0.5rem 1rem;
-    color: var(--ft-muted);
-    font-size: 0.85rem;
-  }
-
-  .phase-descriptions li {
-    margin-block: 0.2rem;
-  }
-
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem 1rem;
-    margin: 1rem 0;
-    padding: 0;
-    color: var(--ft-muted);
-    font-size: 0.8rem;
-    list-style: none;
-  }
-
-  .legend li {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .swatch {
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 0.2rem;
   }
 
   .horizontal-bars {
@@ -386,14 +259,9 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
     gap: 0.75rem;
   }
 
-  .horizontal-row strong,
-  .vertical-column strong {
-    font-size: 0.82rem;
-  }
-
-  .horizontal-row strong,
-  .vertical-column strong {
+  .horizontal-row strong {
     color: var(--ft-muted);
+    font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
   }
 
@@ -500,75 +368,12 @@ const FRAMEWORK_LOGOS: Record<string, { dark: string; light?: string }> = {
     transform: translate(-50%, 0);
   }
 
-  .input {
-    background: #c8c8c8;
-  }
-
-  .horizontal-bar .input {
+  .horizontal-bar .bar-segment:first-child {
     border-radius: 8px 0 0 8px;
   }
 
-  .processing {
-    background: #929292;
-  }
-
-  .presentation {
-    background: #5f5f5f;
-  }
-
-  .horizontal-bar .presentation {
+  .horizontal-bar .bar-segment:last-child {
     border-radius: 0 8px 8px 0;
-  }
-
-  .vertical-scroll {
-    width: 100%;
-    overflow-x: auto;
-    padding-top: 1rem;
-  }
-
-  .vertical-bars {
-    display: flex;
-    box-sizing: border-box;
-    width: max-content;
-    min-width: 100%;
-    height: 22rem;
-    align-items: flex-end;
-    gap: clamp(1rem, 4vw, 2.5rem);
-    justify-content: space-evenly;
-    padding: 2rem 1rem 0;
-  }
-
-  .vertical-column {
-    display: grid;
-    width: clamp(3.5rem, 8vw, 5rem);
-    height: 100%;
-    grid-template-rows: 1.5rem 1fr 1.75rem;
-    align-items: end;
-    justify-items: center;
-  }
-
-  .vertical-bar {
-    display: flex;
-    width: 100%;
-    min-height: 1px;
-    flex-direction: column;
-    align-self: end;
-  }
-
-  .vertical-bar .bar-segment {
-    width: 100%;
-  }
-
-  .vertical-bar .presentation {
-    border-radius: 0.45rem 0.45rem 0 0;
-  }
-
-  .version-name {
-    align-self: center;
-    color: var(--ft-muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
   }
 
   :global([data-framework-scope='focused'])

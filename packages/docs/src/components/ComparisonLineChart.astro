@@ -1,0 +1,465 @@
+---
+import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { LATEST_POINT } from '../lib/monthly-history'
+import type { MonthlyComparisonChartPayload } from '../lib/types'
+
+type Props = MonthlyComparisonChartPayload
+
+const { title, description, months, series, valueFormat } = Astro.props
+const chartPayload = JSON.stringify(Astro.props)
+
+function formatMonth(month: string) {
+  if (month === LATEST_POINT) return 'Latest'
+  return new Date(`${month}-01T00:00:00Z`).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+function seriesColorVars(
+  color: MonthlyComparisonChartPayload['series'][number]['color'],
+) {
+  return color == null
+    ? ''
+    : `--series-dark: ${color.dark}; --series-light: ${color.light ?? color.dark}`
+}
+---
+
+<figure class="comparison-line-chart">
+  <figcaption class="comparison-line-chart-title">{title}</figcaption>
+  {description ? <p>{description}</p> : null}
+
+  <ul class="comparison-line-chart-legend" aria-hidden="true">
+    {
+      series.map((s) => (
+        <li
+          data-focused={s.focused ? 'true' : 'false'}
+          data-baseline={s.baseline ? 'true' : 'false'}
+          style={seriesColorVars(s.color)}
+        >
+          <span class="comparison-line-chart-swatch" />
+          {s.name}
+        </li>
+      ))
+    }
+  </ul>
+  <div
+    class="comparison-line-chart-wrapper"
+    data-comparison-line={chartPayload}
+    style={`--comparison-line-chart-height: ${COMPARISON_CHART_HEIGHT}px`}
+  >
+    <div class="comparison-line-chart-host"></div>
+    <div class="comparison-logo-layer" aria-hidden="true"></div>
+    <div class="comparison-line-chart-data sr-only">
+      <table aria-label={`${title} by month`}>
+        <caption>
+          {title} by month, using the version current on the first of each month,
+          then the latest results
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Framework</th>
+            {months.map((month) => <th scope="col">{formatMonth(month)}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            series.map((s) => (
+              <tr data-focused={s.focused ? 'true' : 'false'}>
+                <th scope="row">{s.name}</th>
+                {s.points.map((point) => (
+                  <td>
+                    {point.value == null
+                      ? '—'
+                      : `${formatChartValue(point.value, valueFormat)} (v${point.version})`}
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .comparison-line-chart {
+    width: 100%;
+    margin: 0 0 2em;
+  }
+
+  .comparison-line-chart-title {
+    color: var(--sl-color-white);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+  }
+
+  .comparison-line-chart-note {
+    margin: 0.35rem 0 0;
+    color: var(--ft-muted);
+    font-size: 0.8125rem;
+  }
+
+  .comparison-line-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--ft-muted);
+    font-size: 0.8125rem;
+  }
+
+  .comparison-line-chart-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+  }
+
+  .comparison-line-chart-legend li {
+    --series-color: var(--series-dark, var(--ft-muted));
+  }
+
+  :global(:root[data-theme='light']) .comparison-line-chart-legend li {
+    --series-color: var(--series-light, var(--ft-muted));
+  }
+
+  .comparison-line-chart-swatch {
+    width: 14px;
+    height: 0;
+    border-top: 3px solid var(--series-color);
+    border-radius: 2px;
+  }
+
+  .comparison-line-chart-legend
+    li[data-baseline='true']
+    .comparison-line-chart-swatch {
+    border-top-style: dashed;
+  }
+
+  .comparison-line-chart-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: var(--comparison-line-chart-height);
+    margin-top: 0.5rem;
+    color: var(--ft-text, #1f2933);
+  }
+
+  .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
+  }
+
+  .comparison-logo-layer {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .comparison-line-chart-wrapper :global(.comparison-logo) {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    transform: translateY(-50%);
+  }
+
+  .comparison-line-chart-wrapper :global(.comparison-logo-fallback) {
+    display: grid;
+    place-items: center;
+    font:
+      700 12px system-ui,
+      sans-serif;
+  }
+
+  :global([data-framework-scope='focused'])
+    .comparison-line-chart
+    [data-focused='false'] {
+    display: none;
+  }
+</style>
+
+<script>
+  import {
+    defineChart,
+    lineY,
+    mountChart,
+    type ChartHost,
+    type ChartRenderContext,
+  } from '@tanstack/charts'
+  import { d3Curve } from '@tanstack/charts/d3/shape'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { scalePoint } from '@tanstack/charts/scales/point'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import { curveMonotoneX } from 'd3-shape'
+  import {
+    COMPARISON_CHART_HEIGHT,
+    formatChartValue,
+    getFrameworkLogoSource,
+  } from '../lib/chart'
+  import { resolveThemedValue } from '../lib/framework-logos'
+  import { LATEST_POINT } from '../lib/monthly-history'
+  import type {
+    MonthlyComparisonChartPayload,
+    MonthlyComparisonPoint,
+  } from '../lib/types'
+
+  type Row = MonthlyComparisonPoint & {
+    name: string
+    stroke: string
+  }
+  type Series = MonthlyComparisonChartPayload['series'][number]
+  type RenderContext = ChartRenderContext<Row, string, number>
+
+  // Monotone smoothing never overshoots, so curves don't invent peaks or dips.
+  const CURVE = d3Curve(curveMonotoneX)
+  const LOGO_SIZE = 20
+  const LOGO_GAP = 10
+  const hosts = new WeakMap<HTMLElement, ChartHost<Row, string, number>>()
+
+  function getCssVar(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
+  }
+
+  function formatMonth(month: string, withYear: boolean) {
+    if (month === LATEST_POINT) return 'Latest'
+    return new Date(`${month}-01T00:00:00Z`).toLocaleDateString('en-US', {
+      month: 'short',
+      year: withYear ? 'numeric' : undefined,
+      timeZone: 'UTC',
+    })
+  }
+
+  function renderLogoLayer(wrapper: HTMLElement, series: Series[]) {
+    const layer = wrapper.querySelector<HTMLElement>('.comparison-logo-layer')!
+    layer.style.visibility = 'hidden'
+    layer.replaceChildren(
+      ...series.map(({ name }) => {
+        const source = getFrameworkLogoSource(name)
+        if (source == null) {
+          const fallback = document.createElement('span')
+          fallback.className = 'comparison-logo comparison-logo-fallback'
+          fallback.textContent = name.slice(0, 1) || '?'
+          fallback.title = name
+          return fallback
+        }
+        const logo = document.createElement('img')
+        logo.className = 'comparison-logo'
+        logo.src = source
+        logo.alt = name
+        logo.title = name
+        logo.width = LOGO_SIZE
+        logo.height = LOGO_SIZE
+        return logo
+      }),
+    )
+    return layer
+  }
+
+  /** Labels each line with its logo at its last point, nudging overlaps apart. */
+  function positionLogos(
+    layer: HTMLElement,
+    series: Series[],
+    { scene }: RenderContext,
+  ) {
+    const xScale = scene.scales.x
+    const yScale = scene.scales.y
+    if (!xScale || !yScale) return
+
+    const placements = series
+      .map((s, index) => {
+        const last = s.points.findLast((point) => point.value != null)
+        return last == null
+          ? null
+          : {
+              logo: layer.children[index] as HTMLElement,
+              x: xScale.map(last.month),
+              y: yScale.map(last.value!),
+            }
+      })
+      .filter((p) => p != null)
+      .sort((a, b) => a.y - b.y)
+
+    const step = LOGO_SIZE + 2
+    const ys = placements.map((p) => p.y)
+    for (let i = 1; i < ys.length; i++) {
+      ys[i] = Math.max(ys[i]!, ys[i - 1]! + step)
+    }
+    let maxY = scene.chart.y + scene.chart.height - LOGO_SIZE / 2
+    for (let i = ys.length - 1; i >= 0; i--) {
+      ys[i] = Math.min(ys[i]!, maxY)
+      maxY = ys[i]! - step
+    }
+    placements.forEach((placement, i) => {
+      placement.logo.style.left = `${placement.x + LOGO_GAP}px`
+      placement.logo.style.top = `${ys[i]}px`
+    })
+    layer.style.visibility = 'visible'
+  }
+
+  function getPayload(wrapper: HTMLElement) {
+    const dataAttr = wrapper.dataset.comparisonLine
+    if (!dataAttr) return null
+
+    try {
+      return JSON.parse(dataAttr) as MonthlyComparisonChartPayload
+    } catch (e) {
+      console.warn('[ComparisonLineChart] Invalid chart data:', e)
+      return null
+    }
+  }
+
+  function initChart(wrapper: HTMLElement) {
+    const payload = getPayload(wrapper)
+    if (!payload) return
+
+    const format = (value: number) =>
+      formatChartValue(value, payload.valueFormat)
+
+    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
+    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
+    const series = payload.series.filter((s) => !focusedOnly || s.focused)
+    if (series.length === 0) return
+
+    const theme = document.documentElement.dataset.theme
+    const mutedColor = getCssVar('--ft-muted', '#697586')
+    const toRows = (baseline: boolean) =>
+      series
+        .filter((s) => s.baseline === baseline)
+        .flatMap((s) =>
+          s.points.map((point): Row => ({
+            ...point,
+            name: s.name,
+            stroke:
+              s.color == null ? mutedColor : resolveThemedValue(s.color, theme),
+          })),
+        )
+    const frameworkRows = toRows(false)
+    const baselineRows = toRows(true)
+    const values = [...frameworkRows, ...baselineRows].flatMap((row) =>
+      row.value == null ? [] : [row.value],
+    )
+    const max = Math.max(0, ...values)
+
+    const gridColor = getCssVar(
+      '--ft-chart-grid',
+      getCssVar('--ft-border', '#d9dee7'),
+    )
+    const logoLayer = renderLogoLayer(wrapper, series)
+
+    const firstMonth = payload.months[0]
+    const definition = defineChart({
+      margin: { top: 12, right: LOGO_SIZE + LOGO_GAP + 8 },
+      focus: 'group-x',
+      focusRing: false,
+      marks: [
+        lineY(baselineRows, {
+          id: 'baseline',
+          x: 'month',
+          y: 'value',
+          z: 'name',
+          stroke: mutedColor,
+          strokeWidth: 2,
+          strokeDasharray: '5 4',
+          points: true,
+          curve: CURVE,
+        }),
+        lineY(frameworkRows, {
+          id: 'frameworks',
+          x: 'month',
+          y: 'value',
+          z: 'name',
+          stroke: (row) => row.stroke,
+          strokeWidth: 2,
+          points: true,
+          curve: CURVE,
+        }),
+      ],
+      scales: {
+        x: {
+          scale: scalePoint<string>().domain(payload.months).padding(0.3),
+          axis: {
+            line: { stroke: gridColor },
+            ticks: {
+              size: 0,
+              format: (month) =>
+                formatMonth(
+                  month,
+                  month === firstMonth || month.endsWith('-01'),
+                ),
+            },
+          },
+        },
+        y: {
+          scale: scaleLinear().domain([0, max > 0 ? max * 1.1 : 1]),
+          nice: true,
+          grid: { stroke: gridColor },
+          axis: {
+            line: false,
+            ticks: { size: 0, format: format },
+          },
+        },
+      },
+      tooltip: {
+        use: tooltip,
+        content: (points) => ({
+          title: formatMonth(points[0]!.datum.month, true),
+          rows: points.map(({ datum }) => ({
+            label: datum.version
+              ? `${datum.name} v${datum.version}`
+              : datum.name,
+            value: datum.value == null ? '—' : format(datum.value),
+          })),
+        }),
+      },
+    })
+
+    const options = {
+      definition,
+      height: COMPARISON_CHART_HEIGHT,
+      ariaLabel: `${payload.title} by month. Line chart; a data table follows.`,
+      onRender: (context: RenderContext) =>
+        positionLogos(logoLayer, series, context),
+    }
+
+    const existing = hosts.get(wrapper)
+    if (existing) {
+      existing.update(options)
+    } else {
+      hosts.set(
+        wrapper,
+        mountChart(
+          wrapper.querySelector<HTMLElement>('.comparison-line-chart-host')!,
+          options,
+        ),
+      )
+    }
+  }
+
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('.comparison-line-chart-wrapper')
+      .forEach(initChart)
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts)
+  } else {
+    initCharts()
+  }
+
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributeFilter: ['class', 'data-theme'], attributes: true },
+  )
+</script>

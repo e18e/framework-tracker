@@ -1,5 +1,5 @@
 ---
-import { formatChartValue, getComparisonChartHeight } from '../lib/chart'
+import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 interface Props {
@@ -19,7 +19,6 @@ const chartData = data.map((d) => ({
   focused: d.focused,
   version: d.version,
 }))
-const chartHeight = getComparisonChartHeight(chartData.length)
 
 const chartPayload = JSON.stringify({
   id,
@@ -36,7 +35,7 @@ const chartPayload = JSON.stringify({
   <div
     class="comparison-chart-wrapper"
     data-comparison={chartPayload}
-    style={`--comparison-chart-height: ${chartHeight}px`}
+    style={`--comparison-chart-height: ${COMPARISON_CHART_HEIGHT}px`}
   >
     <div class="comparison-chart-host"></div>
     <div class="comparison-logo-layer" aria-hidden="true"></div>
@@ -152,8 +151,8 @@ const chartPayload = JSON.stringify({
   import { decorative } from '@tanstack/charts/mark/decorative'
   import { tooltip } from '@tanstack/charts/tooltip'
   import {
+    COMPARISON_CHART_HEIGHT,
     formatChartValue,
-    getComparisonChartHeight,
     getFrameworkLogoSource,
   } from '../lib/chart'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
@@ -293,8 +292,7 @@ const chartPayload = JSON.stringify({
     const values = rows.map((d) => d.value)
     const max = Math.max(...values)
     const median = getMedian(values)
-    const height = getComparisonChartHeight(rows.length)
-    wrapper.style.setProperty('--comparison-chart-height', `${height}px`)
+    const height = COMPARISON_CHART_HEIGHT
 
     const barColor = getCssVar('--ft-chart-bar', BAR_COLOR)
     const barHoverColor = getCssVar('--ft-chart-bar-hover', BAR_HOVER_COLOR)

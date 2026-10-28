@@ -1,9 +1,9 @@
 import { starterStats } from './prepare-chart'
-import { frameworkLogos } from './framework-logos'
+import { getBrandByPackage } from './framework-logos'
 import { getFrameworkSlug } from './utils'
 
 function getFrameworkTitle(name: string, packageName: string) {
-  const logo = frameworkLogos[packageName]
+  const logo = getBrandByPackage(packageName)?.logo
   let visual: string
   if (logo == null) {
     visual = `<span class="framework-card-symbol" aria-hidden="true">◼</span>`

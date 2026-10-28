@@ -25,10 +25,10 @@ export const starterStats = latest
 export const ssrRequestThroughputStats = latest
   .filter((result) => result.projects.app)
   .map(prepareRuntimeResult)
-const starterHistory = history
+export const starterHistory = history
   .filter((result) => result.projects.starter)
   .map(prepareStarterResult)
-const runtimeHistory = history
+export const runtimeHistory = history
   .filter((result) => result.projects.app)
   .map(prepareRuntimeResult)
 type DevtimeVersionData = (typeof starterHistory)[number]

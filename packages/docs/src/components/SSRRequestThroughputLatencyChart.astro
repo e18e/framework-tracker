@@ -1,11 +1,19 @@
 ---
-import { ssrRequestThroughputStats } from '../lib/prepare-chart'
-import { prepareSsrRequestThroughputTestsLatencyMsComparison } from '../lib/prepare-chart'
-import ComparisonBarChart from './ComparisonBarChart.astro'
+import {
+  prepareSsrRequestThroughputTestsLatencyMsComparison,
+  prepareSsrRequestThroughputTestsLatencyMsMonthlyComparison,
+  runtimeHistory,
+  ssrRequestThroughputStats,
+} from '../lib/prepare-chart'
+import ComparisonComposition from './ComparisonComposition.astro'
 
-const chart = prepareSsrRequestThroughputTestsLatencyMsComparison(
+const bar = prepareSsrRequestThroughputTestsLatencyMsComparison(
+  ssrRequestThroughputStats,
+)
+const line = prepareSsrRequestThroughputTestsLatencyMsMonthlyComparison(
+  runtimeHistory,
   ssrRequestThroughputStats,
 )
 ---
 
-<ComparisonBarChart {...chart} />
+<ComparisonComposition bar={bar} line={line} />

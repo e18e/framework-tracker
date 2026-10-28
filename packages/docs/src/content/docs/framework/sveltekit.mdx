@@ -11,8 +11,8 @@ import BuildInstallDetails from '../../../components/benchmarks/build-and-instal
 import DevServerStartupDetails from '../../../components/benchmarks/dev-server-startup/Details.astro'
 import CoreJsDetails from '../../../components/benchmarks/core-js-polyfills/Details.astro'
 import BrowserBaselineDetails from '../../../components/benchmarks/browser-baseline/Details.astro'
-import ClientSideRenderedDetails from '../../../components/benchmarks/client-side-rendered-tests/Details.astro'
-import ServerSideRenderedDetails from '../../../components/benchmarks/server-side-rendered-tests/Details.astro'
+import LighthouseClientSideRenderedDetails from '../../../components/benchmarks/lighthouse-client-side-rendered-tests/Details.astro'
+import LighthouseServerSideRenderedDetails from '../../../components/benchmarks/lighthouse-server-side-rendered-tests/Details.astro'
 import SSRThroughputDetails from '../../../components/benchmarks/server-side-throughput-tests/Details.astro'
 import SSRLoadDetails from '../../../components/benchmarks/ssr-load-test/Details.astro'
 
@@ -61,13 +61,13 @@ export const sveltekitRuntimeVersions = getRuntimeVersionStats('app-sveltekit')
 
 <RunTimeSetup />
 
-### Client Side Rendered Tests
+### Client Side Rendered Tests (Lighthouse)
 
-<ClientSideRenderedDetails versions={sveltekitRuntimeVersions} />
+<LighthouseClientSideRenderedDetails versions={sveltekitRuntimeVersions} />
 
-### Server Side Rendered Tests
+### Server Side Rendered Tests (Lighthouse)
 
-<ServerSideRenderedDetails versions={sveltekitRuntimeVersions} />
+<LighthouseServerSideRenderedDetails versions={sveltekitRuntimeVersions} />
 
 ### Server Side Throughput Tests
 

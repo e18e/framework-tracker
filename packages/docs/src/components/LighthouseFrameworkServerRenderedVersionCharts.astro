@@ -1,0 +1,34 @@
+---
+import type { ChartMeasurement } from '../lib/types'
+import {
+  prepareLighthouseServerSideRenderedTestsFcpMsHistory,
+  prepareLighthouseServerSideRenderedTestsFirstPaintMsHistory,
+  prepareLighthouseServerSideRenderedTestsInteractionHistory,
+} from '../lib/prepare-chart'
+import VersionLineChart from './VersionLineChart.astro'
+import InteractionHistoryChart from './InteractionHistoryChart.astro'
+
+interface Props {
+  versions: ChartMeasurement[]
+}
+
+const { versions } = Astro.props
+
+const interactionData =
+  prepareLighthouseServerSideRenderedTestsInteractionHistory(versions)
+---
+
+<VersionLineChart
+  {...prepareLighthouseServerSideRenderedTestsFirstPaintMsHistory(versions)}
+/>
+<VersionLineChart
+  {...prepareLighthouseServerSideRenderedTestsFcpMsHistory(versions)}
+/>
+{
+  interactionData.length > 0 ? (
+    <InteractionHistoryChart
+      title="Server Interaction Breakdown by Version (Lighthouse)"
+      data={interactionData}
+    />
+  ) : null
+}

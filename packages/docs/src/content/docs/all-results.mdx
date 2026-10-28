@@ -17,8 +17,8 @@ import DevServerStartupCompare from '../../components/benchmarks/dev-server-star
 import CoreJsCompare from '../../components/benchmarks/core-js-polyfills/Compare.astro'
 import BrowserBaselineCompare from '../../components/benchmarks/browser-baseline/Compare.astro'
 import MinimumNodeVersionCompare from '../../components/benchmarks/minimum-node-version/Compare.astro'
-import ClientSideRenderedCompare from '../../components/benchmarks/client-side-rendered-tests/Compare.astro'
-import ServerSideRenderedCompare from '../../components/benchmarks/server-side-rendered-tests/Compare.astro'
+import LighthouseClientSideRenderedCompare from '../../components/benchmarks/lighthouse-client-side-rendered-tests/Compare.astro'
+import LighthouseServerSideRenderedCompare from '../../components/benchmarks/lighthouse-server-side-rendered-tests/Compare.astro'
 import SSRThroughputCompare from '../../components/benchmarks/server-side-throughput-tests/Compare.astro'
 import SSRLoadStatsTable from '../../components/SSRLoadStatsTable.astro'
 import SSRLoadP99Charts from '../../components/SSRLoadP99Charts.astro'
@@ -43,15 +43,15 @@ All results for every tracked framework, including the featured frameworks shown
 
 <DependencyCountsDescription />
 
-#### Meta-framework Direct Package Counts
+#### Core Package Dependencies
 
 <FrameworkDependencyResults />
 
-#### Meta-framework Direct Packages
+#### First-Party Package Dependencies
 
 <FirstPartyDependencyResults />
 
-#### Starter Projects
+#### Starter Project Dependencies
 
 <StarterDependencyResults />
 
@@ -85,13 +85,13 @@ All results for every tracked framework, including the featured frameworks shown
 
 <RunTimeSetup />
 
-### Client Side Rendered Tests
+### Client Side Rendered Tests (Lighthouse)
 
-<ClientSideRenderedCompare />
+<LighthouseClientSideRenderedCompare />
 
-### Server Side Rendered Tests
+### Server Side Rendered Tests (Lighthouse)
 
-<ServerSideRenderedCompare />
+<LighthouseServerSideRenderedCompare />
 
 ### Server Side Throughput Tests
 

@@ -223,10 +223,13 @@ Installed using the CLI with the following setup:
 
 ### Dependency Counts
 
+- The core package view counts the direct production and development dependencies
+  declared by the meta-framework package itself.
+
 - The starter project view counts every direct production and development
   dependency in the starter's `package.json`, then reports its resolved graph,
   duplicates, and install size.
-- The meta-framework direct packages view uses the starter's
+- The first-party package view uses the starter's
   `first-party-dependencies.json`. It keeps only the direct packages maintained
   by the framework's ecosystem, preserving their production/development section
   and version from the starter's `package.json`. Its resolved graph and duplicate
@@ -387,7 +390,7 @@ Current pinned dependencies are listed in each project's `package.json`:
   with an empty fallback allows normal streaming without painting a loading
   placeholder.
 
-### Client Side Rendered Tests
+### Client Side Rendered Tests (Lighthouse)
 
 - Each framework renders a table of 1000 rows with two UUID columns in the
   browser.
@@ -426,7 +429,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Pracht's client-rendered table generates its UUID rows in the browser; the
   route and its detail route use `render: 'spa'` and navigate with `<Link>`.
 
-### Server Side Rendered Tests
+### Server Side Rendered Tests (Lighthouse)
 
 - Each framework renders a table of 1000 rows with two UUID columns.
 - Metrics are measured with Lighthouse flow in Chromium through Puppeteer.

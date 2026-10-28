@@ -5,6 +5,7 @@ import starlight from '@astrojs/starlight'
 
 // https://astro.build/config
 export default defineConfig({
+  redirects: { '/all-frameworks': '/all-results/' },
   site: 'https://frameworks.e18e.dev',
   integrations: [
     starlight({
@@ -20,7 +21,8 @@ export default defineConfig({
         { label: 'Overview', link: '/' },
         { label: 'Dev Time', link: '/dev-time/' },
         { label: 'Run Time', link: '/run-time/' },
-        { label: 'All Frameworks', link: '/all-frameworks/' },
+        { label: 'Core Web Vitals', link: '/core-web-vitals/' },
+        { label: 'All Results', link: '/all-results/' },
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
         { label: 'Impact', link: '/impact/' },

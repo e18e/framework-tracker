@@ -15,7 +15,7 @@ If you find an issue with a test or have an idea for new ones, please open an is
 
 ## What we measure and how
 
-We currently split our tests into two sections: Dev Time and Run Time. Dev Time tests use a starter project set up with the Metaframeworks CLI or Docs, following the default or recommended setup. Runtime tests use a small app project set up for the measurements. We currently measure:
+We group our measurements into Dev Time, Run Time, and Core Web Vitals. Dev Time tests use a starter project set up with the Metaframeworks CLI or Docs, following the default or recommended setup. Runtime tests use a small app project set up for the measurements. We currently measure:
 
 ### DevTime
 
@@ -34,9 +34,12 @@ We currently split our tests into two sections: Dev Time and Run Time. Dev Time 
 - Server-Side Throughput
 - SSR Load Tests
 - SS Framework Router Link Load Test
-- Exports from Core Web Vitals
 
-Tests run in the CI pipeline, and we save the results to a JSON file that the Astro docs site loads. The [Methodology](/methodology) page explains how we collect each metric.
+### Core Web Vitals
+
+[Core Web Vitals](/core-web-vitals/) compares desktop and mobile website performance using HTTP Archive technology reports.
+
+Dev Time and Run Time tests run in the CI pipeline, and we save the results to a JSON file that the Astro docs site loads. The [Methodology](/methodology) page explains how we collect each metric.
 
 We track metrics for all `major` and `minor` versions. Stats show the latest version we have. You can click into each Framework detail page to see changes over time
 
@@ -64,6 +67,6 @@ We measure the following frameworks using the versions listed below.
 
 ## Additional frameworks
 
-We also track the frameworks below. Their results appear on the All Tests page, but are excluded from the DevTime and RunTime stats.
+We also track the frameworks below. The [All Results](/all-results/) page includes every tracked framework and test, including the featured frameworks. The Dev Time, Run Time, and Core Web Vitals pages focus on the featured frameworks.
 
 <AdditionalFrameworkCards />

@@ -52,13 +52,13 @@ export const metricCatalogue = {
   },
   'clientSideRenderedTests.firstPaintMs': {
     id: 'clientSideRenderedTests.firstPaintMs',
-    title: 'Client First Paint',
+    title: 'Client First Paint (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
   'clientSideRenderedTests.fcpMs': {
     id: 'clientSideRenderedTests.fcpMs',
-    title: 'Client FCP',
+    title: 'Client FCP (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
@@ -90,13 +90,13 @@ export const metricCatalogue = {
   },
   'serverSideRenderedTests.firstPaintMs': {
     id: 'serverSideRenderedTests.firstPaintMs',
-    title: 'Server First Paint',
+    title: 'Server First Paint (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
   'serverSideRenderedTests.fcpMs': {
     id: 'serverSideRenderedTests.fcpMs',
-    title: 'Server FCP',
+    title: 'Server FCP (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },

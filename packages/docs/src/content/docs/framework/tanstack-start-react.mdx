@@ -11,8 +11,8 @@ import BuildInstallDetails from '../../../components/benchmarks/build-and-instal
 import DevServerStartupDetails from '../../../components/benchmarks/dev-server-startup/Details.astro'
 import CoreJsDetails from '../../../components/benchmarks/core-js-polyfills/Details.astro'
 import BrowserBaselineDetails from '../../../components/benchmarks/browser-baseline/Details.astro'
-import ClientSideRenderedDetails from '../../../components/benchmarks/client-side-rendered-tests/Details.astro'
-import ServerSideRenderedDetails from '../../../components/benchmarks/server-side-rendered-tests/Details.astro'
+import LighthouseClientSideRenderedDetails from '../../../components/benchmarks/lighthouse-client-side-rendered-tests/Details.astro'
+import LighthouseServerSideRenderedDetails from '../../../components/benchmarks/lighthouse-server-side-rendered-tests/Details.astro'
 import SSRThroughputDetails from '../../../components/benchmarks/server-side-throughput-tests/Details.astro'
 import SSRLoadDetails from '../../../components/benchmarks/ssr-load-test/Details.astro'
 import SSRRouterLinkLoadDetails from '../../../components/benchmarks/ssr-router-link-load-test/Details.astro'
@@ -65,13 +65,13 @@ export const tanstackStartRuntimeVersions = getRuntimeVersionStats(
 
 <RunTimeSetup />
 
-### Client Side Rendered Tests
+### Client Side Rendered Tests (Lighthouse)
 
-<ClientSideRenderedDetails versions={tanstackStartRuntimeVersions} />
+<LighthouseClientSideRenderedDetails versions={tanstackStartRuntimeVersions} />
 
-### Server Side Rendered Tests
+### Server Side Rendered Tests (Lighthouse)
 
-<ServerSideRenderedDetails versions={tanstackStartRuntimeVersions} />
+<LighthouseServerSideRenderedDetails versions={tanstackStartRuntimeVersions} />
 
 ### Server Side Throughput Tests
 

@@ -387,7 +387,7 @@ Current pinned dependencies are listed in each project's `package.json`:
   with an empty fallback allows normal streaming without painting a loading
   placeholder.
 
-### Client Side Rendered Tests
+### Client Side Rendered Tests (Lighthouse)
 
 - Each framework renders a table of 1000 rows with two UUID columns in the
   browser.
@@ -426,7 +426,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Pracht's client-rendered table generates its UUID rows in the browser; the
   route and its detail route use `render: 'spa'` and navigate with `<Link>`.
 
-### Server Side Rendered Tests
+### Server Side Rendered Tests (Lighthouse)
 
 - Each framework renders a table of 1000 rows with two UUID columns.
 - Metrics are measured with Lighthouse flow in Chromium through Puppeteer.

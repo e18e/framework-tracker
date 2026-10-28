@@ -208,7 +208,7 @@ export function prepareDuplicateDependenciesComparison(
   )
 }
 
-export function prepareClientSideRenderedTestsFirstPaintMsHistory(
+export function prepareLighthouseClientSideRenderedTestsFirstPaintMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
@@ -220,7 +220,7 @@ export function prepareClientSideRenderedTestsFirstPaintMsHistory(
   )
 }
 
-export function prepareClientSideRenderedTestsFirstPaintMsComparison(
+export function prepareLighthouseClientSideRenderedTestsFirstPaintMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
@@ -232,7 +232,7 @@ export function prepareClientSideRenderedTestsFirstPaintMsComparison(
   )
 }
 
-export function prepareClientSideRenderedTestsFcpMsHistory(
+export function prepareLighthouseClientSideRenderedTestsFcpMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
@@ -244,7 +244,7 @@ export function prepareClientSideRenderedTestsFcpMsHistory(
   )
 }
 
-export function prepareClientSideRenderedTestsFcpMsComparison(
+export function prepareLighthouseClientSideRenderedTestsFcpMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
@@ -302,13 +302,13 @@ function interactionHistory(
   })
 }
 
-export function prepareClientSideRenderedTestsInteractionHistory(
+export function prepareLighthouseClientSideRenderedTestsInteractionHistory(
   records: readonly ChartMeasurement[],
 ): InteractionHistoryDatum[] {
   return interactionHistory(records, 'clientSideRenderedTests')
 }
 
-export function prepareServerSideRenderedTestsInteractionHistory(
+export function prepareLighthouseServerSideRenderedTestsInteractionHistory(
   records: readonly ChartMeasurement[],
 ): InteractionHistoryDatum[] {
   return interactionHistory(records, 'serverSideRenderedTests')
@@ -398,7 +398,7 @@ export function prepareCoreJsSizeHistory(
   )
 }
 
-export function prepareServerSideRenderedTestsFirstPaintMsHistory(
+export function prepareLighthouseServerSideRenderedTestsFirstPaintMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
@@ -410,7 +410,7 @@ export function prepareServerSideRenderedTestsFirstPaintMsHistory(
   )
 }
 
-export function prepareServerSideRenderedTestsFirstPaintMsComparison(
+export function prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
@@ -422,7 +422,7 @@ export function prepareServerSideRenderedTestsFirstPaintMsComparison(
   )
 }
 
-export function prepareServerSideRenderedTestsFcpMsHistory(
+export function prepareLighthouseServerSideRenderedTestsFcpMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
@@ -434,7 +434,7 @@ export function prepareServerSideRenderedTestsFcpMsHistory(
   )
 }
 
-export function prepareServerSideRenderedTestsFcpMsComparison(
+export function prepareLighthouseServerSideRenderedTestsFcpMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(

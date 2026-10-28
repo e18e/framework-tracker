@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
-  prepareClientSideRenderedTestsInteractionHistory,
-  prepareServerSideRenderedTestsInteractionHistory,
+  prepareLighthouseClientSideRenderedTestsInteractionHistory,
+  prepareLighthouseServerSideRenderedTestsInteractionHistory,
 } from './chart-measurements.ts'
 
 const run = (
@@ -28,7 +28,7 @@ const runs = [
 ]
 
 test('uses the run with the median total so the phases add up to it', () => {
-  const [row] = prepareClientSideRenderedTestsInteractionHistory([
+  const [row] = prepareLighthouseClientSideRenderedTestsInteractionHistory([
     {
       package: 'app-next',
       frameworkVersion: '14.0.0',
@@ -71,7 +71,7 @@ test('skips versions without complete runs and keeps input order', () => {
     },
   ]
   assert.deepEqual(
-    prepareClientSideRenderedTestsInteractionHistory(records).map(
+    prepareLighthouseClientSideRenderedTestsInteractionHistory(records).map(
       (row) => row.name,
     ),
     ['v14.0.0', 'v17.0.0'],
@@ -79,7 +79,7 @@ test('skips versions without complete runs and keeps input order', () => {
 })
 
 test('server history reads the server runs', () => {
-  const [row] = prepareServerSideRenderedTestsInteractionHistory([
+  const [row] = prepareLighthouseServerSideRenderedTestsInteractionHistory([
     {
       frameworkVersion: '14.0.0',
       clientSideRenderedTests: { iterations: [run(1, 1, 1)] },
@@ -91,7 +91,7 @@ test('server history reads the server runs', () => {
 
 test('history is empty when no version has runs', () => {
   assert.deepEqual(
-    prepareClientSideRenderedTestsInteractionHistory([
+    prepareLighthouseClientSideRenderedTestsInteractionHistory([
       { package: 'app-pracht', frameworkVersion: '1.0.0' },
     ]),
     [],

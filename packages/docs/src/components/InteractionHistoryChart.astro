@@ -7,7 +7,12 @@ import InteractionChartCaption from './InteractionChartCaption.astro'
 interface Props {
   title: string
   data: InteractionHistoryDatum[]
-  series?: readonly { key: string; label: string; colorVar?: string; color?: string }[]
+  series?: readonly {
+    key: string
+    label: string
+    colorVar?: string
+    color?: string
+  }[]
   valueFormat?: 'ms' | 'kb'
   yAxisLabel?: string
 }
@@ -143,7 +148,12 @@ const chartPayload = JSON.stringify({
   interface Payload {
     title: string
     data: InteractionHistoryDatum[]
-    series?: readonly { key: string; label: string; colorVar?: string; color?: string }[]
+    series?: readonly {
+      key: string
+      label: string
+      colorVar?: string
+      color?: string
+    }[]
     valueFormat?: 'ms' | 'kb'
     yAxisLabel?: string
   }

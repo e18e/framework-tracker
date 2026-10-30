@@ -71,6 +71,7 @@ jobs:
       deps-matrix: ${{ steps.set-matrix.outputs.deps }}
       client-side-rendered-matrix: ${{ steps.set-matrix.outputs.client-side-rendered }}
       server-side-rendered-matrix: ${{ steps.set-matrix.outputs.server-side-rendered }}
+      initial-load-matrix: ${{ steps.set-matrix.outputs.initial-load }}
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -102,6 +103,7 @@ jobs:
           echo "deps=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.starter) | select(.starter.measurements | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
           echo "client-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | contains(["clientSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "server-side-rendered=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | contains(["serverSideRendered"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "initial-load=$(echo "$FRAMEWORKS" | jq -c '[.[] | select(.app) | select(.app.measurements | contains(["initialLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
 
   measure:
     name: Run
@@ -117,6 +119,7 @@ jobs:
       deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
       client-side-rendered-matrix: ${{ needs.setup.outputs.client-side-rendered-matrix }}
       server-side-rendered-matrix: ${{ needs.setup.outputs.server-side-rendered-matrix }}
+      initial-load-matrix: ${{ needs.setup.outputs.initial-load-matrix }}
 
   validate:
     name: Validate results

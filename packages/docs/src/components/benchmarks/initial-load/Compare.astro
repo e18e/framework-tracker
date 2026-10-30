@@ -36,10 +36,6 @@ const columns = [
   series={initialLoadSeries}
   data={initialLoadChartData}
 />
-<p>
-  The chart below excludes JavaScript transfers and uses a separate scale.
-  JavaScript still runs during the test. Sizes use 1 KB = 1,024 bytes.
-</p>
 <StackedBarChart
   title="Initial Load: Excluding JavaScript"
   series={initialLoadSeries.filter((item) => item.key !== 'js')}

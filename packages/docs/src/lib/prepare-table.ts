@@ -346,6 +346,7 @@ export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
     return [
       {
         name: framework.name,
+        package: framework.package,
         isFocused: framework.isFocused,
         requests: resources.total.requestCount,
         total: formatChartValue(resources.total.transferSize / 1024, 'kb'),

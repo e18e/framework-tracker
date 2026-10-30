@@ -7,9 +7,18 @@ import {
 import { initialLoadTableData } from '../../../lib/prepare-table'
 import StackedBarChart from '../../StackedBarChart.astro'
 import StatsTable from '../../StatsTable.astro'
+import { getFrameworkSlug } from '../../../lib/utils'
 
 const columns = [
-  { key: 'name', header: 'Framework', nameCell: true },
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      row.package !== 'app-baseline-html'
+        ? `/framework/${getFrameworkSlug(row.package as string)}/#initial-load`
+        : null,
+  },
   { key: 'requests', header: 'Requests' },
   ...initialLoadSeries.map(({ key, label }) => ({ key, header: label })),
   { key: 'total', header: 'Total' },

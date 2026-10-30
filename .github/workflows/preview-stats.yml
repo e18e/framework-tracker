@@ -16,6 +16,7 @@ jobs:
       ssr-request-throughput-matrix: ${{ steps.detect.outputs.ssr-request-throughput }}
       ssr-load-matrix: ${{ steps.detect.outputs.ssr-load }}
       ssr-router-link-load-matrix: ${{ steps.detect.outputs.ssr-router-link-load }}
+      initial-load-matrix: ${{ steps.detect.outputs.initial-load }}
       deps-matrix: ${{ steps.detect.outputs.deps }}
       framework-names: ${{ steps.detect.outputs.framework-names }}
       has-changes: ${{ steps.detect.outputs.has-changes }}
@@ -66,6 +67,7 @@ jobs:
             echo "ssr-request-throughput=[]" >> $GITHUB_OUTPUT
             echo "ssr-load=[]" >> $GITHUB_OUTPUT
             echo "ssr-router-link-load=[]" >> $GITHUB_OUTPUT
+            echo "initial-load=[]" >> $GITHUB_OUTPUT
             echo "deps=[]" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -92,6 +94,7 @@ jobs:
           echo "ssr-request-throughput=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["ssrRequestThroughput"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "ssr-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["ssrLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "ssr-router-link-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["ssrRouterLinkLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
+          echo "initial-load=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.app) | select(.app.measurements | contains(["initialLoad"])) | {name, displayName, package: .app.package, buildScript: .app.buildScript, buildOutputDir: .app.buildOutputDir, measurements: .app.measurements}]')" >> $GITHUB_OUTPUT
           echo "deps=$(echo "$FRAMEWORKS" | jq -c --argjson names "$NAMES_JSON" '[.[] | select(.name as $n | $names | contains([$n])) | select(.starter) | select(.starter.measurements | contains(["dependencies"])) | {name, displayName, package: .starter.package}]')" >> $GITHUB_OUTPUT
 
   measure:
@@ -106,6 +109,7 @@ jobs:
       ssr-request-throughput-matrix: ${{ needs.setup.outputs.ssr-request-throughput-matrix }}
       ssr-load-matrix: ${{ needs.setup.outputs.ssr-load-matrix }}
       ssr-router-link-load-matrix: ${{ needs.setup.outputs.ssr-router-link-load-matrix }}
+      initial-load-matrix: ${{ needs.setup.outputs.initial-load-matrix }}
       deps-matrix: ${{ needs.setup.outputs.deps-matrix }}
 
   preview-comment:

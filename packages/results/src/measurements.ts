@@ -11,6 +11,7 @@ export const measurements = {
   ssrRouterLinkLoad: { runs: 3 },
   clientSideRendered: { runs: 5 },
   serverSideRendered: { runs: 5 },
+  initialLoad: {},
 } satisfies Record<string, { runs?: number }>
 
 export type MeasurementName = keyof typeof measurements

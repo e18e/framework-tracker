@@ -23,6 +23,7 @@ export const MetricUnitSchema = z.enum([
   'errors',
   'requests/s',
   'bytes/s',
+  'bytes',
 ])
 
 export const MetricBaseSchema = z.object({
@@ -455,6 +456,43 @@ export const ServerSideRenderedStatsSchema = z.object({
   browserVersion: z.string().min(1),
 })
 
+/** @see https://developer.chrome.com/docs/lighthouse/performance/resource-summary */
+export const InitialLoadResourceTypeSchema = z.enum([
+  'total',
+  'document',
+  'script',
+  'stylesheet',
+  'image',
+  'media',
+  'font',
+  'other',
+  'third-party',
+])
+
+export const InitialLoadResourceSchema = z.object({
+  requestCount: z.number().int().nonnegative(),
+  /** Transferred bytes, including response headers, as reported by Lighthouse. */
+  transferSize: z.number().int().nonnegative(),
+})
+
+export const InitialLoadStatsSchema = TestBaseSchema.extend({
+  name: z.literal('initialLoad'),
+  source: z.literal('lighthouse-resource-summary'),
+  path: z.literal('/initial-load'),
+  resources: z.record(InitialLoadResourceTypeSchema, InitialLoadResourceSchema),
+})
+
+export const InitialLoadResultSchema = z.object({
+  initialLoadTests: InitialLoadStatsSchema,
+  frameworkVersion: z.string().optional(),
+  timingMeasuredAt: z.string().optional(),
+  runner: z.string().optional(),
+  browserVersion: z.string().min(1),
+})
+
+export type InitialLoadStats = z.infer<typeof InitialLoadStatsSchema>
+export type InitialLoadResult = z.infer<typeof InitialLoadResultSchema>
+
 export const DependencyCountsSchema = z.object({
   prodDependencies: z.number().int().nonnegative(),
   devDependencies: z.number().int().nonnegative(),
@@ -497,6 +535,7 @@ export const FrameworkResultSchema = z.object({
   browserVersion: z.string().optional(),
   frameworkVersion: z.string().optional(),
   releasedAt: z.string().optional(),
+  initialLoadTests: InitialLoadStatsSchema.optional(),
   install: InstallBenchmarkSchema.optional(),
   coldBuildTime: BuildStatsSchema.shape.coldBuildTime.optional(),
   warmBuildTime: BuildStatsSchema.shape.warmBuildTime.optional(),

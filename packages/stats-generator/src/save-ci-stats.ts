@@ -13,6 +13,7 @@ import {
   FrameworkDependencyScanSchema,
   FirstPartyDependencyScanSchema,
   ServerSideRenderedStatsSchema,
+  InitialLoadResultSchema,
   ClientSideRenderedStatsSchema,
   BuildStatsSchema,
   DevServerStatsSchema,
@@ -604,6 +605,33 @@ export async function processCIStats(
       } else {
         console.warn(
           `No server-side rendered stats artifact found at ${serverSideRenderedStatsArtifactPath}`,
+        )
+      }
+
+      const initialLoadArtifactPath = join(
+        artifactsDir,
+        `initial-load-stats-${name}`,
+        'ci-stats.json',
+      )
+      const initialLoadArtifact = readArtifact<unknown>(
+        initialLoadArtifactPath,
+        framework.app,
+        'initialLoad',
+      )
+      if (initialLoadArtifact) {
+        const initialLoad = InitialLoadResultSchema.parse(initialLoadArtifact)
+        stats = {
+          ...stats,
+          browserVersion: initialLoad.browserVersion,
+          frameworkVersion:
+            initialLoad.frameworkVersion ?? stats.frameworkVersion,
+          initialLoadTests: initialLoad.initialLoadTests,
+        }
+        frameworkVersion = initialLoad.frameworkVersion ?? frameworkVersion
+        console.info('  ✓ Found initial load stats artifact')
+      } else {
+        console.warn(
+          `No initial load stats artifact found at ${initialLoadArtifactPath}`,
         )
       }
 

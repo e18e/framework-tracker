@@ -1,3 +1,5 @@
+import { prepareInitialLoadResources } from './initial-load'
+import { formatChartValue } from './chart'
 import { frameworks } from '@framework-tracker/results/frameworks'
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
@@ -332,6 +334,27 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
         latencyMs: `${Number(tests.latencyMs.toFixed(3))}ms`,
         bodySizeKb: `${tests.bodySizeKb}kb`,
         duplicationFactor: `${tests.duplicationFactor}x`,
+      },
+    ]
+  },
+)
+
+export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
+  (framework) => {
+    const resources = framework.initialLoadTests?.resources
+    if (!resources) return []
+    return [
+      {
+        name: framework.name,
+        package: framework.package,
+        isFocused: framework.isFocused,
+        requests: resources.total.requestCount,
+        total: formatChartValue(resources.total.transferSize / 1024, 'kb'),
+        ...Object.fromEntries(
+          Object.entries(prepareInitialLoadResources(resources)).map(
+            ([key, value]) => [key, formatChartValue(value, 'kb')],
+          ),
+        ),
       },
     ]
   },

@@ -7,10 +7,30 @@ import InteractionChartCaption from './InteractionChartCaption.astro'
 interface Props {
   title: string
   data: InteractionHistoryDatum[]
+  series?: readonly {
+    key: string
+    label: string
+    colorVar?: string
+    color?: string
+  }[]
+  valueFormat?: 'ms' | 'kb'
+  yAxisLabel?: string
 }
 
-const { title, data } = Astro.props
-const chartPayload = JSON.stringify({ title, data })
+const {
+  title,
+  data,
+  series = INTERACTION_PHASES as NonNullable<Props['series']>,
+  valueFormat = 'ms',
+  yAxisLabel = 'Interaction latency (ms)',
+} = Astro.props
+const chartPayload = JSON.stringify({
+  title,
+  data,
+  series,
+  valueFormat,
+  yAxisLabel,
+})
 ---
 
 {
@@ -23,7 +43,14 @@ const chartPayload = JSON.stringify({ title, data })
     </figure>
   ) : (
     <figure class="interaction-history">
-      <InteractionChartCaption title={title} />
+      {valueFormat === 'ms' ? (
+        <InteractionChartCaption title={title} />
+      ) : (
+        <figcaption>
+          <p class="interaction-history-title">{title}</p>
+          <p>{series.map(({ label }) => label).join(' · ')} (KB)</p>
+        </figcaption>
+      )}
       <div
         class="interaction-history-wrapper"
         data-interaction-history={chartPayload}
@@ -35,8 +62,8 @@ const chartPayload = JSON.stringify({ title, data })
             <thead>
               <tr>
                 <th scope="col">Framework version</th>
-                <th scope="col">Interaction latency</th>
-                {INTERACTION_PHASES.map(({ label }) => (
+                <th scope="col">Total</th>
+                {series.map(({ label }) => (
                   <th scope="col">{label}</th>
                 ))}
               </tr>
@@ -45,9 +72,16 @@ const chartPayload = JSON.stringify({ title, data })
               {data.map((datum) => (
                 <tr>
                   <th scope="row">{datum.name}</th>
-                  <td>{formatChartValue(datum.interactionLatencyMs, 'ms')}</td>
-                  {INTERACTION_PHASES.map(({ key }) => (
-                    <td>{formatChartValue(datum[key], 'ms')}</td>
+                  <td>
+                    {formatChartValue(datum.interactionLatencyMs, valueFormat)}
+                  </td>
+                  {series.map(({ key }) => (
+                    <td>
+                      {formatChartValue(
+                        Number(Reflect.get(datum, key)),
+                        valueFormat,
+                      )}
+                    </td>
                   ))}
                 </tr>
               ))}
@@ -114,6 +148,14 @@ const chartPayload = JSON.stringify({ title, data })
   interface Payload {
     title: string
     data: InteractionHistoryDatum[]
+    series?: readonly {
+      key: string
+      label: string
+      colorVar?: string
+      color?: string
+    }[]
+    valueFormat?: 'ms' | 'kb'
+    yAxisLabel?: string
   }
   interface PhaseRow {
     version: string
@@ -147,24 +189,34 @@ const chartPayload = JSON.stringify({ title, data })
     const payload = getPayload(wrapper)
     if (!payload) return
 
-    const { data } = payload
-    const phaseLabels = INTERACTION_PHASES.map(({ label }) => label)
-    const phaseColors = INTERACTION_PHASES.map(({ colorVar }, index) =>
-      getCssVar(colorVar, PHASE_FALLBACKS[index]!),
+    const {
+      data,
+      series = INTERACTION_PHASES as NonNullable<Payload['series']>,
+      valueFormat = 'ms',
+      yAxisLabel,
+    } = payload
+    const phaseLabels = series.map(({ label }) => label)
+    const phaseColors = series.map(
+      ({ colorVar, color }, index) =>
+        color ??
+        getCssVar(
+          colorVar ?? '--ft-muted',
+          PHASE_FALLBACKS[index % PHASE_FALLBACKS.length]!,
+        ),
     )
     const rows: PhaseRow[] = data.flatMap((datum) =>
-      INTERACTION_PHASES.map(({ key, label }) => ({
+      series.map(({ key, label }) => ({
         version: datum.name,
         phase: label,
-        ms: datum[key],
+        ms: Number(Reflect.get(datum, key)),
       })),
     )
     const topEdges: PhaseRow[] = data.flatMap((datum) => {
       let total = 0
-      return INTERACTION_PHASES.map(({ key, label }) => ({
+      return series.map(({ key, label }) => ({
         version: datum.name,
         phase: label,
-        ms: (total += datum[key]),
+        ms: (total += Number(Reflect.get(datum, key))),
       }))
     })
     const byVersion = new Map(data.map((datum) => [datum.name, datum]))
@@ -204,7 +256,7 @@ const chartPayload = JSON.stringify({ title, data })
         y: {
           scale: scaleLinear,
           grid: true,
-          axis: { label: 'Interaction latency (ms)' },
+          axis: { label: yAxisLabel },
         },
       },
       color: { domain: phaseLabels, range: phaseColors },
@@ -221,14 +273,22 @@ const chartPayload = JSON.stringify({ title, data })
           return {
             title: datum.name,
             rows: [
-              ...INTERACTION_PHASES.map(({ key, label }, index) => ({
-                label,
-                value: formatChartValue(datum[key], 'ms'),
-                color: phaseColors[index]!,
-              })).reverse(),
+              ...series
+                .map(({ key, label }, index) => ({
+                  label,
+                  value: formatChartValue(
+                    Number(Reflect.get(datum, key)),
+                    valueFormat,
+                  ),
+                  color: phaseColors[index]!,
+                }))
+                .reverse(),
               {
                 label: 'Total',
-                value: formatChartValue(datum.interactionLatencyMs, 'ms'),
+                value: formatChartValue(
+                  datum.interactionLatencyMs,
+                  valueFormat,
+                ),
                 active: true,
               },
             ],

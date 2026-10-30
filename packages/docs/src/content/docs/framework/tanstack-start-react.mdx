@@ -14,6 +14,7 @@ import BrowserBaselineDetails from '../../../components/benchmarks/browser-basel
 import LighthouseClientSideRenderedDetails from '../../../components/benchmarks/lighthouse-client-side-rendered-tests/Details.astro'
 import LighthouseServerSideRenderedDetails from '../../../components/benchmarks/lighthouse-server-side-rendered-tests/Details.astro'
 import SSRThroughputDetails from '../../../components/benchmarks/server-side-throughput-tests/Details.astro'
+import InitialLoadDetails from '../../../components/benchmarks/initial-load/Details.astro'
 import SSRLoadDetails from '../../../components/benchmarks/ssr-load-test/Details.astro'
 import SSRRouterLinkLoadDetails from '../../../components/benchmarks/ssr-router-link-load-test/Details.astro'
 
@@ -64,6 +65,10 @@ export const tanstackStartRuntimeVersions = getRuntimeVersionStats(
 ### Setup
 
 <RunTimeSetup />
+
+### Initial Load
+
+<InitialLoadDetails versions={tanstackStartRuntimeVersions} />
 
 ### Client Side Rendered Tests (Lighthouse)
 

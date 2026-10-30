@@ -128,6 +128,10 @@ export function prepareRuntimeResult(result: CombinedResult) {
       result.tests.clientSideRenderedTests?.project === 'app'
         ? result.tests.clientSideRenderedTests.result
         : undefined,
+    initialLoadTests:
+      result.tests.initialLoadTests?.project === 'app'
+        ? result.tests.initialLoadTests.result
+        : undefined,
     serverSideRenderedTests:
       result.tests.serverSideRenderedTests?.project === 'app'
         ? result.tests.serverSideRenderedTests.result

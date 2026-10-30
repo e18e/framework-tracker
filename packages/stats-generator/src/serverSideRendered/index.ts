@@ -1,7 +1,5 @@
-import { spawn } from 'node:child_process'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { packagesDir } from '../constants.ts'
+import { servingFrameworks } from '../serving-frameworks.ts'
+import { startBenchmarkServer } from '../benchmark-server.ts'
 import { getHost } from '../serve/common.ts'
 import { runBenchmark } from './run-benchmark.ts'
 import type { ServerSideRenderedBenchmarkResult } from './types.ts'
@@ -9,156 +7,24 @@ import type { ServerSideRenderedBenchmarkResult } from './types.ts'
 const SERVER_SIDE_RENDERED_HOST = getHost()
 const SERVER_SIDE_RENDERED_PORT = 3002
 
-interface ServerSideRenderedFrameworkConfig {
-  name: string
-  displayName: string
-  package: string
-  serveScript: string
-  fullDocumentNavigation: boolean
-}
-
-const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
-  {
-    name: 'astro-server-side-rendered',
-    displayName: 'Astro Server Side Rendered',
-    package: 'app-astro',
-    serveScript: 'astro.ts',
-    fullDocumentNavigation: true,
-  },
-  {
-    name: 'next-server-side-rendered',
-    displayName: 'Next.js Server Side Rendered',
-    package: 'app-next-js',
-    serveScript: 'next.ts',
-    fullDocumentNavigation: false,
-  },
-  {
-    name: 'nuxt-server-side-rendered',
-    displayName: 'Nuxt Server Side Rendered',
-    package: 'app-nuxt',
-    serveScript: 'nitro.ts',
-    fullDocumentNavigation: false,
-  },
-  {
-    name: 'pracht-server-side-rendered',
-    displayName: 'Pracht Server Side Rendered',
-    package: 'app-pracht',
-    serveScript: 'pracht.ts',
-    fullDocumentNavigation: false,
-  },
-  {
-    name: 'react-router-server-side-rendered',
-    displayName: 'React Router Server Side Rendered',
-    package: 'app-react-router',
-    serveScript: 'react-router.ts',
-    fullDocumentNavigation: false,
-  },
-  {
-    name: 'solid-start-server-side-rendered',
-    displayName: 'SolidStart Server Side Rendered',
-    package: 'app-solid-start',
-    serveScript: 'nitro.ts',
-    fullDocumentNavigation: false,
-  },
-  {
-    name: 'sveltekit-server-side-rendered',
-    displayName: 'SvelteKit Server Side Rendered',
-    package: 'app-sveltekit',
-    serveScript: 'sveltekit.ts',
-    fullDocumentNavigation: false,
-  },
-  {
-    name: 'tanstack-start-server-side-rendered',
-    displayName: 'TanStack Start Server Side Rendered',
-    package: 'app-tanstack-start-react',
-    serveScript: 'tanstack-start.ts',
-    fullDocumentNavigation: false,
-  },
-]
-
-async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
-  const deadline = Date.now() + timeoutMs
-  while (Date.now() < deadline) {
-    try {
-      const res = await fetch(url)
-      if (res.status === 200) return
-    } catch {
-      // not ready yet
-    }
-    await new Promise((r) => setTimeout(r, 500))
-  }
-  throw new Error(`Server at ${url} did not become ready within ${timeoutMs}ms`)
-}
-
-async function spawnServer(
-  config: ServerSideRenderedFrameworkConfig,
-): Promise<() => void> {
-  const appDir = join(packagesDir, config.package)
-  const scriptPath = fileURLToPath(
-    new URL(`../serve/${config.serveScript}`, import.meta.url),
-  )
-
-  const proc = spawn('node', [scriptPath, appDir], {
-    env: {
-      ...process.env,
-      HOST: SERVER_SIDE_RENDERED_HOST,
-      NODE_ENV: 'production',
-      PORT: String(SERVER_SIDE_RENDERED_PORT),
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  })
-
-  proc.stdout?.on('data', (chunk: Buffer) =>
-    process.stdout.write(`[${config.package}] ${chunk}`),
-  )
-  proc.stderr?.on('data', (chunk: Buffer) =>
-    process.stderr.write(`[${config.package}] ${chunk}`),
-  )
-
-  let exited = false
-  proc.on('exit', (code) => {
-    exited = true
-    if (code != null && code !== 0) {
-      console.error(`[${config.package}] server exited with code ${code}`)
-    }
-  })
-
-  const exitPromise = new Promise<never>((_, reject) => {
-    proc.on('exit', (code) => {
-      if (code != null && code !== 0) {
-        reject(new Error(`Server process exited with code ${code}`))
-      }
-    })
-  })
-
-  await Promise.race([
-    waitForServer(
-      `http://${SERVER_SIDE_RENDERED_HOST}:${SERVER_SIDE_RENDERED_PORT}/server-side-rendered`,
-    ),
-    exitPromise,
-  ])
-
-  return () => {
-    if (!exited) proc.kill('SIGTERM')
-  }
-}
-
 export async function runServerSideRenderedBenchmark(
   packageName: string,
   runs = 5,
 ): Promise<ServerSideRenderedBenchmarkResult> {
-  const config = SERVER_SIDE_RENDERED_FRAMEWORKS.find(
-    (f) => f.package === packageName,
-  )
+  const config = servingFrameworks.find((f) => f.package === packageName)
 
   if (!config) {
     throw new Error(
-      `Unknown server side rendered package: ${packageName}. Available: ${SERVER_SIDE_RENDERED_FRAMEWORKS.map((f) => f.package).join(', ')}`,
+      `Unknown server side rendered package: ${packageName}. Available: ${servingFrameworks.map((f) => f.package).join(', ')}`,
     )
   }
 
   console.info(`Starting server for ${config.displayName}...`)
-  const killServer = await spawnServer(config)
+  const killServer = await startBenchmarkServer(config, {
+    host: SERVER_SIDE_RENDERED_HOST,
+    port: SERVER_SIDE_RENDERED_PORT,
+    readinessPath: '/server-side-rendered',
+  })
 
   try {
     console.info(
@@ -166,7 +32,7 @@ export async function runServerSideRenderedBenchmark(
     )
     return await runBenchmark(
       `http://${SERVER_SIDE_RENDERED_HOST}:${SERVER_SIDE_RENDERED_PORT}`,
-      config.name,
+      `${config.package === 'app-next-js' ? 'next' : config.package === 'app-tanstack-start-react' ? 'tanstack-start' : config.package.slice(4)}-server-side-rendered`,
       config.displayName,
       runs,
       config.fullDocumentNavigation,

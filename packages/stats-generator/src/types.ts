@@ -14,6 +14,7 @@ import type {
   DevServerStatsSchema,
   InstallBenchmarkSchema,
   InstallResultSchema,
+  InitialLoadStatsSchema,
 } from '@framework-tracker/results'
 import type { SSRLoadTests } from './ssrLoad/types.ts'
 export type {
@@ -45,6 +46,7 @@ interface RenderedTestStandardDeviation extends InteractionTiming {
 }
 
 export interface CIStats {
+  initialLoadTests?: z.infer<typeof InitialLoadStatsSchema>
   framework?: string
   packagePath?: string
   timingMeasuredAt?: string

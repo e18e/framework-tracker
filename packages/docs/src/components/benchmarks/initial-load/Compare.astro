@@ -1,0 +1,38 @@
+---
+import { Content as Description } from './Description.mdx'
+import {
+  initialLoadChartData,
+  initialLoadSeries,
+} from '../../../lib/prepare-chart'
+import { initialLoadTableData } from '../../../lib/prepare-table'
+import StackedBarChart from '../../StackedBarChart.astro'
+import StatsTable from '../../StatsTable.astro'
+
+const columns = [
+  { key: 'name', header: 'Framework', nameCell: true },
+  { key: 'requests', header: 'Requests' },
+  ...initialLoadSeries.map(({ key, label }) => ({ key, header: label })),
+  { key: 'total', header: 'Total' },
+]
+---
+
+<Description />
+<StatsTable
+  label="Initial load transfer sizes and requests by framework"
+  columns={columns}
+  data={initialLoadTableData}
+/>
+<StackedBarChart
+  title="Initial Load: All Resources"
+  series={initialLoadSeries}
+  data={initialLoadChartData}
+/>
+<p>
+  The chart below excludes JavaScript transfers and uses a separate scale.
+  JavaScript still runs during the test. Sizes use 1 KB = 1,024 bytes.
+</p>
+<StackedBarChart
+  title="Initial Load: Excluding JavaScript"
+  series={initialLoadSeries.filter((item) => item.key !== 'js')}
+  data={initialLoadChartData}
+/>

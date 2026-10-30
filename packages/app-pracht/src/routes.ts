@@ -2,6 +2,10 @@ import { defineApp, route } from '@pracht/core'
 
 export const app = defineApp({
   routes: [
+    route('/initial-load', './routes/initial-load.tsx', {
+      id: 'initial-load',
+      render: 'ssr',
+    }),
     route('/', './routes/home.tsx', { id: 'home', render: 'ssr' }),
     route('/server-side-rendered', './routes/server-side-rendered.tsx', {
       id: 'server-side-rendered',

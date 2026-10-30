@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ClientSideRenderedRouteImport } from './routes/client-side-rendered'
+import { Route as InitialLoadRouteImport } from './routes/initial-load'
 import { Route as ServerSideRenderedRouteImport } from './routes/server-side-rendered'
 import { Route as ServerSideRenderedPlainLinksRouteImport } from './routes/server-side-rendered-plain-links'
 import { Route as SsrThroughputRouteImport } from './routes/ssr-throughput'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const ClientSideRenderedRoute = ClientSideRenderedRouteImport.update({
   id: '/client-side-rendered',
   path: '/client-side-rendered',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InitialLoadRoute = InitialLoadRouteImport.update({
+  id: '/initial-load',
+  path: '/initial-load',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServerSideRenderedRoute = ServerSideRenderedRouteImport.update({
@@ -57,6 +63,7 @@ const ServerSideRenderedIdRoute = ServerSideRenderedIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
+  '/initial-load': typeof InitialLoadRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
   '/server-side-rendered-plain-links': typeof ServerSideRenderedPlainLinksRoute
   '/ssr-throughput': typeof SsrThroughputRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
+  '/initial-load': typeof InitialLoadRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
   '/server-side-rendered-plain-links': typeof ServerSideRenderedPlainLinksRoute
   '/ssr-throughput': typeof SsrThroughputRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/client-side-rendered': typeof ClientSideRenderedRoute
+  '/initial-load': typeof InitialLoadRoute
   '/server-side-rendered': typeof ServerSideRenderedRoute
   '/server-side-rendered-plain-links': typeof ServerSideRenderedPlainLinksRoute
   '/ssr-throughput': typeof SsrThroughputRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/client-side-rendered'
+    | '/initial-load'
     | '/server-side-rendered'
     | '/server-side-rendered-plain-links'
     | '/ssr-throughput'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/client-side-rendered'
+    | '/initial-load'
     | '/server-side-rendered'
     | '/server-side-rendered-plain-links'
     | '/ssr-throughput'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/client-side-rendered'
+    | '/initial-load'
     | '/server-side-rendered'
     | '/server-side-rendered-plain-links'
     | '/ssr-throughput'
@@ -115,6 +127,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ClientSideRenderedRoute: typeof ClientSideRenderedRoute
+  InitialLoadRoute: typeof InitialLoadRoute
   ServerSideRenderedRoute: typeof ServerSideRenderedRoute
   ServerSideRenderedPlainLinksRoute: typeof ServerSideRenderedPlainLinksRoute
   SsrThroughputRoute: typeof SsrThroughputRoute
@@ -136,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/client-side-rendered'
       fullPath: '/client-side-rendered'
       preLoaderRoute: typeof ClientSideRenderedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/initial-load': {
+      id: '/initial-load'
+      path: '/initial-load'
+      fullPath: '/initial-load'
+      preLoaderRoute: typeof InitialLoadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/server-side-rendered': {
@@ -179,6 +199,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ClientSideRenderedRoute: ClientSideRenderedRoute,
+  InitialLoadRoute: InitialLoadRoute,
   ServerSideRenderedRoute: ServerSideRenderedRoute,
   ServerSideRenderedPlainLinksRoute: ServerSideRenderedPlainLinksRoute,
   SsrThroughputRoute: SsrThroughputRoute,

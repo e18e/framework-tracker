@@ -1,7 +1,7 @@
 Methodology: [SSR Load Test](/methodology/#ssr-load-test).
 
-Each app renders a table and connects/requests are slowly increased. We have two versions of this tests. 
+Measures server throughput and response latency as concurrent connections increase, with each request rendering a 1,000-row table.
 
-In the first one, we use only normal `<a>` tags to ensure a meta-frameworks link component adds no extra work.
+This version uses ordinary `<a>` links to measure server rendering without the extra work of rendering framework router link components.
 
-To see how a meta-frameworks link component can affect rendering, we have [re-done this test using framework link components](/run-time/#ssr-router-link-load-test)
+Compare it with the [router link load test](/run-time/#ssr-router-link-load-test) to see how framework router link components affect server rendering performance.

@@ -215,6 +215,36 @@ export const frameworks = [
     },
   },
   {
+    name: 'solid',
+    displayName: 'Solid 2.0',
+    frameworkPackage: 'solid-js',
+    focusedFramework: false,
+    starter: {
+      package: 'starter-solid',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      devServerPort: 3000,
+      measurements: [
+        'install',
+        'build',
+        'devServer',
+        'dependencies',
+        'browserBaseline',
+      ],
+    },
+    app: {
+      package: 'app-solid',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      measurements: [
+        'ssrRequestThroughput',
+        'clientSideRendered',
+        'serverSideRendered',
+        'ssrLoad',
+      ],
+    },
+  },
+  {
     name: 'sveltekit',
     displayName: 'SvelteKit',
     frameworkPackage: '@sveltejs/kit',

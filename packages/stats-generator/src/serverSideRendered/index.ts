@@ -61,6 +61,13 @@ const SERVER_SIDE_RENDERED_FRAMEWORKS: ServerSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    name: 'solid-server-side-rendered',
+    displayName: 'Solid 2.0 Server Side Rendered',
+    package: 'app-solid',
+    serveScript: 'solid.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'sveltekit-server-side-rendered',
     displayName: 'SvelteKit Server Side Rendered',
     package: 'app-sveltekit',

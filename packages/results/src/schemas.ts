@@ -51,6 +51,7 @@ export const FrameworkSchema = z.enum([
   'pracht',
   'react-router',
   'solid-start',
+  'solid',
   'sveltekit',
   'tanstack',
 ])
@@ -69,6 +70,8 @@ export const PackagePathSchema = z.enum([
   'packages/app-react-router',
   'packages/starter-solid-start',
   'packages/app-solid-start',
+  'packages/starter-solid',
+  'packages/app-solid',
   'packages/starter-sveltekit',
   'packages/app-sveltekit',
   'packages/starter-tanstack-start-react',

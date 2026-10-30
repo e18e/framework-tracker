@@ -62,6 +62,13 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    name: 'solid-client-side-rendered',
+    displayName: 'Solid 2.0 Client Side Rendered',
+    package: 'app-solid',
+    serveScript: 'solid.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'sveltekit-client-side-rendered',
     displayName: 'SvelteKit Client Side Rendered',
     package: 'app-sveltekit',

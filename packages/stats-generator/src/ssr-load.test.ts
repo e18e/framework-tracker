@@ -96,6 +96,7 @@ test('routes and result keys separate the two load tests', () => {
   for (const pkg of [
     'app-astro',
     'app-solid-start',
+    'app-solid',
     'app-sveltekit',
     'app-baseline-html',
   ]) {

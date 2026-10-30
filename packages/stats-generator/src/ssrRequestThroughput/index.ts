@@ -7,6 +7,7 @@ import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
 import { buildNextJSHandler } from './handlers/nextjs.ts'
 import { buildReactRouterHandler } from './handlers/react-router.ts'
 import { buildSolidStartHandler } from './handlers/solid-start.ts'
+import { buildSolidHandler } from './handlers/solid.ts'
 import { buildTanStackStartHandler } from './handlers/tanstack-start.ts'
 import type {
   ServerRenderHandler,
@@ -69,6 +70,12 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
       displayName: 'SolidStart SSR Request Handler Throughput',
       package: 'app-solid-start',
       buildHandler: buildSolidStartHandler,
+    },
+    {
+      name: 'solid-ssr-request-throughput',
+      displayName: 'Solid 2.0 SSR Request Handler Throughput',
+      package: 'app-solid',
+      buildHandler: buildSolidHandler,
     },
     {
       name: 'tanstack-start-ssr-request-throughput',

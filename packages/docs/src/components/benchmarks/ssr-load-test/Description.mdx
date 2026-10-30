@@ -1,6 +1,7 @@
 Methodology: [SSR Load Test](/methodology/#ssr-load-test).
 
-Each runtime app renders the same 1,000-row, three-column table using ordinary
-`<a>` links. This compares server rendering under HTTP load without the extra work
-of rendering framework router link components. Requests still pass through each
-framework’s server routing. No browser runs and no links are clicked.
+Measures server throughput and response latency as concurrent connections increase, with each request rendering a 1,000-row table.
+
+This version uses ordinary `<a>` links to measure server rendering without the extra work of rendering framework router link components.
+
+Compare it with the [router link load test](/run-time/#ssr-router-link-load-test) to see how framework router link components affect server rendering performance.

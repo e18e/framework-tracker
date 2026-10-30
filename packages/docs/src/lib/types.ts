@@ -24,6 +24,29 @@ export interface VersionLineChartPayload {
   yAxisLabel: string
 }
 
+export interface MonthlyComparisonPoint {
+  /** First day of the month as `YYYY-MM`, or `latest` for the latest results. */
+  month: string
+  value: number | null
+  version: string | null
+}
+
+export interface MonthlyComparisonSeries {
+  id: string
+  name: string
+  focused: boolean
+  /** Reference series (Baseline HTML) drawn as a neutral dashed line. */
+  baseline: boolean
+  /** Brand colour from `framework-logos.ts`; null draws a neutral line. */
+  color: { dark: string; light?: string } | null
+  points: MonthlyComparisonPoint[]
+}
+
+export interface MonthlyComparisonChartPayload extends MetricDefinition {
+  months: string[]
+  series: MonthlyComparisonSeries[]
+}
+
 export interface MetricDefinition {
   id: string
   title: string
@@ -60,9 +83,14 @@ export interface ChartMeasurement {
   package?: string
   name?: string
   frameworkVersion?: string
+  releasedAt?: string
   isFocused?: boolean
   devServerStartTime?: {
     medianMs?: number
+  }
+  install?: {
+    installTimeMs?: { mean?: number }
+    nodeModulesSizeBytes?: number
   }
   frameworkDependencies?: {
     prodDependencies?: number

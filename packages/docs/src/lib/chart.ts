@@ -1,3 +1,4 @@
+import { getBrandByDisplayName, resolveThemedValue } from './framework-logos'
 import type { ChartValueFormat } from './types'
 
 export function formatChartValue(
@@ -25,36 +26,13 @@ export function formatChartValue(
   return prefixPositive && value > 0 ? `+${formatted}` : formatted
 }
 
-export function getComparisonChartHeight(itemCount: number) {
-  return Math.max(240, itemCount * 56 + 24)
-}
+/** Every comparison chart shares one height so they line up on the page. */
+export const COMPARISON_CHART_HEIGHT = 480
 
-const FRAMEWORK_LOGO_SOURCES: Record<string, string> = {
-  Astro: '/framework-logos/astro-gradient.svg',
-  'Baseline HTML': '/framework-logos/html5.svg',
-  Gatsby: '/framework-logos/gatsby.svg',
-  'Next.js': '/framework-logos/nextdotjs.svg',
-  Nuxt: '/framework-logos/nuxt.svg',
-  'Nuxt.js': '/framework-logos/nuxt.svg',
-  Pracht: '/framework-logos/pracht.svg',
-  'React Router': '/framework-logos/reactrouter.svg',
-  SolidStart: '/framework-logos/solid-start.svg',
-  SvelteKit: '/framework-logos/svelte.svg',
-  'TanStack Start': '/framework-logos/tanstack.svg',
-  WordPress: '/framework-logos/wordpress.svg',
-}
-
+/** Browser-only: resolves the logo for the page's current theme. */
 export function getFrameworkLogoSource(name: string) {
-  if (name === 'Astro' && document.documentElement.dataset.theme === 'light') {
-    return '/framework-logos/astro-dark.svg'
-  }
-
-  if (
-    name === 'Next.js' &&
-    document.documentElement.dataset.theme !== 'light'
-  ) {
-    return '/framework-logos/nextdotjs-light.svg'
-  }
-
-  return FRAMEWORK_LOGO_SOURCES[name]
+  const brand = getBrandByDisplayName(name)
+  return brand == null
+    ? undefined
+    : resolveThemedValue(brand.logo, document.documentElement.dataset.theme)
 }

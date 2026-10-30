@@ -1,16 +1,25 @@
 ---
 import {
+  prepareSSRLatencyComparison,
+  prepareSSRLatencyMonthlyComparison,
+  runtimeHistory,
   ssrRequestThroughputStats,
   type SSRLoadKey,
 } from '../lib/prepare-chart'
-import { prepareSSRLatencyComparison } from '../lib/prepare-chart'
-import ComparisonBarChart from './ComparisonBarChart.astro'
+import ComparisonComposition from './ComparisonComposition.astro'
 
 interface Props {
   testsKey?: SSRLoadKey
 }
 const { testsKey = 'ssrLoadTests' } = Astro.props
-const chart = prepareSSRLatencyComparison(
+const bar = prepareSSRLatencyComparison(
+  ssrRequestThroughputStats,
+  100,
+  'p99LatencyMs',
+  testsKey,
+)
+const line = prepareSSRLatencyMonthlyComparison(
+  runtimeHistory,
   ssrRequestThroughputStats,
   100,
   'p99LatencyMs',
@@ -18,4 +27,4 @@ const chart = prepareSSRLatencyComparison(
 )
 ---
 
-<ComparisonBarChart {...chart} />
+<ComparisonComposition bar={bar} line={line} />

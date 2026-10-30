@@ -1,0 +1,120 @@
+---
+import type { ComponentProps } from 'astro/types'
+import type { MonthlyComparisonChartPayload } from '../lib/types'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+import ComparisonLineChart from './ComparisonLineChart.astro'
+
+interface Props {
+  bar: ComponentProps<typeof ComparisonBarChart>
+  line: MonthlyComparisonChartPayload
+}
+
+const { bar, line } = Astro.props
+---
+
+<div class="comparison-composition">
+  <div
+    class="comparison-composition-toggle"
+    role="group"
+    aria-label={`${bar.title} chart type`}
+  >
+    <button type="button" data-view="bar" aria-pressed="true">Bar</button>
+    <button type="button" data-view="line" aria-pressed="false">Line</button>
+  </div>
+
+  <div data-view-panel="bar">
+    <ComparisonBarChart {...bar} />
+  </div>
+
+  <div data-view-panel="line" hidden>
+    <ComparisonLineChart {...line} />
+  </div>
+</div>
+
+<style>
+  .comparison-composition {
+    position: relative;
+  }
+
+  .comparison-composition-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    display: inline-flex;
+    padding: 2px;
+    border: 1px solid var(--ft-border);
+    border-radius: 6px;
+    background: var(--ft-bg-muted);
+  }
+
+  .comparison-composition :global(figcaption) {
+    padding-right: 8.5rem;
+  }
+
+  .comparison-composition-toggle button {
+    margin: 0;
+    padding: 0.2rem 0.85rem;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--ft-muted);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition:
+      background-color 140ms ease-out,
+      color 140ms ease-out;
+  }
+
+  .comparison-composition-toggle button:hover {
+    color: var(--ft-text);
+  }
+
+  .comparison-composition-toggle button[aria-pressed='true'] {
+    background: var(--ft-bg);
+    color: var(--ft-text);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 12%);
+  }
+
+  .comparison-composition-toggle button:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .comparison-composition-toggle button {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initComposition(composition: HTMLElement) {
+    if (composition.dataset.ready) return
+    composition.dataset.ready = 'true'
+
+    const buttons =
+      composition.querySelectorAll<HTMLButtonElement>('button[data-view]')
+    const panels =
+      composition.querySelectorAll<HTMLElement>('[data-view-panel]')
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const view = button.dataset.view
+        buttons.forEach((b) =>
+          b.setAttribute('aria-pressed', String(b === button)),
+        )
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.viewPanel !== view
+        })
+      })
+    })
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('.comparison-composition')
+    .forEach(initComposition)
+</script>

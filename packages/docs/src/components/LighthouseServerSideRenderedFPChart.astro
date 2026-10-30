@@ -1,11 +1,20 @@
 ---
-import { ssrRequestThroughputStats } from '../lib/prepare-chart'
-import { prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison } from '../lib/prepare-chart'
-import ComparisonBarChart from './ComparisonBarChart.astro'
+import {
+  prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison,
+  prepareLighthouseServerSideRenderedTestsFirstPaintMsMonthlyComparison,
+  runtimeHistory,
+  ssrRequestThroughputStats,
+} from '../lib/prepare-chart'
+import ComparisonComposition from './ComparisonComposition.astro'
 
-const chart = prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison(
+const bar = prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison(
   ssrRequestThroughputStats,
 )
+const line =
+  prepareLighthouseServerSideRenderedTestsFirstPaintMsMonthlyComparison(
+    runtimeHistory,
+    ssrRequestThroughputStats,
+  )
 ---
 
-<ComparisonBarChart {...chart} />
+<ComparisonComposition bar={bar} line={line} />

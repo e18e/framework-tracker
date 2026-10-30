@@ -1,6 +1,8 @@
 ---
-import { starterStats } from '../lib/prepare-chart'
-import ComparisonBarChart from './ComparisonBarChart.astro'
+import { starterHistory, starterStats } from '../lib/prepare-chart'
+import { monthlyComparison } from '../lib/monthly-history'
+import type { MetricDefinition } from '../lib/types'
+import ComparisonComposition from './ComparisonComposition.astro'
 
 type DependencyMetric =
   'allDependencies' | 'devDependencies' | 'prodDependencies'
@@ -22,23 +24,37 @@ function getChartData(metric: DependencyMetric) {
     })
     .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
 }
+
+function getCharts(metric: DependencyMetric, title: string) {
+  const definition: MetricDefinition = {
+    id: `frameworkDependencies.${metric}`,
+    title,
+    valueFormat: 'count',
+    yAxisLabel: 'Dependency count',
+  }
+  return {
+    bar: { ...definition, data: getChartData(metric) },
+    line: monthlyComparison(
+      definition,
+      starterHistory,
+      starterStats,
+      (record) => {
+        const value = record.frameworkDependencies?.[metric]
+        return typeof value === 'number' && Number.isFinite(value)
+          ? value
+          : null
+      },
+    ),
+  }
+}
 ---
 
-<ComparisonBarChart
-  title="Core Package Dependencies"
-  data={getChartData('allDependencies')}
-  valueFormat="count"
-  yAxisLabel="Dependency count"
+<ComparisonComposition
+  {...getCharts('allDependencies', 'Core Package Dependencies')}
 />
-<ComparisonBarChart
-  title="Core Package Development Dependencies"
-  data={getChartData('devDependencies')}
-  valueFormat="count"
-  yAxisLabel="Dependency count"
+<ComparisonComposition
+  {...getCharts('devDependencies', 'Core Package Development Dependencies')}
 />
-<ComparisonBarChart
-  title="Core Package Production Dependencies"
-  data={getChartData('prodDependencies')}
-  valueFormat="count"
-  yAxisLabel="Dependency count"
+<ComparisonComposition
+  {...getCharts('prodDependencies', 'Core Package Production Dependencies')}
 />

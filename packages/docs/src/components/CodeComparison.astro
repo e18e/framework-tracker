@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content'
 import { getCodeComparison } from '../lib/prepare-table'
-import { frameworkLogos } from '../lib/framework-logos'
+import { getBrandByPackage } from '../lib/framework-logos'
 
 type Props = {
   example: string
@@ -21,7 +21,7 @@ const tabs = await Promise.all(
   frameworks.map(async ({ name, slug, package: packageName, entry }) => ({
     name,
     slug,
-    logo: frameworkLogos[packageName],
+    logo: getBrandByPackage(packageName)?.logo,
     docs: entry?.data.docs,
     Content: entry == null ? null : (await render(entry)).Content,
     tabId: `${example}-tab-${slug}`,

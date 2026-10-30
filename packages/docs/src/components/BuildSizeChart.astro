@@ -1,9 +1,14 @@
 ---
-import { starterStats } from '../lib/prepare-chart'
-import { prepareColdBuildTimeComparison } from '../lib/prepare-chart'
-import ComparisonBarChart from './ComparisonBarChart.astro'
+import {
+  prepareColdBuildTimeComparison,
+  prepareColdBuildTimeMonthlyComparison,
+  starterHistory,
+  starterStats,
+} from '../lib/prepare-chart'
+import ComparisonComposition from './ComparisonComposition.astro'
 
-const chart = prepareColdBuildTimeComparison(starterStats)
+const bar = prepareColdBuildTimeComparison(starterStats)
+const line = prepareColdBuildTimeMonthlyComparison(starterHistory, starterStats)
 ---
 
-<ComparisonBarChart {...chart} />
+<ComparisonComposition bar={bar} line={line} />

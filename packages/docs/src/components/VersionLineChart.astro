@@ -54,12 +54,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
         ) : null}
       </figcaption>
       <div class="version-line-chart-wrapper" data-version-line={chartPayload}>
-        <canvas
-          aria-label={`${title}. Line chart by framework version; a data table follows.`}
-          role="img"
-        >
-          {title} chart
-        </canvas>
+        <div class="version-line-chart-host" />
         <div class="version-line-chart-data sr-only">
           <table>
             <caption>{title} data</caption>
@@ -197,273 +192,172 @@ const latestChangeLabel = formatLatestChange(latestChange)
 
 <script>
   import {
-    CategoryScale,
-    Chart,
-    Filler,
-    Legend,
-    LineController,
-    LineElement,
-    LinearScale,
-    PointElement,
-    Tooltip,
-  } from 'chart.js'
+    areaY,
+    crosshair,
+    defineChart,
+    dot,
+    lineY,
+    mountChart,
+    type ChartHost,
+  } from '@tanstack/charts'
+  import { decorative } from '@tanstack/charts/mark/decorative'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { scalePoint } from '@tanstack/charts/scales/point'
+  import { tooltip } from '@tanstack/charts/tooltip'
   import { formatChartValue } from '../lib/chart'
-  import type { ChartValueFormat, VersionLineChartPayload } from '../lib/types'
+  import type { VersionLineChartPayload } from '../lib/types'
 
-  Chart.register(
-    CategoryScale,
-    Filler,
-    Legend,
-    LineController,
-    LineElement,
-    LinearScale,
-    PointElement,
-    Tooltip,
-  )
-
-  const chartCache = new WeakMap<HTMLCanvasElement, Chart>()
-  const LINE_COLOR = '#697586'
-  const POINT_COLOR = '#4b5565'
-  const TEXT_COLOR_FALLBACK = '#1f2933'
-  const MUTED_COLOR_FALLBACK = '#697586'
-  const BORDER_COLOR_FALLBACK = '#d9dee7'
-  const LINE_FILL_FALLBACK = 'rgba(105, 117, 134, 0.12)'
-  const LINE_FILL_TRANSPARENT_FALLBACK = 'rgba(105, 117, 134, 0)'
-
-  function formatAxisTick(
-    value: string | number,
-    format: ChartValueFormat,
-  ): string {
-    const numericValue = Number(value)
-
-    if (!Number.isFinite(numericValue)) return ''
-    if (format !== 'count') return formatChartValue(numericValue, format)
-    if (!Number.isInteger(numericValue)) return ''
-
-    return String(numericValue)
+  type Datum = VersionLineChartPayload['data'][number]
+  const hosts = new WeakMap<HTMLElement, ChartHost<Datum, string, number>>()
+  const mobileViewport = window.matchMedia('(max-width: 768px)')
+  function css(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
   }
-
-  function getCssVar(element: Element, name: string, fallback: string) {
-    return getComputedStyle(element).getPropertyValue(name).trim() || fallback
-  }
-
-  function getData(wrapper: HTMLElement): {
-    payload: VersionLineChartPayload
-    data: { name: string; value: number | null }[]
-  } | null {
-    const dataAttr = wrapper.dataset.versionLine
-    if (!dataAttr) return null
-
+  function initChart(wrapper: HTMLElement) {
     let payload: VersionLineChartPayload
     try {
-      payload = JSON.parse(dataAttr) as VersionLineChartPayload
-    } catch (e) {
-      console.warn('[VersionLineChart] Invalid chart data:', e)
-      return null
+      payload = JSON.parse(wrapper.dataset.versionLine ?? '')
+    } catch (error) {
+      console.warn('[VersionLineChart] Invalid chart data:', error)
+      return
     }
-
-    return { payload, data: payload.data }
-  }
-
-  function initChart(wrapper: HTMLElement) {
-    const canvas = wrapper.querySelector('canvas')
-    if (!canvas) return
-    const chartTitle = canvas.getAttribute('aria-label') ?? 'Version trend'
-
-    const result = getData(wrapper)
-    if (!result || result.data.length === 0) return
-
-    const { payload, data } = result
-    const values = data.map((d) => d.value)
-    const max = Math.max(...values.map((value) => value ?? 0))
-    const suggestedMax =
-      payload.valueFormat === 'count' ? Math.max(1, Math.ceil(max)) : max * 1.05
-    const root = document.documentElement
-    const textColor = getCssVar(root, '--ft-text', TEXT_COLOR_FALLBACK)
-    const mutedColor = getCssVar(root, '--ft-muted', MUTED_COLOR_FALLBACK)
-    const borderColor = getCssVar(root, '--ft-border', BORDER_COLOR_FALLBACK)
-    const gridColor = getCssVar(root, '--ft-chart-grid', borderColor)
-    const lineColor = getCssVar(root, '--ft-chart-line', LINE_COLOR)
-    const pointColor = getCssVar(root, '--ft-chart-line-hover', POINT_COLOR)
-    const lineFill = getCssVar(root, '--ft-chart-line-fill', LINE_FILL_FALLBACK)
-    const lineFillTransparent = getCssVar(
-      root,
-      '--ft-chart-line-fill-transparent',
-      LINE_FILL_TRANSPARENT_FALLBACK,
-    )
-    const canvasColor = getCssVar(root, '--ft-bg', '#ffffff')
-    const lastPointIndex = data.length - 1
-    const pointRadii = data.map((_, index) =>
-      index === lastPointIndex ? 6 : 4,
-    )
-    const pointBackgroundColors = data.map((_, index) =>
-      index === lastPointIndex ? pointColor : canvasColor,
-    )
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches
-
-    chartCache.get(canvas)?.destroy()
-
-    const chart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: data.map((d) => d.name),
-        datasets: [
+    const { data, valueFormat } = payload
+    if (!data.some((datum) => datum.value != null)) return
+    const line = css('--ft-chart-line', '#697586')
+    const latest = data.at(-1)
+    const definition = defineChart({
+      gradients: [
+        {
+          id: 'version-line-fill',
+          x1: 0,
+          y1: 0,
+          x2: 0,
+          y2: 1,
+          stops: [
+            { offset: 0, color: line, opacity: 0.12 },
+            { offset: 0.72, color: line, opacity: 0 },
+          ],
+        },
+      ],
+      margin: { top: 12 },
+      focusRing: false,
+      marks: [
+        decorative(
+          areaY(data, {
+            x: 'name',
+            y: 'value',
+            y1: 0,
+            fill: 'url(#version-line-fill)',
+            fillOpacity: 1,
+          }),
+        ),
+        decorative(
+          lineY(data, { x: 'name', y: 'value', stroke: line, strokeWidth: 3 }),
+        ),
+        dot(
+          data.filter((datum) => datum !== latest),
           {
-            label: payload.yAxisLabel ?? chartTitle,
-            data: values,
-            borderColor: lineColor,
-            backgroundColor: (context) => {
-              const { chart } = context
-              const { chartArea, ctx } = chart
-              if (!chartArea) return lineFill
-
-              const gradient = ctx.createLinearGradient(
-                0,
-                chartArea.top,
-                0,
-                chartArea.bottom,
-              )
-              gradient.addColorStop(0, lineFill)
-              gradient.addColorStop(0.72, lineFillTransparent)
-              return gradient
-            },
-            borderCapStyle: 'round',
-            borderJoinStyle: 'round',
-            borderWidth: 3,
-            fill: true,
-            pointBackgroundColor: pointBackgroundColors,
-            pointBorderColor: lineColor,
-            pointBorderWidth: 3,
-            pointHitRadius: 12,
-            pointHoverBackgroundColor: pointColor,
-            pointHoverBorderColor: canvasColor,
-            pointHoverBorderWidth: 3,
-            pointHoverRadius: 7,
-            pointRadius: pointRadii,
-            pointStyle: 'circle',
-            showLine: true,
-            spanGaps: false,
-            tension: 0.32,
+            x: 'name',
+            y: 'value',
+            r: 4,
+            fill: css('--ft-bg', '#ffffff'),
+            stroke: line,
+            strokeWidth: 3,
           },
-        ],
+        ),
+        dot(latest ? [latest] : [], {
+          x: 'name',
+          y: 'value',
+          r: 6,
+          fill: css('--ft-chart-line-hover', '#4b5565'),
+          stroke: line,
+          strokeWidth: 3,
+        }),
+        crosshair({ x: true, y: false }),
+      ],
+      scales: {
+        x: {
+          scale: scalePoint<string>()
+            .domain(data.map((datum) => datum.name))
+            .padding(0.1),
+          axis: {
+            tickLabels: {
+              fontSize: 12,
+              fontWeight: 500,
+              opacity: 1,
+              rotate: data.length > 8 ? -45 : undefined,
+            },
+          },
+        },
+        y: {
+          scale: scaleLinear().domain([
+            0,
+            Math.max(1, ...data.map((datum) => datum.value ?? 0)) * 1.05,
+          ]),
+          nice: true,
+          grid: { stroke: css('--ft-chart-grid', '#d9dee7'), strokeOpacity: 1 },
+          axis: {
+            label: payload.yAxisLabel,
+            tickLabels: { fontSize: 12, fontWeight: 500, opacity: 1 },
+            ticks: {
+              format: (value: string | number | Date) =>
+                valueFormat === 'count' && !Number.isInteger(Number(value))
+                  ? ''
+                  : formatChartValue(Number(value), valueFormat),
+            },
+          },
+        },
       },
-      options: {
-        animation: { duration: prefersReducedMotion ? 0 : 500 },
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        layout: {
-          padding: {
-            left: 4,
-            right: 8,
-            top: 8,
-          },
-        },
-        maintainAspectRatio: false,
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: textColor,
-            bodyColor: canvasColor,
-            borderColor: lineColor,
-            borderWidth: 1,
-            callbacks: {
-              label: (context) =>
-                `${payload.yAxisLabel}: ${formatChartValue(
-                  Number(context.raw ?? 0),
-                  payload.valueFormat,
-                )}`,
-              title: (items) => `Version ${items[0]?.label ?? ''}`,
+      theme: {
+        muted: css('--ft-text', '#1f2933'),
+        grid: css('--ft-chart-grid', '#d9dee7'),
+      },
+      focus: 'nearest-x',
+      maxFocusDistance: Number.POSITIVE_INFINITY,
+      tooltip: {
+        use: tooltip,
+        content: (points) => ({
+          title: `Version ${points[0]!.datum.name}`,
+          rows: [
+            {
+              label: payload.yAxisLabel,
+              value: formatChartValue(points[0]!.datum.value!, valueFormat),
             },
-            caretPadding: 8,
-            cornerRadius: 8,
-            displayColors: false,
-            padding: 10,
-            titleColor: canvasColor,
-          },
-        },
-        scales: {
-          x: {
-            border: { display: false },
-            grid: { display: false },
-            ticks: {
-              autoSkip: true,
-              autoSkipPadding: 16,
-              color: mutedColor,
-              font: { size: 12, weight: 500 },
-              maxTicksLimit: 8,
-              maxRotation: 0,
-              minRotation: 0,
-              padding: 8,
-            },
-          },
-          y: {
-            beginAtZero: true,
-            suggestedMax,
-            border: { display: false },
-            grid: {
-              color: gridColor,
-              drawTicks: false,
-              lineWidth: 1,
-            },
-            title: {
-              color: mutedColor,
-              display: Boolean(payload.yAxisLabel),
-              font: { size: 12, weight: 600 },
-              text: payload.yAxisLabel,
-            },
-            ticks: {
-              color: mutedColor,
-              font: { size: 12 },
-              padding: 10,
-              precision: payload.valueFormat === 'count' ? 0 : undefined,
-              callback: (value) => formatAxisTick(value, payload.valueFormat),
-            },
-          },
-        },
+          ],
+        }),
       },
     })
-
-    chartCache.set(canvas, chart)
+    const options = {
+      definition,
+      height: mobileViewport.matches ? 230 : 300,
+      ariaLabel: `${payload.title}. Line chart by framework version; a data table follows.`,
+    }
+    const existing = hosts.get(wrapper)
+    if (existing) existing.update(options)
+    else
+      hosts.set(
+        wrapper,
+        mountChart(
+          wrapper.querySelector<HTMLElement>('.version-line-chart-host')!,
+          options,
+        ),
+      )
   }
-
   function initCharts() {
     document
       .querySelectorAll<HTMLElement>('.version-line-chart-wrapper')
       .forEach(initChart)
   }
-
-  function scheduleInit() {
-    requestAnimationFrame(initCharts)
-  }
-
-  function observeThemeChanges() {
-    if (typeof MutationObserver === 'undefined') return
-
-    let lastThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
-    const observer = new MutationObserver(() => {
-      const nextThemeState = `${document.documentElement.className}:${document.documentElement.dataset.theme ?? ''}`
-      if (nextThemeState === lastThemeState) return
-
-      lastThemeState = nextThemeState
-      scheduleInit()
-    })
-
-    observer.observe(document.documentElement, {
-      attributeFilter: ['class', 'data-theme'],
-      attributes: true,
-    })
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => initCharts())
-  } else {
-    initCharts()
-  }
-
-  observeThemeChanges()
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', initCharts)
+  else initCharts()
+  mobileViewport.addEventListener('change', initCharts)
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributeFilter: ['class', 'data-theme'], attributes: true },
+  )
 </script>

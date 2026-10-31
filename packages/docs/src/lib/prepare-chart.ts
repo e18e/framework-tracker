@@ -1,3 +1,5 @@
+import { INTERACTION_PHASES } from './interaction-phases'
+import { prepareInitialLoadResources } from './initial-load'
 import { getCollection } from 'astro:content'
 import { frameworks } from '@framework-tracker/results/frameworks'
 export * from './chart-measurements'
@@ -88,8 +90,11 @@ export function getRenderedInteractionBreakdownData(
 
     return {
       name: framework.name,
-      focused: framework.isFocused,
-      ...interaction,
+      focused: framework.isFocused !== false,
+      interactionLatencyMs: interaction.interactionLatencyMs,
+      values: Object.fromEntries(
+        INTERACTION_PHASES.map(({ key }) => [key, interaction[key]]),
+      ),
     }
   })
 }
@@ -116,3 +121,26 @@ export function getCWVStatsChartData(cwv: CWV, device: Device) {
 
 const cwvEntries = await getCollection('cwv')
 export type Device = 'desktop' | 'mobile'
+
+export const initialLoadSeries = [
+  { key: 'html', label: 'HTML', color: '#e34c26' },
+  { key: 'css', label: 'CSS', color: '#1572b6' },
+  { key: 'js', label: 'JavaScript', color: '#f7df1e' },
+  { key: 'other', label: 'Other', color: 'var(--ft-muted)' },
+]
+
+export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
+  (framework) => {
+    const resources = framework.initialLoadTests?.resources
+    if (!resources) return []
+    return [
+      {
+        name: framework.name,
+        focused: framework.isFocused,
+        requests: resources.total.requestCount,
+        total: resources.total.transferSize / 1024,
+        values: prepareInitialLoadResources(resources),
+      },
+    ]
+  },
+)

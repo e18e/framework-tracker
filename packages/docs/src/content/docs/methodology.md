@@ -471,6 +471,23 @@ Current pinned dependencies are listed in each project's `package.json`:
   production server instead of measured as prerendered static HTML.
 - Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](https://github.com/solidjs/solid-docs/pull/1620). Note update to docs page once this PR has been merged.
 
+### Initial Load
+
+- Each production app serves the same small, styled landing page at
+  `/initial-load`, using shared copy, layout, and CSS with system fonts.
+- A fresh headless Chrome process navigates to the route once. Lighthouse flow
+  collects only the `resource-summary` audit using the default browser setup
+  above, without simulated CPU or network throttling.
+- Results record transferred bytes (including response headers) and request
+  counts, rather than uncompressed source size, build output size, or load time.
+  This is a single navigation, not a median across repeated runs.
+- HTML means Lighthouse's document category, CSS means stylesheet, and JavaScript
+  means script. Inline styles and scripts remain part of the HTML transfer.
+  Other combines images, media, fonts, and the remaining resource category.
+- The total includes each resource category once. Lighthouse's third-party row
+  overlaps those categories and is excluded from the stacks.
+- Asset compression is enabled for Nuxt, SolidStart, and TanStack Start through Nitro; other frameworks retain their defaults as for them is was on by default in their production builds
+
 ### Server Side Throughput Tests
 
 - Each framework renders the dedicated `/ssr-throughput` route with a table of

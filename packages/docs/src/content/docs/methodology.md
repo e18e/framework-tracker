@@ -486,6 +486,7 @@ Current pinned dependencies are listed in each project's `package.json`:
   Other combines images, media, fonts, and the remaining resource category.
 - The total includes each resource category once. Lighthouse's third-party row
   overlaps those categories and is excluded from the stacks.
+- Asset compression is enabled for Nuxt, SolidStart, and TanStack Start through Nitro; other frameworks retain their defaults as for them is was on by default in their production builds
 
 ### Server Side Throughput Tests
 

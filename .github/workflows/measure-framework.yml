@@ -506,6 +506,8 @@ jobs:
 
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
+        env:
+          COMPRESS_PUBLIC_ASSETS: 'true'
         run: pnpm build
 
       - name: Verify runner Chrome

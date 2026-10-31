@@ -7,5 +7,12 @@ export default defineConfig({
   preview: {
     host: '127.0.0.1',
   },
-  plugins: [nitro({ preset: 'node-server' }), tanstackStart(), viteReact()],
+  plugins: [
+    nitro({
+      preset: 'node-server',
+      compressPublicAssets: process.env.COMPRESS_PUBLIC_ASSETS === 'true',
+    }),
+    tanstackStart(),
+    viteReact(),
+  ],
 })

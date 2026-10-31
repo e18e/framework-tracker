@@ -1,3 +1,4 @@
+import { INTERACTION_PHASES } from './interaction-phases'
 import { prepareInitialLoadResources } from './initial-load'
 import { getCollection } from 'astro:content'
 import { frameworks } from '@framework-tracker/results/frameworks'
@@ -89,8 +90,11 @@ export function getRenderedInteractionBreakdownData(
 
     return {
       name: framework.name,
-      focused: framework.isFocused,
-      ...interaction,
+      focused: framework.isFocused !== false,
+      interactionLatencyMs: interaction.interactionLatencyMs,
+      values: Object.fromEntries(
+        INTERACTION_PHASES.map(({ key }) => [key, interaction[key]]),
+      ),
     }
   })
 }

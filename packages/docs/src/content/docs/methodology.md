@@ -426,97 +426,30 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### SSR Load Test
 
-Every table uses ordinary `<a>` links to measure server rendering without router link components. Frameworks with those components, including Pracht, use `/server-side-rendered-plain-links`; the others use `/server-side-rendered`.
-
-Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
-link with text `View →` and destination `/server-side-rendered/${entry.id}`.
-Data comes from `packages/testdata/src/ssr.ts`: UUID rows are created once per
-module instance and returned asynchronously with a zero-delay timer. The paired
-routes preserve each framework's loader and rendering structure; the intended
-table difference is the link implementation. UUID values can differ between
-server processes or separately bundled route modules, so equivalence means the
-same row schema, count, text, and destination rule, not identical random UUIDs.
-
-Requests still pass through each framework's server routing (baseline HTML uses
-its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
-clicked, and browser-only prefetching is not exercised.
-
-Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. New measurements repeat the full sweep three times on the
-same server, with a five-second warm-up at one connection before each sweep.
-The server gets five seconds of recovery between sweeps. An unhealthy warm-up
-is retried up to twice, with five seconds of recovery before each retry; a sweep
-only starts after a warm-up with requests and no errors. Persistent failures abort
-the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
-The representative peak throughput and connection count come from the actual
-sweep with median peak requests per second. Its complete measurements remain together in the iteration selected by
-`representativeIterationIndex`; peak values are derived from its fastest
-error-free stage. Each measured sweep is stored as one iteration containing an array of
-measured stages. Benchmark-level `stage1` through `stage7` summaries include their connection
-count and summarize those iterations. Configured stage duration is five seconds;
-iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
-arithmetic mean, median, minimum, and maximum across sweeps at
-each matching connection count. Latency charts and tables show the median of each
-sweep's reported percentile; these are summaries of sweep percentiles, not pooled
-request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
-per-stage counts remain in every iteration. All retained historical load
-records contain complete sweeps and have been migrated without reconstructing
-request-level latency samples. Historical settings absent from the records remain
-unspecified.
-Both use the same production server setup and Node.js 24.22.1
-containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
-8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
-share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
-is the highest stage throughput; total requests span all stages. Latency charts
-compare percentiles at 25, 50, and 100 connections.
+- Each table has 1,000 rows with UUID id/name columns and a `View →` link to
+  `/server-side-rendered/${entry.id}` using ordinary `<a>` links.
+- UUID rows are created once per module instance and loaded asynchronously
+  through a zero-delay timer. UUID values may differ between server processes.
+- Requests pass through production server routing. No browser runs, links are
+  not clicked, and browser prefetching is not exercised.
+- Autocannon measures increasing concurrent connection counts. Each run repeats
+  the full sweep on the same server, with a warm-up beforehand and recovery
+  between runs. Failed warm-ups are retried; persistent failures abort the test.
+  Warm-up requests are excluded, and every measured sweep is retained.
+- Peak throughput and its connection count come from the sweep with the median
+  peak requests per second, using its fastest error-free stage.
+- Tests run in production Node.js containers on the larger Depot runner
+  described in the setup. The server and Autocannon use separate CPU sets but
+  share memory and other host resources.
 
 ### SSR Router Link Load Test
 
-Uses framework router link components at `/server-side-rendered`, following the framework’s normal setup. Pracht uses `<Link>` with its default intent prefetch behavior. Comparing the two tests shows how those components affect server rendering performance. Results are stored under `ssrRouterLinkLoadTests`.
+- Uses the same methodology as [SSR Load Test](#ssr-load-test), only for
+  frameworks with router link components.
+- Tests `/server-side-rendered` with those components and their default
+  behavior instead of ordinary anchors, showing their server-rendering cost.
 
-Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
-link with text `View →` and destination `/server-side-rendered/${entry.id}`.
-Data comes from `packages/testdata/src/ssr.ts`: UUID rows are created once per
-module instance and returned asynchronously with a zero-delay timer. The paired
-routes preserve each framework's loader and rendering structure; the intended
-table difference is the link implementation. UUID values can differ between
-server processes or separately bundled route modules, so equivalence means the
-same row schema, count, text, and destination rule, not identical random UUIDs.
-
-Requests still pass through each framework's server routing (baseline HTML uses
-its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
-clicked, and browser-only prefetching is not exercised.
-
-Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. New measurements repeat the full sweep three times on the
-same server, with a five-second warm-up at one connection before each sweep.
-The server gets five seconds of recovery between sweeps. An unhealthy warm-up
-is retried up to twice, with five seconds of recovery before each retry; a sweep
-only starts after a warm-up with requests and no errors. Persistent failures abort
-the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
-The representative peak throughput and connection count come from the actual
-sweep with median peak requests per second. Its complete measurements remain together in the iteration selected by
-`representativeIterationIndex`; peak values are derived from its fastest
-error-free stage. Each measured sweep is stored as one iteration containing an array of
-measured stages. Benchmark-level `stage1` through `stage7` summaries include their connection
-count and summarize those iterations. Configured stage duration is five seconds;
-iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
-arithmetic mean, median, minimum, and maximum across sweeps at
-each matching connection count. Latency charts and tables show the median of each
-sweep's reported percentile; these are summaries of sweep percentiles, not pooled
-request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
-per-stage counts remain in every iteration. All retained historical load
-records contain complete sweeps and have been migrated without reconstructing
-request-level latency samples. Historical settings absent from the records remain
-unspecified.
-Both use the same production server setup and Node.js 24.22.1
-containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
-8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
-share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
-is the highest stage throughput; total requests span all stages. Latency charts
-compare percentiles at 25, 50, and 100 connections.
-
-### Core Web Vitals
+## Core Web Vitals
 
 - Core Web Vital metrics are sourced from
   [HTTP Archive](https://httparchive.org/reports/techreport/tech) technology

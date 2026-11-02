@@ -46,7 +46,7 @@ Test use larger, 16-CPU runners, as described in their sections below.
   runs only the audits required for the published First Paint, First Contentful
   Paint, and interaction-latency measurements.
 - **Recorded environment:** Results include runner details and the measured
-  framework version; browser results also include the Chrome version used.
+  framework version; browser results also include the Chrome version used. Any benchmark that runs multiple itterations record mean, median, minimum, and maximum.
 
 ### Framework Build Tools and Adapters
 
@@ -215,9 +215,6 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 
 ### Node Modules Size
 
-The default number of repetitions is configured by `install.runs` in
-`packages/results/src/measurements.ts`.
-
 - For every repetition, install benchmarks copy the starter package to a fresh
   temporary directory and use dedicated, initially empty pnpm store and cache
   directories. They run `pnpm install --frozen-lockfile` so every measurement
@@ -230,21 +227,16 @@ The default number of repetitions is configured by `install.runs` in
 
 - Install time measures a clean `pnpm install --frozen-lockfile` in a fresh
   temporary copy of the starter package with an empty pnpm store and cache.
-- Install benchmarks run 5 times by default and report median, minimum, and
-  maximum duration.
 - Each build repetition uses a fresh temporary copy of the tracked starter
   files. Dependencies are installed outside the timed region with a frozen
   lockfile and a dedicated store shared by the repetitions.
 - Cold build time measures the first build in that fresh project. Warm build
   time measures a second build in the same project, preserving whatever cache
   or generated output the first build leaves in place.
-- Build benchmarks run 5 times by default and report median, minimum, and
-  maximum duration.
-
-Next.js uses Turbopack's default production filesystem cache. Warm build
-measurements retain the cache created by the cold build. The timed `next build`
-also includes Next.js's default build-time type checking with the project-local
-`tsc` CLI.
+- Next.js uses Turbopack's default production filesystem cache. Warm build
+  measurements retain the cache created by the cold build. The timed `next build`
+  also includes Next.js's default build-time type checking with the project-local
+  `tsc` CLI.
 
 ### Dev Server Startup
 

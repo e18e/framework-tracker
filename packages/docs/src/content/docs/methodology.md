@@ -402,40 +402,27 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Server Side Throughput Tests
 
-- Each framework renders the dedicated `/ssr-throughput` route with a table of
-  1000 rows and UUID id/name columns.
-- This route intentionally omits detail links and framework link components so
-  router, prefetch, and navigation metadata do not dominate the request handler
-  throughput measurement.
-- Mock HTTP requests bypass TCP overhead, so this measures request-handler
-  rendering throughput rather than full network server throughput.
-- Each measured request consumes the complete response, including streamed
-  table content. Prerendered shells may be reused, but the table is loaded and
-  rendered on demand without caching its output.
-- Data is loaded asynchronously to simulate real-world data fetching.
-- Duplication factor indicates how many times each UUID appears in the response.
-  A 1x result is optimal; a 2x result usually means the response includes a
-  hydration payload.
-- Benchmarks perform five measured runs of 10 seconds each using
-  [tinybench](https://github.com/tinylibs/tinybench), with a 250 ms warmup before
-  each run.
-  One Tinybench task execution is one benchmark run; the `samples` count records
-  measured HTTP requests and excludes warmup requests. Each iteration retains
-  the arithmetic mean, median, minimum, and maximum of request
-  throughput (ops/sec) and latency (ms). Overall metrics summarize the five
-  per-run arithmetic means. Charts and tables display the median of those run
-  means for both throughput and latency, not a pooled request-level median.
-- Frameworks are invoked through their production request handlers where
-  possible. Web API handlers receive `Request` objects; Node.js handlers receive
-  mock `IncomingMessage` and `ServerResponse` objects.
-- Next.js renders the throughput table as a client component, matching the setup
-  from PR #94, so the benchmark compares traditional server-rendered React plus
-  hydration work instead of forcing every table row through React Server
-  Components.
-- The test is inspired by
-  [eknkc/ssr-benchmark](https://github.com/eknkc/ssr-benchmark).
-- Astro's `/ssr-throughput` route uses `export const prerender = false` so this
-  test measures request-time rendering rather than prerendered static HTML.
+- Each framework renders `/ssr-throughput`: 1,000 rows with UUID id/name columns
+  and no links or framework link components.
+- Production request handlers receive Web API `Request` objects or mock Node.js
+  requests and responses. No TCP connection or browser is involved.
+- Each request consumes the complete response, including streamed content.
+  Static shells may be reused, but table output is rendered on demand without
+  caching.
+- UUID rows are created once per module instance and loaded asynchronously
+  through a zero-delay timer.
+- Each [Tinybench](https://github.com/tinylibs/tinybench) run starts with a
+  warm-up, which is excluded from results.
+- Each run retains mean, median, minimum, and maximum throughput and latency.
+  Charts and tables show the median of the per-run means. The sample count is
+  the number of measured requests.
+- Duplication factor is the average number of occurrences per unique UUID in a
+  separate response collected after timing. A value of 1 means no duplication;
+  higher values can reflect serialized hydration data.
+- Next.js uses a client component for the table, so its server response includes
+  the data needed for hydration. No browser hydration is measured.
+- Astro uses `export const prerender = false` for request-time rendering.
+- Inspired by [eknkc/ssr-benchmark](https://github.com/eknkc/ssr-benchmark).
 
 ### SSR Load Test
 
@@ -554,34 +541,3 @@ is written by hand rather than generated, so it carries its own rules.
   thing on screen.
 - Snippets are verified by writing them into a fresh copy of the starter,
   starting its dev server with `pnpm dev`, and requesting the routes they add.
-
-### Client rendering result schema
-
-Client rendering benchmarks store `name`, `runs`, and one raw `iteration` per
-measured run (in `iterations`). Paint and interaction metrics each contain the
-arithmetic mean, median, minimum, and maximum, calculated from exact raw
-measurements. Browser metadata remains
-on the result document; interaction scenario and source remain with the interaction
-metrics. Framework and package identity belong to the overall result.
-
-The schema migration converted 146 package and documentation records, including
-versioned history, using their complete raw browser samples. Raw measurements and
-unrelated result fields were preserved. Summary-only records cannot supply raw
-iterations; the documentation loader retains support for their
-numeric summaries and historical INP fields without treating INP as interaction
-timing. New artifacts require the complete benchmark schema before persistence.
-Charts and tables consume medians in milliseconds through content normalization.
-
-### Server rendering result schema
-
-Server rendering browser benchmarks use the `serverSideRendered` identity and
-require one exact raw iteration per run. Paint and interaction metrics contain
-arithmetic mean, median, minimum, and maximum.
-Browser metadata stays on the result document; scenario and source stay with
-interaction metrics. Framework and package identity belong to the overall result.
-These browser measurements are separate from SSR throughput and load tests.
-
-All 146 existing package and documentation records, including versioned history,
-were converted from complete raw samples. No records lacked samples. The loader
-also supports legacy numeric summaries and INP without relabeling INP as interaction
-timing. Charts and tables receive medians in milliseconds.

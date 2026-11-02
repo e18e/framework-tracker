@@ -3,10 +3,7 @@ title: Methodology
 description: How Framework Tracker benchmark metrics are collected.
 ---
 
-Framework Tracker compares two kinds of projects. Dev Time stats come from
-starter projects: each framework set up with its default starter-style
-configuration. Run Time stats come from app packages: the same simple app
-implemented across frameworks as consistently as each framework allows.
+Framework Tracker create two types of benchmarks Run Time and Dev Time. Our Dev Time benchmarks use each meta-framework’s `starter-*` package. Each starter follows its framework’s CLI or documented setup, with the selected options and adjustments recorded in the [setup section](/methodology/#default-benchmark-setup). Run Time benchmarks use each meta-framework’s `app-*` package/ Currently, each test uses a different route in its app, configured to meet each test's requirements.
 
 The goal is to show both the default project cost developers inherit when
 starting a framework and the runtime cost of serving and hydrating a comparable

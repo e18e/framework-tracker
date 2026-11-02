@@ -1,5 +1,6 @@
 ---
 import { formatChartValue } from '../lib/chart'
+import type { ChartValueFormat } from '../lib/types'
 interface Series {
   key: string
   label: string
@@ -14,25 +15,28 @@ interface Props {
   title: string
   series: Series[]
   data: Datum[]
+  valueFormat?: ChartValueFormat
 }
-const { title, series, data } = Astro.props
+const { title, series, data, valueFormat = 'kb' } = Astro.props
 ---
 
 <figure>
-  <figcaption>{title}</figcaption>
-  <ul class="legend" aria-label="Resource types">
-    {
-      series.map((item) => (
-        <li>
-          <span style={`background: ${item.color}`} />
-          {item.label}
-        </li>
-      ))
-    }
-  </ul>
+  <slot name="caption"><figcaption>{title}</figcaption></slot>
+  {
+    !Astro.slots.has('caption') && (
+      <ul class="legend" aria-label="Chart series">
+        {series.map((item) => (
+          <li>
+            <span style={`background: ${item.color}`} />
+            {item.label}
+          </li>
+        ))}
+      </ul>
+    )
+  }
   <div
     class="stacked-chart"
-    data-stacked={JSON.stringify({ title, series, data })}
+    data-stacked={JSON.stringify({ title, series, data, valueFormat })}
   >
     <div class="chart-host"></div>
     <div class="logo-layer" aria-hidden="true"></div>
@@ -40,7 +44,7 @@ const { title, series, data } = Astro.props
   </div>
   <div class="sr-only">
     <table>
-      <caption>{title} data (KB)</caption>
+      <caption>{title} data</caption>
       <thead
         ><tr
           ><th scope="col">Framework</th>{
@@ -54,7 +58,7 @@ const { title, series, data } = Astro.props
             <tr data-focused={String(row.focused)}>
               <th scope="row">{row.name}</th>
               {series.map((item) => (
-                <td>{formatChartValue(row.values[item.key]!, 'kb')}</td>
+                <td>{formatChartValue(row.values[item.key]!, valueFormat)}</td>
               ))}
             </tr>
           ))
@@ -150,6 +154,7 @@ const { title, series, data } = Astro.props
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
   import { formatChartValue, getFrameworkLogoSource } from '../lib/chart'
+  import type { ChartValueFormat } from '../lib/types'
   interface Segment {
     name: string
     label: string
@@ -161,6 +166,7 @@ const { title, series, data } = Astro.props
   }
   interface Payload {
     title: string
+    valueFormat: ChartValueFormat
     series: { key: string; label: string; color: string }[]
     data: { name: string; focused: boolean; values: Record<string, number> }[]
   }
@@ -231,7 +237,8 @@ const { title, series, data } = Astro.props
           getComputedStyle(document.documentElement)
             .getPropertyValue('--ft-muted')
             .trim() || '#697586'
-        const format = (value: number) => formatChartValue(value, 'kb')
+        const format = (value: number) =>
+          formatChartValue(value, payload.valueFormat)
         const definition = defineChart({
           margin: { left: 36, right: 0, top: 24, bottom: 0 },
           marks: [
@@ -241,7 +248,12 @@ const { title, series, data } = Astro.props
                 x1: 'start',
                 x2: 'end',
                 y: 'name',
-                fill: (d) => (d.color.startsWith('var(') ? muted : d.color),
+                fill: (d) =>
+                  d.color.startsWith('var(')
+                    ? getComputedStyle(document.documentElement)
+                        .getPropertyValue(d.color.slice(4, -1))
+                        .trim() || muted
+                    : d.color,
                 inset: 0,
                 radius: (d) => [
                   d.start === 0 ? 8 : 0,
@@ -317,7 +329,7 @@ const { title, series, data } = Astro.props
             medianLine.querySelector('span')!.textContent =
               `Median: ${format(median)}`
           },
-          ariaLabel: `${payload.title}. Stacked transfer sizes in KB; a data table follows.`,
+          ariaLabel: `${payload.title}. Stacked bar chart; a data table follows.`,
         }
         const host = hosts.get(element)
         if (host) host.update(options)

@@ -22,14 +22,16 @@ with the affected test.
 
 Benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
-with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. EBS storage is
+with 2 CPUs, 8 GB RAM (a portion reserved for a 2 GB RAM-backed disk accelerator),
+and 100 GB disk. EBS storage is
 provisioned with 8,000 IOPS and 250 MB/s throughput. Depot runs each job on a
 fresh, single-tenant EC2 instance. Its x86 runners use
 [4th Gen AMD EPYC Genoa CPUs](https://depot.dev/docs/github-actions/overview)
-and GitHub's standard runner image.
+and GitHub's standard runner image. The SSR Load Test and SSR Router Link Load
+Test use larger, 16-CPU runners, as described in their sections below.
 
-- **Node.js:** Local development, CI, and benchmark containers use the exact
-  Node.js version pinned in the root `.nvmrc`. CI reads that file directly and SSR
+- **Node.js:** The supported Node.js version is pinned in the root `.nvmrc`.
+  CI and benchmark containers use that version. CI reads the file directly and SSR
   load containers derive their image tag from it. Dockerfiles pin the same
   version explicitly.
 - **Package manager and dependencies:** CI uses the pnpm version declared in the
@@ -44,9 +46,8 @@ and GitHub's standard runner image.
   Lighthouse uses the desktop form factor, `throttlingMethod: provided`, and
   disables its screen emulation, with no simulated CPU or network throttling.
   Requests use a local connection to a production server. The Lighthouse flow
-  collects only the audits needed for the published First Paint, First Contentful Paint, and
-  interaction-latency measurements, so unrelated diagnostics do not affect
-  the benchmark.
+  runs only the audits required for the published First Paint, First Contentful
+  Paint, and interaction-latency measurements.
 - **Recorded environment:** Results include runner details and the measured
   framework version; browser results also include the Chrome version used.
 
@@ -54,7 +55,8 @@ and GitHub's standard runner image.
 
 These are the current repository configurations. The build tool applies to both
 the Dev Time starter and Run Time app unless noted. The adapter/server column
-describes the Run Time app; starter differences are listed below.
+describes the Run Time app. Starter differences are described in Project Setups;
+runtime configuration details are described in Framework Specific Notes.
 
 | Framework      | UI library                           | Bundler / build tool         | Adapter / server    |
 | -------------- | ------------------------------------ | ---------------------------- | ------------------- |
@@ -68,26 +70,10 @@ describes the Run Time app; starter differences are listed below.
 | TanStack Start | React                                | Vite                         | Nitro               |
 | Baseline HTML  | None                                 | No build step                | Node.js             |
 
-- Astro's runtime app uses its Node adapter in standalone mode; its starter
-  builds static output without an adapter or React integration.
-- Next.js uses Turbopack's default filesystem caches for development and
-  production builds. Warm build measurements retain the production build cache
-  created by the cold build. Build-time type checking uses the project-local
-  `tsc` CLI by default.
-- The SolidStart and TanStack Start starters use `nitro()` without an explicit
-  preset; their runtime apps explicitly select `node-server`.
-- The TanStack Start runtime app uses the [documented FastResponse optimization](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#performance-tip-fastresponse)
-  for Node.js deployments with Nitro. Its server entry replaces the global
-  `Response` constructor with srvx's `FastResponse`. This is a deployment-specific
-  throughput setting; the Dev Time starter retains its generated setup.
-- Nuxt's starter uses its default Nitro configuration. Its runtime app extends
-  `node-server` with an entry that also exposes a fetch handler for the
-  request-throughput benchmark.
-- Baseline HTML is a runtime-only comparison.
-- Exact dependency versions are recorded in each project's `package.json` and
-  lockfile.
-- Test-specific rendering and routing choices are described in the relevant
-  benchmark sections below.
+Baseline HTML is a runtime-only comparison. Each project's `package.json`
+declares dependency versions or ranges; its lockfile records resolved versions.
+Test-specific rendering and routing choices are described in the relevant
+benchmark sections below.
 
 ## Dev Time
 
@@ -121,6 +107,8 @@ Installed using the CLI
 - Step 4: Install dependencies?: `yes`
 - Step 5: Initialize a new git repository?: `No`
 
+The Astro starter builds static output without an adapter or React integration.
+
 #### Next.js
 
 Installed using the CLI with its default selections:
@@ -148,6 +136,8 @@ default Nitro configuration. Both the starter and runtime app declare TypeScript
 as a direct development dependency to pin a version compatible with `vue-tsc`,
 rather than relying on its automatically installed peer dependency. This package
 is included in the starter's full dependency counts.
+
+The Nuxt starter uses its default Nitro configuration.
 
 #### React Router
 
@@ -198,6 +188,8 @@ matches the framework version tracked by the starter project.
 - Step 5: Which template would you like to use?: `basic`
 - Step 6: Install dependencies: `pnpm install`
 
+The SolidStart starter uses `nitro()` without an explicit preset.
+
 #### TanStack Start (React)
 
 Installed using the CLI with the following setup:
@@ -211,6 +203,8 @@ Installed using the CLI with the following setup:
 - Path aliases: `vite-tsconfig-paths`
 - Development server: `vite dev --port 3000`
 - Production build: `vite build`
+
+The TanStack Start starter uses `nitro()` without an explicit preset.
 
 ### Dependency Counts
 
@@ -254,6 +248,11 @@ Installed using the CLI with the following setup:
   or generated output the first build leaves in place.
 - Build benchmarks run 5 times by default and report median, minimum, and
   maximum duration.
+
+Next.js uses Turbopack's default production filesystem cache. Warm build
+measurements retain the cache created by the cold build. The timed `next build`
+also includes Next.js's default build-time type checking with the project-local
+`tsc` CLI.
 
 ### Dev Server Startup
 
@@ -365,6 +364,16 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Framework Specific Notes
 
+- Astro's runtime app uses its Node adapter in standalone mode; its starter
+  builds static output without an adapter or React integration.
+- The SolidStart and TanStack Start runtime apps explicitly select the Nitro
+  `node-server` preset.
+- The TanStack Start runtime app uses the [documented FastResponse optimization](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#performance-tip-fastresponse)
+  for Node.js deployments with Nitro. Its server entry replaces the global
+  `Response` constructor with srvx's `FastResponse`. This is a deployment-specific
+  throughput setting; the Dev Time starter retains its generated setup.
+- Nuxt's runtime app extends `node-server` with an entry that also exposes a
+  fetch handler for the request-throughput benchmark.
 - These runtime apps are not currently intended to measure static-site output. Astro's
   runtime benchmark app uses the Node adapter so the benchmark harness can serve
   on-demand routes in production; Astro's default static output is represented

@@ -325,31 +325,19 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Framework Specific Notes
 
-- Astro's runtime app uses its Node adapter in standalone mode; its starter
-  builds static output without an adapter or React integration.
-- The SolidStart and TanStack Start runtime apps explicitly select the Nitro
-  `node-server` preset.
-- The TanStack Start runtime app uses the [documented FastResponse optimization](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#performance-tip-fastresponse)
-  for Node.js deployments with Nitro. Its server entry replaces the global
-  `Response` constructor with srvx's `FastResponse`. This is a deployment-specific
-  throughput setting; the Dev Time starter retains its generated setup.
-- Nuxt's runtime app extends `node-server` with an entry that also exposes a
-  fetch handler for the request-throughput benchmark.
-- These runtime apps are not currently intended to measure static-site output. Astro's
-  runtime benchmark app uses the Node adapter so the benchmark harness can serve
-  on-demand routes in production; Astro's default static output is represented
-  by the starter app measurements.
-- Pracht's starter prerenders its home route, while its runtime app uses SSR for
-  server-rendered routes and `render: 'spa'` for the client-rendered routes.
-  Runtime routes keep the default full hydration so server output includes the
-  client bootstrap rather than measuring a no-hydration optimization.
-- Next.js's starter and runtime app enable Cache Components and Partial
-  Prefetching, following the CLI defaults. Runtime data routes directly await
-  the shared asynchronous UUID fixture, with no `connection()` call or deferred
-  import. UUID rows are created once per module instance, while the table is
-  loaded and rendered on every request without `use cache`. A Suspense boundary
-  with an empty fallback allows normal streaming without painting a loading
-  placeholder.
+- Astro's runtime app uses standalone mode to serve on-demand routes.
+- SolidStart and TanStack Start explicitly select Nitro's `node-server` preset.
+- TanStack Start's runtime app replaces the global `Response` constructor with
+  srvx's `FastResponse` to improve Node.js throughput. Its Dev Time starter keeps
+  the generated setup.
+- Nuxt extends `node-server` with an entry that also exposes a fetch handler for
+  the request-throughput benchmark.
+- Pracht's starter prerenders its home route. Its runtime app uses SSR for
+  server-rendered routes and `render: 'spa'` for client-rendered routes, keeping
+  default full hydration.
+- Next.js's runtime data routes load and render the shared asynchronous UUID
+  fixture on each request without `use cache`. UUID rows are created once per
+  module instance. Suspense boundaries use empty fallbacks for streaming.
 
 ### Client Side Rendered Tests (Lighthouse)
 

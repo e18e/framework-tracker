@@ -31,8 +31,7 @@ and GitHub's standard runner image.
 - **Node.js:** Local development, CI, and benchmark containers use the exact
   Node.js version pinned in the root `.nvmrc`. CI reads that file directly and SSR
   load containers derive their image tag from it. Dockerfiles pin the same
-  version explicitly. This benchmark runtime is separate from the minimum
-  supported Node version reported for each framework.
+  version explicitly.
 - **Package manager and dependencies:** CI uses the pnpm version declared in the
   root `package.json` and installs dependencies with frozen lockfiles.
 - **Framework, adapter, and build tool:** Each project uses the configuration
@@ -50,14 +49,6 @@ and GitHub's standard runner image.
   the benchmark.
 - **Recorded environment:** Results include runner details and the measured
   framework version; browser results also include the Chrome version used.
-  Node.js updates require an explicit change to the committed version pins and
-  can affect comparisons with earlier measurements. The host Chrome installation
-  can receive updates between runs.
-
-The browser results are relative comparisons on the CI host rather than
-estimates for typical devices or networks. The SSR load tests document their
-larger runner and container setup below. Core Web Vitals use external HTTP
-Archive data, as described in that section.
 
 ### Framework Build Tools and Adapters
 

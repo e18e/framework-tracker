@@ -343,26 +343,22 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 - Each framework renders a table of 1000 rows with two UUID columns in the
   browser.
+- Metrics are measured with Lighthouse flow in Chromium through Puppeteer.
 - First Paint and First Contentful Paint are measured during navigation to
   `/client-side-rendered`.
 - The benchmark clicks the first row's detail link and measures the resulting
-  interaction. Route IDs may be read from the URL or included in normal
-  framework routing and bootstrap state, but the measured table and detail
-  markup must be rendered in the browser.
+  interaction.
 - Full-document navigations use Lighthouse navigation mode. Client-routed
   navigations use timespan mode.
 - Interaction latency is the sum of Lighthouse's input delay, processing
   duration, and presentation delay. It represents this controlled interaction,
   not the page-lifetime INP metric.
 - CI creates one production build and starts one production server, which stays
-  running for all five measurements. Each measurement launches a fresh Chrome
+  running for all measurements. Each measurement launches a fresh Chrome
   process.
-- Before the five measurements, one HTTP request warms the server's
-  `/client-side-rendered` route, fully consuming the response. A single
-  ten-second abort timeout covers the warm-up. This server warm-up is excluded
+- Before each measurements, one HTTP request warms the server's
+  `/client-side-rendered` route, fully consuming the response. This server warm-up is excluded
   from results and does not warm the measured browsers.
-- The median is displayed in charts and tables. Raw iterations and the mean,
-  median, minimum, and maximum are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement
   is invalid only when a required Chrome paint or interaction value is missing
   or not greater than zero.
@@ -405,12 +401,10 @@ Current pinned dependencies are listed in each project's `package.json`:
 - CI creates one production build and starts one production server, which stays
   running for all five measurements. Each measurement launches a fresh Chrome
   process.
-- Before the five measurements, HTTP requests warm `/server-side-rendered` and
+- Before the measurements, HTTP requests warm `/server-side-rendered` and
   a detail URL with a random UUID, fully consuming both responses. A single
   ten-second abort timeout covers the entire warm-up. This server warm-up is
   excluded from results and does not warm the measured browsers.
-- The median is displayed in charts and tables. Raw iterations and the mean,
-  median, minimum, and maximum are retained.
 - Valid slow results are kept rather than discarded as outliers. A measurement
   is invalid only when a required Chrome paint or interaction value is missing
   or not greater than zero.
@@ -418,7 +412,6 @@ Current pinned dependencies are listed in each project's `package.json`:
   `/server-side-rendered` route and its detail route use
   `export const prerender = false` so they are rendered on demand by the
   production server instead of measured as prerendered static HTML.
-- Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](https://github.com/solidjs/solid-docs/pull/1620). Note update to docs page once this PR has been merged.
 
 ### Server Side Throughput Tests
 

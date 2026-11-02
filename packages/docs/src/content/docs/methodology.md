@@ -341,77 +341,64 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Client Side Rendered Tests (Lighthouse)
 
-- Each framework renders a table of 1000 rows with two UUID columns in the
-  browser.
-- Metrics are measured with Lighthouse flow in Chromium through Puppeteer.
+- Each framework renders 1,000 rows in the browser, with two UUID columns and a
+  detail link.
+- Metrics use Lighthouse flows in Chrome through Puppeteer.
 - First Paint and First Contentful Paint are measured during navigation to
   `/client-side-rendered`.
-- The benchmark clicks the first row's detail link and measures the resulting
-  interaction.
-- Full-document navigations use Lighthouse navigation mode. Client-routed
+- The benchmark clicks the first row's detail link and waits for the detail
+  content.
+- Full-document navigations use Lighthouse navigation mode; client-routed
   navigations use timespan mode.
-- Interaction latency is the sum of Lighthouse's input delay, processing
-  duration, and presentation delay. It represents this controlled interaction,
-  not the page-lifetime INP metric.
-- CI creates one production build and starts one production server, which stays
-  running for all measurements. Each measurement launches a fresh Chrome
-  process.
-- Before each measurements, one HTTP request warms the server's
-  `/client-side-rendered` route, fully consuming the response. This server warm-up is excluded
-  from results and does not warm the measured browsers.
-- Valid slow results are kept rather than discarded as outliers. A measurement
-  is invalid only when a required Chrome paint or interaction value is missing
-  or not greater than zero.
-- These tests measure route-based client rendering, not forced SPA
-  configurations. Each framework uses its supported production routing and
-  rendering controls.
-- Next.js disables SSR for both the client-rendered table and detail content.
-- Astro uses a client-only island for the measured content, which requires a UI
-  framework integration. React was chosen because the Astro team identified it
-  as their most popular integration, used by 23% of Astro projects (15/07/2026).
-  The detail link performs a full-document navigation; the other tested
-  frameworks use their client routers.
-- Pracht's client-rendered table generates its UUID rows in the browser; the
-  route and its detail route use `render: 'spa'` and navigate with `<Link>`.
+- Interaction latency sums the input delay, processing duration, and
+  presentation delay from Lighthouse's INP breakdown. It measures this
+  controlled interaction, not page-lifetime INP.
+- CI builds once per framework and test, then keeps one production server running
+  for all five measurements. Each measurement launches a fresh Chrome process.
+- Before all measurements, one HTTP request warms `/client-side-rendered`.
+  The response is fully consumed with a ten-second timeout. This warms the
+  server, not the measured browsers, and is excluded from results.
+- Valid slow results are retained. Paint values and total interaction latency
+  must be finite and greater than zero; individual interaction components may
+  be zero.
+- Each framework uses its supported production routing and rendering controls.
+- Next.js disables SSR for the measured table and detail content.
+- Astro uses React client-only islands. Its detail link performs a full-document
+  navigation; the other tested frameworks use client routers.
+- Pracht generates UUID rows in the browser. Both routes use `render: 'spa'`
+  and navigate with `<Link>`.
 
 ### Server Side Rendered Tests (Lighthouse)
 
-- Each framework renders a table of 1000 rows with two UUID columns.
-- Metrics are measured with Lighthouse flow in Chromium through Puppeteer.
-- First Paint and First Contentful Paint are measured on initial navigation to
+- Each framework renders 1,000 rows on the server, with two UUID columns and a
+  detail link.
+- Metrics use Lighthouse flows in Chrome through Puppeteer.
+- First Paint and First Contentful Paint are measured during navigation to
   `/server-side-rendered`.
-- A controlled interaction clicks the first row's detail link and waits for
-  `/server-side-rendered/:id`. Lighthouse's INP breakdown insight processes
-  Chrome Event Timing trace data and reports its input delay, processing
-  duration, and presentation delay. Their sum is recorded as the interaction
-  latency.
-- Interactions that trigger a full document navigation use Lighthouse
-  navigation mode. Interactions handled by a client router use Lighthouse
-  timespan mode.
-- Detail links use each framework's default production navigation component or
-  idiomatic anchor behavior. Default meta-framework route prefetching or
-  preloading is allowed when it is part of the framework's default link
-  behavior, but the measured table is loaded and rendered on every request,
-  without caching or prerendering the table output. Normal streaming and static
-  surrounding shells are allowed. Streaming boundaries use empty fallbacks so
-  a loading placeholder does not produce First Contentful Paint before the
-  measured table.
-- Pracht uses `<Link>` with its default intent (hover/focus) prefetch on this
-  route; the separate plain-link SSR load route uses ordinary anchors instead.
-- CI creates one production build and starts one production server, which stays
-  running for all five measurements. Each measurement launches a fresh Chrome
-  process.
-- Before the measurements, HTTP requests warm `/server-side-rendered` and
-  a detail URL with a random UUID, fully consuming both responses. A single
-  ten-second abort timeout covers the entire warm-up. This server warm-up is
-  excluded from results and does not warm the measured browsers.
-- Valid slow results are kept rather than discarded as outliers. A measurement
-  is invalid only when a required Chrome paint or interaction value is missing
-  or not greater than zero.
-- Astro keeps the default static output mode, but the measured
-  `/server-side-rendered` route and its detail route use
-  `export const prerender = false` so they are rendered on demand by the
-  production server instead of measured as prerendered static HTML.
+- The benchmark clicks the first row's detail link and waits for the detail
+  content.
+- Full-document navigations use Lighthouse navigation mode; client-routed
+  navigations use timespan mode.
+- Interaction latency sums the input delay, processing duration, and
+  presentation delay from Lighthouse's INP breakdown. It measures this
+  controlled interaction, not page-lifetime INP.
+- CI builds once per framework and test, then keeps one production server running
+  for all five measurements. Each measurement launches a fresh Chrome process.
+- Before all measurements, HTTP requests warm `/server-side-rendered` and a
+  detail URL with a random UUID. Both responses are fully consumed under one
+  ten-second timeout. This warms the server, not the measured browsers, and is
+  excluded from results.
+- Valid slow results are retained. Paint values and total interaction latency
+  must be finite and greater than zero; individual interaction components may
+  be zero.
+- Links use each framework's production navigation component or ordinary
+  anchors, allowing default prefetching. The table is loaded and rendered on
+  demand without caching or prerendering its output. Static surrounding shells
+  and streaming with empty fallbacks are allowed.
+- Pracht uses `<Link>` with default intent (hover/focus) prefetching. Its separate
+  plain-link load-test route uses ordinary anchors.
+- Astro's table and detail routes use `export const prerender = false` for
+  request-time rendering.
 
 ### Server Side Throughput Tests
 

@@ -8,7 +8,7 @@ Framework Tracker create two types of benchmarks Run Time and Dev Time. Our Dev 
 The goal is to show both the default project cost developers inherit when
 starting a framework and the runtime cost of serving and hydrating a comparable
 app. Repetition and aggregation vary by benchmark, as described in each
-benchmark section. Generated JSON is published into the docs package.
+benchmark section.
 
 ## Default Benchmark Setup
 
@@ -288,7 +288,6 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 ### Minimum Node Version
 
 - The oldest Node.js release that satisfies every `engines.node` range declared by the packages installed in the starter's `node_modules`, dev and prod dependencies included, together with the starter's own `package.json`.
-- A dash in the Min Node column means no installed package declares a resolvable `engines.node` range.
 
 ### Duplicate Dependencies
 
@@ -299,8 +298,6 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
   instances.
 - A duplicate dependency means multiple installed versions of the same package
   were found in the starter's dependency tree.
-- Framework detail pages show the package name, installed versions, and the
-  dependency paths reported by the analyzer.
 
 ## Run Time
 
@@ -413,9 +410,6 @@ Current pinned dependencies are listed in each project's `package.json`:
   through a zero-delay timer.
 - Each [Tinybench](https://github.com/tinylibs/tinybench) run starts with a
   warm-up, which is excluded from results.
-- Each run retains mean, median, minimum, and maximum throughput and latency.
-  Charts and tables show the median of the per-run means. The sample count is
-  the number of measured requests.
 - Duplication factor is the average number of occurrences per unique UUID in a
   separate response collected after timing. A value of 1 means no duplication;
   higher values can reflect serialized hydration data.
@@ -435,7 +429,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Autocannon measures increasing concurrent connection counts. Each run repeats
   the full sweep on the same server, with a warm-up beforehand and recovery
   between runs. Failed warm-ups are retried; persistent failures abort the test.
-  Warm-up requests are excluded, and every measured sweep is retained.
+  Warm-up requests are excluded from results.
 - Peak throughput and its connection count come from the sweep with the median
   peak requests per second, using its fastest error-free stage.
 - Tests run in production Node.js containers on the larger Depot runner

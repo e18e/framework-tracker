@@ -259,15 +259,6 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
   benchmark cannot change how the framework behaves. Astro, for example,
   switches to a detached background server when it detects an AI agent
   terminal.
-- Dev server benchmarks run 5 times by default. New results record the test
-  `name`, measured `runs`, raw `iterations` in milliseconds, and `timeMs`
-  statistics (mean, median, minimum, and maximum). Framework and
-  package identity stay on the overall result. Charts and tables display the
-  median startup duration.
-- All 146 historical startup records contained raw samples and were converted
-  using those samples. No measurements
-  or iterations were invented. The site can still display legacy summaries,
-  but new benchmark artifacts require complete iterations.
 
 ### Core-JS Polyfills
 
@@ -288,24 +279,11 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 
 ### Browser Baseline
 
-- The scanner uses
-  [baseline-detector](https://github.com/43081j/baseline-detector) to statically
-  analyze JavaScript from each starter package's browser-facing production build
-  output.
-- The scan includes source-like files that baseline-detector supports from the
-  production build output, including JavaScript, TypeScript, Vue, and Svelte
-  files. Known server, cache, trace, type, and build-tool output is excluded.
-- Baseline is baseline-detector's overall target result: `high`, `low`, or
-  `limited`. When the result is not `high`, baseline-detector also reports the
-  feature ID that determined it.
-- Feature is the feature ID that determined a non-high Baseline result.
-- Year is the Baseline year the project targets: the newest feature it relies
-  on, or blank if any detected feature is not yet Baseline.
-- Features is the number of unique web platform feature IDs detected in the
-  browser-facing build output.
-- For Nuxt, the `temporal` feature is temporarily excluded. Nuxt bundles
-  devalue's optional Temporal deserializer, but that branch only runs when an
-  application has itself serialized a Temporal value.
+- Uses [baseline-detector](https://github.com/43081j/baseline-detector) to scan
+  supported source files in each starter's production build. Known server and
+  build-tool paths are excluded.
+- Nuxt's optional Temporal deserializer is excluded from all results because it
+  only runs when the application serializes a Temporal value.
 
 ### Minimum Node Version
 

@@ -279,11 +279,25 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 
 ### Browser Baseline
 
-- Uses [baseline-detector](https://github.com/43081j/baseline-detector) to scan
-  supported source files in each starter's production build. Known server and
-  build-tool paths are excluded.
-- Nuxt's optional Temporal deserializer is excluded from all results because it
-  only runs when the application serializes a Temporal value.
+- The scanner uses
+  [baseline-detector](https://github.com/43081j/baseline-detector) to statically
+  analyze JavaScript from each starter package's browser-facing production build
+  output.
+- The scan includes source-like files that baseline-detector supports from the
+  production build output, including JavaScript, TypeScript, Vue, and Svelte
+  files. Known server, cache, trace, type, and build-tool output is excluded.
+- Baseline is baseline-detector's overall target result: `high`, `low`, or
+  `limited`. When the result is not `high`, baseline-detector also reports the
+  feature ID that determined it.
+- Feature is the feature ID that determined a non-high Baseline result.
+- Year is the Baseline year the project targets: the newest feature it relies
+  on, or blank if any detected feature is not yet Baseline.
+- Features is the number of unique web platform feature IDs detected in the
+  browser-facing build output.
+- For Nuxt, SvelteKit, and TanStack Start, the `temporal` feature is temporarily
+  excluded. These starters bundle optional Temporal serialization support
+  (devalue in Nuxt and SvelteKit, seroval in TanStack Start), but their
+  application code does not serialize Temporal values.
 
 ### Minimum Node Version
 
@@ -396,6 +410,24 @@ Current pinned dependencies are listed in each project's `package.json`:
   plain-link load-test route uses ordinary anchors.
 - Astro's table and detail routes use `export const prerender = false` for
   request-time rendering.
+
+### Initial Load
+
+- Each production app serves the same small, styled landing page at
+  `/initial-load`, using shared copy, layout, and CSS with system fonts.
+- A fresh headless Chrome process navigates to the route once. Lighthouse flow
+  collects only the `resource-summary` audit using the default browser setup
+  above, without simulated CPU or network throttling.
+- Results record transferred bytes (including response headers) and request
+  counts, rather than uncompressed source size, build output size, or load time.
+  This is a single navigation, not a median across repeated runs.
+- HTML means Lighthouse's document category, CSS means stylesheet, and JavaScript
+  means script. Inline styles and scripts remain part of the HTML transfer.
+  Other combines images, media, fonts, and the remaining resource category.
+- The total includes each resource category once. Lighthouse's third-party row
+  overlaps those categories and is excluded from the stacks.
+- Asset compression is enabled for Nuxt, SolidStart, and TanStack Start through
+  Nitro. Other frameworks retain their default production build settings.
 
 ### Server Side Throughput Tests
 

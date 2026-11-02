@@ -1,0 +1,46 @@
+---
+import type { InitialLoadStats } from '@framework-tracker/results'
+import { Content as Description } from './Description.mdx'
+import Chart from '../../InteractionHistoryChart.astro'
+import { initialLoadSeries } from '../../../lib/prepare-chart'
+import { prepareInitialLoadResources } from '../../../lib/initial-load'
+interface Props {
+  versions: { frameworkVersion?: string; initialLoadTests?: InitialLoadStats }[]
+}
+const data = Astro.props.versions.flatMap((version) => {
+  const resources = version.initialLoadTests?.resources
+  if (!resources) return []
+  const values = prepareInitialLoadResources(resources)
+  return [
+    {
+      id: version.frameworkVersion ?? '',
+      name: version.frameworkVersion ?? '',
+      ...values,
+      inputDelayMs: 0,
+      processingDurationMs: 0,
+      presentationDelayMs: 0,
+      interactionLatencyMs: Object.values(values).reduce((a, b) => a + b, 0),
+    },
+  ]
+})
+const withoutJs = data.map((datum) => ({
+  ...datum,
+  interactionLatencyMs: datum.interactionLatencyMs - datum.js,
+}))
+---
+
+<Description />
+<Chart
+  title="Initial Load: All Resources by Version"
+  data={data}
+  series={initialLoadSeries}
+  valueFormat="kb"
+  yAxisLabel="Transfer size (KB)"
+/>
+<Chart
+  title="Initial Load: Excluding JavaScript by Version"
+  data={withoutJs}
+  series={initialLoadSeries.filter(({ key }) => key !== 'js')}
+  valueFormat="kb"
+  yAxisLabel="Transfer size (KB)"
+/>

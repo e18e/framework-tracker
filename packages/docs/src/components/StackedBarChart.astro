@@ -1,0 +1,353 @@
+---
+import { formatChartValue } from '../lib/chart'
+import type { ChartValueFormat } from '../lib/types'
+interface Series {
+  key: string
+  label: string
+  color: string
+}
+interface Datum {
+  name: string
+  focused: boolean
+  values: Record<string, number>
+}
+interface Props {
+  title: string
+  series: Series[]
+  data: Datum[]
+  valueFormat?: ChartValueFormat
+}
+const { title, series, data, valueFormat = 'kb' } = Astro.props
+---
+
+<figure>
+  <slot name="caption"><figcaption>{title}</figcaption></slot>
+  {
+    !Astro.slots.has('caption') && (
+      <ul class="legend" aria-label="Chart series">
+        {series.map((item) => (
+          <li>
+            <span style={`background: ${item.color}`} />
+            {item.label}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  <div
+    class="stacked-chart"
+    data-stacked={JSON.stringify({ title, series, data, valueFormat })}
+  >
+    <div class="chart-host"></div>
+    <div class="logo-layer" aria-hidden="true"></div>
+    <div class="median-line" aria-hidden="true"><span></span></div>
+  </div>
+  <div class="sr-only">
+    <table>
+      <caption>{title} data</caption>
+      <thead
+        ><tr
+          ><th scope="col">Framework</th>{
+            series.map((item) => <th scope="col">{item.label}</th>)
+          }</tr
+        ></thead
+      >
+      <tbody
+        >{
+          data.map((row) => (
+            <tr data-focused={String(row.focused)}>
+              <th scope="row">{row.name}</th>
+              {series.map((item) => (
+                <td>{formatChartValue(row.values[item.key]!, valueFormat)}</td>
+              ))}
+            </tr>
+          ))
+        }</tbody
+      >
+    </table>
+  </div>
+</figure>
+<style>
+  figure {
+    margin: 0 0 2em;
+    width: 100%;
+  }
+  figcaption {
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+  .stacked-chart {
+    position: relative;
+  }
+  .logo-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    margin: 0;
+  }
+  .logo-layer :global(img),
+  .logo-layer :global(.logo-fallback) {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    object-fit: contain;
+    transform: translate(-100%, -50%);
+  }
+  .median-line {
+    position: absolute;
+    width: 3px;
+    pointer-events: none;
+    margin: 0;
+  }
+  .median-line::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, #7bb560, #bece57, #f2ca60, #ec8f5e);
+    mask: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 9px);
+  }
+  .median-line span {
+    position: absolute;
+    top: -24px;
+    left: 0;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    color: var(--sl-color-text-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+  }
+  .legend li {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    margin: 0;
+  }
+  .legend span {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 2px;
+    border: 1px solid var(--ft-border);
+  }
+  :global([data-framework-scope='focused']) tr[data-focused='false'] {
+    display: none;
+  }
+</style>
+<script>
+  import {
+    barX,
+    defineChart,
+    mountChart,
+    text,
+    type ChartHost,
+    type ChartRenderContext,
+  } from '@tanstack/charts'
+  import { scaleBand } from '@tanstack/charts/scales/band'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import { formatChartValue, getFrameworkLogoSource } from '../lib/chart'
+  import type { ChartValueFormat } from '../lib/types'
+  interface Segment {
+    name: string
+    label: string
+    value: number
+    start: number
+    end: number
+    color: string
+    total: number
+  }
+  interface Payload {
+    title: string
+    valueFormat: ChartValueFormat
+    series: { key: string; label: string; color: string }[]
+    data: { name: string; focused: boolean; values: Record<string, number> }[]
+  }
+  const hosts = new WeakMap<HTMLElement, ChartHost<Segment, number, string>>()
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('[data-stacked]')
+      .forEach((element) => {
+        const payload = JSON.parse(element.dataset.stacked!) as Payload
+        const focused =
+          element.closest<HTMLElement>('[data-framework-scope]')?.dataset
+            .frameworkScope === 'focused'
+        const totalFor = (row: Payload['data'][number]) =>
+          payload.series.reduce((sum, item) => sum + row.values[item.key]!, 0)
+        const rows = payload.data
+          .filter((row) => !focused || row.focused)
+          .sort((a, b) => totalFor(a) - totalFor(b))
+        if (!rows.length) return
+        const segments = rows.flatMap((row) => {
+          let offset = 0
+          const total = payload.series.reduce(
+            (sum, item) => sum + row.values[item.key]!,
+            0,
+          )
+          return payload.series.map((item) => {
+            const value = row.values[item.key]!
+            const segment = {
+              name: row.name,
+              label: item.label,
+              value,
+              start: offset,
+              end: offset + value,
+              color: item.color,
+              total,
+            }
+            offset += value
+            return segment
+          })
+        })
+        const labels = segments.filter(
+          (segment) => segment.label === payload.series[0]!.label,
+        )
+        const max = Math.max(1, ...labels.map((d) => d.total))
+        const sorted = labels.map((d) => d.total).sort((a, b) => a - b)
+        const mid = Math.floor(sorted.length / 2)
+        const median =
+          sorted.length % 2
+            ? sorted[mid]!
+            : (sorted[mid - 1]! + sorted[mid]!) / 2
+        const logoLayer = element.querySelector<HTMLElement>('.logo-layer')!
+        logoLayer.replaceChildren(
+          ...rows.map((row) => {
+            const source = getFrameworkLogoSource(row.name)
+            const logo = document.createElement(source ? 'img' : 'span')
+            if (logo instanceof HTMLImageElement) {
+              logo.src = source!
+              logo.alt = row.name
+            } else {
+              logo.className = 'logo-fallback'
+              logo.textContent = row.name.slice(0, 1)
+            }
+            logo.title = row.name
+            return logo
+          }),
+        )
+        const medianLine = element.querySelector<HTMLElement>('.median-line')!
+        const muted =
+          getComputedStyle(document.documentElement)
+            .getPropertyValue('--ft-muted')
+            .trim() || '#697586'
+        const format = (value: number) =>
+          formatChartValue(value, payload.valueFormat)
+        const definition = defineChart({
+          margin: { left: 36, right: 0, top: 24, bottom: 0 },
+          marks: [
+            barX(
+              segments.filter((d) => d.value > 0),
+              {
+                x1: 'start',
+                x2: 'end',
+                y: 'name',
+                fill: (d) =>
+                  d.color.startsWith('var(')
+                    ? getComputedStyle(document.documentElement)
+                        .getPropertyValue(d.color.slice(4, -1))
+                        .trim() || muted
+                    : d.color,
+                inset: 0,
+                radius: (d) => [
+                  d.start === 0 ? 8 : 0,
+                  d.end === d.total ? 8 : 0,
+                  d.end === d.total ? 8 : 0,
+                  d.start === 0 ? 8 : 0,
+                ],
+              },
+            ),
+            text(labels, {
+              x: 'total',
+              y: 'name',
+              text: (d) => format(d.total),
+              anchor: (d) => (d.total / max > 0.85 ? 'end' : 'start'),
+              dx: (d) => (d.total / max > 0.85 ? -10 : 10),
+              fill: (d) =>
+                d.total / max > 0.85
+                  ? segments.findLast(
+                      (segment) => segment.name === d.name && segment.value > 0,
+                    )?.color === '#f7df1e'
+                    ? '#203329'
+                    : '#fff'
+                  : muted,
+              fontWeight: 600,
+              fontSize: 13,
+            }),
+          ],
+          scales: {
+            x: {
+              scale: () =>
+                scaleLinear().domain([
+                  0,
+                  Math.max(1, ...labels.map((d) => d.total)),
+                ]),
+              axis: false,
+            },
+            y: {
+              scale: () =>
+                scaleBand<string>()
+                  .domain(rows.map((d) => d.name))
+                  .padding(0.18),
+              axis: false,
+            },
+          },
+          tooltip: {
+            use: tooltip,
+            content: (points) => ({
+              title: points[0]!.datum.name,
+              rows: [
+                {
+                  label: points[0]!.datum.label,
+                  value: format(points[0]!.datum.value),
+                },
+                { label: 'Total', value: format(points[0]!.datum.total) },
+              ],
+            }),
+          },
+        })
+        const options = {
+          definition,
+          height: Math.max(80, rows.length * 56 + 24),
+          onRender: ({
+            scene,
+          }: ChartRenderContext<Segment, number, string>) => {
+            Array.from(logoLayer.children).forEach((child, index) => {
+              const logo = child as HTMLElement
+              logo.style.left = `${scene.chart.x - 12}px`
+              logo.style.top = `${scene.scales.y!.map(rows[index]!.name)}px`
+            })
+            medianLine.style.left = `${scene.scales.x!.map(median)}px`
+            medianLine.style.top = `${scene.chart.y}px`
+            medianLine.style.height = `${scene.chart.height}px`
+            medianLine.querySelector('span')!.textContent =
+              `Median: ${format(median)}`
+          },
+          ariaLabel: `${payload.title}. Stacked bar chart; a data table follows.`,
+        }
+        const host = hosts.get(element)
+        if (host) host.update(options)
+        else
+          hosts.set(
+            element,
+            mountChart(
+              element.querySelector<HTMLElement>('.chart-host')!,
+              options,
+            ),
+          )
+      })
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', initCharts)
+  else initCharts()
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributes: true, attributeFilter: ['class', 'data-theme'] },
+  )
+</script>

@@ -215,6 +215,9 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 
 ### Node Modules Size
 
+The default number of repetitions is configured by `install.runs` in
+`packages/results/src/measurements.ts`.
+
 - For every repetition, install benchmarks copy the starter package to a fresh
   temporary directory and use dedicated, initially empty pnpm store and cache
   directories. They run `pnpm install --frozen-lockfile` so every measurement

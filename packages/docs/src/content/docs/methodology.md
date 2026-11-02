@@ -205,21 +205,13 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 
 ### Dependency Counts
 
-- The core package view counts the direct production and development dependencies
-  declared by the meta-framework package itself.
-
-- The starter project view counts every direct production and development
-  dependency in the starter's `package.json`, then reports its resolved graph,
-  duplicates, and install size.
-- The first-party package view uses the starter's
-  `first-party-dependencies.json`. It keeps only the direct packages maintained
-  by the framework's ecosystem, preserving their production/development section
-  and version from the starter's `package.json`. Its resolved graph and duplicate
-  counts follow those packages through the starter's committed `pnpm-lock.yaml`.
-- The starter project's duplicate and install-size metrics use e18e analysis.
-  Graph links pass the matching starter or first-party dependency manifest to
-  npmgraph. npmgraph resolves those manifests independently, so its transitive
-  versions may differ from the committed lockfile counts.
+- **Core package:** Measures the direct production and development dependencies
+  declared by the framework package itself.
+- **First-party packages:** Measures the framework-maintained packages listed in
+  each starter project's `first-party-dependencies.json` and their resolved
+  dependency graph, including duplicate versions.
+- **Starter project:** Measures the full starter project's direct dependencies,
+  resolved dependency graph, duplicates, and install size.
 
 ### Node Modules Size
 

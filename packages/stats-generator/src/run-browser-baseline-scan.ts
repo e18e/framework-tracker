@@ -101,9 +101,16 @@ async function main() {
     console.info(`  Staged ${copiedFileCount} browser source file(s).`)
 
     const featuresByFile = await detectFeatures({ cwd: scanDir })
-    // Nuxt only reaches devalue's Temporal deserializer when application code
-    // has already serialized a Temporal value.
-    if (packageName === 'starter-nuxt') {
+    // These starters bundle optional Temporal serialization support (devalue
+    // in Nuxt/SvelteKit, seroval in TanStack Start). Their application code
+    // does not serialize Temporal values, so this is not a browser requirement.
+    if (
+      [
+        'starter-nuxt',
+        'starter-sveltekit',
+        'starter-tanstack-start-react',
+      ].includes(packageName)
+    ) {
       for (const features of featuresByFile.values())
         features.delete('temporal')
     }

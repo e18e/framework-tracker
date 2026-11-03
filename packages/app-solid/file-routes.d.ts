@@ -38,7 +38,13 @@ declare module 'virtual:file-routes' {
       path: '/client-side-rendered/:id'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/client-side-rendered/[id]')
+        Pick<
+          typeof import('./src/routes/client-side-rendered/[id]'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/client-side-rendered/[id]')
+          >
+        >
       >
       $$route?: undefined
     },
@@ -46,21 +52,43 @@ declare module 'virtual:file-routes' {
       path: '/client-side-rendered/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/client-side-rendered/index')
+        Pick<
+          typeof import('./src/routes/client-side-rendered/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/client-side-rendered/index')
+          >
+        >
       >
       $$route?: undefined
     },
     {
       path: '/'
       page: true
-      $component: FileRouteLazyRef<typeof import('./src/routes/index')>
-      $$route: FileRouteEagerRef<typeof import('./src/routes/index')>
+      $component: FileRouteLazyRef<
+        Pick<
+          typeof import('./src/routes/index'),
+          Extract<'default', keyof typeof import('./src/routes/index')>
+        >
+      >
+      $$route: FileRouteEagerRef<
+        Pick<
+          typeof import('./src/routes/index'),
+          Extract<'route', keyof typeof import('./src/routes/index')>
+        >
+      >
     },
     {
       path: '/initial-load/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/initial-load/index')
+        Pick<
+          typeof import('./src/routes/initial-load/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/initial-load/index')
+          >
+        >
       >
       $$route?: undefined
     },
@@ -68,7 +96,13 @@ declare module 'virtual:file-routes' {
       path: '/server-side-rendered/:id'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/server-side-rendered/[id]')
+        Pick<
+          typeof import('./src/routes/server-side-rendered/[id]'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/server-side-rendered/[id]')
+          >
+        >
       >
       $$route?: undefined
     },
@@ -76,20 +110,44 @@ declare module 'virtual:file-routes' {
       path: '/server-side-rendered/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/server-side-rendered/index')
+        Pick<
+          typeof import('./src/routes/server-side-rendered/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/server-side-rendered/index')
+          >
+        >
       >
       $$route: FileRouteEagerRef<
-        typeof import('./src/routes/server-side-rendered/index')
+        Pick<
+          typeof import('./src/routes/server-side-rendered/index'),
+          Extract<
+            'route',
+            keyof typeof import('./src/routes/server-side-rendered/index')
+          >
+        >
       >
     },
     {
       path: '/ssr-throughput/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/ssr-throughput/index')
+        Pick<
+          typeof import('./src/routes/ssr-throughput/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/ssr-throughput/index')
+          >
+        >
       >
       $$route: FileRouteEagerRef<
-        typeof import('./src/routes/ssr-throughput/index')
+        Pick<
+          typeof import('./src/routes/ssr-throughput/index'),
+          Extract<
+            'route',
+            keyof typeof import('./src/routes/ssr-throughput/index')
+          >
+        >
       >
     },
   ]
@@ -101,8 +159,18 @@ declare module 'virtual:file-routes' {
       path: '/'
       id: '/'
       page: true
-      $component: FileRouteLazyRef<typeof import('./src/routes/index')>
-      $$route: FileRouteEagerRef<typeof import('./src/routes/index')>
+      $component: FileRouteLazyRef<
+        Pick<
+          typeof import('./src/routes/index'),
+          Extract<'default', keyof typeof import('./src/routes/index')>
+        >
+      >
+      $$route: FileRouteEagerRef<
+        Pick<
+          typeof import('./src/routes/index'),
+          Extract<'route', keyof typeof import('./src/routes/index')>
+        >
+      >
       children?: undefined
     },
     {
@@ -110,7 +178,13 @@ declare module 'virtual:file-routes' {
       id: '/initial-load/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/initial-load/index')
+        Pick<
+          typeof import('./src/routes/initial-load/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/initial-load/index')
+          >
+        >
       >
       $$route?: undefined
       children?: undefined
@@ -120,10 +194,22 @@ declare module 'virtual:file-routes' {
       id: '/ssr-throughput/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/ssr-throughput/index')
+        Pick<
+          typeof import('./src/routes/ssr-throughput/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/ssr-throughput/index')
+          >
+        >
       >
       $$route: FileRouteEagerRef<
-        typeof import('./src/routes/ssr-throughput/index')
+        Pick<
+          typeof import('./src/routes/ssr-throughput/index'),
+          Extract<
+            'route',
+            keyof typeof import('./src/routes/ssr-throughput/index')
+          >
+        >
       >
       children?: undefined
     },
@@ -132,7 +218,13 @@ declare module 'virtual:file-routes' {
       id: '/client-side-rendered/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/client-side-rendered/index')
+        Pick<
+          typeof import('./src/routes/client-side-rendered/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/client-side-rendered/index')
+          >
+        >
       >
       $$route?: undefined
       children?: undefined
@@ -142,10 +234,22 @@ declare module 'virtual:file-routes' {
       id: '/server-side-rendered/'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/server-side-rendered/index')
+        Pick<
+          typeof import('./src/routes/server-side-rendered/index'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/server-side-rendered/index')
+          >
+        >
       >
       $$route: FileRouteEagerRef<
-        typeof import('./src/routes/server-side-rendered/index')
+        Pick<
+          typeof import('./src/routes/server-side-rendered/index'),
+          Extract<
+            'route',
+            keyof typeof import('./src/routes/server-side-rendered/index')
+          >
+        >
       >
       children?: undefined
     },
@@ -154,7 +258,13 @@ declare module 'virtual:file-routes' {
       id: '/client-side-rendered/:id'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/client-side-rendered/[id]')
+        Pick<
+          typeof import('./src/routes/client-side-rendered/[id]'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/client-side-rendered/[id]')
+          >
+        >
       >
       $$route?: undefined
       children?: undefined
@@ -164,7 +274,13 @@ declare module 'virtual:file-routes' {
       id: '/server-side-rendered/:id'
       page: true
       $component: FileRouteLazyRef<
-        typeof import('./src/routes/server-side-rendered/[id]')
+        Pick<
+          typeof import('./src/routes/server-side-rendered/[id]'),
+          Extract<
+            'default',
+            keyof typeof import('./src/routes/server-side-rendered/[id]')
+          >
+        >
       >
       $$route?: undefined
       children?: undefined

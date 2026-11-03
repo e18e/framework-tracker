@@ -5,7 +5,7 @@ import solid from '@solidjs/vite-plugin'
 export default defineConfig({
   plugins: [
     solid({
-      start: { node: true },
+      start: { nodeServer: true },
       ssr: true,
       serverFunctions: true,
       extensions: ['.jsx', '.tsx'],

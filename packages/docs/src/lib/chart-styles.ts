@@ -2,7 +2,7 @@
 const frameworkColors: Record<string, string> = {
   'Baseline HTML': '#94a3b8',
   Astro: '#bc4be9',
-  Pracht: '#ffbf16',
+  Pracht: '#6366f1',
   Nuxt: '#00c996',
   SvelteKit: '#ff4b19',
   SolidStart: '#00b5ed',

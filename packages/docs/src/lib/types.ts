@@ -104,6 +104,12 @@ interface SSRLoadMeasurements {
   totalRequests?: number
   stages?: {
     workers: number
+    latencyRanges?: Partial<
+      Record<
+        'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs',
+        { min: number; median: number; max: number }
+      >
+    >
     p75LatencyMs?: number
     p90LatencyMs?: number
     p99LatencyMs?: number
@@ -116,4 +122,20 @@ export type InstallChartMeasurement = ChartMeasurement & {
     installTimeMs: { median: number }
     nodeModulesSizeBytes: number
   }
+}
+
+export interface FrameworkLineChartPayload {
+  title: string
+  series: {
+    name: string
+    points: {
+      x: number
+      y: number
+      range?: { min: number; median: number; max: number }
+    }[]
+  }[]
+  xAxisLabel: string
+  yAxisLabel: string
+  valueFormat: ChartValueFormat
+  yScale?: 'linear' | 'log'
 }

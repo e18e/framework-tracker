@@ -575,25 +575,39 @@ export function prepareSSRTotalRequestsHistory(
   )
 }
 
-export function prepareSSRLatencyComparison(
-  records: readonly ChartMeasurement[],
-  workers: ConnectionCount,
-  percentile: LatencyPercentile,
-  testsKey: SSRLoadKey = 'ssrLoadTests',
-): PreparedComparisonChart {
-  return comparison(
-    metricCatalogue[`${testsKey}.latency.${workers}.${percentile}`],
-    records.map((record) => ({
-      record,
-      value: finiteValue(
-        record[testsKey]?.stages?.find((stage) => stage.workers === workers)?.[
-          percentile
-        ],
-      ),
-    })),
-  )
-}
-
 export type SSRLoadKey = 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
 export type LatencyPercentile = 'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs'
 export type ConnectionCount = 25 | 50 | 100
+
+export function prepareSSRLatencyLineChart(
+  records: readonly ChartMeasurement[],
+  percentile: LatencyPercentile,
+  testsKey: SSRLoadKey = 'ssrLoadTests',
+): import('./types').FrameworkLineChartPayload {
+  return {
+    title: `${percentile.slice(0, 3).toUpperCase()} latency by connections`,
+    xAxisLabel: 'Connections',
+    yAxisLabel: 'Latency (ms, log scale)',
+    valueFormat: 'ms',
+    yScale: 'log',
+    series: records
+      .map((record) => ({
+        name: record.name ?? '',
+        points: (record[testsKey]?.stages ?? [])
+          .flatMap((stage) => {
+            const value = finiteValue(stage[percentile])
+            return value != null && value > 0
+              ? [
+                  {
+                    x: stage.workers,
+                    y: value,
+                    range: stage.latencyRanges?.[percentile],
+                  },
+                ]
+              : []
+          })
+          .sort((a, b) => a.x - b.x),
+      }))
+      .filter((series) => series.points.length > 0),
+  }
+}

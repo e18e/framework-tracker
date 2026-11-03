@@ -76,6 +76,11 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
         ? [
             {
               workers: stage.connections,
+              latencyRanges: {
+                p75LatencyMs: stage.p75LatencyMs,
+                p90LatencyMs: stage.p90LatencyMs,
+                p99LatencyMs: stage.p99LatencyMs,
+              },
               requests: stage.requests.median,
               errors: stage.errors.median,
               requestsPerSec: stage.requestsPerSec.median,

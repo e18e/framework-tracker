@@ -1,0 +1,265 @@
+---
+import type { FrameworkLineChartPayload } from '../lib/types'
+import { getFrameworkColor } from '../lib/chart-styles'
+type Props = FrameworkLineChartPayload & { showTitle?: boolean }
+const { showTitle = true, ...chart } = Astro.props
+const { title, series } = chart
+const chartPayload = JSON.stringify(chart)
+---
+
+<figure data-framework-line-chart aria-label={showTitle ? undefined : title}>
+  {showTitle && <figcaption>{title}</figcaption>}
+  {
+    series.length ? (
+      <>
+        <div class="line-chart-host" data-line-chart={chartPayload} />
+        <ul aria-label="Framework key">
+          {series.map((s) => (
+            <li>
+              <span
+                class="swatch"
+                style={`background:${getFrameworkColor(s.name)}`}
+              />
+              {s.name}
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <p>No measurements available for this test.</p>
+    )
+  }
+</figure>
+<style>
+  figure {
+    margin: 1.5rem 0 2.5rem;
+    position: relative;
+  }
+  .line-chart-host {
+    height: 355px;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  figcaption {
+    text-align: center;
+    font-weight: 600;
+    color: var(--ft-text);
+  }
+  .line-chart-host :global(svg) {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    overflow: visible;
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.65rem 1rem;
+    padding: 0;
+    list-style: none;
+  }
+  ul > li {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  .swatch {
+    width: 15px;
+    height: 3px;
+  }
+</style>
+
+<script>
+  import {
+    getFrameworkColor,
+    lineChartGrid,
+    lineChartLineStyle,
+    lineChartPointStyle,
+  } from '../lib/chart-styles'
+  import {
+    defineChart,
+    dot,
+    lineY,
+    mountChart,
+    type ChartHost,
+    type ChartPoint,
+  } from '@tanstack/charts'
+  import { decorative } from '@tanstack/charts/mark/decorative'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import { formatChartValue } from '../lib/chart'
+  import type { FrameworkLineChartPayload } from '../lib/types'
+
+  type Datum = {
+    range: { min: number; median: number; max: number } | undefined
+    name: string
+    x: number
+    y: number
+    value: number
+  }
+  const hosts = new WeakMap<HTMLElement, ChartHost<Datum, number, number>>()
+  function css(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
+  }
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('[data-line-chart]')
+      .forEach((host) => {
+        const payload: FrameworkLineChartPayload = JSON.parse(
+          host.dataset.lineChart!,
+        )
+        const logarithmic = payload.yScale === 'log'
+        const series = payload.series.map((series) => ({
+          name: series.name,
+          points: series.points
+            .filter((p) => Number.isFinite(p.y) && (!logarithmic || p.y > 0))
+            .map((p) => ({
+              name: series.name,
+              range: p.range,
+              x: p.x,
+              value: p.y,
+              y: logarithmic ? Math.log10(p.y) : p.y,
+            })),
+        }))
+        const points = series.flatMap((series) => series.points)
+        if (!points.length) return
+        const xs = points.map((p) => p.x)
+        const ys = points.map((p) => p.y)
+        const min = logarithmic ? Math.floor(Math.min(...ys)) : 0
+        const max = logarithmic
+          ? Math.max(min + 1, Math.ceil(Math.max(...ys)))
+          : Math.max(1, ...ys) * 1.05
+        const definition = defineChart({
+          // Use the theme's text/background contrast regardless of series colour.
+          focusRing: {
+            radius: 7,
+            strokeWidth: 3,
+            stroke: css('--ft-text', '#1f2933'),
+            fill: css('--ft-bg', '#ffffff'),
+          },
+          chart: ({ width }) => {
+            const fontSize = width <= 600 ? 16 : 13
+            return {
+              marks: series.flatMap((series) => {
+                const color = getFrameworkColor(series.name)
+                return [
+                  decorative(
+                    lineY(series.points, {
+                      x: 'x',
+                      y: 'y',
+                      stroke: color,
+                      ...lineChartLineStyle,
+                    }),
+                  ),
+                  dot(series.points, {
+                    x: 'x',
+                    y: 'y',
+                    ...lineChartPointStyle,
+                    fill: css('--ft-bg', '#ffffff'),
+                    stroke: color,
+                  }),
+                ]
+              }),
+              scales: {
+                x: {
+                  scale: scaleLinear().domain([
+                    Math.min(...xs),
+                    Math.max(...xs) || 1,
+                  ]),
+                  axis: {
+                    label: { text: payload.xAxisLabel, fontSize },
+                    tickLabels: { fontSize },
+                    ticks: { values: [...new Set(xs)].sort((a, b) => a - b) },
+                  },
+                },
+                y: {
+                  scale: scaleLinear().domain([min, max]),
+                  grid: lineChartGrid(),
+                  axis: {
+                    label: { text: payload.yAxisLabel, fontSize },
+                    tickLabels: { fontSize },
+                    ticks: {
+                      ...(logarithmic
+                        ? {
+                            values: Array.from(
+                              { length: max - min + 1 },
+                              (_, i) => min + i,
+                            ),
+                          }
+                        : {}),
+                      format: (value) =>
+                        (logarithmic
+                          ? 10 ** Number(value)
+                          : Number(value)
+                        ).toLocaleString('en-US', {
+                          maximumSignificantDigits: 3,
+                        }),
+                    },
+                  },
+                },
+              },
+              theme: {
+                foreground: css('--ft-text', '#1f2933'),
+                muted: css('--ft-text', '#1f2933'),
+                grid: css('--ft-chart-grid', '#d9dee7'),
+              },
+            }
+          },
+          tooltip: {
+            use: tooltip,
+            content: (
+              focusedPoints: readonly ChartPoint<Datum, number, number>[],
+            ) => {
+              const datum = focusedPoints[0]!.datum
+              const summary = datum.range
+                ? [
+                    { label: 'Min', value: datum.range.min },
+                    { label: 'Median', value: datum.range.median },
+                    { label: 'Max', value: datum.range.max },
+                  ].map((row) => ({
+                    label: row.label,
+                    value: formatChartValue(row.value, payload.valueFormat),
+                  }))
+                : []
+              return {
+                title: datum.name,
+                rows: [
+                  { label: payload.xAxisLabel, value: String(datum.x) },
+                  {
+                    label: payload.yAxisLabel,
+                    value: formatChartValue(datum.value, payload.valueFormat),
+                  },
+                  ...summary,
+                ],
+              }
+            },
+          },
+        })
+        const options = {
+          definition,
+          height: 355,
+          ariaLabel: `${payload.title}. ${payload.yAxisLabel}.`,
+        }
+        const existing = hosts.get(host)
+        if (existing) existing.update(options)
+        else hosts.set(host, mountChart(host, options))
+      })
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', initCharts)
+  else initCharts()
+  document.addEventListener('astro:page-load', initCharts)
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributes: true, attributeFilter: ['class', 'data-theme'] },
+  )
+</script>

@@ -192,6 +192,12 @@ const latestChangeLabel = formatLatestChange(latestChange)
 
 <script>
   import {
+    lineChartGrid,
+    lineChartLineStyle,
+    lineChartPointStyle,
+    lineChartLatestPointStyle,
+  } from '../lib/chart-styles'
+  import {
     areaY,
     crosshair,
     defineChart,
@@ -256,26 +262,29 @@ const latestChangeLabel = formatLatestChange(latestChange)
           }),
         ),
         decorative(
-          lineY(data, { x: 'name', y: 'value', stroke: line, strokeWidth: 3 }),
+          lineY(data, {
+            x: 'name',
+            y: 'value',
+            stroke: line,
+            ...lineChartLineStyle,
+          }),
         ),
         dot(
           data.filter((datum) => datum !== latest),
           {
             x: 'name',
             y: 'value',
-            r: 4,
+            ...lineChartPointStyle,
             fill: css('--ft-bg', '#ffffff'),
             stroke: line,
-            strokeWidth: 3,
           },
         ),
         dot(latest ? [latest] : [], {
           x: 'name',
           y: 'value',
-          r: 6,
+          ...lineChartLatestPointStyle,
           fill: css('--ft-chart-line-hover', '#4b5565'),
           stroke: line,
-          strokeWidth: 3,
         }),
         crosshair({ x: true, y: false }),
       ],
@@ -286,9 +295,6 @@ const latestChangeLabel = formatLatestChange(latestChange)
             .padding(0.1),
           axis: {
             tickLabels: {
-              fontSize: 12,
-              fontWeight: 500,
-              opacity: 1,
               rotate: data.length > 8 ? -45 : undefined,
             },
           },
@@ -299,10 +305,9 @@ const latestChangeLabel = formatLatestChange(latestChange)
             Math.max(1, ...data.map((datum) => datum.value ?? 0)) * 1.05,
           ]),
           nice: true,
-          grid: { stroke: css('--ft-chart-grid', '#d9dee7'), strokeOpacity: 1 },
+          grid: lineChartGrid(),
           axis: {
             label: payload.yAxisLabel,
-            tickLabels: { fontSize: 12, fontWeight: 500, opacity: 1 },
             ticks: {
               format: (value: string | number | Date) =>
                 valueFormat === 'count' && !Number.isInteger(Number(value))

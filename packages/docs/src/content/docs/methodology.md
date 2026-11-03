@@ -3,15 +3,12 @@ title: Methodology
 description: How Framework Tracker benchmark metrics are collected.
 ---
 
-Framework Tracker compares two kinds of projects. Dev Time stats come from
-starter projects: each framework set up with its default starter-style
-configuration. Run Time stats come from app packages: the same simple app
-implemented across frameworks as consistently as each framework allows.
+Framework Tracker create two types of benchmarks Run Time and Dev Time. Our Dev Time benchmarks use each meta-framework’s `starter-*` package. Each starter follows its framework’s CLI or documented setup, with the selected options and adjustments recorded in the [setup section](/methodology/#default-benchmark-setup). Run Time benchmarks use each meta-framework’s `app-*` package/ Currently, each test uses a different route in its app, configured to meet each test's requirements.
 
 The goal is to show both the default project cost developers inherit when
 starting a framework and the runtime cost of serving and hydrating a comparable
 app. Repetition and aggregation vary by benchmark, as described in each
-benchmark section. Generated JSON is published into the docs package.
+benchmark section.
 
 ## Default Benchmark Setup
 
@@ -22,17 +19,18 @@ with the affected test.
 
 Benchmarks run on Depot GitHub Actions runners using
 [`depot-ubuntu-24.04`](https://depot.dev/docs/github-actions/runner-types),
-with 2 CPUs, 8 GB RAM, 100 GB disk, and a 2 GB disk accelerator. EBS storage is
+with 2 CPUs, 8 GB RAM (a portion reserved for a 2 GB RAM-backed disk accelerator),
+and 100 GB disk. EBS storage is
 provisioned with 8,000 IOPS and 250 MB/s throughput. Depot runs each job on a
 fresh, single-tenant EC2 instance. Its x86 runners use
 [4th Gen AMD EPYC Genoa CPUs](https://depot.dev/docs/github-actions/overview)
-and GitHub's standard runner image.
+and GitHub's standard runner image. The SSR Load Test and SSR Router Link Load
+Test use larger, 16-CPU runners, as described in their sections below.
 
-- **Node.js:** Local development, CI, and benchmark containers use the exact
-  Node.js version pinned in the root `.nvmrc`. CI reads that file directly and SSR
+- **Node.js:** The supported Node.js version is pinned in the root `.nvmrc`.
+  CI and benchmark containers use that version. CI reads the file directly and SSR
   load containers derive their image tag from it. Dockerfiles pin the same
-  version explicitly. This benchmark runtime is separate from the minimum
-  supported Node version reported for each framework.
+  version explicitly.
 - **Package manager and dependencies:** CI uses the pnpm version declared in the
   root `package.json` and installs dependencies with frozen lockfiles.
 - **Framework, adapter, and build tool:** Each project uses the configuration
@@ -45,25 +43,17 @@ and GitHub's standard runner image.
   Lighthouse uses the desktop form factor, `throttlingMethod: provided`, and
   disables its screen emulation, with no simulated CPU or network throttling.
   Requests use a local connection to a production server. The Lighthouse flow
-  collects only the audits needed for the published First Paint, First Contentful Paint, and
-  interaction-latency measurements, so unrelated diagnostics do not affect
-  the benchmark.
+  runs only the audits required for the published First Paint, First Contentful
+  Paint, and interaction-latency measurements.
 - **Recorded environment:** Results include runner details and the measured
-  framework version; browser results also include the Chrome version used.
-  Node.js updates require an explicit change to the committed version pins and
-  can affect comparisons with earlier measurements. The host Chrome installation
-  can receive updates between runs.
-
-The browser results are relative comparisons on the CI host rather than
-estimates for typical devices or networks. The SSR load tests document their
-larger runner and container setup below. Core Web Vitals use external HTTP
-Archive data, as described in that section.
+  framework version; browser results also include the Chrome version used. Any benchmark that runs multiple itterations record mean, median, minimum, and maximum.
 
 ### Framework Build Tools and Adapters
 
 These are the current repository configurations. The build tool applies to both
 the Dev Time starter and Run Time app unless noted. The adapter/server column
-describes the Run Time app; starter differences are listed below.
+describes the Run Time app. Starter differences are described in Project Setups;
+runtime configuration details are described in Framework Specific Notes.
 
 | Framework      | UI library                           | Bundler / build tool         | Adapter / server    |
 | -------------- | ------------------------------------ | ---------------------------- | ------------------- |
@@ -77,26 +67,10 @@ describes the Run Time app; starter differences are listed below.
 | TanStack Start | React                                | Vite                         | Nitro               |
 | Baseline HTML  | None                                 | No build step                | Node.js             |
 
-- Astro's runtime app uses its Node adapter in standalone mode; its starter
-  builds static output without an adapter or React integration.
-- Next.js uses Turbopack's default filesystem caches for development and
-  production builds. Warm build measurements retain the production build cache
-  created by the cold build. Build-time type checking uses the project-local
-  `tsc` CLI by default.
-- The SolidStart and TanStack Start starters use `nitro()` without an explicit
-  preset; their runtime apps explicitly select `node-server`.
-- The TanStack Start runtime app uses the [documented FastResponse optimization](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#performance-tip-fastresponse)
-  for Node.js deployments with Nitro. Its server entry replaces the global
-  `Response` constructor with srvx's `FastResponse`. This is a deployment-specific
-  throughput setting; the Dev Time starter retains its generated setup.
-- Nuxt's starter uses its default Nitro configuration. Its runtime app extends
-  `node-server` with an entry that also exposes a fetch handler for the
-  request-throughput benchmark.
-- Baseline HTML is a runtime-only comparison.
-- Exact dependency versions are recorded in each project's `package.json` and
-  lockfile.
-- Test-specific rendering and routing choices are described in the relevant
-  benchmark sections below.
+Baseline HTML is a runtime-only comparison. Each project's `package.json`
+declares dependency versions or ranges; its lockfile records resolved versions.
+Test-specific rendering and routing choices are described in the relevant
+benchmark sections below.
 
 ## Dev Time
 
@@ -130,6 +104,8 @@ Installed using the CLI
 - Step 4: Install dependencies?: `yes`
 - Step 5: Initialize a new git repository?: `No`
 
+The Astro starter builds static output without an adapter or React integration.
+
 #### Next.js
 
 Installed using the CLI with its default selections:
@@ -157,6 +133,8 @@ default Nitro configuration. Both the starter and runtime app declare TypeScript
 as a direct development dependency to pin a version compatible with `vue-tsc`,
 rather than relying on its automatically installed peer dependency. This package
 is included in the starter's full dependency counts.
+
+The Nuxt starter uses its default Nitro configuration.
 
 #### React Router
 
@@ -207,6 +185,8 @@ matches the framework version tracked by the starter project.
 - Step 5: Which template would you like to use?: `basic`
 - Step 6: Install dependencies: `pnpm install`
 
+The SolidStart starter uses `nitro()` without an explicit preset.
+
 #### TanStack Start (React)
 
 Installed using the CLI with the following setup:
@@ -221,23 +201,17 @@ Installed using the CLI with the following setup:
 - Development server: `vite dev --port 3000`
 - Production build: `vite build`
 
+The TanStack Start starter uses `nitro()` without an explicit preset.
+
 ### Dependency Counts
 
-- The core package view counts the direct production and development dependencies
-  declared by the meta-framework package itself.
-
-- The starter project view counts every direct production and development
-  dependency in the starter's `package.json`, then reports its resolved graph,
-  duplicates, and install size.
-- The first-party package view uses the starter's
-  `first-party-dependencies.json`. It keeps only the direct packages maintained
-  by the framework's ecosystem, preserving their production/development section
-  and version from the starter's `package.json`. Its resolved graph and duplicate
-  counts follow those packages through the starter's committed `pnpm-lock.yaml`.
-- The starter project's duplicate and install-size metrics use e18e analysis.
-  Graph links pass the matching starter or first-party dependency manifest to
-  npmgraph. npmgraph resolves those manifests independently, so its transitive
-  versions may differ from the committed lockfile counts.
+- **Core package:** Measures the direct production and development dependencies
+  declared by the framework package itself.
+- **First-party packages:** Measures the framework-maintained packages listed in
+  each starter project's `first-party-dependencies.json` and their resolved
+  dependency graph, including duplicate versions.
+- **Starter project:** Measures the full starter project's direct dependencies,
+  resolved dependency graph, duplicates, and install size.
 
 ### Node Modules Size
 
@@ -253,16 +227,16 @@ Installed using the CLI with the following setup:
 
 - Install time measures a clean `pnpm install --frozen-lockfile` in a fresh
   temporary copy of the starter package with an empty pnpm store and cache.
-- Install benchmarks run 5 times by default and report median, minimum, and
-  maximum duration.
 - Each build repetition uses a fresh temporary copy of the tracked starter
   files. Dependencies are installed outside the timed region with a frozen
   lockfile and a dedicated store shared by the repetitions.
 - Cold build time measures the first build in that fresh project. Warm build
   time measures a second build in the same project, preserving whatever cache
   or generated output the first build leaves in place.
-- Build benchmarks run 5 times by default and report median, minimum, and
-  maximum duration.
+- Next.js uses Turbopack's default production filesystem cache. Warm build
+  measurements retain the cache created by the cold build. The timed `next build`
+  also includes Next.js's default build-time type checking with the project-local
+  `tsc` CLI.
 
 ### Dev Server Startup
 
@@ -285,15 +259,6 @@ Installed using the CLI with the following setup:
   benchmark cannot change how the framework behaves. Astro, for example,
   switches to a detached background server when it detects an AI agent
   terminal.
-- Dev server benchmarks run 5 times by default. New results record the test
-  `name`, measured `runs`, raw `iterations` in milliseconds, and `timeMs`
-  statistics (mean, median, minimum, and maximum). Framework and
-  package identity stay on the overall result. Charts and tables display the
-  median startup duration.
-- All 146 historical startup records contained raw samples and were converted
-  using those samples. No measurements
-  or iterations were invented. The site can still display legacy summaries,
-  but new benchmark artifacts require complete iterations.
 
 ### Core-JS Polyfills
 
@@ -336,9 +301,7 @@ Installed using the CLI with the following setup:
 
 ### Minimum Node Version
 
-The oldest Node.js release that satisfies every `engines.node` range declared by the packages installed in the starter's `node_modules`, dev and prod dependencies included, together with the starter's own `package.json`. The ranges are deduplicated and intersected, so the floor is the lowest version that every package accepts at once. The "Set by" column lists the packages that impose that floor, meaning removing any one of them would lower it. When several packages share the floor and no single one is responsible, the column shows a dash.
-
-A dash in the Min Node column means no installed package declares a resolvable `engines.node` range.
+- The oldest Node.js release that satisfies every `engines.node` range declared by the packages installed in the starter's `node_modules`, dev and prod dependencies included, together with the starter's own `package.json`.
 
 ### Duplicate Dependencies
 
@@ -349,8 +312,6 @@ A dash in the Min Node column means no installed package declares a resolvable `
   instances.
 - A duplicate dependency means multiple installed versions of the same package
   were found in the starter's dependency tree.
-- Framework detail pages show the package name, installed versions, and the
-  dependency paths reported by the analyzer.
 
 ## Run Time
 
@@ -375,102 +336,80 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Framework Specific Notes
 
-- These runtime apps are not currently intended to measure static-site output. Astro's
-  runtime benchmark app uses the Node adapter so the benchmark harness can serve
-  on-demand routes in production; Astro's default static output is represented
-  by the starter app measurements.
-- Pracht's starter prerenders its home route, while its runtime app uses SSR for
-  server-rendered routes and `render: 'spa'` for the client-rendered routes.
-  Runtime routes keep the default full hydration so server output includes the
-  client bootstrap rather than measuring a no-hydration optimization.
-- Next.js's starter and runtime app enable Cache Components and Partial
-  Prefetching, following the CLI defaults. Runtime data routes directly await
-  the shared asynchronous UUID fixture, with no `connection()` call or deferred
-  import. UUID rows are created once per module instance, while the table is
-  loaded and rendered on every request without `use cache`. A Suspense boundary
-  with an empty fallback allows normal streaming without painting a loading
-  placeholder.
+- Astro's runtime app uses standalone mode to serve on-demand routes.
+- SolidStart and TanStack Start explicitly select Nitro's `node-server` preset.
+- TanStack Start's runtime app replaces the global `Response` constructor with
+  srvx's `FastResponse` to improve Node.js throughput. Its Dev Time starter keeps
+  the generated setup.
+- Nuxt extends `node-server` with an entry that also exposes a fetch handler for
+  the request-throughput benchmark.
+- Pracht's starter prerenders its home route. Its runtime app uses SSR for
+  server-rendered routes and `render: 'spa'` for client-rendered routes, keeping
+  default full hydration.
+- Next.js's runtime data routes load and render the shared asynchronous UUID
+  fixture on each request without `use cache`. UUID rows are created once per
+  module instance. Suspense boundaries use empty fallbacks for streaming.
 
 ### Client Side Rendered Tests (Lighthouse)
 
-- Each framework renders a table of 1000 rows with two UUID columns in the
-  browser.
+- Each framework renders 1,000 rows in the browser, with two UUID columns and a
+  detail link.
+- Metrics use Lighthouse flows in Chrome through Puppeteer.
 - First Paint and First Contentful Paint are measured during navigation to
   `/client-side-rendered`.
-- The benchmark clicks the first row's detail link and measures the resulting
-  interaction. Route IDs may be read from the URL or included in normal
-  framework routing and bootstrap state, but the measured table and detail
-  markup must be rendered in the browser.
-- Full-document navigations use Lighthouse navigation mode. Client-routed
+- The benchmark clicks the first row's detail link and waits for the detail
+  content.
+- Full-document navigations use Lighthouse navigation mode; client-routed
   navigations use timespan mode.
-- Interaction latency is the sum of Lighthouse's input delay, processing
-  duration, and presentation delay. It represents this controlled interaction,
-  not the page-lifetime INP metric.
-- CI creates one production build and starts one production server, which stays
-  running for all five measurements. Each measurement launches a fresh Chrome
-  process.
-- Before the five measurements, one HTTP request warms the server's
-  `/client-side-rendered` route, fully consuming the response. A single
-  ten-second abort timeout covers the warm-up. This server warm-up is excluded
-  from results and does not warm the measured browsers.
-- The median is displayed in charts and tables. Raw iterations and the mean,
-  median, minimum, and maximum are retained.
-- Valid slow results are kept rather than discarded as outliers. A measurement
-  is invalid only when a required Chrome paint or interaction value is missing
-  or not greater than zero.
-- These tests measure route-based client rendering, not forced SPA
-  configurations. Each framework uses its supported production routing and
-  rendering controls.
-- Next.js disables SSR for both the client-rendered table and detail content.
-- Astro uses a client-only island for the measured content, which requires a UI
-  framework integration. React was chosen because the Astro team identified it
-  as their most popular integration, used by 23% of Astro projects (15/07/2026).
-  The detail link performs a full-document navigation; the other tested
-  frameworks use their client routers.
-- Pracht's client-rendered table generates its UUID rows in the browser; the
-  route and its detail route use `render: 'spa'` and navigate with `<Link>`.
+- Interaction latency sums the input delay, processing duration, and
+  presentation delay from Lighthouse's INP breakdown. It measures this
+  controlled interaction, not page-lifetime INP.
+- CI builds once per framework and test, then keeps one production server running
+  for all five measurements. Each measurement launches a fresh Chrome process.
+- Before all measurements, one HTTP request warms `/client-side-rendered`.
+  The response is fully consumed with a ten-second timeout. This warms the
+  server, not the measured browsers, and is excluded from results.
+- Valid slow results are retained. Paint values and total interaction latency
+  must be finite and greater than zero; individual interaction components may
+  be zero.
+- Each framework uses its supported production routing and rendering controls.
+- Next.js disables SSR for the measured table and detail content.
+- Astro uses React client-only islands. Its detail link performs a full-document
+  navigation; the other tested frameworks use client routers.
+- Pracht generates UUID rows in the browser. Both routes use `render: 'spa'`
+  and navigate with `<Link>`.
 
 ### Server Side Rendered Tests (Lighthouse)
 
-- Each framework renders a table of 1000 rows with two UUID columns.
-- Metrics are measured with Lighthouse flow in Chromium through Puppeteer.
-- First Paint and First Contentful Paint are measured on initial navigation to
+- Each framework renders 1,000 rows on the server, with two UUID columns and a
+  detail link.
+- Metrics use Lighthouse flows in Chrome through Puppeteer.
+- First Paint and First Contentful Paint are measured during navigation to
   `/server-side-rendered`.
-- A controlled interaction clicks the first row's detail link and waits for
-  `/server-side-rendered/:id`. Lighthouse's INP breakdown insight processes
-  Chrome Event Timing trace data and reports its input delay, processing
-  duration, and presentation delay. Their sum is recorded as the interaction
-  latency.
-- Interactions that trigger a full document navigation use Lighthouse
-  navigation mode. Interactions handled by a client router use Lighthouse
-  timespan mode.
-- Detail links use each framework's default production navigation component or
-  idiomatic anchor behavior. Default meta-framework route prefetching or
-  preloading is allowed when it is part of the framework's default link
-  behavior, but the measured table is loaded and rendered on every request,
-  without caching or prerendering the table output. Normal streaming and static
-  surrounding shells are allowed. Streaming boundaries use empty fallbacks so
-  a loading placeholder does not produce First Contentful Paint before the
-  measured table.
-- Pracht uses `<Link>` with its default intent (hover/focus) prefetch on this
-  route; the separate plain-link SSR load route uses ordinary anchors instead.
-- CI creates one production build and starts one production server, which stays
-  running for all five measurements. Each measurement launches a fresh Chrome
-  process.
-- Before the five measurements, HTTP requests warm `/server-side-rendered` and
-  a detail URL with a random UUID, fully consuming both responses. A single
-  ten-second abort timeout covers the entire warm-up. This server warm-up is
-  excluded from results and does not warm the measured browsers.
-- The median is displayed in charts and tables. Raw iterations and the mean,
-  median, minimum, and maximum are retained.
-- Valid slow results are kept rather than discarded as outliers. A measurement
-  is invalid only when a required Chrome paint or interaction value is missing
-  or not greater than zero.
-- Astro keeps the default static output mode, but the measured
-  `/server-side-rendered` route and its detail route use
-  `export const prerender = false` so they are rendered on demand by the
-  production server instead of measured as prerendered static HTML.
-- Solid does not use its native `A` navigation element as it is being deprecated and only kept in currently as a convenience. Their docs have been updated to reflect this [GitHub PR](https://github.com/solidjs/solid-docs/pull/1620). Note update to docs page once this PR has been merged.
+- The benchmark clicks the first row's detail link and waits for the detail
+  content.
+- Full-document navigations use Lighthouse navigation mode; client-routed
+  navigations use timespan mode.
+- Interaction latency sums the input delay, processing duration, and
+  presentation delay from Lighthouse's INP breakdown. It measures this
+  controlled interaction, not page-lifetime INP.
+- CI builds once per framework and test, then keeps one production server running
+  for all five measurements. Each measurement launches a fresh Chrome process.
+- Before all measurements, HTTP requests warm `/server-side-rendered` and a
+  detail URL with a random UUID. Both responses are fully consumed under one
+  ten-second timeout. This warms the server, not the measured browsers, and is
+  excluded from results.
+- Valid slow results are retained. Paint values and total interaction latency
+  must be finite and greater than zero; individual interaction components may
+  be zero.
+- Links use each framework's production navigation component or ordinary
+  anchors, allowing default prefetching. The table is loaded and rendered on
+  demand without caching or prerendering its output. Static surrounding shells
+  and streaming with empty fallbacks are allowed.
+- Pracht uses `<Link>` with default intent (hover/focus) prefetching. Its separate
+  plain-link load-test route uses ordinary anchors.
+- Astro's table and detail routes use `export const prerender = false` for
+  request-time rendering.
 
 ### Initial Load
 
@@ -492,134 +431,51 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Server Side Throughput Tests
 
-- Each framework renders the dedicated `/ssr-throughput` route with a table of
-  1000 rows and UUID id/name columns.
-- This route intentionally omits detail links and framework link components so
-  router, prefetch, and navigation metadata do not dominate the request handler
-  throughput measurement.
-- Mock HTTP requests bypass TCP overhead, so this measures request-handler
-  rendering throughput rather than full network server throughput.
-- Each measured request consumes the complete response, including streamed
-  table content. Prerendered shells may be reused, but the table is loaded and
-  rendered on demand without caching its output.
-- Data is loaded asynchronously to simulate real-world data fetching.
-- Duplication factor indicates how many times each UUID appears in the response.
-  A 1x result is optimal; a 2x result usually means the response includes a
-  hydration payload.
-- Benchmarks perform five measured runs of 10 seconds each using
-  [tinybench](https://github.com/tinylibs/tinybench), with a 250 ms warmup before
-  each run.
-  One Tinybench task execution is one benchmark run; the `samples` count records
-  measured HTTP requests and excludes warmup requests. Each iteration retains
-  the arithmetic mean, median, minimum, and maximum of request
-  throughput (ops/sec) and latency (ms). Overall metrics summarize the five
-  per-run arithmetic means. Charts and tables display the median of those run
-  means for both throughput and latency, not a pooled request-level median.
-- Frameworks are invoked through their production request handlers where
-  possible. Web API handlers receive `Request` objects; Node.js handlers receive
-  mock `IncomingMessage` and `ServerResponse` objects.
-- Next.js renders the throughput table as a client component, matching the setup
-  from PR #94, so the benchmark compares traditional server-rendered React plus
-  hydration work instead of forcing every table row through React Server
-  Components.
-- The test is inspired by
-  [eknkc/ssr-benchmark](https://github.com/eknkc/ssr-benchmark).
-- Astro's `/ssr-throughput` route uses `export const prerender = false` so this
-  test measures request-time rendering rather than prerendered static HTML.
+- Each framework renders `/ssr-throughput`: 1,000 rows with UUID id/name columns
+  and no links or framework link components.
+- Production request handlers receive Web API `Request` objects or mock Node.js
+  requests and responses. No TCP connection or browser is involved.
+- Each request consumes the complete response, including streamed content.
+  Static shells may be reused, but table output is rendered on demand without
+  caching.
+- UUID rows are created once per module instance and loaded asynchronously
+  through a zero-delay timer.
+- Each [Tinybench](https://github.com/tinylibs/tinybench) run starts with a
+  warm-up, which is excluded from results.
+- Duplication factor is the average number of occurrences per unique UUID in a
+  separate response collected after timing. A value of 1 means no duplication;
+  higher values can reflect serialized hydration data.
+- Next.js uses a client component for the table, so its server response includes
+  the data needed for hydration. No browser hydration is measured.
+- Astro uses `export const prerender = false` for request-time rendering.
+- Inspired by [eknkc/ssr-benchmark](https://github.com/eknkc/ssr-benchmark).
 
 ### SSR Load Test
 
-Every table uses ordinary `<a>` links to measure server rendering without router link components. Frameworks with those components, including Pracht, use `/server-side-rendered-plain-links`; the others use `/server-side-rendered`.
-
-Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
-link with text `View →` and destination `/server-side-rendered/${entry.id}`.
-Data comes from `packages/testdata/src/ssr.ts`: UUID rows are created once per
-module instance and returned asynchronously with a zero-delay timer. The paired
-routes preserve each framework's loader and rendering structure; the intended
-table difference is the link implementation. UUID values can differ between
-server processes or separately bundled route modules, so equivalence means the
-same row schema, count, text, and destination rule, not identical random UUIDs.
-
-Requests still pass through each framework's server routing (baseline HTML uses
-its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
-clicked, and browser-only prefetching is not exercised.
-
-Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. New measurements repeat the full sweep three times on the
-same server, with a five-second warm-up at one connection before each sweep.
-The server gets five seconds of recovery between sweeps. An unhealthy warm-up
-is retried up to twice, with five seconds of recovery before each retry; a sweep
-only starts after a warm-up with requests and no errors. Persistent failures abort
-the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
-The representative peak throughput and connection count come from the actual
-sweep with median peak requests per second. Its complete measurements remain together in the iteration selected by
-`representativeIterationIndex`; peak values are derived from its fastest
-error-free stage. Each measured sweep is stored as one iteration containing an array of
-measured stages. Benchmark-level `stage1` through `stage7` summaries include their connection
-count and summarize those iterations. Configured stage duration is five seconds;
-iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
-arithmetic mean, median, minimum, and maximum across sweeps at
-each matching connection count. Latency charts and tables show the median of each
-sweep's reported percentile; these are summaries of sweep percentiles, not pooled
-request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
-per-stage counts remain in every iteration. All retained historical load
-records contain complete sweeps and have been migrated without reconstructing
-request-level latency samples. Historical settings absent from the records remain
-unspecified.
-Both use the same production server setup and Node.js 24.22.1
-containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
-8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
-share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
-is the highest stage throughput; total requests span all stages. Latency charts
-compare percentiles at 25, 50, and 100 connections.
+- Each table has 1,000 rows with UUID id/name columns and a `View →` link to
+  `/server-side-rendered/${entry.id}` using ordinary `<a>` links.
+- UUID rows are created once per module instance and loaded asynchronously
+  through a zero-delay timer. UUID values may differ between server processes.
+- Requests pass through production server routing. No browser runs, links are
+  not clicked, and browser prefetching is not exercised.
+- Autocannon measures increasing concurrent connection counts. Each run repeats
+  the full sweep on the same server, with a warm-up beforehand and recovery
+  between runs. Failed warm-ups are retried; persistent failures abort the test.
+  Warm-up requests are excluded from results.
+- Peak throughput and its connection count come from the sweep with the median
+  peak requests per second, using its fastest error-free stage.
+- Tests run in production Node.js containers on the larger Depot runner
+  described in the setup. The server and Autocannon use separate CPU sets but
+  share memory and other host resources.
 
 ### SSR Router Link Load Test
 
-Uses framework router link components at `/server-side-rendered`, following the framework’s normal setup. Pracht uses `<Link>` with its default intent prefetch behavior. Comparing the two tests shows how those components affect server rendering performance. Results are stored under `ssrRouterLinkLoadTests`.
+- Uses the same methodology as [SSR Load Test](#ssr-load-test), only for
+  frameworks with router link components.
+- Tests `/server-side-rendered` with those components and their default
+  behavior instead of ordinary anchors, showing their server-rendering cost.
 
-Both tests render 1,000 rows and three columns: UUID id, UUID name, and a
-link with text `View →` and destination `/server-side-rendered/${entry.id}`.
-Data comes from `packages/testdata/src/ssr.ts`: UUID rows are created once per
-module instance and returned asynchronously with a zero-delay timer. The paired
-routes preserve each framework's loader and rendering structure; the intended
-table difference is the link implementation. UUID values can differ between
-server processes or separately bundled route modules, so equivalence means the
-same row schema, count, text, and destination rule, not identical random UUIDs.
-
-Requests still pass through each framework's server routing (baseline HTML uses
-its Node HTTP handler). These are HTTP-only tests: no browser runs, no links are
-clicked, and browser-only prefetching is not exercised.
-
-Autocannon uses 1, 5, 10, 25, 50, 100, and 200 concurrent connections for about
-5 seconds per stage. New measurements repeat the full sweep three times on the
-same server, with a five-second warm-up at one connection before each sweep.
-The server gets five seconds of recovery between sweeps. An unhealthy warm-up
-is retried up to twice, with five seconds of recovery before each retry; a sweep
-only starts after a warm-up with requests and no errors. Persistent failures abort
-the benchmark. Warm-up requests, including retries, are excluded from the results. Every measured sweep is retained.
-The representative peak throughput and connection count come from the actual
-sweep with median peak requests per second. Its complete measurements remain together in the iteration selected by
-`representativeIterationIndex`; peak values are derived from its fastest
-error-free stage. Each measured sweep is stored as one iteration containing an array of
-measured stages. Benchmark-level `stage1` through `stage7` summaries include their connection
-count and summarize those iterations. Configured stage duration is five seconds;
-iterations retain actual `elapsedTimeMs` measurements, which can differ slightly. Separate summaries record the
-arithmetic mean, median, minimum, and maximum across sweeps at
-each matching connection count. Latency charts and tables show the median of each
-sweep's reported percentile; these are summaries of sweep percentiles, not pooled
-request-level percentiles. Top-level request and error totals are exact sums across all measured sweeps;
-per-stage counts remain in every iteration. All retained historical load
-records contain complete sweeps and have been migrated without reconstructing
-request-level latency samples. Historical settings absent from the records remain
-unspecified.
-Both use the same production server setup and Node.js 24.22.1
-containers on `depot-ubuntu-24.04-16`: 16 CPUs, 64 GB RAM, 180 GB disk, and an
-8 GB disk accelerator. Server CPUs are 0–11; Autocannon CPUs are 12–15. Containers
-share memory, kernel, Docker runtime, and other host resources. Peak requests/sec
-is the highest stage throughput; total requests span all stages. Latency charts
-compare percentiles at 25, 50, and 100 connections.
-
-### Core Web Vitals
+## Core Web Vitals
 
 - Core Web Vital metrics are sourced from
   [HTTP Archive](https://httparchive.org/reports/techreport/tech) technology
@@ -644,34 +500,3 @@ is written by hand rather than generated, so it carries its own rules.
   thing on screen.
 - Snippets are verified by writing them into a fresh copy of the starter,
   starting its dev server with `pnpm dev`, and requesting the routes they add.
-
-### Client rendering result schema
-
-Client rendering benchmarks store `name`, `runs`, and one raw `iteration` per
-measured run (in `iterations`). Paint and interaction metrics each contain the
-arithmetic mean, median, minimum, and maximum, calculated from exact raw
-measurements. Browser metadata remains
-on the result document; interaction scenario and source remain with the interaction
-metrics. Framework and package identity belong to the overall result.
-
-The schema migration converted 146 package and documentation records, including
-versioned history, using their complete raw browser samples. Raw measurements and
-unrelated result fields were preserved. Summary-only records cannot supply raw
-iterations; the documentation loader retains support for their
-numeric summaries and historical INP fields without treating INP as interaction
-timing. New artifacts require the complete benchmark schema before persistence.
-Charts and tables consume medians in milliseconds through content normalization.
-
-### Server rendering result schema
-
-Server rendering browser benchmarks use the `serverSideRendered` identity and
-require one exact raw iteration per run. Paint and interaction metrics contain
-arithmetic mean, median, minimum, and maximum.
-Browser metadata stays on the result document; scenario and source stay with
-interaction metrics. Framework and package identity belong to the overall result.
-These browser measurements are separate from SSR throughput and load tests.
-
-All 146 existing package and documentation records, including versioned history,
-were converted from complete raw samples. No records lacked samples. The loader
-also supports legacy numeric summaries and INP without relabeling INP as interaction
-timing. Charts and tables receive medians in milliseconds.

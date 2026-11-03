@@ -575,25 +575,6 @@ export function prepareSSRTotalRequestsHistory(
   )
 }
 
-export function prepareSSRLatencyComparison(
-  records: readonly ChartMeasurement[],
-  workers: ConnectionCount,
-  percentile: LatencyPercentile,
-  testsKey: SSRLoadKey = 'ssrLoadTests',
-): PreparedComparisonChart {
-  return comparison(
-    metricCatalogue[`${testsKey}.latency.${workers}.${percentile}`],
-    records.map((record) => ({
-      record,
-      value: finiteValue(
-        record[testsKey]?.stages?.find((stage) => stage.workers === workers)?.[
-          percentile
-        ],
-      ),
-    })),
-  )
-}
-
 export type SSRLoadKey = 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
 export type LatencyPercentile = 'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs'
 export type ConnectionCount = 25 | 50 | 100

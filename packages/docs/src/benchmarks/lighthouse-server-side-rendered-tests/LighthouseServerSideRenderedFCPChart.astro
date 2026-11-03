@@ -1,0 +1,11 @@
+---
+import { ssrRequestThroughputStats } from '../../lib/prepare-chart'
+import { prepareLighthouseServerSideRenderedTestsFcpMsComparison } from '../../lib/prepare-chart'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+
+const chart = prepareLighthouseServerSideRenderedTestsFcpMsComparison(
+  ssrRequestThroughputStats,
+)
+---
+
+<ComparisonBarChart {...chart} />

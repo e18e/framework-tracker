@@ -1,0 +1,25 @@
+---
+import type { ChartMeasurement } from '../../lib/types'
+import {
+  prepareSsrRequestThroughputTestsBodySizeKbHistory,
+  prepareSsrRequestThroughputTestsLatencyMsHistory,
+  prepareSsrRequestThroughputTestsOpsPerSecHistory,
+} from '../../lib/prepare-chart'
+import VersionLineChart from '../../components/VersionLineChart.astro'
+
+interface Props {
+  versions: ChartMeasurement[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  {...prepareSsrRequestThroughputTestsOpsPerSecHistory(versions)}
+/>
+<VersionLineChart
+  {...prepareSsrRequestThroughputTestsBodySizeKbHistory(versions)}
+/>
+<VersionLineChart
+  {...prepareSsrRequestThroughputTestsLatencyMsHistory(versions)}
+/>

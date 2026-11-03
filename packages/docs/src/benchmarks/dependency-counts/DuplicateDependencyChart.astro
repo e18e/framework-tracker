@@ -1,0 +1,9 @@
+---
+import { starterStats } from '../../lib/prepare-chart'
+import { prepareDuplicateDependenciesComparison } from '../../lib/prepare-chart'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+
+const chart = prepareDuplicateDependenciesComparison(starterStats)
+---
+
+<ComparisonBarChart {...chart} />

@@ -36,6 +36,32 @@ came out of the project or were influenced by its output.
   making RSC payload parsing around 75% faster and speeding up rendering in
   frameworks built on top of it, including Next.js. Merged into React.
 
+## Faster Solid 2.0 server rendering
+
+- [perf(claims): skip URL parsing for plain hrefs in SSR link claims](https://github.com/solidjs/solid-router/pull/701)
+  reads the path and query of plain root-relative hrefs without `new URL`
+  when Solid Router renders links on the server. That removes two URL
+  parses per link and takes the 1,000-link table from 283 to 385 requests
+  per second. Merged into Solid Router and released in `2.0.0-next.43`.
+- [perf(compiler): write non-ASCII SSR template text as character references](https://github.com/solidjs/solid/pull/4331)
+  makes the Solid compiler write characters such as the `→` in "View →" as
+  character references in server templates. One such character made V8
+  store the whole rendered page as a two-byte string, which roughly doubled
+  the cost of encoding the response. Rendering and encoding a 1,000-row
+  table is about 1.5x faster. Merged into Solid and released in
+  `2.0.0-rc.20`.
+- [perf(web): build direct-call carrier shells only when a value is bound](https://github.com/solidjs/solid/pull/4333)
+  stops Solid from copying every object in a server function's result when
+  the function is called during server rendering and nothing in the result
+  needs binding to the request. Handling a 1,000-row result goes from 0.91
+  to 0.56 ms. Merged into Solid and released in `2.0.0-rc.20`.
+
+All three were found while adding Solid 2.0 to Framework Tracker
+([#709](https://github.com/e18e/framework-tracker/pull/709)). On its CI
+runner, the Solid 2.0 app's SSR load test went from 170 to 280 requests per
+second with one connection and from about 200 to about 390 under
+concurrency after upgrading to these releases.
+
 ## Clearer Solid Router documentation
 
 - [docs: note future A component deprecation](https://github.com/solidjs/solid-docs/pull/1620)

@@ -1,0 +1,14 @@
+---
+import type { SSRLoadKey } from '../../lib/prepare-chart'
+import SSRLoadWorker25P75LatencyChart from './SSRLoadWorker25P75LatencyChart.astro'
+import SSRLoadWorker50P75LatencyChart from './SSRLoadWorker50P75LatencyChart.astro'
+import SSRLoadWorker100P75LatencyChart from './SSRLoadWorker100P75LatencyChart.astro'
+interface Props {
+  testsKey?: SSRLoadKey
+}
+const { testsKey = 'ssrLoadTests' } = Astro.props
+---
+
+<SSRLoadWorker25P75LatencyChart testsKey={testsKey} />
+<SSRLoadWorker50P75LatencyChart testsKey={testsKey} />
+<SSRLoadWorker100P75LatencyChart testsKey={testsKey} />

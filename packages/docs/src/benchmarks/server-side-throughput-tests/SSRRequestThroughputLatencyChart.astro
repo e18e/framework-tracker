@@ -1,0 +1,11 @@
+---
+import { ssrRequestThroughputStats } from '../../lib/prepare-chart'
+import { prepareSsrRequestThroughputTestsLatencyMsComparison } from '../../lib/prepare-chart'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+
+const chart = prepareSsrRequestThroughputTestsLatencyMsComparison(
+  ssrRequestThroughputStats,
+)
+---
+
+<ComparisonBarChart {...chart} />

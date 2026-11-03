@@ -1,0 +1,24 @@
+---
+import { getRenderedInteractionBreakdownData } from '../../lib/prepare-chart'
+import InteractionBreakdownChart from './InteractionBreakdownChart.astro'
+
+interface Props {
+  testsKey: 'clientSideRenderedTests' | 'serverSideRenderedTests'
+}
+
+const { testsKey } = Astro.props
+const data = getRenderedInteractionBreakdownData(testsKey).sort(
+  (a, b) =>
+    a.interactionLatencyMs - b.interactionLatencyMs ||
+    a.name.localeCompare(b.name),
+)
+---
+
+{
+  data.length > 0 ? (
+    <InteractionBreakdownChart
+      title="Interaction Breakdown (Lighthouse)"
+      data={data}
+    />
+  ) : null
+}

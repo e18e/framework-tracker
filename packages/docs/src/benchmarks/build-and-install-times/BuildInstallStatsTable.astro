@@ -1,0 +1,26 @@
+---
+import { buildInstallData } from '../../lib/prepare-table'
+import { getFrameworkSlug } from '../../lib/utils'
+import StatsTable from '../../components/StatsTable.astro'
+
+const buildInstallColumns = [
+  {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    href: (row: Record<string, unknown>) =>
+      `/framework/${getFrameworkSlug(row.package as string)}`,
+  },
+  { key: 'medianInstall', header: 'Median Install' },
+  { key: 'minInstall', header: 'Min Install' },
+  { key: 'maxInstall', header: 'Max Install' },
+  { key: 'medianColdBuild', header: 'Median Cold Build' },
+  { key: 'medianWarmBuild', header: 'Median Warm Build' },
+]
+---
+
+<StatsTable
+  label="Build and install times by framework"
+  columns={buildInstallColumns}
+  data={buildInstallData}
+/>

@@ -1,0 +1,21 @@
+---
+import {
+  ssrRequestThroughputStats,
+  type SSRLoadKey,
+} from '../../lib/prepare-chart'
+import { prepareSSRLatencyComparison } from '../../lib/prepare-chart'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+
+interface Props {
+  testsKey?: SSRLoadKey
+}
+const { testsKey = 'ssrLoadTests' } = Astro.props
+const chart = prepareSSRLatencyComparison(
+  ssrRequestThroughputStats,
+  50,
+  'p90LatencyMs',
+  testsKey,
+)
+---
+
+<ComparisonBarChart {...chart} />

@@ -1,0 +1,33 @@
+---
+import type { ChartMeasurement } from '../../lib/types'
+import {
+  prepareAllDependenciesHistory,
+  prepareDevDependenciesHistory,
+  prepareDuplicateDependenciesHistory,
+  prepareFrameworkDependenciesAllDependenciesHistory,
+  prepareFrameworkDependenciesDevDependenciesHistory,
+  prepareFrameworkDependenciesProdDependenciesHistory,
+  prepareProdDependenciesHistory,
+} from '../../lib/prepare-chart'
+import VersionLineChart from '../../components/VersionLineChart.astro'
+
+interface Props {
+  versions: ChartMeasurement[]
+}
+
+const { versions } = Astro.props
+---
+
+<VersionLineChart
+  {...prepareFrameworkDependenciesProdDependenciesHistory(versions)}
+/>
+<VersionLineChart
+  {...prepareFrameworkDependenciesDevDependenciesHistory(versions)}
+/>
+<VersionLineChart
+  {...prepareFrameworkDependenciesAllDependenciesHistory(versions)}
+/>
+<VersionLineChart {...prepareProdDependenciesHistory(versions)} />
+<VersionLineChart {...prepareDevDependenciesHistory(versions)} />
+<VersionLineChart {...prepareAllDependenciesHistory(versions)} />
+<VersionLineChart {...prepareDuplicateDependenciesHistory(versions)} />

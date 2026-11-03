@@ -1,0 +1,336 @@
+---
+import { formatChartValue } from '../../lib/chart'
+import { INTERACTION_PHASES } from '../../lib/interaction-phases'
+import type { InteractionHistoryDatum } from '../../lib/types'
+import InteractionChartCaption from './InteractionChartCaption.astro'
+
+interface Props {
+  title: string
+  data: InteractionHistoryDatum[]
+  series?: readonly {
+    key: string
+    label: string
+    colorVar?: string
+    color?: string
+  }[]
+  valueFormat?: 'ms' | 'kb'
+  yAxisLabel?: string
+}
+
+const {
+  title,
+  data,
+  series = INTERACTION_PHASES as NonNullable<Props['series']>,
+  valueFormat = 'ms',
+  yAxisLabel = 'Interaction latency (ms)',
+} = Astro.props
+const chartPayload = JSON.stringify({
+  title,
+  data,
+  series,
+  valueFormat,
+  yAxisLabel,
+})
+---
+
+{
+  data.length < 2 ? (
+    <figure class="interaction-history">
+      <p class="interaction-history-title">{title}</p>
+      <p class="interaction-history-empty">
+        Not enough data yet. This chart needs at least two versions.
+      </p>
+    </figure>
+  ) : (
+    <figure class="interaction-history">
+      {valueFormat === 'ms' ? (
+        <InteractionChartCaption title={title} />
+      ) : (
+        <figcaption>
+          <p class="interaction-history-title">{title}</p>
+          <p>{series.map(({ label }) => label).join(' · ')} (KB)</p>
+        </figcaption>
+      )}
+      <div
+        class="interaction-history-wrapper"
+        data-interaction-history={chartPayload}
+      >
+        <div class="interaction-history-host" />
+        <div class="sr-only">
+          <table>
+            <caption>{title} data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Framework version</th>
+                <th scope="col">Total</th>
+                {series.map(({ label }) => (
+                  <th scope="col">{label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((datum) => (
+                <tr>
+                  <th scope="row">{datum.name}</th>
+                  <td>
+                    {formatChartValue(datum.interactionLatencyMs, valueFormat)}
+                  </td>
+                  {series.map(({ key }) => (
+                    <td>
+                      {formatChartValue(
+                        Number(Reflect.get(datum, key)),
+                        valueFormat,
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </figure>
+  )
+}
+
+<style>
+  .interaction-history {
+    width: 100%;
+    margin: 0 0 2em;
+  }
+
+  .interaction-history-title {
+    margin-bottom: 0.35rem;
+    color: var(--sl-color-white);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+  }
+
+  .interaction-history-empty {
+    padding: 2rem 1rem;
+    border: 1px dashed var(--ft-border);
+    border-radius: 0.5rem;
+    color: var(--ft-muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .interaction-history-wrapper {
+    position: relative;
+    width: 100%;
+    color: var(--ft-text, #1f2933);
+  }
+
+  .interaction-history-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
+  }
+</style>
+
+<script>
+  import {
+    areaY,
+    crosshair,
+    defineChart,
+    lineY,
+    mountChart,
+    stack,
+    type ChartHost,
+  } from '@tanstack/charts'
+  import { decorative } from '@tanstack/charts/mark/decorative'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { scalePoint } from '@tanstack/charts/scales/point'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import { formatChartValue } from '../../lib/chart'
+  import { INTERACTION_PHASES } from '../../lib/interaction-phases'
+  import type { InteractionHistoryDatum } from '../../lib/types'
+
+  interface Payload {
+    title: string
+    data: InteractionHistoryDatum[]
+    series?: readonly {
+      key: string
+      label: string
+      colorVar?: string
+      color?: string
+    }[]
+    valueFormat?: 'ms' | 'kb'
+    yAxisLabel?: string
+  }
+  interface PhaseRow {
+    version: string
+    phase: string
+    ms: number
+  }
+
+  const CHART_HEIGHT = 380
+  const ROTATE_LABELS_ABOVE = 8
+  const PHASE_FALLBACKS = ['#c8c8c8', '#929292', '#5f5f5f']
+  const hosts = new WeakMap<HTMLElement, ChartHost<PhaseRow, string, number>>()
+
+  function getCssVar(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
+  }
+
+  function getPayload(wrapper: HTMLElement): Payload | null {
+    try {
+      return JSON.parse(wrapper.dataset.interactionHistory ?? '') as Payload
+    } catch (e) {
+      console.warn('[InteractionHistoryChart] Invalid chart data:', e)
+      return null
+    }
+  }
+
+  function initChart(wrapper: HTMLElement) {
+    const payload = getPayload(wrapper)
+    if (!payload) return
+
+    const {
+      data,
+      series = INTERACTION_PHASES as NonNullable<Payload['series']>,
+      valueFormat = 'ms',
+      yAxisLabel,
+    } = payload
+    const phaseLabels = series.map(({ label }) => label)
+    const phaseColors = series.map(
+      ({ colorVar, color }, index) =>
+        color ??
+        getCssVar(
+          colorVar ?? '--ft-muted',
+          PHASE_FALLBACKS[index % PHASE_FALLBACKS.length]!,
+        ),
+    )
+    const rows: PhaseRow[] = data.flatMap((datum) =>
+      series.map(({ key, label }) => ({
+        version: datum.name,
+        phase: label,
+        ms: Number(Reflect.get(datum, key)),
+      })),
+    )
+    const topEdges: PhaseRow[] = data.flatMap((datum) => {
+      let total = 0
+      return series.map(({ key, label }) => ({
+        version: datum.name,
+        phase: label,
+        ms: (total += Number(Reflect.get(datum, key))),
+      }))
+    })
+    const byVersion = new Map(data.map((datum) => [datum.name, datum]))
+
+    const definition = defineChart({
+      margin: { top: 12 },
+      focusRing: false,
+      marks: [
+        areaY(rows, {
+          id: 'interaction-phases',
+          x: 'version',
+          y: 'ms',
+          color: 'phase',
+          layout: stack({ order: phaseLabels }),
+          fillOpacity: 0.7,
+        }),
+        decorative(
+          lineY(topEdges, {
+            id: 'interaction-phase-edges',
+            x: 'version',
+            y: 'ms',
+            color: 'phase',
+            strokeWidth: 2,
+          }),
+        ),
+        crosshair({ x: true, y: false }),
+      ],
+      scales: {
+        x: {
+          scale: () => scalePoint<string>().padding(0.1),
+          axis: {
+            tickLabels: {
+              rotate: data.length > ROTATE_LABELS_ABOVE ? -45 : undefined,
+            },
+          },
+        },
+        y: {
+          scale: scaleLinear,
+          grid: true,
+          axis: { label: yAxisLabel },
+        },
+      },
+      color: { domain: phaseLabels, range: phaseColors },
+      theme: {
+        muted: getCssVar('--ft-muted', '#697586'),
+        grid: getCssVar('--ft-chart-grid', '#d9dee7'),
+      },
+      focus: 'nearest-x',
+      maxFocusDistance: Number.POSITIVE_INFINITY,
+      tooltip: {
+        use: tooltip,
+        content: (points) => {
+          const datum = byVersion.get(points[0]!.datum.version)!
+          return {
+            title: datum.name,
+            rows: [
+              ...series
+                .map(({ key, label }, index) => ({
+                  label,
+                  value: formatChartValue(
+                    Number(Reflect.get(datum, key)),
+                    valueFormat,
+                  ),
+                  color: phaseColors[index]!,
+                }))
+                .reverse(),
+              {
+                label: 'Total',
+                value: formatChartValue(
+                  datum.interactionLatencyMs,
+                  valueFormat,
+                ),
+                active: true,
+              },
+            ],
+          }
+        },
+      },
+    })
+
+    const options = {
+      definition,
+      height: CHART_HEIGHT,
+      ariaLabel: `${payload.title}. Stacked area chart by framework version; a data table follows.`,
+    }
+
+    const existing = hosts.get(wrapper)
+    if (existing) {
+      existing.update(options)
+    } else {
+      hosts.set(
+        wrapper,
+        mountChart(
+          wrapper.querySelector<HTMLElement>('.interaction-history-host')!,
+          options,
+        ),
+      )
+    }
+  }
+
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('.interaction-history-wrapper')
+      .forEach(initChart)
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts)
+  } else {
+    initCharts()
+  }
+
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributeFilter: ['class', 'data-theme'], attributes: true },
+  )
+</script>

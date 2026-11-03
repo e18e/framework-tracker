@@ -32,6 +32,36 @@ function history(
   }
 }
 
+function comparisonRange(record: ChartMeasurement, metric: MetricDefinition) {
+  const source = record as unknown as Record<
+    string,
+    Record<string, unknown> | undefined
+  >
+  const [group, field] = metric.id.split('.')
+  const container = source[group === 'installTime' ? 'install' : group!]
+  const raw =
+    group === 'installTime'
+      ? container?.installTimeMs
+      : (container?.[`${field}Range`] ?? container?.[field!])
+  const summary =
+    field === 'medianMs' && group !== 'installTime'
+      ? {
+          min: container?.minMs,
+          median: container?.medianMs,
+          max: container?.maxMs,
+        }
+      : raw
+  if (typeof summary !== 'object' || summary == null) return undefined
+  const r = summary as { min: number; median: number; max: number }
+  if (![r.min, r.median, r.max].every(Number.isFinite)) return undefined
+  const divisor = metric.valueFormat === 's' ? 1000 : 1
+  return {
+    min: r.min / divisor,
+    median: r.median / divisor,
+    max: r.max / divisor,
+  }
+}
+
 function comparison(
   metric: MetricDefinition,
   measurements: Measurement[],
@@ -48,6 +78,7 @@ function comparison(
                 id: record.package ?? record.name ?? '',
                 name: record.name ?? '',
                 value,
+                range: comparisonRange(record, metric),
                 focused:
                   record.package === 'app-baseline-html' ||
                   record.isFocused !== false,

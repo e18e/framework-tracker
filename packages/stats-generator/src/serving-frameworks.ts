@@ -43,6 +43,12 @@ export const servingFrameworks: ServingFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    displayName: 'Solid 2.0 Server Side Rendered',
+    package: 'app-solid',
+    serveScript: 'solid.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     displayName: 'SvelteKit Server Side Rendered',
     package: 'app-sveltekit',
     serveScript: 'sveltekit.ts',

@@ -1,3 +1,5 @@
+import type { LineChartScaleId, LineChartTooltipId } from './line-chart-config'
+
 export type ChartValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
 
 export interface ChartDatum {
@@ -23,6 +25,32 @@ export interface VersionLineChartPayload {
   data: { id: string; name: string; value: number | null }[]
   valueFormat: ChartValueFormat
   yAxisLabel: string
+}
+
+export interface LineComparisonPoint {
+  x: string
+  value: number | null
+  version: string | null
+  /** Spread across benchmark runs, shown in the detail tooltip. */
+  range?: { min: number; median: number; max: number }
+}
+
+export interface LineComparisonSeries {
+  id: string
+  name: string
+  focused: boolean
+  /** Reference series (Baseline HTML) drawn as a neutral dashed line. */
+  baseline: boolean
+  /** Brand colour from `framework-logos.ts`; null draws a neutral line. */
+  color: { dark: string; light?: string } | null
+  points: LineComparisonPoint[]
+}
+
+export interface LineComparisonChartPayload extends MetricDefinition {
+  scale: LineChartScaleId
+  tooltip: LineChartTooltipId
+  xValues: string[]
+  series: LineComparisonSeries[]
 }
 
 export interface MetricDefinition {
@@ -61,9 +89,14 @@ export interface ChartMeasurement {
   package?: string
   name?: string
   frameworkVersion?: string
+  releasedAt?: string
   isFocused?: boolean
   devServerStartTime?: {
     medianMs?: number
+  }
+  install?: {
+    installTimeMs?: { mean?: number }
+    nodeModulesSizeBytes?: number
   }
   frameworkDependencies?: {
     prodDependencies?: number

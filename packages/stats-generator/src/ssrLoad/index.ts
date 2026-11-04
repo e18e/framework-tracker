@@ -62,6 +62,12 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     serveScript: 'nitro.ts',
   },
   {
+    name: 'solid-ssr-load',
+    displayName: 'Solid 2.0 SSR Load',
+    package: 'app-solid',
+    serveScript: 'solid.ts',
+  },
+  {
     name: 'sveltekit-ssr-load',
     displayName: 'SvelteKit SSR Load',
     package: 'app-sveltekit',

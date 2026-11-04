@@ -317,6 +317,18 @@ function seriesColorVars(
           },
         ),
       ),
+      // Solid fill marks the selected point itself
+      ...series.map((s) => {
+        const points = pointsFor(s)
+        return whenFocused(
+          dot(rowsFor(s), {
+            id: `points-selected-${s.id}`,
+            ...points,
+            fill: points.stroke,
+          }),
+          { match: 'primary' },
+        )
+      }),
     ]
 
     const definition = defineChart({

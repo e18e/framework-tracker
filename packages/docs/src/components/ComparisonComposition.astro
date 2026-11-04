@@ -1,0 +1,100 @@
+---
+import type { ComponentProps } from 'astro/types'
+import type { LineComparisonChartPayload } from '../lib/types'
+import ComparisonBarChart from './ComparisonBarChart.astro'
+import ComparisonLineChart from './ComparisonLineChart.astro'
+
+interface Props {
+  bar: ComponentProps<typeof ComparisonBarChart>
+  line: LineComparisonChartPayload
+}
+
+const { bar, line } = Astro.props
+---
+
+<div class="comparison-composition">
+  <select
+    class="comparison-composition-select"
+    aria-label={`${bar.title} chart type`}
+  >
+    <option value="bar" selected>Bar</option>
+    <option value="line">Line</option>
+  </select>
+
+  <div data-view-panel="bar">
+    <ComparisonBarChart {...bar} />
+  </div>
+
+  <div data-view-panel="line" hidden>
+    <ComparisonLineChart {...line} />
+  </div>
+</div>
+
+<style>
+  .comparison-composition {
+    position: relative;
+  }
+
+  .comparison-composition :global(figcaption) {
+    padding-right: 6.5rem;
+  }
+
+  .comparison-composition-select {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    margin: 0;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--ft-border);
+    border-radius: 6px;
+    background-color: var(--ft-bg-muted);
+    color: var(--ft-text);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color 140ms ease-out;
+  }
+
+  .comparison-composition-select:hover {
+    border-color: var(--ft-muted);
+  }
+
+  .comparison-composition-select:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .comparison-composition-select {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initComposition(composition: HTMLElement) {
+    if (composition.dataset.ready) return
+    composition.dataset.ready = 'true'
+
+    const select = composition.querySelector<HTMLSelectElement>(
+      '.comparison-composition-select',
+    )!
+    const panels =
+      composition.querySelectorAll<HTMLElement>('[data-view-panel]')
+
+    const showSelected = () =>
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.viewPanel !== select.value
+      })
+
+    select.addEventListener('change', showSelected)
+    showSelected()
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('.comparison-composition')
+    .forEach(initComposition)
+</script>

@@ -1,19 +1,19 @@
 ---
 import {
+  prepareSSRLatencyByConnections,
   ssrRequestThroughputStats,
-  prepareSSRLatencyLineChart,
   type SSRLoadKey,
 } from '../../lib/prepare-chart'
-import FrameworkLineChart from '../../components/FrameworkLineChart.astro'
+import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 interface Props {
   testsKey?: SSRLoadKey
 }
 const { testsKey = 'ssrLoadTests' } = Astro.props
-const chart = prepareSSRLatencyLineChart(
+const byConnections = prepareSSRLatencyByConnections(
   ssrRequestThroughputStats,
   'p90LatencyMs',
   testsKey,
 )
 ---
 
-<FrameworkLineChart {...chart} showTitle={false} />
+<ComparisonLineChart {...byConnections} />

@@ -1,0 +1,82 @@
+---
+title: Solid 2.0
+description: Solid 2.0 version comparison page.
+---
+
+import { Content as DevTimeSetup } from '../../../benchmarks/shared/DevTimeSetup.mdx'
+import { Content as RunTimeSetup } from '../../../benchmarks/shared/RunTimeSetup.mdx'
+import DependencyCountsDetails from '../../../benchmarks/dependency-counts/Details.astro'
+import NodeModulesSizeDetails from '../../../benchmarks/node-modules-size/Details.astro'
+import BuildInstallDetails from '../../../benchmarks/build-and-install-times/Details.astro'
+import DevServerStartupDetails from '../../../benchmarks/dev-server-startup/Details.astro'
+import CoreJsDetails from '../../../benchmarks/core-js-polyfills/Details.astro'
+import BrowserBaselineDetails from '../../../benchmarks/browser-baseline/Details.astro'
+import LighthouseClientSideRenderedDetails from '../../../benchmarks/lighthouse-client-side-rendered-tests/Details.astro'
+import LighthouseServerSideRenderedDetails from '../../../benchmarks/lighthouse-server-side-rendered-tests/Details.astro'
+import SSRThroughputDetails from '../../../benchmarks/server-side-throughput-tests/Details.astro'
+import InitialLoadDetails from '../../../benchmarks/initial-load/Details.astro'
+import SSRLoadDetails from '../../../benchmarks/ssr-load-test/Details.astro'
+
+import {
+  getRuntimeVersionStats,
+  getStarterVersionStats,
+} from '../../../lib/prepare-chart'
+
+export const solidStarterVersions = getStarterVersionStats('starter-solid')
+export const solidRuntimeVersions = getRuntimeVersionStats('app-solid')
+
+## Dev Time
+
+### Setup
+
+<DevTimeSetup />
+
+### Dependency Counts
+
+<DependencyCountsDetails versions={solidStarterVersions} />
+
+### Node Modules Size
+
+<NodeModulesSizeDetails versions={solidStarterVersions} />
+
+### Build and Install Times
+
+<BuildInstallDetails versions={solidStarterVersions} />
+
+### Dev Server Startup
+
+<DevServerStartupDetails versions={solidStarterVersions} />
+
+### Core-JS Polyfills
+
+<CoreJsDetails versions={solidStarterVersions} />
+
+### Browser Baseline
+
+<BrowserBaselineDetails versions={solidStarterVersions} />
+
+## Run Time
+
+### Setup
+
+<RunTimeSetup />
+
+### Initial Load
+
+<InitialLoadDetails versions={solidRuntimeVersions} />
+
+### Client Side Rendered Tests (Lighthouse)
+
+<LighthouseClientSideRenderedDetails versions={solidRuntimeVersions} />
+
+### Server Side Rendered Tests (Lighthouse)
+
+<LighthouseServerSideRenderedDetails versions={solidRuntimeVersions} />
+
+### Server Side Throughput Tests
+
+<SSRThroughputDetails versions={solidRuntimeVersions} />
+
+### SSR Load Test
+
+<SSRLoadDetails versions={solidRuntimeVersions} />

@@ -13,6 +13,7 @@ export const frameworkLogos: Record<string, FrameworkLogo> = {
   'starter-nuxt': { dark: '/framework-logos/nuxt.svg' },
   'starter-pracht': { dark: '/framework-logos/pracht.svg' },
   'starter-react-router': { dark: '/framework-logos/reactrouter.svg' },
+  'starter-solid': { dark: '/framework-logos/solid.svg' },
   'starter-solid-start': { dark: '/framework-logos/solid-start.svg' },
   'starter-sveltekit': { dark: '/framework-logos/svelte.svg' },
   'starter-tanstack-start-react': { dark: '/framework-logos/tanstack.svg' },

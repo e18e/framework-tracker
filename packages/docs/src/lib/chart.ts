@@ -38,6 +38,7 @@ const FRAMEWORK_LOGO_SOURCES: Record<string, string> = {
   'Nuxt.js': '/framework-logos/nuxt.svg',
   Pracht: '/framework-logos/pracht.svg',
   'React Router': '/framework-logos/reactrouter.svg',
+  'Solid 2.0': '/framework-logos/solid.svg',
   SolidStart: '/framework-logos/solid-start.svg',
   SvelteKit: '/framework-logos/svelte.svg',
   'TanStack Start': '/framework-logos/tanstack.svg',

@@ -210,6 +210,7 @@ const frameworkPackageNames: Record<string, string> = {
   'starter-nuxt': 'nuxt',
   'starter-pracht': '@pracht/core',
   'starter-react-router': '@react-router/dev',
+  'starter-solid': 'solid-js',
   'starter-solid-start': '@solidjs/start',
   'starter-sveltekit': '@sveltejs/kit',
   'starter-tanstack-start-react': '@tanstack/react-start',

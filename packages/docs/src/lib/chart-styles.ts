@@ -6,6 +6,7 @@ const frameworkColors: Record<string, string> = {
   Nuxt: '#00c996',
   SvelteKit: '#ff4b19',
   SolidStart: '#00b5ed',
+  'Solid 2.0': '#306898',
   'React Router': '#d13e47',
   'TanStack Start': '#ff9750',
 }

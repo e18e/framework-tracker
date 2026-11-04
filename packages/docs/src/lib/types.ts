@@ -157,19 +157,3 @@ export type InstallChartMeasurement = ChartMeasurement & {
     nodeModulesSizeBytes: number
   }
 }
-
-export interface FrameworkLineChartPayload {
-  title: string
-  series: {
-    name: string
-    points: {
-      x: number
-      y: number
-      range?: { min: number; median: number; max: number }
-    }[]
-  }[]
-  xAxisLabel: string
-  yAxisLabel: string
-  valueFormat: ChartValueFormat
-  yScale?: 'linear' | 'log'
-}

@@ -145,6 +145,19 @@ function seriesColorVars(
     color: var(--ft-text, #1f2933);
   }
 
+  .comparison-line-chart-wrapper {
+    --ts-chart-tooltip-active-row-font-weight: inherit;
+    --ts-chart-tooltip-active-row-background: none;
+    --ts-chart-tooltip-active-row-shadow: none;
+  }
+
+  .comparison-line-chart-wrapper
+    :global(.ts-chart-tooltip__row[data-active='true']) {
+    color: var(--tooltip-active-color, inherit);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
   .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
     outline: none;
   }
@@ -385,11 +398,17 @@ function seriesColorVars(
       tooltip: {
         use: tooltip,
         ...tooltipConfig.position,
-        content: (points) =>
-          tooltipConfig.content(
+        content: (points, { primaryPoint }) => {
+          const primary = primaryPoint?.datum as Row | undefined
+          // The tooltip renders inside the wrapper, so its active row inherits this
+          if (primary) {
+            wrapper.style.setProperty('--tooltip-active-color', primary.stroke)
+          }
+          return tooltipConfig.content(
             points.map(({ datum }) => datum),
-            { scale, yAxisLabel: payload.yAxisLabel, format },
-          ),
+            { scale, yAxisLabel: payload.yAxisLabel, format, primary },
+          )
+        },
       },
     })
 

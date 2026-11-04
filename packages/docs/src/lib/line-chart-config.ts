@@ -124,8 +124,12 @@ export interface LineChartTooltipConfig {
       scale: LineChartScaleConfig
       yAxisLabel: string
       format: (value: number) => string
+      primary?: LineChartRow
     },
-  ) => { title: string; rows: { label: string; value: string }[] }
+  ) => {
+    title: string
+    rows: { label: string; value: string; active?: boolean }[]
+  }
 }
 
 const formatValue = (
@@ -136,24 +140,21 @@ const formatValue = (
 export const lineChartTooltips = {
   compare: {
     focus: 'group-x',
-    // Pinned above the plot so the multi-series list never covers the lines
-    position: {
-      anchor: { x: 'value', y: 'plot-top' },
-      placement: 'bottom',
-      offset: 12,
-    },
-    content: (rows, { scale, format }) => ({
+    // Beside the point, flipping sides near the plot edge
+    position: { anchor: 'point', placement: ['right', 'left'], offset: 20 },
+    content: (rows, { scale, format, primary }) => ({
       title: scale.formatX(rows[0]!.x),
       rows: rows.map((row) => ({
         label: row.version ? `${row.name} v${row.version}` : row.name,
         value: formatValue(row.value, format),
+        active: row === primary,
       })),
     }),
   },
   detail: {
     focus: 'nearest',
     // Beside the point, flipping sides near the plot edge
-    position: { anchor: 'point', placement: ['right', 'left'], offset: 12 },
+    position: { anchor: 'point', placement: ['right', 'left'], offset: 20 },
     content: ([row], { scale, yAxisLabel, format }) => ({
       title: row!.version ? `${row!.name} v${row!.version}` : row!.name,
       rows: [

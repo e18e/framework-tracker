@@ -36,6 +36,10 @@ export const frameworkBrands: Record<string, FrameworkBrand> = {
     logo: { dark: '/framework-logos/reactrouter.svg' },
     color: { dark: '#CA4245' },
   },
+  solid: {
+    logo: { dark: '/framework-logos/solid.svg' },
+    color: { dark: '#306898' },
+  },
   'solid-start': {
     logo: { dark: '/framework-logos/solid-start.svg' },
     color: { dark: '#15ABFF', light: '#0084CE' },

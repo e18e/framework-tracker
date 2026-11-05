@@ -1,19 +1,3 @@
-/** Shared colours for server-rendered legends and client-rendered marks. */
-const frameworkColors: Record<string, string> = {
-  'Baseline HTML': '#94a3b8',
-  Astro: '#bc4be9',
-  Pracht: '#6366f1',
-  Nuxt: '#00c996',
-  SvelteKit: '#ff4b19',
-  SolidStart: '#00b5ed',
-  'React Router': '#d13e47',
-  'TanStack Start': '#ff9750',
-}
-
-export function getFrameworkColor(name: string) {
-  return frameworkColors[name] ?? 'var(--ft-text, #697586)'
-}
-
 /** Shared grid, line, and point styling for line charts. */
 export function lineChartGrid() {
   const stroke =

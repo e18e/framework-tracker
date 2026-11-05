@@ -1,0 +1,451 @@
+---
+import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { lineChartScales } from '../lib/line-chart-config'
+import type { LineComparisonChartPayload } from '../lib/types'
+
+type Props = LineComparisonChartPayload
+
+const { title, description, xValues, scale, series, valueFormat } = Astro.props
+const chartPayload = JSON.stringify(Astro.props)
+const scaleConfig = lineChartScales[scale]
+const tableLabel = `${title} by ${scaleConfig.label.toLowerCase()}`
+
+function seriesColorVars(
+  color: LineComparisonChartPayload['series'][number]['color'],
+) {
+  return color == null
+    ? ''
+    : `--series-dark: ${color.dark}; --series-light: ${color.light ?? color.dark}`
+}
+---
+
+<figure class="comparison-line-chart">
+  <figcaption class="comparison-line-chart-title">{title}</figcaption>
+  {description ? <p>{description}</p> : null}
+
+  <ul class="comparison-line-chart-legend" aria-hidden="true">
+    {
+      series.map((s) => (
+        <li
+          data-focused={s.focused ? 'true' : 'false'}
+          data-baseline={s.baseline ? 'true' : 'false'}
+          style={seriesColorVars(s.color)}
+        >
+          <span class="comparison-line-chart-swatch" />
+          {s.name}
+        </li>
+      ))
+    }
+  </ul>
+  <div
+    class="comparison-line-chart-wrapper"
+    data-comparison-line={chartPayload}
+    style={`--comparison-line-chart-height: ${COMPARISON_CHART_HEIGHT}px`}
+  >
+    <div class="comparison-line-chart-host"></div>
+    <div class="comparison-line-chart-data sr-only">
+      <table aria-label={tableLabel}>
+        <caption>
+          {
+            scaleConfig.caption
+              ? `${tableLabel}, ${scaleConfig.caption}`
+              : tableLabel
+          }
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Framework</th>
+            {xValues.map((x) => <th scope="col">{scaleConfig.formatX(x)}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            series.map((s) => (
+              <tr data-focused={s.focused ? 'true' : 'false'}>
+                <th scope="row">{s.name}</th>
+                {s.points.map((point) => (
+                  <td>
+                    {point.value == null
+                      ? '—'
+                      : `${formatChartValue(point.value, valueFormat)} (v${point.version})`}
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .comparison-line-chart {
+    width: 100%;
+    margin: 0 0 2em;
+  }
+
+  .comparison-line-chart-title {
+    color: var(--sl-color-white);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+  }
+
+  .comparison-line-chart-note {
+    margin: 0.35rem 0 0;
+    color: var(--ft-muted);
+    font-size: 0.8125rem;
+  }
+
+  .comparison-line-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--ft-muted);
+    font-size: 0.8125rem;
+  }
+
+  .comparison-line-chart-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+  }
+
+  .comparison-line-chart-legend li {
+    --series-color: var(--series-dark, var(--ft-muted));
+  }
+
+  :global(:root[data-theme='light']) .comparison-line-chart-legend li {
+    --series-color: var(--series-light, var(--ft-muted));
+  }
+
+  .comparison-line-chart-swatch {
+    width: 14px;
+    height: 0;
+    border-top: 3px solid var(--series-color);
+    border-radius: 2px;
+  }
+
+  .comparison-line-chart-legend
+    li[data-baseline='true']
+    .comparison-line-chart-swatch {
+    border-top-style: dashed;
+  }
+
+  .comparison-line-chart-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: var(--comparison-line-chart-height);
+    margin-top: 0.5rem;
+    color: var(--ft-text, #1f2933);
+  }
+
+  .comparison-line-chart-wrapper {
+    --ts-chart-tooltip-active-row-font-weight: inherit;
+    --ts-chart-tooltip-active-row-background: none;
+    --ts-chart-tooltip-active-row-shadow: none;
+  }
+
+  .comparison-line-chart-wrapper
+    :global(.ts-chart-tooltip__row[data-active='true']) {
+    color: var(--tooltip-active-color, inherit);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
+  }
+
+  :global([data-framework-scope='focused'])
+    .comparison-line-chart
+    [data-focused='false'] {
+    display: none;
+  }
+</style>
+
+<script>
+  import {
+    defineChart,
+    dot,
+    lineY,
+    mountChart,
+    whenFocused,
+    type ChartHost,
+  } from '@tanstack/charts'
+  import { d3Curve } from '@tanstack/charts/d3/shape'
+  import { decorative } from '@tanstack/charts/mark/decorative'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import { curveMonotoneX } from 'd3-shape'
+  import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+  import { resolveThemedValue } from '../lib/framework-logos'
+  import {
+    lineChartScales,
+    lineChartTooltips,
+    type LineChartRow,
+  } from '../lib/line-chart-config'
+  import type { LineComparisonChartPayload } from '../lib/types'
+
+  type Row = LineChartRow & { stroke: string }
+
+  // Monotone smoothing never overshoots
+  const CURVE = d3Curve(curveMonotoneX)
+  const DIM_UNFOCUSED_SERIES = {
+    when: (context: { matches: (match: 'series') => boolean }) =>
+      !context.matches('series'),
+    style: { opacity: 0.2 },
+    transition: { type: 'tween', duration: 120, easing: 'ease-out' },
+  } as const
+  const hosts = new WeakMap<HTMLElement, ChartHost<Row, number, number>>()
+
+  function getCssVar(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
+  }
+
+  function getPayload(wrapper: HTMLElement) {
+    const dataAttr = wrapper.dataset.comparisonLine
+    if (!dataAttr) return null
+
+    try {
+      return JSON.parse(dataAttr) as LineComparisonChartPayload
+    } catch (e) {
+      console.warn('[ComparisonLineChart] Invalid chart data:', e)
+      return null
+    }
+  }
+
+  function initChart(wrapper: HTMLElement) {
+    const payload = getPayload(wrapper)
+    if (!payload) return
+
+    const format = (value: number) =>
+      formatChartValue(value, payload.valueFormat)
+    const scale = lineChartScales[payload.scale]
+    const tooltipConfig = lineChartTooltips[payload.tooltip]
+
+    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
+    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
+    const series = payload.series.filter((s) => !focusedOnly || s.focused)
+    if (series.length === 0) return
+
+    const theme = document.documentElement.dataset.theme
+    const mutedColor = getCssVar('--ft-muted', '#697586')
+    const backgroundColor = getCssVar('--ft-bg', '#ffffff')
+    const toRows = (baseline: boolean) =>
+      series
+        .filter((s) => s.baseline === baseline)
+        .flatMap((s) =>
+          s.points.map((point): Row => ({
+            ...point,
+            xPos: scale.getX(point.x, payload.xValues),
+            y: point.value == null ? null : scale.getY(point.value),
+            name: s.name,
+            stroke:
+              s.color == null ? mutedColor : resolveThemedValue(s.color, theme),
+          })),
+        )
+    const frameworkRows = toRows(false)
+    const baselineRows = toRows(true)
+    const ys = [...frameworkRows, ...baselineRows].flatMap((row) =>
+      row.y == null ? [] : [row.y],
+    )
+    if (ys.length === 0) return
+    const xAxis = scale.getXAxis(payload.xValues)
+    const yAxis = scale.getYAxis(ys, { label: payload.yAxisLabel, format })
+
+    const gridColor = getCssVar(
+      '--ft-chart-grid',
+      getCssVar('--ft-border', '#d9dee7'),
+    )
+
+    const baselineLine = {
+      x: 'xPos',
+      y: 'y',
+      z: 'name',
+      stroke: mutedColor,
+      strokeWidth: 2,
+      strokeDasharray: '5 4',
+      curve: CURVE,
+    } as const
+    const frameworkLine = {
+      x: 'xPos',
+      y: 'y',
+      z: 'name',
+      stroke: (row: Row) => row.stroke,
+      strokeWidth: 2,
+      curve: CURVE,
+    } as const
+    const pointsFor = (s: (typeof series)[number]) => ({
+      x: 'xPos' as const,
+      y: 'y' as const,
+      // group-x focus dedupes by z; without it only one series shows
+      z: 'name' as const,
+      r: 4,
+      fill: backgroundColor,
+      stroke:
+        s.baseline || s.color == null
+          ? mutedColor
+          : resolveThemedValue(s.color, theme),
+      strokeWidth: 3,
+    })
+    const rowsFor = (s: (typeof series)[number]) =>
+      [...baselineRows, ...frameworkRows].filter(
+        (row) => row.name === s.name && row.y != null,
+      )
+
+    const pointMarks = series.map((s) =>
+      dot(rowsFor(s), {
+        id: `points-${s.id}`,
+        ...pointsFor(s),
+        states: [DIM_UNFOCUSED_SERIES],
+      }),
+    )
+    // Copies of the hovered series painted above every other line
+    const focusedSeriesMarks = [
+      whenFocused(
+        lineY(baselineRows, { id: 'baseline-focus', ...baselineLine }),
+        {
+          match: 'series',
+        },
+      ),
+      whenFocused(
+        lineY(frameworkRows, { id: 'frameworks-focus', ...frameworkLine }),
+        { match: 'series' },
+      ),
+      ...series.map((s) =>
+        whenFocused(
+          dot(rowsFor(s), { id: `points-focus-${s.id}`, ...pointsFor(s) }),
+          {
+            match: 'series',
+          },
+        ),
+      ),
+      // Solid fill marks the selected point itself
+      ...series.map((s) => {
+        const points = pointsFor(s)
+        return whenFocused(
+          dot(rowsFor(s), {
+            id: `points-selected-${s.id}`,
+            ...points,
+            fill: points.stroke,
+          }),
+          { match: 'primary' },
+        )
+      }),
+    ]
+
+    const definition = defineChart({
+      margin: { top: 12 },
+      focus: tooltipConfig.focus,
+      focusRing: false,
+      marks: [
+        decorative(
+          lineY(baselineRows, {
+            id: 'baseline',
+            ...baselineLine,
+            states: [DIM_UNFOCUSED_SERIES],
+          }),
+        ),
+        decorative(
+          lineY(frameworkRows, {
+            id: 'frameworks',
+            ...frameworkLine,
+            states: [DIM_UNFOCUSED_SERIES],
+          }),
+        ),
+        ...pointMarks,
+        ...focusedSeriesMarks,
+      ],
+      scales: {
+        x: {
+          scale: scaleLinear().domain(xAxis.domain),
+          nice: xAxis.nice,
+          axis: {
+            label: xAxis.label,
+            line: { stroke: gridColor },
+            ticks: {
+              size: 0,
+              values: xAxis.ticks,
+              format: (tick) => xAxis.format(Number(tick)),
+            },
+          },
+        },
+        y: {
+          scale: scaleLinear().domain(yAxis.domain),
+          nice: yAxis.nice,
+          grid: { stroke: gridColor },
+          axis: {
+            label: yAxis.label,
+            line: false,
+            ticks: {
+              size: 0,
+              values: yAxis.ticks,
+              format: (tick) => yAxis.format(Number(tick)),
+            },
+          },
+        },
+      },
+      tooltip: {
+        use: tooltip,
+        ...tooltipConfig.position,
+        content: (points, { primaryPoint }) => {
+          const primary = primaryPoint?.datum as Row | undefined
+          // The tooltip renders inside the wrapper, so its active row inherits this
+          if (primary) {
+            wrapper.style.setProperty('--tooltip-active-color', primary.stroke)
+          }
+          return tooltipConfig.content(
+            points.map(({ datum }) => datum),
+            { scale, yAxisLabel: payload.yAxisLabel, format, primary },
+          )
+        },
+      },
+    })
+
+    const options = {
+      definition,
+      height: COMPARISON_CHART_HEIGHT,
+      ariaLabel: `${payload.title} by ${scale.label.toLowerCase()}. Line chart; a data table follows.`,
+    }
+
+    const existing = hosts.get(wrapper)
+    if (existing) {
+      existing.update(options)
+    } else {
+      hosts.set(
+        wrapper,
+        mountChart(
+          wrapper.querySelector<HTMLElement>('.comparison-line-chart-host')!,
+          options,
+        ),
+      )
+    }
+  }
+
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('.comparison-line-chart-wrapper')
+      .forEach(initChart)
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts)
+  } else {
+    initCharts()
+  }
+
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributeFilter: ['class', 'data-theme'], attributes: true },
+  )
+</script>

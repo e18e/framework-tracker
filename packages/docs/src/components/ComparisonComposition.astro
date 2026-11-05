@@ -17,13 +17,26 @@ const { bar, line } = Astro.props
     class="comparison-composition-select"
     aria-label={`${bar.title} chart type`}
   >
-    <option value="bar" selected>Bar</option>
-    <option value="line">Line</option>
+    <option value="bar" selected>Comparison</option>
+    {
+      bar.data.some((datum) => datum.range) && (
+        <option value="variance">Variance</option>
+      )
+    }
+    <option value="line">Over time</option>
   </select>
 
   <div data-view-panel="bar">
     <ComparisonBarChart {...bar} />
   </div>
+
+  {
+    bar.data.some((datum) => datum.range) && (
+      <div data-view-panel="variance" hidden>
+        <ComparisonBarChart {...bar} view="variance" />
+      </div>
+    )
+  }
 
   <div data-view-panel="line" hidden>
     <ComparisonLineChart {...line} />
@@ -36,7 +49,7 @@ const { bar, line } = Astro.props
   }
 
   .comparison-composition :global(figcaption) {
-    padding-right: 6.5rem;
+    padding-right: 8rem;
   }
 
   .comparison-composition-select {

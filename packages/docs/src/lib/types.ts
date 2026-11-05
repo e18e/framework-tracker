@@ -6,6 +6,7 @@ export interface ChartDatum {
   id?: string
   name: string
   value: number
+  range?: { min: number; median: number; max: number }
   focused?: boolean
   version?: string
 }

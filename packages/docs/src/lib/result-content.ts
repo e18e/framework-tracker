@@ -32,6 +32,8 @@ export function formatRendered(
   )[Math.floor(value.iterations.length / 2)]!
   return {
     ...value,
+    firstPaintMsRange: value.firstPaintMs,
+    fcpMsRange: value.fcpMs,
     firstPaintMs: value.firstPaintMs.median,
     fcpMs: value.fcpMs.median,
     interactionTests: {
@@ -46,6 +48,8 @@ export function formatThroughput(
   if ('name' in value)
     return {
       ...value,
+      opsPerSecRange: value.opsPerSec,
+      latencyMsRange: value.latencyMs,
       opsPerSec: value.opsPerSec.median,
       latencyMs: value.latencyMs.median,
     }

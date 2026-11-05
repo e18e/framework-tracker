@@ -3,6 +3,7 @@ import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 interface Props {
+  view?: 'bars' | 'variance'
   id?: string
   title: string
   description?: string
@@ -11,16 +12,26 @@ interface Props {
   yAxisLabel: string
 }
 
-const { id, title, description, data, valueFormat, yAxisLabel } = Astro.props
+const {
+  view = 'bars',
+  id,
+  title,
+  description,
+  data,
+  valueFormat,
+  yAxisLabel,
+} = Astro.props
 const chartData = data.map((d) => ({
   id: d.id,
   name: String(d?.name ?? ''),
+  range: d.range,
   value: Math.max(0, Number(d.value) || 0),
   focused: d.focused,
   version: d.version,
 }))
 
 const chartPayload = JSON.stringify({
+  view,
   id,
   data: chartData,
   valueFormat,
@@ -30,7 +41,9 @@ const chartPayload = JSON.stringify({
 ---
 
 <figure class="comparison-chart">
-  <figcaption class="comparison-chart-title">{title}</figcaption>
+  <figcaption class="comparison-chart-header">
+    <span class="comparison-chart-title">{title}</span>
+  </figcaption>
   {description ? <p>{description}</p> : null}
   <div
     class="comparison-chart-wrapper"
@@ -74,9 +87,24 @@ const chartPayload = JSON.stringify({
 </figure>
 
 <style>
+  .comparison-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+  }
+
+  .comparison-view {
+    display: block;
+    text-align: right;
+    margin: 0;
+    white-space: nowrap;
+  }
   .comparison-chart {
     width: 100%;
     margin: 0 0 2em;
+    padding-bottom: 2rem;
   }
 
   .comparison-chart-title {
@@ -142,6 +170,7 @@ const chartPayload = JSON.stringify({
     defineChart,
     mountChart,
     ruleX,
+    ruleY,
     text,
     type ChartHost,
     type ChartRenderContext,
@@ -157,7 +186,10 @@ const chartPayload = JSON.stringify({
   } from '../lib/chart'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
 
-  type Payload = ComparisonChartPayload & { title: string }
+  type Payload = ComparisonChartPayload & {
+    title: string
+    view?: 'bars' | 'variance'
+  }
   type RenderContext = ChartRenderContext<ChartDatum, number, string>
 
   const BAR_COLOR = '#c0b9dd'
@@ -281,6 +313,10 @@ const chartPayload = JSON.stringify({
     const payload = getPayload(wrapper)
     if (!payload) return
 
+    const variance = payload.view === 'variance'
+    wrapper.querySelector<HTMLElement>('.comparison-chart-host')!.hidden = false
+    wrapper.querySelector<HTMLElement>('.comparison-logo-layer')!.hidden = false
+
     const format = (value: number, prefix?: boolean) =>
       formatChartValue(value, payload.valueFormat, prefix)
 
@@ -290,7 +326,9 @@ const chartPayload = JSON.stringify({
     if (rows.length === 0) return
 
     const values = rows.map((d) => d.value)
-    const max = Math.max(...values)
+    const max = Math.max(
+      ...rows.map((d) => (variance ? (d.range?.max ?? d.value) : d.value)),
+    )
     const median = getMedian(values)
     const height = COMPARISON_CHART_HEIGHT
 
@@ -307,66 +345,118 @@ const chartPayload = JSON.stringify({
     const medianGradient = setupMedianGradient(wrapper)
 
     const definition = defineChart({
-      margin: { left: LOGO_MARGIN, top: MEDIAN_LABEL_MARGIN, bottom: 0 },
+      margin: {
+        left: LOGO_MARGIN,
+        top: MEDIAN_LABEL_MARGIN,
+        bottom: variance ? 32 : 0,
+      },
       focusRing: false,
-      marks: [
-        barX(rows, {
-          id: 'values',
-          x: 'value',
-          y: 'name',
-          fill: barColor,
-          radius: 8,
-          inset: 3,
-          states: [
-            {
-              when: { focus: 'primary' },
-              style: { fill: barHoverColor },
-              transition: { type: 'tween', duration: 140, easing: 'ease-out' },
-            },
+      marks: variance
+        ? [
+            ruleY(rows, {
+              y: 'name',
+              stroke: mutedColor,
+              strokeOpacity: 0.5,
+              strokeDasharray: '3 5',
+            }),
+            barX(rows, {
+              x1: (d) => d.range?.min ?? d.value,
+              x2: (d) => d.range?.max ?? d.value,
+              y: 'name',
+              fill: getCssVar('--sl-color-white', '#fff'),
+              maxThickness: 2,
+            }),
+            text(rows, {
+              x: (d) => d.range?.min ?? d.value,
+              y: 'name',
+              text: () => '│',
+              fill: getCssVar('--sl-color-white', '#fff'),
+              anchor: 'middle',
+              fontSize: 20,
+            }),
+            text(rows, {
+              x: (d) => d.range?.max ?? d.value,
+              y: 'name',
+              text: () => '│',
+              fill: getCssVar('--sl-color-white', '#fff'),
+              anchor: 'middle',
+              fontSize: 20,
+            }),
+            text(rows, {
+              x: (d) => d.range?.median ?? d.value,
+              y: 'name',
+              text: () => '◆',
+              dy: 1.5,
+              fill: getCssVar('--sl-color-white', '#fff'),
+              anchor: 'middle',
+              fontSize: 15,
+            }),
+          ]
+        : [
+            barX(rows, {
+              id: 'values',
+              x: 'value',
+              y: 'name',
+              fill: barColor,
+              radius: 8,
+              inset: 3,
+              states: [
+                {
+                  when: { focus: 'primary' },
+                  style: { fill: barHoverColor },
+                  transition: {
+                    type: 'tween',
+                    duration: 140,
+                    easing: 'ease-out',
+                  },
+                },
+              ],
+            }),
+            ruleX([median], {
+              id: 'median',
+              stroke: `url(#${medianGradient.id})`,
+              strokeOpacity: 1,
+              strokeWidth: 3,
+              strokeDasharray: '5 4',
+            }),
+            decorative(
+              text([median], {
+                id: 'median-label',
+                x: (d) => d,
+                y: () => rows[0]!.name,
+                dy: () => {
+                  const step =
+                    (height - MEDIAN_LABEL_MARGIN) /
+                    (rows.length + BAND_PADDING)
+                  const firstBandCenter =
+                    step * (BAND_PADDING + (1 - BAND_PADDING) / 2)
+                  return -(firstBandCenter + MEDIAN_LABEL_GAP)
+                },
+                text: () => `Median: ${format(median)}`,
+                fill: accentColor,
+                fontWeight: 600,
+                fontSize: 13,
+                anchor: 'middle',
+              }),
+            ),
+            text(rows, {
+              id: 'value-labels',
+              x: 'value',
+              y: 'name',
+              text: (d) => format(d.value),
+              fill: mutedColor,
+              fontWeight: 600,
+              fontSize: 13,
+              anchor: 'start',
+              dx: 10,
+            }),
           ],
-        }),
-        ruleX([median], {
-          id: 'median',
-          stroke: `url(#${medianGradient.id})`,
-          strokeOpacity: 1,
-          strokeWidth: 3,
-          strokeDasharray: '5 4',
-        }),
-        decorative(
-          text([median], {
-            id: 'median-label',
-            x: (d) => d,
-            y: () => rows[0]!.name,
-            dy: () => {
-              const step =
-                (height - MEDIAN_LABEL_MARGIN) / (rows.length + BAND_PADDING)
-              const firstBandCenter =
-                step * (BAND_PADDING + (1 - BAND_PADDING) / 2)
-              return -(firstBandCenter + MEDIAN_LABEL_GAP)
-            },
-            text: () => `Median: ${format(median)}`,
-            fill: accentColor,
-            fontWeight: 600,
-            fontSize: 13,
-            anchor: 'middle',
-          }),
-        ),
-        text(rows, {
-          id: 'value-labels',
-          x: 'value',
-          y: 'name',
-          text: (d) => format(d.value),
-          fill: mutedColor,
-          fontWeight: 600,
-          fontSize: 13,
-          anchor: 'start',
-          dx: 10,
-        }),
-      ],
       scales: {
         x: {
           scale: () => scaleLinear().domain([0, max > 0 ? max * 1.15 : 1]),
-          axis: false,
+          axis: variance
+            ? { ticks: { format: (value) => format(Number(value)) } }
+            : false,
         },
         y: {
           scale: () =>
@@ -384,13 +474,21 @@ const chartPayload = JSON.stringify({
             title: datum.version
               ? `${datum.name}: v${datum.version}`
               : datum.name,
-            rows: [
-              { label: payload.yAxisLabel, value: format(datum.value) },
-              {
-                label: 'Median',
-                value: format(datum.value - median, true),
-              },
-            ],
+            rows: variance
+              ? datum.range
+                ? [
+                    { label: 'Min', value: format(datum.range.min) },
+                    { label: 'Median', value: format(datum.range.median) },
+                    { label: 'Max', value: format(datum.range.max) },
+                  ]
+                : [{ label: 'Range', value: 'Unavailable' }]
+              : [
+                  { label: payload.yAxisLabel, value: format(datum.value) },
+                  {
+                    label: 'Median',
+                    value: format(datum.value - median, true),
+                  },
+                ],
           }
         },
       },

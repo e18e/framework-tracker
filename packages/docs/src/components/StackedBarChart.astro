@@ -294,11 +294,14 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
             content: (points) => ({
               title: points[0]!.datum.name,
               rows: [
-                {
-                  label: points[0]!.datum.label,
-                  value: format(points[0]!.datum.value),
-                },
                 { label: 'Total', value: format(points[0]!.datum.total) },
+                ...segments
+                  .filter((segment) => segment.name === points[0]!.datum.name)
+                  .map((segment) => ({
+                    label: segment.label,
+                    value: format(segment.value),
+                    color: segment.color,
+                  })),
               ],
             }),
           },

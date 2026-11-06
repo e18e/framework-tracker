@@ -132,12 +132,10 @@ const chartPayload = JSON.stringify({
     areaY,
     crosshair,
     defineChart,
-    lineY,
     mountChart,
     stack,
     type ChartHost,
   } from '@tanstack/charts'
-  import { decorative } from '@tanstack/charts/mark/decorative'
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { scalePoint } from '@tanstack/charts/scales/point'
   import { tooltip } from '@tanstack/charts/tooltip'
@@ -211,14 +209,6 @@ const chartPayload = JSON.stringify({
         ms: Number(Reflect.get(datum, key)),
       })),
     )
-    const topEdges: PhaseRow[] = data.flatMap((datum) => {
-      let total = 0
-      return series.map(({ key, label }) => ({
-        version: datum.name,
-        phase: label,
-        ms: (total += Number(Reflect.get(datum, key))),
-      }))
-    })
     const byVersion = new Map(data.map((datum) => [datum.name, datum]))
 
     const definition = defineChart({
@@ -231,17 +221,8 @@ const chartPayload = JSON.stringify({
           y: 'ms',
           color: 'phase',
           layout: stack({ order: phaseLabels }),
-          fillOpacity: 0.7,
+          fillOpacity: 1,
         }),
-        decorative(
-          lineY(topEdges, {
-            id: 'interaction-phase-edges',
-            x: 'version',
-            y: 'ms',
-            color: 'phase',
-            strokeWidth: 2,
-          }),
-        ),
         crosshair({ x: true, y: false }),
       ],
       scales: {

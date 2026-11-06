@@ -22,6 +22,11 @@ export default defineConfig({
         { label: 'Dev Time', link: '/dev-time/' },
         { label: 'Run Time', link: '/run-time/' },
         { label: 'Core Web Vitals', link: '/core-web-vitals/' },
+        {
+          label: 'Frameworks',
+          collapsed: true,
+          items: [{ autogenerate: { directory: 'framework' } }],
+        },
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
         { label: 'Impact', link: '/impact/' },

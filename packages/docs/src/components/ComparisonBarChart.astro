@@ -26,7 +26,6 @@ const chartData = data.map((d) => ({
   name: String(d?.name ?? ''),
   range: d.range,
   value: Math.max(0, Number(d.value) || 0),
-  focused: d.focused,
   version: d.version,
 }))
 
@@ -70,7 +69,7 @@ const chartPayload = JSON.stringify({
         <tbody>
           {
             chartData.map((datum) => (
-              <tr data-focused={datum.focused === false ? 'false' : 'true'}>
+              <tr>
                 <th scope="row">{datum.name}</th>
                 <td>{formatChartValue(datum.value, valueFormat)}</td>
               </tr>
@@ -155,12 +154,6 @@ const chartPayload = JSON.stringify({
     font:
       700 12px system-ui,
       sans-serif;
-  }
-
-  :global([data-framework-scope='focused'])
-    .comparison-chart-data
-    tr[data-focused='false'] {
-    display: none;
   }
 </style>
 
@@ -320,9 +313,7 @@ const chartPayload = JSON.stringify({
     const format = (value: number, prefix?: boolean) =>
       formatChartValue(value, payload.valueFormat, prefix)
 
-    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
-    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
-    const rows = payload.data.filter((d) => !focusedOnly || d.focused !== false)
+    const rows = payload.data
     if (rows.length === 0) return
 
     const values = rows.map((d) => d.value)

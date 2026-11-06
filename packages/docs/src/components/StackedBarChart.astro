@@ -8,7 +8,6 @@ interface Series {
 }
 interface Datum {
   name: string
-  focused: boolean
   values: Record<string, number>
 }
 interface Props {
@@ -55,7 +54,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
       <tbody
         >{
           data.map((row) => (
-            <tr data-focused={String(row.focused)}>
+            <tr>
               <th scope="row">{row.name}</th>
               {series.map((item) => (
                 <td>{formatChartValue(row.values[item.key]!, valueFormat)}</td>
@@ -137,9 +136,6 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
     border-radius: 2px;
     border: 1px solid var(--ft-border);
   }
-  :global([data-framework-scope='focused']) tr[data-focused='false'] {
-    display: none;
-  }
 </style>
 <script>
   import {
@@ -168,7 +164,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
     title: string
     valueFormat: ChartValueFormat
     series: { key: string; label: string; color: string }[]
-    data: { name: string; focused: boolean; values: Record<string, number> }[]
+    data: { name: string; values: Record<string, number> }[]
   }
   const hosts = new WeakMap<HTMLElement, ChartHost<Segment, number, string>>()
   function initCharts() {
@@ -176,14 +172,9 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
       .querySelectorAll<HTMLElement>('[data-stacked]')
       .forEach((element) => {
         const payload = JSON.parse(element.dataset.stacked!) as Payload
-        const focused =
-          element.closest<HTMLElement>('[data-framework-scope]')?.dataset
-            .frameworkScope === 'focused'
         const totalFor = (row: Payload['data'][number]) =>
           payload.series.reduce((sum, item) => sum + row.values[item.key]!, 0)
-        const rows = payload.data
-          .filter((row) => !focused || row.focused)
-          .sort((a, b) => totalFor(a) - totalFor(b))
+        const rows = payload.data.sort((a, b) => totalFor(a) - totalFor(b))
         if (!rows.length) return
         const segments = rows.flatMap((row) => {
           let offset = 0

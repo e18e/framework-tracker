@@ -38,7 +38,6 @@ const astroVersions = [
   {
     package: 'starter-astro',
     name: 'Astro',
-    isFocused: true,
     frameworkVersion: '7.1.6',
     releasedAt: '2026-07-29T14:21:53Z',
     prodDependencies: 10,
@@ -46,7 +45,6 @@ const astroVersions = [
   {
     package: 'starter-astro',
     name: 'Astro',
-    isFocused: true,
     frameworkVersion: '7.2.10',
     releasedAt: '2026-08-31T19:39:50Z',
     prodDependencies: 12,
@@ -55,7 +53,6 @@ const astroVersions = [
 const astroLatest = {
   package: 'starter-astro',
   name: 'Astro',
-  isFocused: true,
   frameworkVersion: '7.4.0',
   releasedAt: '2026-10-15T14:49:24Z',
   prodDependencies: 14,

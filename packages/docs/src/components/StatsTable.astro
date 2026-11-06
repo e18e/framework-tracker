@@ -6,7 +6,7 @@ export interface TableColumn {
   header: string
   nameCell?: boolean
   href?: (row: Row) => string | null | undefined
-  alignment?: "center" | "left" | "right"
+  alignment?: 'center' | 'left' | 'right'
 }
 
 interface Props {
@@ -23,7 +23,7 @@ const { label, columns, data } = Astro.props
     <thead>
       <tr>
         {
-          columns.map(({alignment = "center", header}) => (
+          columns.map(({ alignment = 'center', header }) => (
             <th scope="col" class={`${alignment}-column`}>
               {header}
             </th>
@@ -35,10 +35,15 @@ const { label, columns, data } = Astro.props
       {
         data.map((row) => (
           <tr data-focused={row.isFocused ? 'true' : 'false'}>
-            {columns.map(({key, alignment = "center", href, nameCell}) => {
+            {columns.map(({ key, alignment = 'center', href, nameCell }) => {
               const url = href?.(row)
               return (
-                <td class:list={[`${alignment}-column`, nameCell ? 'name-cell' : undefined ]}>
+                <td
+                  class:list={[
+                    `${alignment}-column`,
+                    nameCell ? 'name-cell' : undefined,
+                  ]}
+                >
                   {url ? (
                     <a href={url} class="table-link">
                       {String(row[key] ?? '')}
@@ -101,8 +106,6 @@ const { label, columns, data } = Astro.props
   .right-column {
     text-align: right;
   }
-
-
 
   td {
     padding: 14px 16px;

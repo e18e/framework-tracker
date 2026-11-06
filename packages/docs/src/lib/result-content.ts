@@ -108,7 +108,6 @@ export function prepareRuntimeResult(result: CombinedResult) {
     ...result.projects.app,
     name: framework.displayName,
     package: framework.app!.package,
-    isFocused: framework.focusedFramework ?? false,
     coldBuildTime:
       result.tests.coldBuildTime?.project === 'app'
         ? result.tests.coldBuildTime.result
@@ -172,7 +171,6 @@ export function prepareStarterResult(result: CombinedResult) {
     ...result.projects.starter,
     name: framework.displayName,
     package: framework.starter!.package,
-    isFocused: framework.focusedFramework ?? false,
     prodDependencies: result.tests.prodDependencies!.result,
     devDependencies: result.tests.devDependencies!.result,
     allDependencies: result.tests.allDependencies!.result,

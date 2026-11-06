@@ -81,9 +81,7 @@ function comparison(
                 name: record.name ?? '',
                 value,
                 range: comparisonRange(record, metric),
-                focused:
-                  record.package === 'app-baseline-html' ||
-                  record.isFocused !== false,
+
                 version: record.frameworkVersion,
               },
             ],

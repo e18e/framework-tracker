@@ -31,7 +31,6 @@ export const cwvStats = (device: Device) =>
     .map(({ data }) => ({
       name: data.name,
       package: data.package,
-      isFocused: true,
       overallPercent: Math.floor(data.overall[device] * 100),
       lcpPercent: Math.floor(data.lcp[device] * 100),
       clsPercent: Math.floor(data.cls[device] * 100),
@@ -84,10 +83,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
       return {
         name: framework.name,
         package: framework.package,
-        isFocused:
-          framework.package === 'app-baseline-html'
-            ? true
-            : framework.isFocused,
+
         peakRequestsPerSec:
           framework[key]!.representativePeak.requestsPerSec.toLocaleString(),
         peakWorkers:
@@ -112,7 +108,6 @@ export const serverSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      isFocused: framework.isFocused,
       firstPaintMs: formatMilliseconds(tests.firstPaintMs),
       fcpMs: formatMilliseconds(tests.fcpMs),
       interactionLatencyMs: formatMilliseconds(
@@ -139,7 +134,6 @@ export const clientSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      isFocused: framework.isFocused,
       firstPaintMs: formatMilliseconds(tests.firstPaintMs),
       fcpMs: formatMilliseconds(tests.fcpMs),
       interactionLatencyMs: formatMilliseconds(
@@ -162,7 +156,6 @@ function formatMilliseconds(value: number | undefined) {
 export const depsStats = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   directDependencies: [
     f.devDependencies.toLocaleString(),
     f.prodDependencies.toLocaleString(),
@@ -183,7 +176,6 @@ export const firstPartyDepsStats = starterStats.map((f) => {
   return {
     name: f.name,
     package: f.package,
-    isFocused: f.isFocused,
     directDependencies: [
       dependencies.devDependencies.toLocaleString(),
       dependencies.prodDependencies.toLocaleString(),
@@ -197,7 +189,6 @@ export const firstPartyDepsStats = starterStats.map((f) => {
 export const minimumNodeVersionTableData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   minNodeVersion: f.minimumNodeVersion ? `v${f.minimumNodeVersion}` : '—',
   imposedBy: f.minimumNodeVersionImposedBy?.length
     ? f.minimumNodeVersionImposedBy.join(', ')
@@ -230,7 +221,6 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
     {
       name: f.name,
       package: f.package,
-      isFocused: f.isFocused,
       allDependencies: dependencies.allDependencies.toLocaleString(),
       devDependencies: dependencies.devDependencies.toLocaleString(),
       prodDependencies: dependencies.prodDependencies.toLocaleString(),
@@ -243,7 +233,6 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
 export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   medianInstall: formatTimeMs(f.install.installTimeMs.median),
   minInstall: formatTimeMs(f.install.installTimeMs.min),
   maxInstall: formatTimeMs(f.install.installTimeMs.max),
@@ -258,7 +247,6 @@ export const buildInstallData = starterStats.map((f) => ({
 export const devServerStartData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   medianStart: formatTimeMs(f.devServerStartTime?.medianMs ?? Number.NaN),
   minStart: formatTimeMs(f.devServerStartTime?.minMs ?? Number.NaN),
   maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
@@ -269,7 +257,6 @@ export const coreJsTableData = starterStats.map((f) => {
   return {
     name: f.name,
     package: f.package,
-    isFocused: f.isFocused,
     detected: f.vendoredCoreJsSize == null ? '—' : hasCorejs ? 'Yes' : 'No',
     bundledSize: hasCorejs
       ? `${((f.vendoredCoreJsSize ?? 0) / 1024).toFixed(1)} KB`
@@ -303,7 +290,6 @@ export const browserBaselineTableData = starterStats.map((f) => {
   return {
     name: f.name,
     package: f.package,
-    isFocused: f.isFocused,
     status: formatBaselineStatus(
       baseline?.baselineStatus,
       baseline?.baselineFeatureCount,
@@ -330,7 +316,6 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
       {
         name: f.name,
         package: f.package,
-        isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
         opsPerSec: Math.round(tests.opsPerSec).toLocaleString(),
         latencyMs: `${Number(tests.latencyMs.toFixed(3))}ms`,
         bodySizeKb: `${tests.bodySizeKb}kb`,
@@ -348,7 +333,6 @@ export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
       {
         name: framework.name,
         package: framework.package,
-        isFocused: framework.isFocused,
         requests: resources.total.requestCount,
         total: formatChartValue(resources.total.transferSize / 1024, 'kb'),
         ...Object.fromEntries(

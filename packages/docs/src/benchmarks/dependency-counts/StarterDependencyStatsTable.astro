@@ -1,13 +1,14 @@
 ---
 import { depsStats } from '../../lib/prepare-table'
 import { getFrameworkSlug } from '../../lib/utils'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 const depsColumns = [
   {
     key: 'name',
     header: 'Framework',
     nameCell: true,
+    alignment: 'left',
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
   },
@@ -22,7 +23,7 @@ const depsColumns = [
     href: (row: Record<string, unknown>) =>
       `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${row.package}/package.json`,
   },
-]
+] satisfies TableColumn[]
 ---
 
 <StatsTable

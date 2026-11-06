@@ -90,7 +90,6 @@ export function getRenderedInteractionBreakdownData(
 
     return {
       name: framework.name,
-      focused: framework.isFocused !== false,
       interactionLatencyMs: interaction.interactionLatencyMs,
       values: Object.fromEntries(
         INTERACTION_PHASES.map(({ key }) => [key, interaction[key]]),
@@ -115,7 +114,6 @@ export function getCWVStatsChartData(cwv: CWV, device: Device) {
     .map((stat) => ({
       name: stat.name,
       value: stat[`${cwv}Percent`],
-      focused: true,
     }))
 }
 
@@ -136,7 +134,6 @@ export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
     return [
       {
         name: framework.name,
-        focused: framework.isFocused,
         requests: resources.total.requestCount,
         total: resources.total.transferSize / 1024,
         values: prepareInitialLoadResources(resources),

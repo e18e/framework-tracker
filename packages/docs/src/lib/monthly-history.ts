@@ -50,7 +50,6 @@ export function seriesIdentity(
   return {
     id: packageName,
     name: record.name ?? packageName,
-    focused: baseline || record.isFocused !== false,
     baseline,
     color: baseline ? null : (getBrandByPackage(packageName)?.color ?? null),
   }

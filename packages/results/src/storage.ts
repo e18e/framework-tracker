@@ -14,7 +14,6 @@ const metadataFields = {
   name: true,
   type: true,
   package: true,
-  isFocused: true,
   order: true,
   timingMeasuredAt: true,
   runner: true,

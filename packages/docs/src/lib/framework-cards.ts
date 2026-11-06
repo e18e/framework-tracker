@@ -28,5 +28,4 @@ export const frameworkRows = starterStats.map((framework) => ({
     framework.frameworkVersion.toLowerCase() !== 'unknown'
       ? framework.frameworkVersion
       : 'Unknown',
-  isFocused: framework.isFocused,
 }))

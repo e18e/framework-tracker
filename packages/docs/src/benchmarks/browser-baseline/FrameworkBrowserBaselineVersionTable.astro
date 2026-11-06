@@ -3,7 +3,7 @@ import {
   formatBaselineReason,
   formatBaselineStatus,
 } from '../../lib/prepare-table'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 interface BrowserBaselineTests {
   baselineStatus?: 'high' | 'low' | false | null
@@ -24,12 +24,12 @@ interface Props {
 const { versions } = Astro.props
 
 const columns = [
-  { key: 'version', header: 'Version', nameCell: true },
+  { key: 'version', header: 'Version', nameCell: true, alignment: 'left' },
   { key: 'status', header: 'Baseline' },
   { key: 'feature', header: 'Feature' },
   { key: 'year', header: 'Year' },
   { key: 'features', header: 'Features' },
-]
+] satisfies TableColumn[]
 
 const data = versions.flatMap((version) => {
   const baseline = version.browserBaselineTests

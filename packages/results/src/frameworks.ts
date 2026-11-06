@@ -12,7 +12,6 @@ export interface FrameworkConfig {
   name: string
   displayName: string
   frameworkPackage: string
-  focusedFramework?: boolean
   starter?: TestConfig
   app?: TestConfig
 }
@@ -22,7 +21,6 @@ export const frameworks = [
     name: 'baseline-html',
     displayName: 'Baseline HTML',
     frameworkPackage: 'node',
-    focusedFramework: false,
     app: {
       package: 'app-baseline-html',
       buildScript: 'build',
@@ -34,7 +32,6 @@ export const frameworks = [
     name: 'astro',
     displayName: 'Astro',
     frameworkPackage: 'astro',
-    focusedFramework: true,
     starter: {
       package: 'starter-astro',
       buildScript: 'build',
@@ -65,7 +62,6 @@ export const frameworks = [
     name: 'next',
     displayName: 'Next.js',
     frameworkPackage: 'next',
-    focusedFramework: true,
     starter: {
       package: 'starter-next-js',
       buildScript: 'build',
@@ -97,7 +93,6 @@ export const frameworks = [
     name: 'nuxt',
     displayName: 'Nuxt',
     frameworkPackage: 'nuxt',
-    focusedFramework: true,
     starter: {
       package: 'starter-nuxt',
       buildScript: 'build',
@@ -129,7 +124,6 @@ export const frameworks = [
     name: 'pracht',
     displayName: 'Pracht',
     frameworkPackage: '@pracht/core',
-    focusedFramework: false,
     starter: {
       package: 'starter-pracht',
       buildScript: 'build',
@@ -161,7 +155,6 @@ export const frameworks = [
     name: 'react-router',
     displayName: 'React Router',
     frameworkPackage: '@react-router/dev',
-    focusedFramework: true,
     starter: {
       package: 'starter-react-router',
       buildScript: 'build',
@@ -193,7 +186,6 @@ export const frameworks = [
     name: 'solid-start',
     displayName: 'SolidStart',
     frameworkPackage: '@solidjs/start',
-    focusedFramework: true,
     starter: {
       package: 'starter-solid-start',
       buildScript: 'build',
@@ -224,7 +216,6 @@ export const frameworks = [
     name: 'solid',
     displayName: 'Solid 2.0',
     frameworkPackage: 'solid-js',
-    focusedFramework: false,
     starter: {
       package: 'starter-solid',
       buildScript: 'build',
@@ -255,7 +246,6 @@ export const frameworks = [
     name: 'sveltekit',
     displayName: 'SvelteKit',
     frameworkPackage: '@sveltejs/kit',
-    focusedFramework: true,
     starter: {
       package: 'starter-sveltekit',
       buildScript: 'build',
@@ -286,7 +276,6 @@ export const frameworks = [
     name: 'tanstack',
     displayName: 'TanStack Start',
     frameworkPackage: '@tanstack/react-start',
-    focusedFramework: true,
     starter: {
       package: 'starter-tanstack-start-react',
       buildScript: 'build',

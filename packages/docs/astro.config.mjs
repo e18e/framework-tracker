@@ -26,6 +26,7 @@ export default defineConfig({
         { label: 'Methodology', link: '/methodology/' },
         { label: 'Glossary', link: '/glossary/' },
         { label: 'Impact', link: '/impact/' },
+        { label: 'Chart Colour Palettes', link: '/chart-palettes/' },
       ],
       social: [
         {

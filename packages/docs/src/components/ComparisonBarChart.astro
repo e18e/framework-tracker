@@ -40,9 +40,6 @@ const chartPayload = JSON.stringify({
 ---
 
 <figure class="comparison-chart">
-  <figcaption class="comparison-chart-header">
-    <span class="comparison-chart-title">{title}</span>
-  </figcaption>
   {description ? <p>{description}</p> : null}
   <div
     class="comparison-chart-wrapper"
@@ -86,14 +83,6 @@ const chartPayload = JSON.stringify({
 </figure>
 
 <style>
-  .comparison-chart-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px 24px;
-  }
-
   .comparison-view {
     display: block;
     text-align: right;
@@ -104,13 +93,6 @@ const chartPayload = JSON.stringify({
     width: 100%;
     margin: 0 0 2em;
     padding-bottom: 2rem;
-  }
-
-  .comparison-chart-title {
-    color: var(--sl-color-white);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: var(--sl-line-height-headings);
   }
 
   .comparison-chart-wrapper {

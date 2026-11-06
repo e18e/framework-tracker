@@ -4,7 +4,9 @@ import { monthlyComparison } from '../../lib/monthly-history'
 import type { MetricDefinition } from '../../lib/types'
 import StackedBarChart from '../../components/StackedBarChart.astro'
 import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
-import ComparisonComposition from '../../components/ComparisonComposition.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 
 type DependencyMetric =
   | 'allDependencies'
@@ -51,15 +53,27 @@ function getDependencyCharts(metric: DependencyMetric, title: string) {
     ),
   }
 }
+
+const { bar, line } = getDependencyCharts(
+  'duplicateDependencies',
+  'First-Party Duplicate Dependencies',
+)
+const options = [
+  { value: 'bar', label: 'Comparison' },
+  { value: 'line', label: 'Over time' },
+]
 ---
 
 <StackedBarChart
   title="First-Party Dependencies"
   {...prepareDependencyStackedChart('firstPartyDependencies')}
 />
-<ComparisonComposition
-  {...getDependencyCharts(
-    'duplicateDependencies',
-    'First-Party Duplicate Dependencies',
-  )}
-/>
+<ViewSwitcher
+  title={bar.title}
+  label={`${bar.title} chart type`}
+  {options}
+  defaultValue="bar"
+>
+  <ComparisonBarChart slot="bar" {...bar} />
+  <ComparisonLineChart slot="line" {...line} />
+</ViewSwitcher>

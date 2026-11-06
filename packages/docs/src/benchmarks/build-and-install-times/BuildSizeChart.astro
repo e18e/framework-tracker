@@ -5,10 +5,30 @@ import {
   starterHistory,
   starterStats,
 } from '../../lib/prepare-chart'
-import ComparisonComposition from '../../components/ComparisonComposition.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 
 const bar = prepareColdBuildTimeComparison(starterStats)
 const line = prepareColdBuildTimeMonthlyComparison(starterHistory, starterStats)
+
+const hasVariance = bar.data.some((datum) => datum.range)
+const options = [
+  { value: 'bar', label: 'Comparison' },
+  ...(hasVariance ? [{ value: 'variance', label: 'Variance' }] : []),
+  { value: 'line', label: 'Over time' },
+]
 ---
 
-<ComparisonComposition bar={bar} line={line} />
+<ViewSwitcher
+  title={bar.title}
+  label={`${bar.title} chart type`}
+  {options}
+  defaultValue="bar"
+>
+  <ComparisonBarChart slot="bar" {...bar} />
+  <Fragment slot="variance">
+    {hasVariance && <ComparisonBarChart {...bar} view="variance" />}
+  </Fragment>
+  <ComparisonLineChart slot="line" {...line} />
+</ViewSwitcher>

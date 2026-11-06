@@ -4,6 +4,7 @@ import {
   ssrRequestThroughputStats,
   type SSRLoadKey,
 } from '../../lib/prepare-chart'
+import ChartTitle from '../../components/ChartTitle.astro'
 import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 interface Props {
   testsKey?: SSRLoadKey
@@ -16,4 +17,5 @@ const byConnections = prepareSSRLatencyByConnections(
 )
 ---
 
+<ChartTitle>{byConnections.title}</ChartTitle>
 <ComparisonLineChart {...byConnections} />

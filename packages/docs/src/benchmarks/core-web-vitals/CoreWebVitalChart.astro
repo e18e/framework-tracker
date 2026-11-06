@@ -1,6 +1,7 @@
 ---
 import { getCWVStatsChartData } from '../../lib/prepare-chart'
 import type { CWV, Device } from '../../lib/prepare-chart'
+import ChartTitle from '../../components/ChartTitle.astro'
 import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
 
 interface Props {
@@ -27,6 +28,7 @@ const cwvDescription: Record<CWV, string> = {
 }
 ---
 
+<ChartTitle>{cwvTitle[cwv]}</ChartTitle>
 <ComparisonBarChart
   title={cwvTitle[cwv]}
   description={cwvDescription[cwv]}

@@ -34,7 +34,7 @@ const { label, columns, data } = Astro.props
     <tbody>
       {
         data.map((row) => (
-          <tr data-focused={row.isFocused ? 'true' : 'false'}>
+          <tr>
             {columns.map(({ key, alignment = 'center', href, nameCell }) => {
               const url = href?.(row)
               return (
@@ -138,10 +138,6 @@ const { label, columns, data } = Astro.props
   .table-link:hover {
     color: var(--ft-accent-hover);
     text-decoration: underline;
-  }
-
-  :global([data-framework-scope='focused']) tr[data-focused='false'] {
-    display: none;
   }
 
   /* Responsive */

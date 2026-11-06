@@ -7,7 +7,6 @@ export interface ChartDatum {
   name: string
   value: number
   range?: { min: number; median: number; max: number }
-  focused?: boolean
   version?: string
 }
 
@@ -38,7 +37,6 @@ export interface LineComparisonPoint {
 export interface LineComparisonSeries {
   id: string
   name: string
-  focused: boolean
   /** Reference series (Baseline HTML) drawn as a neutral dashed line. */
   baseline: boolean
   /** Brand colour from `framework-logos.ts`; null draws a neutral line. */
@@ -90,7 +88,6 @@ export interface ChartMeasurement {
   name?: string
   frameworkVersion?: string
   releasedAt?: string
-  isFocused?: boolean
   devServerStartTime?: {
     medianMs?: number
   }

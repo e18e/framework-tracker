@@ -27,7 +27,6 @@ function seriesColorVars(
     {
       series.map((s) => (
         <li
-          data-focused={s.focused ? 'true' : 'false'}
           data-baseline={s.baseline ? 'true' : 'false'}
           style={seriesColorVars(s.color)}
         >
@@ -61,7 +60,7 @@ function seriesColorVars(
         <tbody>
           {
             series.map((s) => (
-              <tr data-focused={s.focused ? 'true' : 'false'}>
+              <tr>
                 <th scope="row">{s.name}</th>
                 {s.points.map((point) => (
                   <td>
@@ -161,12 +160,6 @@ function seriesColorVars(
   .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
     outline: none;
   }
-
-  :global([data-framework-scope='focused'])
-    .comparison-line-chart
-    [data-focused='false'] {
-    display: none;
-  }
 </style>
 
 <script>
@@ -233,9 +226,7 @@ function seriesColorVars(
     const scale = lineChartScales[payload.scale]
     const tooltipConfig = lineChartTooltips[payload.tooltip]
 
-    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
-    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
-    const series = payload.series.filter((s) => !focusedOnly || s.focused)
+    const series = payload.series
     if (series.length === 0) return
 
     const theme = document.documentElement.dataset.theme

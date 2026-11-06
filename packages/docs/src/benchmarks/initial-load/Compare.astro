@@ -6,7 +6,7 @@ import {
 } from '../../lib/prepare-chart'
 import { initialLoadTableData } from '../../lib/prepare-table'
 import StackedBarChart from '../../components/StackedBarChart.astro'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 import { getFrameworkSlug } from '../../lib/utils'
 
 const columns = [
@@ -14,6 +14,7 @@ const columns = [
     key: 'name',
     header: 'Framework',
     nameCell: true,
+    alignment: 'left',
     href: (row: Record<string, unknown>) =>
       row.package !== 'app-baseline-html'
         ? `/framework/${getFrameworkSlug(row.package as string)}/#initial-load`
@@ -22,7 +23,7 @@ const columns = [
   { key: 'requests', header: 'Requests' },
   ...initialLoadSeries.map(({ key, label }) => ({ key, header: label })),
   { key: 'total', header: 'Total' },
-]
+] satisfies TableColumn[]
 ---
 
 <Description />

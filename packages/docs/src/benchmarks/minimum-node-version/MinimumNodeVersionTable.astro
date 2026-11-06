@@ -1,19 +1,20 @@
 ---
 import { minimumNodeVersionTableData } from '../../lib/prepare-table'
 import { getFrameworkSlug } from '../../lib/utils'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 const columns = [
   {
     key: 'name',
     header: 'Framework',
-    nameCell: true,
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
+    nameCell: true,
+    alignment: "left"
   },
   { key: 'minNodeVersion', header: 'Min Node' },
-  { key: 'imposedBy', header: 'Set by' },
-]
+  { key: 'imposedBy', header: 'Set by', alignment: "left"  },
+] satisfies TableColumn[]
 ---
 
 <StatsTable

@@ -1,13 +1,14 @@
 ---
 import { buildInstallData } from '../../lib/prepare-table'
 import { getFrameworkSlug } from '../../lib/utils'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 const buildInstallColumns = [
   {
     key: 'name',
     header: 'Framework',
     nameCell: true,
+    alignment: 'left',
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
   },
@@ -16,7 +17,7 @@ const buildInstallColumns = [
   { key: 'maxInstall', header: 'Max Install' },
   { key: 'medianColdBuild', header: 'Median Cold Build' },
   { key: 'medianWarmBuild', header: 'Median Warm Build' },
-]
+] satisfies TableColumn[]
 ---
 
 <StatsTable

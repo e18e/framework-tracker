@@ -1,13 +1,14 @@
 ---
 import { coreJsTableData } from '../../lib/prepare-table'
 import { getFrameworkSlug } from '../../lib/utils'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 const columns = [
   {
     key: 'name',
     header: 'Framework',
     nameCell: true,
+    alignment: 'left',
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
   },
@@ -17,7 +18,7 @@ const columns = [
     key: 'unnecessaryModules',
     header: 'Modules not needed by target browsers',
   },
-]
+] satisfies TableColumn[]
 ---
 
 <StatsTable

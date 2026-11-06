@@ -1,0 +1,56 @@
+---
+import StackedBarChart from './StackedBarChart.astro'
+import { INTERACTION_PHASES } from '../lib/interaction-phases'
+import { chartPreviewPalettes } from '../lib/chart-palette-preview'
+
+// Identical illustrative timings isolate the effect of each colour palette.
+const data = [
+  {
+    name: 'Astro',
+    focused: true,
+    values: {
+      inputDelayMs: 12,
+      processingDurationMs: 28,
+      presentationDelayMs: 20,
+    },
+  },
+  {
+    name: 'Next.js',
+    focused: true,
+    values: {
+      inputDelayMs: 25,
+      processingDurationMs: 15,
+      presentationDelayMs: 35,
+    },
+  },
+  {
+    name: 'SvelteKit',
+    focused: true,
+    values: {
+      inputDelayMs: 8,
+      processingDurationMs: 40,
+      presentationDelayMs: 12,
+    },
+  },
+]
+---
+
+{
+  chartPreviewPalettes.map(({ name, colors }) => (
+    <section aria-labelledby={`palette-${name}`}>
+      <h2 id={`palette-${name}`}>
+        {name.charAt(0).toUpperCase() + name.slice(1)}
+      </h2>
+      <StackedBarChart
+        title={`${name} interaction breakdown`}
+        valueFormat="ms"
+        data={data}
+        series={INTERACTION_PHASES.map(({ key, label }, index) => ({
+          key,
+          label,
+          color: colors[index]!,
+        }))}
+      />
+    </section>
+  ))
+}

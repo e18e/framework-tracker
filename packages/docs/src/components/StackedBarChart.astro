@@ -267,10 +267,14 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
               x: 'total',
               y: 'name',
               text: (d) => format(d.total),
-              anchor: (d) => (d.total / max > 0.85 ? 'end' : 'start'),
-              dx: (d) => (d.total / max > 0.85 ? -10 : 10),
+              anchor: (d) =>
+                payload.valueFormat !== 'ms' && d.total / max > 0.85
+                  ? 'end'
+                  : 'start',
+              dx: (d) =>
+                payload.valueFormat !== 'ms' && d.total / max > 0.85 ? -10 : 10,
               fill: (d) =>
-                d.total / max > 0.85
+                payload.valueFormat !== 'ms' && d.total / max > 0.85
                   ? segments.findLast(
                       (segment) => segment.name === d.name && segment.value > 0,
                     )?.color === '#f7df1e'

@@ -1,59 +1,9 @@
 ---
-import { starterHistory, starterStats } from '../../lib/prepare-chart'
-import { monthlyComparison } from '../../lib/monthly-history'
-import type { MetricDefinition } from '../../lib/types'
-import ComparisonComposition from '../../components/ComparisonComposition.astro'
-
-type DependencyMetric =
-  'allDependencies' | 'devDependencies' | 'prodDependencies'
-
-function getChartData(metric: DependencyMetric) {
-  return starterStats
-    .flatMap((framework) => {
-      const value = framework.frameworkDependencies?.[metric]
-      if (typeof value !== 'number' || !Number.isFinite(value)) return []
-
-      return [
-        {
-          name: framework.name,
-          value,
-          version: framework.frameworkVersion,
-        },
-      ]
-    })
-    .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
-}
-
-function getCharts(metric: DependencyMetric, title: string) {
-  const definition: MetricDefinition = {
-    id: `frameworkDependencies.${metric}`,
-    title,
-    valueFormat: 'count',
-    yAxisLabel: 'Dependency count',
-  }
-  return {
-    bar: { ...definition, data: getChartData(metric) },
-    line: monthlyComparison(
-      definition,
-      starterHistory,
-      starterStats,
-      (record) => {
-        const value = record.frameworkDependencies?.[metric]
-        return typeof value === 'number' && Number.isFinite(value)
-          ? value
-          : null
-      },
-    ),
-  }
-}
+import StackedBarChart from '../../components/StackedBarChart.astro'
+import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
 ---
 
-<ComparisonComposition
-  {...getCharts('allDependencies', 'Core Package Dependencies')}
-/>
-<ComparisonComposition
-  {...getCharts('devDependencies', 'Core Package Development Dependencies')}
-/>
-<ComparisonComposition
-  {...getCharts('prodDependencies', 'Core Package Production Dependencies')}
+<StackedBarChart
+  title="Core Package Dependencies"
+  {...prepareDependencyStackedChart('frameworkDependencies')}
 />

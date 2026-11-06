@@ -1,9 +1,11 @@
 ---
-import DepsChart from './DepsChart.astro'
+import StackedBarChart from '../../components/StackedBarChart.astro'
+import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
 import DuplicateDependencyChart from './DuplicateDependencyChart.astro'
-import ProdDepsChart from './ProdDepsChart.astro'
 ---
 
-<DepsChart />
-<ProdDepsChart />
+<StackedBarChart
+  title="Starter Dependencies"
+  {...prepareDependencyStackedChart()}
+/>
 <DuplicateDependencyChart />

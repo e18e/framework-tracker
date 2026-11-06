@@ -141,3 +141,31 @@ export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
     ]
   },
 )
+
+export type DependencySource =
+  'frameworkDependencies' | 'firstPartyDependencies'
+
+export function prepareDependencyStackedChart(source?: DependencySource) {
+  const series = [
+    { key: 'prod', label: 'Production', color: 'var(--ft-chart-phase-input)' },
+    {
+      key: 'dev',
+      label: 'Development',
+      color: 'var(--ft-chart-phase-processing)',
+    },
+  ]
+  const data = starterStats.flatMap((framework) => {
+    const dependencies = source ? framework[source] : framework
+    const prod = dependencies?.prodDependencies
+    const dev = dependencies?.devDependencies
+    if (
+      typeof prod !== 'number' ||
+      !Number.isFinite(prod) ||
+      typeof dev !== 'number' ||
+      !Number.isFinite(dev)
+    )
+      return []
+    return [{ name: framework.name, values: { prod, dev } }]
+  })
+  return { series, data, valueFormat: 'count' as const }
+}

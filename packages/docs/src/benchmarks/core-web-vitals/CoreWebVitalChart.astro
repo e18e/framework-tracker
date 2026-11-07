@@ -39,15 +39,23 @@ const chart1 = {
 const chart1Table = prepareCoreWebVitalTable(chart1)
 ---
 
-<ViewSwitcher
-  title={chart1.title}
-  label={`${chart1.title} view`}
-  options={[
-    { value: 'chart', label: 'Comparison' },
-    { value: 'table', label: 'Table' },
-  ]}
-  defaultValue="chart"
->
-  <ComparisonBarChart slot="chart" {...chart1} />
-  <StatsTable slot="table" {...chart1Table} />
-</ViewSwitcher>
+<div id={`${device}-${cwv}`} class="metric-anchor">
+  <ViewSwitcher
+    title={chart1.title}
+    label={`${chart1.title} view`}
+    options={[
+      { value: 'chart', label: 'Comparison' },
+      { value: 'table', label: 'Table' },
+    ]}
+    defaultValue="chart"
+  >
+    <ComparisonBarChart slot="chart" {...chart1} />
+    <StatsTable slot="table" {...chart1Table} />
+  </ViewSwitcher>
+</div>
+
+<style>
+  .metric-anchor {
+    scroll-margin-top: calc(var(--sl-nav-height) + 2rem);
+  }
+</style>

@@ -5,6 +5,8 @@ import {
   runtimeHistory,
   ssrRequestThroughputStats,
 } from '../../lib/prepare-chart'
+import StatsTable from '../../components/StatsTable.astro'
+import { prepareServerRenderedFCPTable } from '../../lib/prepare-table'
 import ViewSwitcher from '../../components/ViewSwitcher.astro'
 import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
 import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
@@ -22,7 +24,9 @@ const options = [
   { value: 'bar', label: 'Comparison' },
   ...(hasVariance ? [{ value: 'variance', label: 'Variance' }] : []),
   { value: 'line', label: 'Over time' },
+  { value: 'table', label: 'Table' },
 ]
+const table = prepareServerRenderedFCPTable(bar)
 ---
 
 <ViewSwitcher
@@ -36,4 +40,5 @@ const options = [
     {hasVariance && <ComparisonBarChart {...bar} view="variance" />}
   </Fragment>
   <ComparisonLineChart slot="line" {...line} />
+  <StatsTable slot="table" {...table} />
 </ViewSwitcher>

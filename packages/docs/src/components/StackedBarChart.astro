@@ -20,7 +20,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
 ---
 
 <figure>
-  <slot name="caption"><figcaption>{title}</figcaption></slot>
+  <slot name="caption" />
   {
     !Astro.slots.has('caption') && (
       <ul class="legend" aria-label="Chart series">
@@ -70,10 +70,6 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   figure {
     margin: 0 0 2em;
     width: 100%;
-  }
-  figcaption {
-    font-weight: 600;
-    color: var(--sl-color-white);
   }
   .stacked-chart {
     position: relative;

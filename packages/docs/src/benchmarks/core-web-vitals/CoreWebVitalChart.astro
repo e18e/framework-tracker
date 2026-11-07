@@ -1,7 +1,9 @@
 ---
+import { prepareCoreWebVitalTable } from '../../lib/prepare-table'
+import StatsTable from '../../components/StatsTable.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
 import { getCWVStatsChartData } from '../../lib/prepare-chart'
 import type { CWV, Device } from '../../lib/prepare-chart'
-import ChartTitle from '../../components/ChartTitle.astro'
 import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
 
 interface Props {
@@ -26,13 +28,26 @@ const cwvDescription: Record<CWV, string> = {
   ttfb: `Measures the time between the request for a resource and when the first byte of a response begins to arrive. A good TTFB is less than or equal to 800ms.`,
   inp: `Measures overall page responsiveness to user actions. To provide a good user experience, the INP should be 200ms or less.`,
 }
+
+const chart1 = {
+  title: cwvTitle[cwv],
+  description: cwvDescription[cwv],
+  data: getCWVStatsChartData(cwv, device),
+  valueFormat: 'count',
+  yAxisLabel: '%',
+} as const
+const chart1Table = prepareCoreWebVitalTable(chart1)
 ---
 
-<ChartTitle>{cwvTitle[cwv]}</ChartTitle>
-<ComparisonBarChart
-  title={cwvTitle[cwv]}
-  description={cwvDescription[cwv]}
-  data={getCWVStatsChartData(cwv, device)}
-  valueFormat="count"
-  yAxisLabel="%"
-/>
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <ComparisonBarChart slot="chart" {...chart1} />
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>

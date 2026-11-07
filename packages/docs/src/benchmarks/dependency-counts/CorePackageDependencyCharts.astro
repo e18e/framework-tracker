@@ -1,9 +1,26 @@
 ---
+import { prepareCorePackageDependenciesTable } from '../../lib/prepare-table'
+import StatsTable from '../../components/StatsTable.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
 import StackedBarChart from '../../components/StackedBarChart.astro'
 import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
+
+const chart1 = {
+  title: 'Core Package Dependencies',
+  ...prepareDependencyStackedChart('frameworkDependencies'),
+}
+const chart1Table = prepareCorePackageDependenciesTable(chart1)
 ---
 
-<StackedBarChart
-  title="Core Package Dependencies"
-  {...prepareDependencyStackedChart('frameworkDependencies')}
-/>
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <StackedBarChart slot="chart" {...chart1} />
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>

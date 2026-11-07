@@ -1,10 +1,12 @@
 ---
+import { prepareSSRLoadP99Table } from '../../lib/prepare-table'
+import StatsTable from '../../components/StatsTable.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
 import {
   prepareSSRLatencyByConnections,
   ssrRequestThroughputStats,
   type SSRLoadKey,
 } from '../../lib/prepare-chart'
-import ChartTitle from '../../components/ChartTitle.astro'
 import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 interface Props {
   testsKey?: SSRLoadKey
@@ -15,7 +17,20 @@ const byConnections = prepareSSRLatencyByConnections(
   'p99LatencyMs',
   testsKey,
 )
+
+const chart1 = { ...byConnections }
+const chart1Table = prepareSSRLoadP99Table(chart1)
 ---
 
-<ChartTitle>{byConnections.title}</ChartTitle>
-<ComparisonLineChart {...byConnections} />
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <ComparisonLineChart slot="chart" {...chart1} />
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>

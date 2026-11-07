@@ -4,6 +4,11 @@ import { monthlyComparison } from '../../lib/monthly-history'
 import type { MetricDefinition } from '../../lib/types'
 import StackedBarChart from '../../components/StackedBarChart.astro'
 import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
+import StatsTable from '../../components/StatsTable.astro'
+import {
+  prepareFirstPartyDuplicateDependenciesTable,
+  prepareFirstPartyDependenciesTable,
+} from '../../lib/prepare-table'
 import ViewSwitcher from '../../components/ViewSwitcher.astro'
 import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
 import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
@@ -61,13 +66,29 @@ const { bar, line } = getDependencyCharts(
 const options = [
   { value: 'bar', label: 'Comparison' },
   { value: 'line', label: 'Over time' },
+  { value: 'table', label: 'Table' },
 ]
+const table = prepareFirstPartyDuplicateDependenciesTable(bar)
+
+const chart1 = {
+  title: 'First-Party Dependencies',
+  ...prepareDependencyStackedChart('firstPartyDependencies'),
+}
+const chart1Table = prepareFirstPartyDependenciesTable(chart1)
 ---
 
-<StackedBarChart
-  title="First-Party Dependencies"
-  {...prepareDependencyStackedChart('firstPartyDependencies')}
-/>
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <StackedBarChart slot="chart" {...chart1} />
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>
 <ViewSwitcher
   title={bar.title}
   label={`${bar.title} chart type`}
@@ -76,4 +97,5 @@ const options = [
 >
   <ComparisonBarChart slot="bar" {...bar} />
   <ComparisonLineChart slot="line" {...line} />
+  <StatsTable slot="table" {...table} />
 </ViewSwitcher>

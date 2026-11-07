@@ -1,3 +1,9 @@
+import type { TableColumn } from '../components/StatsTable.astro'
+import type {
+  ChartDatum,
+  ChartValueFormat,
+  LineComparisonSeries,
+} from './types'
 import { prepareInitialLoadResources } from './initial-load'
 import { formatChartValue } from './chart'
 import { frameworks } from '@framework-tracker/results/frameworks'
@@ -344,3 +350,659 @@ export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
     ]
   },
 )
+
+type ComparisonTableInput = {
+  title: string
+  data: ChartDatum[]
+  valueFormat: ChartValueFormat
+  yAxisLabel: string
+}
+type StackedTableInput = {
+  title: string
+  data: { name: string; values: Record<string, number> }[]
+  series: { key: string; label: string }[]
+  valueFormat?: ChartValueFormat
+}
+type LatencyTableInput = {
+  title: string
+  xValues: string[]
+  series: LineComparisonSeries[]
+  valueFormat: ChartValueFormat
+}
+const frameworkDefinition = (name: string) =>
+  frameworks.find((f) => f.displayName === name || f.name === name)
+function frameworkColumn(): TableColumn {
+  return {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    alignment: 'left',
+    href: (row) => {
+      const f = frameworkDefinition(String(row.name))
+      return f && f.name !== 'baseline-html'
+        ? `/framework/${getFrameworkSlug(f.starter?.package ?? f.app?.package ?? f.name)}/`
+        : '/run-time/#server-side-throughput-tests'
+    },
+  }
+}
+function dependencyGraphColumn(
+  source: 'core' | 'first-party' | 'starter',
+): TableColumn {
+  return {
+    key: 'graph',
+    header: 'Graph',
+    href: (row) => {
+      const name = String(row.name)
+      if (source === 'core')
+        return frameworkDepsStats.find((f) => f.name === name)?.graphUrl
+      const framework = frameworkDefinition(name)
+      const file =
+        source === 'first-party'
+          ? 'first-party-dependencies.json'
+          : 'package.json'
+      return framework?.starter
+        ? `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.starter.package}/${file}`
+        : null
+    },
+  }
+}
+
+export function prepareProductionBuildSizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareBuildSizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareInstallTimeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareDevServerStartupTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareStarterDependenciesTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+    dependencyGraphColumn('starter'),
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareDependenciesTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareProductionDependenciesTable(
+  input: ComparisonTableInput,
+) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareCorePackageDependenciesTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+    dependencyGraphColumn('core'),
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareFirstPartyDuplicateDependenciesTable(
+  input: ComparisonTableInput,
+) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+    dependencyGraphColumn('first-party'),
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareFirstPartyDependenciesTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+    dependencyGraphColumn('first-party'),
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareDuplicateDependenciesTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+    dependencyGraphColumn('starter'),
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRResponseBodySizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRThroughputTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRRequestLatencyTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareCoreWebVitalTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRLoadP75Table(input: LatencyTableInput) {
+  return {
+    label: `${input.title} data`,
+    columns: [
+      frameworkColumn(),
+      ...input.xValues.map((x) => ({ key: x, header: x })),
+    ],
+    data: input.series.map((s) => ({
+      name: s.name,
+      ...Object.fromEntries(
+        input.xValues.map((x) => {
+          const point = s.points.find((p) => p.x === x)
+          return [
+            x,
+            point?.value == null
+              ? '—'
+              : formatChartValue(point.value, input.valueFormat),
+          ]
+        }),
+      ),
+    })),
+  }
+}
+
+export function prepareSSRLoadP99Table(input: LatencyTableInput) {
+  return {
+    label: `${input.title} data`,
+    columns: [
+      frameworkColumn(),
+      ...input.xValues.map((x) => ({ key: x, header: x })),
+    ],
+    data: input.series.map((s) => ({
+      name: s.name,
+      ...Object.fromEntries(
+        input.xValues.map((x) => {
+          const point = s.points.find((p) => p.x === x)
+          return [
+            x,
+            point?.value == null
+              ? '—'
+              : formatChartValue(point.value, input.valueFormat),
+          ]
+        }),
+      ),
+    })),
+  }
+}
+
+export function prepareSSRLoadP90Table(input: LatencyTableInput) {
+  return {
+    label: `${input.title} data`,
+    columns: [
+      frameworkColumn(),
+      ...input.xValues.map((x) => ({ key: x, header: x })),
+    ],
+    data: input.series.map((s) => ({
+      name: s.name,
+      ...Object.fromEntries(
+        input.xValues.map((x) => {
+          const point = s.points.find((p) => p.x === x)
+          return [
+            x,
+            point?.value == null
+              ? '—'
+              : formatChartValue(point.value, input.valueFormat),
+          ]
+        }),
+      ),
+    })),
+  }
+}
+
+export function prepareInteractionBreakdownTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareClientRenderedFPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareClientRenderedFCPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareInitialLoadTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareInitialLoadWithoutJavaScriptTable(
+  input: StackedTableInput,
+) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareNodeModulesSizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareServerRenderedFPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareServerRenderedFCPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}

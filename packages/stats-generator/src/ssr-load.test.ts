@@ -158,12 +158,45 @@ test('HTTP table verification rejects missing rows, wrong columns, text, and des
   }
 })
 
+const readRouteSource = (path: string) =>
+  readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
+const compact = (source: string) => source.replace(/\s+/g, '')
+
+test('Next.js SSR routes load the same data and render equivalent client tables', () => {
+  const routerRoute = 'app-next-js/app/server-side-rendered'
+  const anchorRoute = `${routerRoute}-plain-links`
+  const anchorPage = readRouteSource(`${anchorRoute}/page.tsx`)
+    .replace(/\bRequestTable\b/g, 'Table')
+    .replace(
+      /const entries = await getTestData\(\)\s+return <Table entries=\{entries\} \/>/,
+      'return <Table entries={await getTestData()} />',
+    )
+  assert.equal(
+    compact(anchorPage),
+    compact(readRouteSource(`${routerRoute}/page.tsx`)),
+    'Next.js SSR route pages should load data and render their tables identically',
+  )
+
+  const tableMarkup = (source: string, route: string) => {
+    assert.match(source, /^'use client'/, route)
+    const markup = source.match(/<table\b[\s\S]*?<\/table>/)?.[0]
+    assert.ok(markup, `Expected table markup in ${route}`)
+    return markup
+  }
+  const routerTable = readRouteSource(`${routerRoute}/table.tsx`)
+  const anchorTable = readRouteSource(`${anchorRoute}/table.tsx`)
+  const routerMarkup = tableMarkup(routerTable, routerRoute)
+  const anchorMarkup = tableMarkup(anchorTable, anchorRoute)
+  assert.match(routerTable, /^import Link from 'next\/link'$/m)
+  assert.match(routerMarkup, /<Link\b/)
+  assert.equal(
+    compact(anchorMarkup),
+    compact(routerMarkup.replace(/<(\/?)Link\b/g, '<$1a')),
+  )
+})
+
 test('paired route sources preserve the loader and table except for link implementation', () => {
   const paths = [
-    [
-      'app-next-js/app/server-side-rendered/page.tsx',
-      'app-next-js/app/server-side-rendered-plain-links/page.tsx',
-    ],
     [
       'app-nuxt/app/pages/server-side-rendered/index.vue',
       'app-nuxt/app/pages/server-side-rendered-plain-links/index.vue',
@@ -182,12 +215,10 @@ test('paired route sources preserve the loader and table except for link impleme
     ],
   ]
   for (const [routerPath, anchorPath] of paths) {
-    const read = (path: string) =>
-      readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
-    const original = read(routerPath)
-    const anchor = read(anchorPath)
-    assert.match(original, /<(?:Link|NuxtLink)\b/)
-    assert.doesNotMatch(anchor, /<(?:Link|NuxtLink)\b/)
+    const original = readRouteSource(routerPath)
+    const anchor = readRouteSource(anchorPath)
+    assert.match(original, /<(?:Link|NuxtLink)\b/, routerPath)
+    assert.doesNotMatch(anchor, /<(?:Link|NuxtLink)\b/, anchorPath)
     const normalized = original
       .replace(
         "import { Link, type RouteComponentProps } from '@pracht/core'",
@@ -197,7 +228,6 @@ test('paired route sources preserve the loader and table except for link impleme
         /<Link\s+route="server-side-rendered-detail"\s+params=\{\{ id: entry\.id \}\}\s*>/,
         '<a href={`/server-side-rendered/${entry.id}`}>',
       )
-      .replace(/import Link from 'next\/link'\n/, '')
       .replace(/import \{ Link \} from 'react-router'\n/, '')
       .replace('createFileRoute, Link', 'createFileRoute')
       .replace(
@@ -215,7 +245,6 @@ test('paired route sources preserve the loader and table except for link impleme
       .replace(/<Link (?:href|to)=/g, '<a href=')
       .replace(/<NuxtLink :to=/g, '<a :href=')
       .replace(/<\/(?:Link|NuxtLink)>/g, '</a>')
-    const compact = (source: string) => source.replace(/\s+/g, '')
     assert.equal(compact(anchor), compact(normalized), routerPath)
   }
 })

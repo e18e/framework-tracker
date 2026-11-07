@@ -1,6 +1,5 @@
 'use client'
 
-import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
 
 const ClientSideRenderedDetail = dynamic(
@@ -9,9 +8,5 @@ const ClientSideRenderedDetail = dynamic(
 )
 
 export default function ClientSideRenderedDetailPage() {
-  return (
-    <Suspense fallback={null}>
-      <ClientSideRenderedDetail />
-    </Suspense>
-  )
+  return <ClientSideRenderedDetail />
 }

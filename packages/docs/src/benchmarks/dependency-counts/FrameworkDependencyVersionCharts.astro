@@ -1,15 +1,11 @@
 ---
 import type { ChartMeasurement } from '../../lib/types'
 import {
-  prepareAllDependenciesHistory,
-  prepareDevDependenciesHistory,
+  prepareDependencyHistoryChart,
   prepareDuplicateDependenciesHistory,
-  prepareFrameworkDependenciesAllDependenciesHistory,
-  prepareFrameworkDependenciesDevDependenciesHistory,
-  prepareFrameworkDependenciesProdDependenciesHistory,
-  prepareProdDependenciesHistory,
 } from '../../lib/prepare-chart'
 import VersionLineChart from '../../components/VersionLineChart.astro'
+import StackedAreaChart from '../../components/StackedAreaChart.astro'
 
 interface Props {
   versions: ChartMeasurement[]
@@ -18,16 +14,16 @@ interface Props {
 const { versions } = Astro.props
 ---
 
-<VersionLineChart
-  {...prepareFrameworkDependenciesProdDependenciesHistory(versions)}
+<StackedAreaChart
+  title="Core Package Dependencies"
+  {...prepareDependencyHistoryChart(versions, 'frameworkDependencies')}
 />
-<VersionLineChart
-  {...prepareFrameworkDependenciesDevDependenciesHistory(versions)}
+<StackedAreaChart
+  title="First-Party Dependencies"
+  {...prepareDependencyHistoryChart(versions, 'firstPartyDependencies')}
 />
-<VersionLineChart
-  {...prepareFrameworkDependenciesAllDependenciesHistory(versions)}
+<StackedAreaChart
+  title="Starter Dependencies"
+  {...prepareDependencyHistoryChart(versions)}
 />
-<VersionLineChart {...prepareProdDependenciesHistory(versions)} />
-<VersionLineChart {...prepareDevDependenciesHistory(versions)} />
-<VersionLineChart {...prepareAllDependenciesHistory(versions)} />
 <VersionLineChart {...prepareDuplicateDependenciesHistory(versions)} />

@@ -51,6 +51,8 @@ export interface LineComparisonPoint {
 export interface LineComparisonSeries {
   id: string
   name: string
+  /** Key into `frameworkBrands`, used to apply live theme overrides. */
+  brand: string | null
   /** Brand colour from `framework-logos.ts`. */
   color: ThemedValue
   /** `segmented` draws a broken line, e.g. for the Baseline HTML reference. */

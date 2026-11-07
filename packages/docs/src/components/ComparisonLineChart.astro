@@ -23,7 +23,11 @@ function seriesColorVars(
   <ul class="comparison-line-chart-legend" aria-hidden="true">
     {
       series.map((s) => (
-        <li data-variant={s.variant} style={seriesColorVars(s.color)}>
+        <li
+          data-series-id={s.id}
+          data-variant={s.variant}
+          style={seriesColorVars(s.color)}
+        >
           <span class="comparison-line-chart-swatch" />
           {s.name}
         </li>
@@ -164,6 +168,7 @@ function seriesColorVars(
   import { tooltip } from '@tanstack/charts/tooltip'
   import { curveMonotoneX } from 'd3-shape'
   import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+  import { applyBrandOverrides, onBrandThemeChange } from '../lib/brand-theme'
   import { resolveBrandColor } from '../lib/framework-logos'
   import {
     lineChartScales,
@@ -221,10 +226,14 @@ function seriesColorVars(
 
     const theme = document.documentElement.dataset.theme
     const backgroundColor = getCssVar('--ft-bg', '#ffffff')
-    const styled = series.map((s) => ({
-      ...s,
-      stroke: resolveBrandColor(s.color, theme),
-    }))
+    const styled = series.map((s) => {
+      const style = applyBrandOverrides(s.brand, {
+        color: s.color,
+        variant: s.variant,
+      })
+      return { ...s, ...style, stroke: resolveBrandColor(style.color, theme) }
+    })
+    updateLegend(wrapper, styled)
 
     const toRows = (variant: Series['variant']) =>
       styled
@@ -405,6 +414,25 @@ function seriesColorVars(
     }
   }
 
+  function updateLegend(
+    wrapper: HTMLElement,
+    styled: (Series & { color: Series['color'] })[],
+  ) {
+    const legend = wrapper
+      .closest('figure')
+      ?.querySelector('.comparison-line-chart-legend')
+    if (!legend) return
+    for (const s of styled) {
+      const item = legend.querySelector<HTMLElement>(
+        `li[data-series-id="${CSS.escape(s.id)}"]`,
+      )
+      if (!item) continue
+      item.dataset.variant = s.variant
+      item.style.setProperty('--series-dark', s.color.dark)
+      item.style.setProperty('--series-light', s.color.light ?? s.color.dark)
+    }
+  }
+
   function initCharts() {
     document
       .querySelectorAll<HTMLElement>('.comparison-line-chart-wrapper')
@@ -421,4 +449,6 @@ function seriesColorVars(
     document.documentElement,
     { attributeFilter: ['class', 'data-theme'], attributes: true },
   )
+
+  onBrandThemeChange(() => requestAnimationFrame(initCharts))
 </script>

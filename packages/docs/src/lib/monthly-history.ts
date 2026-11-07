@@ -1,4 +1,4 @@
-import { getBrandByPackage } from './framework-logos.ts'
+import { frameworkBrands, getBrandKeyByPackage } from './framework-logos.ts'
 import type {
   ChartMeasurement,
   MetricDefinition,
@@ -46,10 +46,12 @@ export function seriesIdentity(
   packageName: string,
   record: ChartMeasurement,
 ): Omit<LineComparisonSeries, 'points'> {
-  const style = getBrandByPackage(packageName)
+  const brand = getBrandKeyByPackage(packageName) ?? null
+  const style = brand == null ? undefined : frameworkBrands[brand]
   return {
     id: packageName,
     name: record.name ?? packageName,
+    brand,
     color: style?.color ?? NEUTRAL_COLOR,
     variant: style?.variant ?? 'solid',
   }

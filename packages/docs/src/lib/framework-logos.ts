@@ -108,6 +108,10 @@ export function getBrandByDisplayName(name: string) {
   return key == null ? undefined : frameworkBrands[key]
 }
 
+export function getBrandKeyByPackage(packageName: string) {
+  return brandKeyByPackage.get(packageName)
+}
+
 export function getBrandByPackage(packageName: string) {
   const key = brandKeyByPackage.get(packageName)
   return key == null ? undefined : frameworkBrands[key]

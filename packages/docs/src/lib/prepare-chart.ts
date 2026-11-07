@@ -121,10 +121,10 @@ const cwvEntries = await getCollection('cwv')
 export type Device = 'desktop' | 'mobile'
 
 export const initialLoadSeries = [
-  { key: 'html', label: 'HTML', color: '#e34c26' },
-  { key: 'css', label: 'CSS', color: '#1572b6' },
-  { key: 'js', label: 'JavaScript', color: '#f7df1e' },
-  { key: 'other', label: 'Other', color: 'var(--ft-muted)' },
+  { key: 'html', label: 'HTML', color: 'var(--ft-chart-phase-input)' },
+  { key: 'css', label: 'CSS', color: 'var(--ft-chart-phase-processing)' },
+  { key: 'js', label: 'JavaScript', color: 'var(--ft-chart-phase-presentation)' },
+  { key: 'other', label: 'Other', color: 'var(--ft-chart-resource-other)' },
 ]
 
 export const initialLoadChartData = ssrRequestThroughputStats.flatMap(

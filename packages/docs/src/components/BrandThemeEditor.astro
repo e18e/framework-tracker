@@ -53,7 +53,11 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
           <li class="bte-row" data-brand={brand.key}>
             <div class="bte-label">
               <span>{brand.name}</span>
-              <span class="bte-modified" title="Changed from config" hidden />
+              <span class="bte-contrast" />
+              <span class="bte-modified" title="Changed from config" hidden>
+                modified
+              </span>
+
               <select class="bte-variant" aria-label={`${brand.name} variant`}>
                 {BRAND_VARIANTS.map((variant) => (
                   <option value={variant}>{variant}</option>
@@ -137,7 +141,7 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
 
   .bte-panel {
     order: 2;
-    width: min(20rem, calc(100vw - 2rem));
+    width: min(24rem, calc(100vw - 2rem));
     max-height: min(36rem, calc(100vh - var(--sl-nav-height, 3.5rem) - 5.5rem));
     display: flex;
     flex-direction: column;
@@ -217,11 +221,47 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     color: var(--bte-muted);
   }
 
+  .bte-label > span:first-child {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .bte-contrast {
+    flex-shrink: 0;
+    padding: 0 0.3rem;
+    border-radius: 4px;
+    background: var(--bte-surface);
+    color: var(--bte-muted);
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+
+  .bte-contrast[data-level='low'] {
+    background: rgb(244 66 80 / 18%);
+    color: #ff8a94;
+  }
+
+  .bte-contrast[data-level='ok'] {
+    background: rgb(234 205 60 / 16%);
+    color: #ecd36a;
+  }
+
+  .bte-contrast[data-level='good'] {
+    background: rgb(60 169 81 / 18%);
+    color: #7ad48d;
+  }
+
   .bte-modified {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #cc7d24;
+    flex-shrink: 0;
+    padding: 0 0.3rem;
+    border-radius: 4px;
+    background: rgb(204 125 36 / 18%);
+    color: #e9a55a;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.5;
   }
 
   .bte-modified[hidden] {
@@ -388,9 +428,6 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
 
   const OPEN_KEY = 'ft-brand-editor-open'
 
-  const root = document.querySelector<HTMLElement>('.brand-theme-editor')
-  if (root) init(root)
-
   function currentTheme(): Theme {
     return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
   }
@@ -402,6 +439,54 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     ctx.fillStyle = color
     const value = ctx.fillStyle
     return value.startsWith('#') ? value : '#000000'
+  }
+
+  // WCAG thresholds: 3:1 for graphical objects such as chart lines,
+  // 4.5:1 for normal text.
+  const MIN_CONTRAST = 3
+  const GOOD_CONTRAST = 4.5
+
+  function contrastLevel(ratio: number) {
+    if (ratio < MIN_CONTRAST) {
+      return {
+        level: 'low',
+        note: `below ${MIN_CONTRAST}:1, may be hard to see`,
+      }
+    }
+    if (ratio < GOOD_CONTRAST) {
+      return {
+        level: 'ok',
+        note: `okay for chart lines (${MIN_CONTRAST}:1+), not text`,
+      }
+    }
+    return {
+      level: 'good',
+      note: `good, readable even as text (${GOOD_CONTRAST}:1+)`,
+    }
+  }
+
+  function luminance(hex: string) {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = parseInt(hex.slice(i, i + 2), 16) / 255
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+    }) as [number, number, number]
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+  }
+
+  function contrastRatio(a: string, b: string) {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [
+      number,
+      number,
+    ]
+    return (hi + 0.05) / (lo + 0.05)
+  }
+
+  function pageBackground() {
+    return toHex(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--ft-bg')
+        .trim() || '#ffffff',
+    )
   }
 
   function isColor(value: unknown): value is string {
@@ -478,6 +563,7 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
           String(tab.dataset.themeTab === theme),
         ),
       )
+      const background = pageBackground()
       for (const brand of brands) {
         const row = root.querySelector<HTMLElement>(
           `.bte-row[data-brand="${CSS.escape(brand.key)}"]`,
@@ -493,9 +579,15 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
           hex.value = raw
           hex.removeAttribute('aria-invalid')
         }
-        row.querySelector<HTMLInputElement>('.bte-picker')!.value = toHex(
-          resolveBrandColor(style.color, theme),
-        )
+        const resolved = toHex(resolveBrandColor(style.color, theme))
+        row.querySelector<HTMLInputElement>('.bte-picker')!.value = resolved
+
+        const ratio = contrastRatio(resolved, background)
+        const contrast = row.querySelector<HTMLElement>('.bte-contrast')!
+        contrast.textContent = `${ratio.toFixed(2)}:1`
+        const { level, note } = contrastLevel(ratio)
+        contrast.dataset.level = level
+        contrast.title = `Contrast against the ${theme} background: ${note}`
         row.querySelector<HTMLSelectElement>('.bte-variant')!.value =
           style.variant
         row.style.setProperty('--swatch', raw)
@@ -635,4 +727,8 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     })
     render()
   }
+
+  // Last, so every module-level constant above is initialised first.
+  const root = document.querySelector<HTMLElement>('.brand-theme-editor')
+  if (root) init(root)
 </script>

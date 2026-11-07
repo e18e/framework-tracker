@@ -1,0 +1,359 @@
+---
+import { formatChartValue } from '../lib/chart'
+import type { StackedAreaChartPayload } from '../lib/types'
+
+type Props = StackedAreaChartPayload
+
+const {
+  title,
+  data,
+  series,
+  valueFormat,
+  yAxisLabel,
+  totalLabel = 'Total',
+} = Astro.props
+const showTableOnly = valueFormat === 'count' && data.length === 1
+const chartPayload = JSON.stringify({
+  title,
+  data,
+  series,
+  valueFormat,
+  yAxisLabel,
+  totalLabel,
+})
+---
+
+{
+  data.length < 2 && !showTableOnly ? (
+    <figure class="stacked-area-chart">
+      <p class="stacked-area-chart-title">{title}</p>
+      <p class="stacked-area-chart-empty">
+        Not enough data yet. This chart needs at least two versions.
+      </p>
+    </figure>
+  ) : (
+    <figure class="stacked-area-chart">
+      <slot name="caption">
+        <figcaption class="stacked-area-chart-title">{title}</figcaption>
+      </slot>
+      {!Astro.slots.has('caption') && (
+        <ul class="stacked-area-chart-legend" aria-label="Chart series">
+          {series.map(({ label, color }) => (
+            <li>
+              <span style={`background: ${color}`} />
+              {label}
+            </li>
+          ))}
+        </ul>
+      )}
+      <div
+        class="stacked-area-chart-wrapper"
+        data-stacked-area-chart={showTableOnly ? undefined : chartPayload}
+      >
+        {!showTableOnly && <div class="stacked-area-chart-host" />}
+        <div class:list={[{ 'sr-only': !showTableOnly }]}>
+          <table>
+            <caption>{title} data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Framework version</th>
+                <th scope="col">{totalLabel}</th>
+                {series.map(({ label }) => (
+                  <th scope="col">{label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((datum) => {
+                const { total } = datum
+                return (
+                  <tr>
+                    <th scope="row">{datum.name}</th>
+                    <td>
+                      {total == null
+                        ? '—'
+                        : formatChartValue(total, valueFormat)}
+                    </td>
+                    {series.map(({ key }) => (
+                      <td>
+                        {formatChartValue(datum.values[key]!, valueFormat)}
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </figure>
+  )
+}
+
+<style>
+  .stacked-area-chart {
+    width: 100%;
+    margin: 0 0 2em;
+  }
+
+  .stacked-area-chart-title {
+    margin-bottom: 0.35rem;
+    color: var(--sl-color-white);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+  }
+
+  .stacked-area-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    margin: 1rem 0;
+    padding: 0;
+    color: var(--ft-muted);
+    font-size: 0.8rem;
+    list-style: none;
+  }
+
+  .stacked-area-chart-legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+  }
+
+  .stacked-area-chart-legend span {
+    flex-shrink: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 2px;
+    border: 1px solid var(--ft-border);
+  }
+
+  .stacked-area-chart-empty {
+    padding: 2rem 1rem;
+    border: 1px dashed var(--ft-border);
+    border-radius: 0.5rem;
+    color: var(--ft-muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .stacked-area-chart-wrapper {
+    position: relative;
+    width: 100%;
+    color: var(--ft-text, #1f2933);
+  }
+
+  .stacked-area-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
+  }
+</style>
+
+<script>
+  import {
+    areaY,
+    crosshair,
+    defineChart,
+    lineY,
+    mountChart,
+    stack,
+    type ChartHost,
+  } from '@tanstack/charts'
+  import { decorative } from '@tanstack/charts/mark/decorative'
+  import { scaleLinear } from '@tanstack/charts/scales/linear'
+  import { scalePoint } from '@tanstack/charts/scales/point'
+  import { tooltip } from '@tanstack/charts/tooltip'
+  import { formatChartValue } from '../lib/chart'
+  import type { StackedAreaChartPayload } from '../lib/types'
+
+  interface SeriesPoint {
+    version: string
+    series: string
+    value: number
+  }
+
+  const CHART_HEIGHT = 380
+  const ROTATE_LABELS_ABOVE = 8
+  const SERIES_FALLBACKS = ['#c8c8c8', '#929292', '#5f5f5f']
+  const hosts = new WeakMap<
+    HTMLElement,
+    ChartHost<SeriesPoint, string, number>
+  >()
+
+  function getCssVar(name: string, fallback: string) {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue(name)
+        .trim() || fallback
+    )
+  }
+
+  function getPayload(wrapper: HTMLElement): StackedAreaChartPayload | null {
+    try {
+      return JSON.parse(
+        wrapper.dataset.stackedAreaChart ?? '',
+      ) as StackedAreaChartPayload
+    } catch (e) {
+      console.warn('[StackedAreaChart] Invalid chart data:', e)
+      return null
+    }
+  }
+
+  function initChart(wrapper: HTMLElement) {
+    const payload = getPayload(wrapper)
+    if (!payload) return
+
+    const {
+      data,
+      series,
+      valueFormat,
+      yAxisLabel,
+      totalLabel = 'Total',
+    } = payload
+    const seriesLabels = series.map(({ label }) => label)
+    const seriesColors = series.map(({ color }, index) =>
+      color.startsWith('var(')
+        ? getCssVar(
+            color.slice(4, -1),
+            SERIES_FALLBACKS[index % SERIES_FALLBACKS.length]!,
+          )
+        : color,
+    )
+    const rows: SeriesPoint[] = data.flatMap((datum) =>
+      series.map(({ key, label }) => ({
+        version: datum.name,
+        series: label,
+        value: datum.values[key]!,
+      })),
+    )
+    const topEdges: SeriesPoint[] = data.flatMap((datum) => {
+      let total = 0
+      return series.map(({ key, label }) => ({
+        version: datum.name,
+        series: label,
+        value: (total += datum.values[key]!),
+      }))
+    })
+    const byVersion = new Map(data.map((datum) => [datum.name, datum]))
+
+    const definition = defineChart({
+      margin: { top: 12 },
+      focusRing: false,
+      marks: [
+        areaY(rows, {
+          id: 'stack-areas',
+          x: 'version',
+          y: 'value',
+          color: 'series',
+          layout: stack({ order: seriesLabels }),
+          fillOpacity: 0.7,
+        }),
+        decorative(
+          lineY(topEdges, {
+            id: 'stack-edges',
+            x: 'version',
+            y: 'value',
+            color: 'series',
+            strokeWidth: 2,
+          }),
+        ),
+        crosshair({ x: true, y: false }),
+      ],
+      scales: {
+        x: {
+          scale: () => scalePoint<string>().padding(0.1),
+          axis: {
+            tickLabels: {
+              rotate: data.length > ROTATE_LABELS_ABOVE ? -45 : undefined,
+            },
+          },
+        },
+        y: {
+          scale: scaleLinear,
+          grid: true,
+          axis: {
+            label: yAxisLabel,
+            ticks:
+              valueFormat === 'count'
+                ? {
+                    format: (value: string | number | Date) =>
+                      Number.isInteger(Number(value))
+                        ? formatChartValue(Number(value), 'count')
+                        : '',
+                  }
+                : undefined,
+          },
+        },
+      },
+      color: { domain: seriesLabels, range: seriesColors },
+      theme: {
+        muted: getCssVar('--ft-muted', '#697586'),
+        grid: getCssVar('--ft-chart-grid', '#d9dee7'),
+      },
+      focus: 'nearest-x',
+      maxFocusDistance: Number.POSITIVE_INFINITY,
+      tooltip: {
+        use: tooltip,
+        content: (points) => {
+          const datum = byVersion.get(points[0]!.datum.version)!
+          const { total } = datum
+          return {
+            title: datum.name,
+            rows: [
+              ...series
+                .map(({ key, label }, index) => ({
+                  label,
+                  value: formatChartValue(datum.values[key]!, valueFormat),
+                  color: seriesColors[index]!,
+                }))
+                .reverse(),
+              {
+                label: totalLabel,
+                value:
+                  total == null ? '—' : formatChartValue(total, valueFormat),
+                active: true,
+              },
+            ],
+          }
+        },
+      },
+    })
+
+    const options = {
+      definition,
+      height: CHART_HEIGHT,
+      ariaLabel: `${payload.title}. Stacked area chart by framework version; a data table follows.`,
+    }
+
+    const existing = hosts.get(wrapper)
+    if (existing) {
+      existing.update(options)
+    } else {
+      hosts.set(
+        wrapper,
+        mountChart(
+          wrapper.querySelector<HTMLElement>('.stacked-area-chart-host')!,
+          options,
+        ),
+      )
+    }
+  }
+
+  function initCharts() {
+    document
+      .querySelectorAll<HTMLElement>('[data-stacked-area-chart]')
+      .forEach(initChart)
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCharts)
+  } else {
+    initCharts()
+  }
+
+  new MutationObserver(() => requestAnimationFrame(initCharts)).observe(
+    document.documentElement,
+    { attributeFilter: ['class', 'data-theme'], attributes: true },
+  )
+</script>

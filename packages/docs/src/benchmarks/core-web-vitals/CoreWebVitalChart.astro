@@ -28,7 +28,9 @@ const cwvDescription: Record<CWV, string> = {
 }
 ---
 
-<ChartTitle>{cwvTitle[cwv]}</ChartTitle>
+<div id={`${device}-${cwv}`} class="metric-anchor">
+  <ChartTitle>{cwvTitle[cwv]}</ChartTitle>
+</div>
 <ComparisonBarChart
   title={cwvTitle[cwv]}
   description={cwvDescription[cwv]}
@@ -36,3 +38,9 @@ const cwvDescription: Record<CWV, string> = {
   valueFormat="count"
   yAxisLabel="%"
 />
+
+<style>
+  .metric-anchor {
+    scroll-margin-top: calc(var(--sl-nav-height) + 2rem);
+  }
+</style>

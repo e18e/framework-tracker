@@ -346,9 +346,9 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Pracht's starter prerenders its home route. Its runtime app uses SSR for
   server-rendered routes and `render: 'spa'` for client-rendered routes, keeping
   default full hydration.
-- Next.js's runtime data routes load and render the shared asynchronous UUID
-  fixture on each request without `use cache`. UUID rows are created once per
-  module instance. Suspense boundaries use empty fallbacks for streaming.
+- Next.js's initial-load and SSR pages use `instant = false` to allow
+  request-time rendering to block without an explicit Suspense fallback.
+  Its linked SSR tables build their rows in Server Components.
 
 ### Client Side Rendered Tests (Lighthouse)
 

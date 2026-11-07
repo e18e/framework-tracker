@@ -1,15 +1,8 @@
-import { Suspense } from 'react'
 import { getTestData } from '../../data'
 
-export default function ServerSideRenderedPage() {
-  return (
-    <Suspense fallback={null}>
-      <RequestTable />
-    </Suspense>
-  )
-}
+export const instant = false
 
-async function RequestTable() {
+export default async function ServerSideRenderedPage() {
   const entries = await getTestData()
 
   return (

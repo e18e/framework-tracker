@@ -1,16 +1,9 @@
-import { Suspense } from 'react'
 import { connection } from 'next/server'
 import '../../../testdata/src/initial-load.css'
 
-export default function InitialLoad() {
-  return (
-    <Suspense fallback={null}>
-      <RequestContent />
-    </Suspense>
-  )
-}
+export const instant = false
 
-async function RequestContent() {
+export default async function InitialLoad() {
   await connection()
 
   return (

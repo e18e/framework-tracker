@@ -1,0 +1,638 @@
+---
+import { frameworks } from '@framework-tracker/results/frameworks'
+import { BRAND_VARIANTS, frameworkBrands } from '../lib/framework-logos'
+
+// Dev-only panel for trying out framework colours; changes apply to charts live.
+const extraNames: Record<string, string> = {
+  gatsby: 'Gatsby',
+  wordpress: 'WordPress',
+}
+const names = new Map(frameworks.map((f) => [f.name, f.displayName]))
+const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
+  key,
+  name: names.get(key) ?? extraNames[key] ?? key,
+  color: brand.color,
+  variant: brand.variant,
+}))
+---
+
+<div class="brand-theme-editor" data-brands={JSON.stringify(brands)}>
+  <button
+    type="button"
+    class="bte-toggle"
+    aria-expanded="false"
+    aria-controls="brand-theme-editor-panel"
+    title="Framework colours"
+  >
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 3a9 9 0 0 0 0 18c1.1 0 1.8-.9 1.8-1.9 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.7 1.8-1.7H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"
+      ></path>
+    </svg>
+    <span class="sr-only">Framework colours</span>
+  </button>
+
+  <section
+    id="brand-theme-editor-panel"
+    class="bte-panel"
+    aria-label="Framework colours"
+    hidden
+  >
+    <header class="bte-header">
+      <h2>Framework colours</h2>
+      <div class="bte-themes" role="group" aria-label="Theme being edited">
+        <button type="button" data-theme-tab="dark">Dark</button>
+        <button type="button" data-theme-tab="light">Light</button>
+      </div>
+    </header>
+
+    <ul class="bte-list">
+      {
+        brands.map((brand) => (
+          <li class="bte-row" data-brand={brand.key}>
+            <div class="bte-label">
+              <span>{brand.name}</span>
+              <span class="bte-modified" title="Changed from config" hidden />
+              <select class="bte-variant" aria-label={`${brand.name} variant`}>
+                {BRAND_VARIANTS.map((variant) => (
+                  <option value={variant}>{variant}</option>
+                ))}
+              </select>
+            </div>
+            <label class="bte-swatch">
+              <input
+                type="color"
+                class="bte-picker"
+                aria-label={`${brand.name} colour picker`}
+              />
+            </label>
+            <input
+              type="text"
+              class="bte-hex"
+              spellcheck="false"
+              autocomplete="off"
+              aria-label={`${brand.name} colour`}
+            />
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="bte-paste" hidden>
+      <textarea
+        class="bte-paste-input"
+        rows="6"
+        spellcheck="false"
+        aria-label="Paste a copied colour config"
+        placeholder="Paste a copied config here"></textarea>
+      <p class="bte-paste-error" role="alert" hidden></p>
+      <div class="bte-actions bte-actions-inline">
+        <button type="button" data-action="apply">Apply</button>
+        <button type="button" data-action="cancel">Cancel</button>
+      </div>
+    </div>
+
+    <footer class="bte-actions">
+      <button type="button" data-action="copy">Copy</button>
+      <button type="button" data-action="paste">Paste</button>
+      <button type="button" data-action="reset">Reset</button>
+    </footer>
+  </section>
+</div>
+
+<style>
+  .brand-theme-editor {
+    --bte-bg: #141414;
+    --bte-surface: #1f1f1f;
+    --bte-border: #2e2e2e;
+    --bte-text: #f2f2f2;
+    --bte-muted: #a3a3a3;
+
+    position: fixed;
+    top: calc(var(--sl-nav-height, 3.5rem) + 1rem);
+    right: 1rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    color: var(--bte-text);
+    font-size: 0.8125rem;
+  }
+
+  .bte-toggle {
+    order: 1;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--bte-border);
+    border-radius: 999px;
+    background: var(--bte-bg);
+    color: var(--bte-text);
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
+  }
+
+  .bte-panel {
+    order: 2;
+    width: min(20rem, calc(100vw - 2rem));
+    max-height: min(36rem, calc(100vh - var(--sl-nav-height, 3.5rem) - 5.5rem));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--bte-border);
+    border-radius: 12px;
+    background: var(--bte-bg);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 40%);
+  }
+
+  .bte-panel[hidden] {
+    display: none;
+  }
+
+  .bte-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--bte-border);
+  }
+
+  .bte-header h2 {
+    margin: 0;
+    color: var(--bte-text);
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  .bte-themes {
+    display: flex;
+    margin: 0;
+    padding: 2px;
+    border-radius: 6px;
+    background: var(--bte-surface);
+  }
+
+  .bte-themes button {
+    margin: 0;
+    padding: 0.15rem 0.6rem;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--bte-muted);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .bte-themes button[aria-pressed='true'] {
+    background: var(--bte-border);
+    color: var(--bte-text);
+  }
+
+  .bte-list {
+    flex: 1;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    list-style: none;
+  }
+
+  .bte-row {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    row-gap: 0.25rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .bte-label {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--bte-muted);
+  }
+
+  .bte-modified {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cc7d24;
+  }
+
+  .bte-modified[hidden] {
+    display: none;
+  }
+
+  .bte-variant {
+    margin: 0 0 0 auto;
+    padding: 0 0.25rem;
+    border: 0;
+    background: none;
+    color: var(--bte-muted);
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .bte-swatch {
+    grid-row: 1 / span 2;
+    grid-column: 1;
+    align-self: end;
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0;
+    padding: 5px;
+    border: 1px solid var(--bte-border);
+    border-radius: 8px;
+    background: var(--bte-surface);
+    cursor: pointer;
+  }
+
+  .bte-swatch::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--swatch);
+  }
+
+  .bte-row[data-variant='segmented'] .bte-swatch::after {
+    background: repeating-linear-gradient(
+      135deg,
+      var(--swatch) 0 4px,
+      transparent 4px 7px
+    );
+  }
+
+  .bte-picker {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .bte-hex {
+    grid-column: 2;
+    width: 100%;
+    margin: 0;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--bte-surface);
+    color: var(--bte-text);
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.8125rem;
+  }
+
+  .bte-hex:focus {
+    border-color: var(--bte-muted);
+    outline: none;
+  }
+
+  .bte-hex[aria-invalid='true'] {
+    border-color: #f44250;
+  }
+
+  .bte-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--bte-border);
+  }
+
+  .bte-actions button {
+    flex: 1;
+    margin: 0;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--bte-border);
+    border-radius: 6px;
+    background: var(--bte-surface);
+    color: var(--bte-text);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .bte-actions-inline {
+    padding: 0.5rem 0 0;
+    border-top: 0;
+  }
+
+  .bte-paste {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--bte-border);
+  }
+
+  .bte-paste[hidden] {
+    display: none;
+  }
+
+  .bte-paste-input {
+    width: 100%;
+    margin: 0;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--bte-border);
+    border-radius: 6px;
+    background: var(--bte-surface);
+    color: var(--bte-text);
+    font-family: var(--sl-font-mono, ui-monospace, monospace);
+    font-size: 0.75rem;
+    resize: vertical;
+  }
+
+  .bte-paste-error {
+    margin: 0.4rem 0 0;
+    color: #f44250;
+    font-size: 0.75rem;
+  }
+
+  .bte-paste-error[hidden] {
+    display: none;
+  }
+
+  .bte-actions button:hover,
+  .bte-toggle:hover {
+    border-color: var(--bte-muted);
+  }
+</style>
+
+<script>
+  import {
+    getBrandOverrides,
+    onBrandThemeChange,
+    replaceBrandOverrides,
+    resetBrandOverrides,
+    setBrandOverride,
+    type BrandOverrides,
+    type BrandStyle,
+  } from '../lib/brand-theme'
+  import {
+    BRAND_VARIANTS,
+    resolveBrandColor,
+    type BrandVariant,
+    type ThemedValue,
+  } from '../lib/framework-logos'
+
+  type Brand = BrandStyle & { key: string; name: string }
+  type Theme = 'dark' | 'light'
+
+  const OPEN_KEY = 'ft-brand-editor-open'
+
+  const root = document.querySelector<HTMLElement>('.brand-theme-editor')
+  if (root) init(root)
+
+  function currentTheme(): Theme {
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+  }
+
+  function toHex(color: string) {
+    const ctx = document.createElement('canvas').getContext('2d')
+    if (!ctx) return '#000000'
+    ctx.fillStyle = '#000000'
+    ctx.fillStyle = color
+    const value = ctx.fillStyle
+    return value.startsWith('#') ? value : '#000000'
+  }
+
+  function isColor(value: unknown): value is string {
+    return (
+      typeof value === 'string' &&
+      (CSS.supports('color', value) || /^var\(--[\w-]+\)$/.test(value))
+    )
+  }
+
+  /** Turns a copied config back into overrides, keeping only what differs. */
+  function parseConfig(text: string, brands: Brand[]): BrandOverrides {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      throw new Error('That is not valid JSON.')
+    }
+    if (parsed == null || typeof parsed !== 'object') {
+      throw new Error('Expected an object keyed by framework.')
+    }
+
+    const overrides: BrandOverrides = {}
+    for (const [key, value] of Object.entries(parsed)) {
+      const brand = brands.find((b) => b.key === key)
+      if (!brand) throw new Error(`Unknown framework "${key}".`)
+      const { color, variant } = (value ?? {}) as Partial<BrandStyle>
+      if (
+        color != null &&
+        (!isColor(color.dark) || (color.light != null && !isColor(color.light)))
+      ) {
+        throw new Error(`"${key}" has an invalid colour.`)
+      }
+      if (variant != null && !BRAND_VARIANTS.includes(variant)) {
+        throw new Error(`"${key}" has an unknown variant "${variant}".`)
+      }
+
+      const override: { color?: ThemedValue; variant?: BrandVariant } = {}
+      if (
+        color &&
+        (color.dark !== brand.color.dark ||
+          (color.light ?? color.dark) !==
+            (brand.color.light ?? brand.color.dark))
+      ) {
+        override.color = { dark: color.dark, light: color.light ?? color.dark }
+      }
+      if (variant && variant !== brand.variant) override.variant = variant
+      if (override.color || override.variant) overrides[key] = override
+    }
+    return overrides
+  }
+
+  function init(root: HTMLElement) {
+    // Rendered inside the footer, whose stacking context sits under the
+    // "On this page" sidebar; lift it to <body> so it can receive clicks.
+    document.body.append(root)
+    const brands = JSON.parse(root.dataset.brands ?? '[]') as Brand[]
+    const toggle = root.querySelector<HTMLButtonElement>('.bte-toggle')!
+    const panel = root.querySelector<HTMLElement>('.bte-panel')!
+    const tabs = root.querySelectorAll<HTMLButtonElement>('[data-theme-tab]')
+
+    function effective(brand: Brand): BrandStyle {
+      const override = getBrandOverrides()[brand.key]
+      return {
+        color: { ...brand.color, ...override?.color },
+        variant: override?.variant ?? brand.variant,
+      }
+    }
+
+    function render() {
+      const theme = currentTheme()
+      tabs.forEach((tab) =>
+        tab.setAttribute(
+          'aria-pressed',
+          String(tab.dataset.themeTab === theme),
+        ),
+      )
+      for (const brand of brands) {
+        const row = root.querySelector<HTMLElement>(
+          `.bte-row[data-brand="${CSS.escape(brand.key)}"]`,
+        )
+        if (!row) continue
+        const style = effective(brand)
+        const raw =
+          theme === 'light'
+            ? (style.color.light ?? style.color.dark)
+            : style.color.dark
+        const hex = row.querySelector<HTMLInputElement>('.bte-hex')!
+        if (document.activeElement !== hex) {
+          hex.value = raw
+          hex.removeAttribute('aria-invalid')
+        }
+        row.querySelector<HTMLInputElement>('.bte-picker')!.value = toHex(
+          resolveBrandColor(style.color, theme),
+        )
+        row.querySelector<HTMLSelectElement>('.bte-variant')!.value =
+          style.variant
+        row.style.setProperty('--swatch', raw)
+        row.dataset.variant = style.variant
+        row.querySelector<HTMLElement>('.bte-modified')!.hidden =
+          getBrandOverrides()[brand.key] == null
+      }
+    }
+
+    function setColor(key: string, value: string) {
+      setBrandOverride(key, { color: { [currentTheme()]: value } as never })
+    }
+
+    root.addEventListener('input', (event) => {
+      const target = event.target as HTMLElement
+      const key = target.closest<HTMLElement>('.bte-row')?.dataset.brand
+      if (!key) return
+      if (target instanceof HTMLInputElement && target.type === 'color') {
+        setColor(key, target.value.toUpperCase())
+      } else if (target.classList.contains('bte-hex')) {
+        const value = (target as HTMLInputElement).value.trim()
+        const valid = CSS.supports('color', value)
+        target.setAttribute('aria-invalid', String(!valid))
+        if (valid) setColor(key, value)
+      } else if (target instanceof HTMLSelectElement) {
+        setBrandOverride(key, { variant: target.value as BrandVariant })
+      }
+    })
+
+    root.addEventListener('focusout', (event) => {
+      if ((event.target as HTMLElement).classList.contains('bte-hex')) {
+        requestAnimationFrame(render)
+      }
+    })
+
+    tabs.forEach((tab) =>
+      tab.addEventListener('click', () => {
+        // Preview the theme being edited; Starlight's own selector is untouched.
+        document.documentElement.dataset.theme = tab.dataset.themeTab
+      }),
+    )
+
+    function setOpen(open: boolean) {
+      panel.hidden = !open
+      toggle.setAttribute('aria-expanded', String(open))
+      try {
+        localStorage.setItem(OPEN_KEY, String(open))
+      } catch {
+        // ignore
+      }
+    }
+    toggle.addEventListener('click', () => setOpen(panel.hidden !== false))
+    try {
+      setOpen(localStorage.getItem(OPEN_KEY) === 'true')
+    } catch {
+      setOpen(false)
+    }
+
+    root
+      .querySelector('[data-action="reset"]')!
+      .addEventListener('click', resetBrandOverrides)
+
+    function flash(button: HTMLButtonElement, label: string) {
+      const original = button.dataset.label ?? button.textContent ?? ''
+      button.dataset.label = original
+      button.textContent = label
+      setTimeout(() => (button.textContent = original), 1500)
+    }
+
+    // Copies every framework's current colours, so the config can be shared or
+    // pasted back later.
+    const copyButton = root.querySelector<HTMLButtonElement>(
+      '[data-action="copy"]',
+    )!
+    copyButton.addEventListener('click', async () => {
+      const config = Object.fromEntries(
+        brands.map((brand) => [brand.key, effective(brand)]),
+      )
+      const text = JSON.stringify(config, null, 2)
+      try {
+        await navigator.clipboard.writeText(text)
+        flash(copyButton, 'Copied')
+      } catch {
+        console.log(text)
+        flash(copyButton, 'Logged to console')
+      }
+    })
+
+    const pasteBox = root.querySelector<HTMLElement>('.bte-paste')!
+    const pasteInput =
+      root.querySelector<HTMLTextAreaElement>('.bte-paste-input')!
+    const pasteError = root.querySelector<HTMLElement>('.bte-paste-error')!
+
+    function showPasteError(message: string | null) {
+      pasteError.hidden = message == null
+      pasteError.textContent = message ?? ''
+    }
+
+    root
+      .querySelector('[data-action="paste"]')!
+      .addEventListener('click', async () => {
+        showPasteError(null)
+        pasteBox.hidden = false
+        try {
+          pasteInput.value = await navigator.clipboard.readText()
+        } catch {
+          // Clipboard read blocked; the user pastes into the box instead.
+        }
+        pasteInput.focus()
+      })
+
+    root
+      .querySelector('[data-action="cancel"]')!
+      .addEventListener('click', () => {
+        pasteBox.hidden = true
+        pasteInput.value = ''
+        showPasteError(null)
+      })
+
+    root
+      .querySelector('[data-action="apply"]')!
+      .addEventListener('click', () => {
+        try {
+          replaceBrandOverrides(parseConfig(pasteInput.value, brands))
+          pasteBox.hidden = true
+          pasteInput.value = ''
+          showPasteError(null)
+        } catch (error) {
+          showPasteError((error as Error).message)
+        }
+      })
+
+    onBrandThemeChange(render)
+    new MutationObserver(render).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    })
+    render()
+  }
+</script>

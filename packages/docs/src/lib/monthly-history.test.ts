@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { frameworkBrands } from './framework-logos.ts'
 import {
   getMonthStarts,
   LATEST_POINT,
@@ -67,7 +68,8 @@ test('leaves gaps before a framework’s first tracked release', () => {
 
   assert.equal(chart.id, 'prodDependencies-monthly')
   const [astro] = chart.series
-  assert.deepEqual(astro!.color, { dark: '#BC52EE' })
+  assert.deepEqual(astro!.color, frameworkBrands.astro!.color)
+  assert.equal(astro!.variant, frameworkBrands.astro!.variant)
   assert.deepEqual(
     astro!.points.slice(-5, -1).map((p) => [p.x, p.value, p.version]),
     [

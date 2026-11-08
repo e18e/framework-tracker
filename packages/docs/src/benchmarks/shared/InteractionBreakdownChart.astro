@@ -17,10 +17,10 @@ interface Props {
 }
 
 const { title, data } = Astro.props
-const series = INTERACTION_PHASES.map(({ key, label, colorVar }) => ({
+const series = INTERACTION_PHASES.map(({ key, label, color }) => ({
   key,
   label,
-  color: `var(${colorVar})`,
+  color,
 }))
 
 const chart1 = { title, series, data, valueFormat: 'ms' } as const

@@ -1,4 +1,5 @@
 import { INTERACTION_PHASES } from './interaction-phases'
+import { stackGrays } from './chart-styles'
 import { prepareInitialLoadResources } from './initial-load'
 import { getCollection } from 'astro:content'
 import { frameworks } from '@framework-tracker/results/frameworks'
@@ -122,14 +123,10 @@ const cwvEntries = await getCollection('cwv')
 export type Device = 'desktop' | 'mobile'
 
 export const initialLoadSeries = [
-  { key: 'html', label: 'HTML', color: 'var(--ft-chart-phase-input)' },
-  { key: 'css', label: 'CSS', color: 'var(--ft-chart-phase-processing)' },
-  {
-    key: 'js',
-    label: 'JavaScript',
-    color: 'var(--ft-chart-phase-presentation)',
-  },
-  { key: 'other', label: 'Other', color: 'var(--ft-chart-resource-other)' },
+  { key: 'html', label: 'HTML', color: stackGrays[0] },
+  { key: 'css', label: 'CSS', color: stackGrays[1] },
+  { key: 'js', label: 'JavaScript', color: stackGrays[2] },
+  { key: 'other', label: 'Other', color: stackGrays[3] },
 ]
 
 export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
@@ -151,12 +148,8 @@ export type DependencySource =
   'frameworkDependencies' | 'firstPartyDependencies'
 
 const dependencySeries = [
-  { key: 'prod', label: 'Production', color: 'var(--ft-chart-phase-input)' },
-  {
-    key: 'dev',
-    label: 'Development',
-    color: 'var(--ft-chart-phase-processing)',
-  },
+  { key: 'prod', label: 'Production', color: stackGrays[0] },
+  { key: 'dev', label: 'Development', color: stackGrays[1] },
 ]
 
 export function prepareDependencyStackedChart(source?: DependencySource) {

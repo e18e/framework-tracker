@@ -1,8 +1,3 @@
-// Colour vision deficiency simulation, used by the dev-only brand theme editor.
-// Matrices act on linear RGB. Dichromat and tritan matrices are from Machado,
-// Oliveira & Fernandes (2009) at full severity; the anomalous trichromacies
-// ("-anomaly") blend those towards normal vision at ANOMALY_SEVERITY.
-
 export type Matrix3 = [
   number,
   number,

@@ -1,7 +1,3 @@
-/**
- * Client-side brand theme layer. Charts read framework colours through here so
- * the dev-only theme editor can override them live without a rebuild.
- */
 import type { BrandVariant, ThemedValue } from './framework-logos'
 
 export interface BrandStyle {
@@ -14,10 +10,7 @@ export type BrandOverrides = Record<string, Partial<BrandStyle>>
 export const BRAND_THEME_EVENT = 'ft:brand-theme-change'
 const STORAGE_KEY = 'ft-brand-overrides'
 
-// Overrides only exist while developing; production always uses the config.
-const enabled = import.meta.env.DEV
-
-let overrides: BrandOverrides = enabled ? load() : {}
+let overrides: BrandOverrides = load()
 
 function load(): BrandOverrides {
   try {
@@ -43,7 +36,6 @@ export function getBrandOverrides(): BrandOverrides {
 }
 
 export function setBrandOverride(key: string, patch: Partial<BrandStyle>) {
-  if (!enabled) return
   const current = overrides[key] ?? {}
   commit({
     ...overrides,
@@ -57,12 +49,10 @@ export function setBrandOverride(key: string, patch: Partial<BrandStyle>) {
 
 /** Replaces every override at once, e.g. when pasting a copied config. */
 export function replaceBrandOverrides(next: BrandOverrides) {
-  if (!enabled) return
   commit(next)
 }
 
 export function resetBrandOverrides() {
-  if (!enabled) return
   commit({})
 }
 

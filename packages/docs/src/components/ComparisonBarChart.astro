@@ -133,9 +133,7 @@ const chartPayload = JSON.stringify({
   .comparison-chart-wrapper :global(.comparison-logo-fallback) {
     display: grid;
     place-items: center;
-    font:
-      700 12px system-ui,
-      sans-serif;
+    font-weight: 700;
   }
 </style>
 
@@ -310,7 +308,7 @@ const chartPayload = JSON.stringify({
     const barHoverColor = getCssVar('--ft-chart-bar-hover', BAR_HOVER_COLOR)
     const mutedColor = getCssVar('--ft-muted', '#697586')
     const accentColor = getCssVar(
-      '--sl-color-text-accent',
+      '--ft-chart-accent',
       getCssVar('--ft-text', '#1f2933'),
     )
 
@@ -346,7 +344,6 @@ const chartPayload = JSON.stringify({
               text: () => '│',
               fill: getCssVar('--sl-color-white', '#fff'),
               anchor: 'middle',
-              fontSize: 20,
             }),
             text(rows, {
               x: (d) => d.range?.max ?? d.value,
@@ -354,7 +351,6 @@ const chartPayload = JSON.stringify({
               text: () => '│',
               fill: getCssVar('--sl-color-white', '#fff'),
               anchor: 'middle',
-              fontSize: 20,
             }),
             text(rows, {
               x: (d) => d.range?.median ?? d.value,
@@ -363,7 +359,6 @@ const chartPayload = JSON.stringify({
               dy: 1.5,
               fill: getCssVar('--sl-color-white', '#fff'),
               anchor: 'middle',
-              fontSize: 15,
             }),
           ]
         : [
@@ -409,7 +404,6 @@ const chartPayload = JSON.stringify({
                 text: () => `Median: ${format(median)}`,
                 fill: accentColor,
                 fontWeight: 600,
-                fontSize: 13,
                 anchor: 'middle',
               }),
             ),
@@ -420,7 +414,6 @@ const chartPayload = JSON.stringify({
               text: (d) => format(d.value),
               fill: mutedColor,
               fontWeight: 600,
-              fontSize: 13,
               anchor: 'start',
               dx: 10,
             }),

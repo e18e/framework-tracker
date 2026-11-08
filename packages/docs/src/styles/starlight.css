@@ -1,180 +1,36 @@
-/* Match e18e.dev's link colour in dark and light mode. */
-:root {
-  --sl-color-accent-low: #371c00;
-  --sl-color-accent: #cc7d24;
-  --sl-color-accent-high: #cf8c3c;
-}
-:root[data-theme='light'] {
-  --sl-color-accent-low: #f5cfad;
-  --sl-color-accent: #c37822;
-  --sl-color-accent-high: #4b2800;
-}
-
-/* Colours used in the benchmark charts. */
-:root {
-  --ft-accent: var(--sl-color-text-accent);
-  --ft-accent-hover: #cc7d24;
-  --ft-text: var(--sl-color-text);
-  --ft-muted: var(--sl-color-gray-3);
-  --ft-border: var(--sl-color-gray-5);
-  --ft-bg: var(--sl-color-bg);
-  --ft-bg-muted: var(--sl-color-gray-6);
-  --ft-chart-bar: var(--sl-color-gray-3);
-  --ft-chart-bar-hover: var(--sl-color-gray-2);
-  --ft-chart-value-on-bar: #ffffff;
-  --ft-chart-grid: var(--sl-color-gray-5);
-  --ft-chart-line: var(--sl-color-gray-3);
-  --ft-chart-line-hover: var(--sl-color-gray-2);
-  --ft-chart-line-fill: rgb(148 163 184 / 13%);
-  --ft-chart-line-fill-transparent: rgb(148 163 184 / 0%);
-  --ft-chart-phase-input: var(--sl-color-gray-2);
-  --ft-chart-phase-processing: var(--sl-color-gray-3);
-  --ft-chart-phase-presentation: var(--sl-color-gray-4);
-  --ft-chart-resource-other: var(--sl-color-gray-1);
-}
-:root[data-theme='light'] {
-  /* Starlight inverts its gray scale in light mode; these keep the dark-mode lightness steps. */
-  --ft-chart-phase-input: var(--sl-color-gray-5);
-  --ft-chart-phase-processing: var(--sl-color-gray-4);
-  --ft-chart-phase-presentation: var(--sl-color-gray-3);
-  --ft-chart-line-fill: rgb(105 117 134 / 11%);
-  --ft-chart-line-fill-transparent: rgb(105 117 134 / 0%);
-}
-
-/* Make main content column wider and sidebars narrower. */
+/* Starlight uses both widths to size the desktop table of contents. */
 :root {
   --sl-content-width: 70rem;
   --sl-sidebar-width: 16rem;
 }
 
-/* Tweak site title lock-up with e18e logo. */
-.site-title {
-  --sl-nav-gap: 0.5em;
-  color: #dfdfd6;
-
-  img {
-    height: 1.25em;
-  }
-}
-:root[data-theme='light'] .site-title {
-  color: #3c3c43;
-}
-
-.sl-markdown-content a:visited:not(:where(.not-content *)) {
-  color: var(--sl-color-text-accent);
-}
-.sl-markdown-content a:hover:not(:where(.not-content *)) {
-  color: #cc7d24;
-}
-
-/* Use the same background colour for sidebar and navigation as rest of page. */
+/* Colours shared by the benchmark charts. */
 :root {
-  --sl-color-bg-nav: var(--sl-color-bg);
-  --sl-color-bg-sidebar: var(--sl-color-bg);
-}
-/* Remove borders around various UI elements. */
-.header {
-  border-bottom: 0;
-}
-.sidebar-pane {
-  border-inline-end: 0;
-}
-.right-sidebar {
-  border-inline-start: 0;
-}
-mobile-starlight-toc summary {
-  border-bottom: 0;
-}
-.content-panel {
-  padding-block: 0.5rem;
-  & + .content-panel {
-    border-top: 0;
-  }
+  --ft-chart-accent: #cf8c3c;
+  --ft-text: var(--sl-color-text);
+  --ft-muted: var(--sl-color-gray-3);
+  --ft-border: var(--sl-color-gray-5);
+  --ft-bg: var(--sl-color-bg);
+  --ft-chart-bar: var(--sl-color-gray-3);
+  --ft-chart-bar-hover: var(--sl-color-gray-2);
+  --ft-chart-grid: var(--sl-color-gray-5);
+  --ft-chart-line: var(--sl-color-gray-3);
+  --ft-chart-line-hover: var(--sl-color-gray-2);
+  --ft-chart-phase-input: var(--sl-color-gray-2);
+  --ft-chart-phase-processing: var(--sl-color-gray-3);
+  --ft-chart-phase-presentation: var(--sl-color-gray-4);
+  --ft-chart-resource-other: var(--sl-color-gray-1);
 }
 
-/* Use less prominent current-page styling in sidebar navigation. */
-.sidebar-content [aria-current='page'] {
-  color: var(--sl-color-text-accent);
-  background-color: transparent;
+:root[data-theme='light'] {
+  --ft-chart-accent: #c37822;
+  /* Starlight inverts its grays in light mode. Keep the chart's lightness steps. */
+  --ft-chart-phase-input: var(--sl-color-gray-5);
+  --ft-chart-phase-processing: var(--sl-color-gray-4);
+  --ft-chart-phase-presentation: var(--sl-color-gray-3);
 }
 
-/* Make table of contents heading smaller. */
-.right-sidebar h2 {
-  font-size: var(--sl-text-sm);
-}
-/* Align left edge of table of contents with “On this page” heading. */
-.right-sidebar-panel a {
-  --pad-inline: 0px;
-}
-
-/* Customize mobile table of contents display. */
-mobile-starlight-toc {
-  details {
-    height: var(--sl-mobile-toc-height);
-  }
-  [open]::details-content {
-    width: max-content;
-    min-width: min(17rem, 100%);
-  }
-  [open] .toggle {
-    background-color: var(--sl-color-gray-7, var(--sl-color-gray-6));
-    border-color: var(--sl-color-gray-5);
-  }
-  .dropdown {
-    margin-inline: 1rem;
-    margin-bottom: -0.5rem;
-    border-color: var(--sl-color-gray-5);
-    border-radius: 0.5rem;
-    background-color: var(--sl-color-gray-7, var(--sl-color-gray-6));
-  }
-  .isMobile a {
-    --pad-inline: 0.75rem;
-    border-top: 0;
-    padding-block: 0.4375rem;
-  }
-  .isMobile > :first-child a {
-    padding-top: 0.625rem;
-  }
-  .isMobile > :last-child a {
-    padding-bottom: 0.625rem;
-  }
-}
-
-/* Constrain body copy width to improve readability. */
-.sl-markdown-content :where(p, blockquote, li) {
-  max-width: 45rem;
-}
-
-.sl-markdown-content table {
-  display: table;
-  border: 0; /* Remove border in Firefox introduced by display: table */
-}
-
-.depot {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.depot p {
-  color: var(--ft-muted);
-  flex: 1 1 66%;
-}
-
-.depot svg {
-  height: 42px;
-  width: auto;
-}
-
-.depot p:empty {
-  display: none;
-}
-
-/* Logos with a second light-mode file ship both <img> elements and swap here,
-   because Starlight toggles data-theme rather than prefers-color-scheme. The
-   margin reset undoes the 1rem Starlight gives any sibling inside
-   .sl-markdown-content, which would otherwise drop the second variant. */
+/* Swap paired framework logos with Starlight's theme and keep them aligned. */
 .framework-logo--dark,
 .framework-logo--light {
   margin-top: 0;
@@ -190,9 +46,4 @@ mobile-starlight-toc {
 
 :root[data-theme='light'] .framework-logo--light {
   display: inline-block;
-}
-
-.sl-markdown-content .sl-heading-wrapper,
-.sl-markdown-content > :is(h1, h2, h3, h4, h5, h6) {
-  padding-block-end: 1rem;
 }

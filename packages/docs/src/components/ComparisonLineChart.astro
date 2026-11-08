@@ -1,5 +1,5 @@
 ---
-import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatValue } from '../lib/chart'
 import { lineChartScales } from '../lib/line-chart-config'
 import type { LineComparisonChartPayload } from '../lib/types'
 
@@ -60,7 +60,7 @@ function seriesColorVars(
                   <td>
                     {point.value == null
                       ? '—'
-                      : `${formatChartValue(point.value, valueFormat)} (v${point.version})`}
+                      : `${formatValue(point.value, valueFormat)} (v${point.version})`}
                   </td>
                 ))}
               </tr>
@@ -166,7 +166,7 @@ function seriesColorVars(
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
   import { curveMonotoneX } from 'd3-shape'
-  import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+  import { SHARED_CHART_HEIGHT, formatValue } from '../lib/chart'
   import { resolveBrandColor } from '../lib/framework-logos'
   import {
     lineChartScales,
@@ -215,7 +215,7 @@ function seriesColorVars(
     if (!payload) return
 
     const format = (value: number) =>
-      formatChartValue(value, payload.valueFormat)
+      formatValue(value, payload.valueFormat, { sigFigs: 2 })
     const scale = lineChartScales[payload.scale]
     const tooltipConfig = lineChartTooltips[payload.tooltip]
 
@@ -248,7 +248,11 @@ function seriesColorVars(
     )
     if (ys.length === 0) return
     const xAxis = scale.getXAxis(payload.xValues)
-    const yAxis = scale.getYAxis(ys, { label: payload.yAxisLabel, format })
+    const yAxis = scale.getYAxis(ys, {
+      label: payload.yAxisLabel,
+      format: (value: number) =>
+        formatValue(value, payload.valueFormat, { sigFigs: 0 }),
+    })
 
     const gridColor = getCssVar(
       '--ft-chart-grid',

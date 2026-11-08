@@ -1,27 +1,30 @@
 import { getBrandByDisplayName, resolveThemedValue } from './framework-logos'
 import type { ChartValueFormat } from './types'
 
-export function formatChartValue(
+export function formatValue(
   value: number,
   format: ChartValueFormat,
-  prefixPositive?: boolean,
+  ops?: { prefixPositive?: boolean; sigFigs?: number },
 ) {
+  const { prefixPositive, sigFigs = 0 } = ops ?? {}
+  const fixed = value.toFixed(sigFigs)
+
   let formatted: string
   switch (format) {
     case 'count':
       formatted = String(Math.round(value))
       break
     case 'mb':
-      formatted = `${value.toFixed(2)} MB`
+      formatted = `${fixed} MB`
       break
     case 'kb':
-      formatted = `${value.toFixed(2)} KB`
+      formatted = `${fixed} KB`
       break
     case 's':
-      formatted = `${value.toFixed(2)}s`
+      formatted = `${fixed}s`
       break
     default:
-      formatted = `${value.toFixed(2)} ms`
+      formatted = `${fixed} ms`
   }
   return prefixPositive && value > 0 ? `+${formatted}` : formatted
 }

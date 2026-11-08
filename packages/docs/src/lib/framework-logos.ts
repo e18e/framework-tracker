@@ -3,17 +3,12 @@ import { frameworks } from '@framework-tracker/results/frameworks'
 export type ThemedValue = { dark: string; light?: string }
 export type FrameworkLogo = ThemedValue
 
-/**
- * How a framework's colour is drawn. `segmented` breaks the mark apart (dashed
- * lines, hatched fills, dashed swatches) so reference series read as secondary.
- */
 export type BrandVariant = 'solid' | 'segmented'
 
 export const BRAND_VARIANTS: readonly BrandVariant[] = ['solid', 'segmented']
 
 export interface FrameworkBrand {
   logo: FrameworkLogo
-  /** Hex colours or `var(--token)` references; `light` falls back to `dark`. */
   color: ThemedValue
   variant: BrandVariant
 }

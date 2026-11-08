@@ -1,5 +1,5 @@
 ---
-import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
 import { lineChartScales } from '../lib/line-chart-config'
 import type { LineComparisonChartPayload } from '../lib/types'
 
@@ -38,7 +38,7 @@ function seriesColorVars(
   <div
     class="comparison-line-chart-wrapper"
     data-comparison-line={chartPayload}
-    style={`--comparison-line-chart-height: ${COMPARISON_CHART_HEIGHT}px`}
+    style={`--chart-height: ${SHARED_CHART_HEIGHT}px`}
   >
     <div class="comparison-line-chart-host"></div>
     <div class="comparison-line-chart-data sr-only">
@@ -131,7 +131,7 @@ function seriesColorVars(
   .comparison-line-chart-wrapper {
     position: relative;
     width: 100%;
-    min-height: var(--comparison-line-chart-height);
+    min-height: var(--chart-height);
     margin-top: 0.5rem;
     color: var(--ft-text, #1f2933);
   }
@@ -168,7 +168,7 @@ function seriesColorVars(
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
   import { curveMonotoneX } from 'd3-shape'
-  import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+  import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
   import { resolveThemedValue } from '../lib/framework-logos'
   import {
     lineChartScales,
@@ -397,7 +397,7 @@ function seriesColorVars(
 
     const options = {
       definition,
-      height: COMPARISON_CHART_HEIGHT,
+      height: SHARED_CHART_HEIGHT,
       ariaLabel: `${payload.title} by ${scale.label.toLowerCase()}. Line chart; a data table follows.`,
     }
 

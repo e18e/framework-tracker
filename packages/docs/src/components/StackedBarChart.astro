@@ -1,5 +1,5 @@
 ---
-import { formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
 import type { ChartValueFormat } from '../lib/types'
 interface Series {
   key: string
@@ -36,6 +36,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   <div
     class="stacked-chart"
     data-stacked={JSON.stringify({ title, series, data, valueFormat })}
+    style={`--chart-height: ${SHARED_CHART_HEIGHT}px`}
   >
     <div class="chart-host"></div>
     <div class="logo-layer" aria-hidden="true"></div>
@@ -73,6 +74,10 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   }
   .stacked-chart {
     position: relative;
+    min-height: var(--chart-height);
+  }
+  .stacked-chart :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
   }
   .logo-layer {
     position: absolute;
@@ -145,7 +150,12 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   import { scaleBand } from '@tanstack/charts/scales/band'
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
-  import { formatChartValue, getFrameworkLogoSource } from '../lib/chart'
+  import {
+    SHARED_BAR_INSET,
+    SHARED_CHART_HEIGHT,
+    formatChartValue,
+    getFrameworkLogoSource,
+  } from '../lib/chart'
   import type { ChartValueFormat } from '../lib/types'
   interface Segment {
     name: string
@@ -228,6 +238,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
           formatChartValue(value, payload.valueFormat)
         const definition = defineChart({
           margin: { left: 36, right: 0, top: 24, bottom: 0 },
+          focusRing: false,
           marks: [
             ...segments
               .filter((d) => d.value > 0)
@@ -241,7 +252,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
                         .getPropertyValue(d.color.slice(4, -1))
                         .trim() || muted
                     : d.color,
-                  inset: 2,
+                  inset: SHARED_BAR_INSET,
                   radius: [
                     d.start === 0 ? 8 : 0,
                     d.end === d.total ? 8 : 0,
@@ -304,7 +315,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
         })
         const options = {
           definition,
-          height: Math.max(80, rows.length * 56 + 24),
+          height: SHARED_CHART_HEIGHT,
           onRender: ({
             scene,
           }: ChartRenderContext<Segment, number, string>) => {

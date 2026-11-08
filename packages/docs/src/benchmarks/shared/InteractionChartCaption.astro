@@ -25,9 +25,9 @@ const { title } = Astro.props
   </ul>
   <ul class="legend" aria-hidden="true">
     {
-      INTERACTION_PHASES.map(({ label, colorVar }) => (
+      INTERACTION_PHASES.map(({ label, color }) => (
         <li>
-          <span class="swatch" style={`background: var(${colorVar})`} />
+          <span class="swatch" style={`background: ${color}`} />
           {label}
         </li>
       ))

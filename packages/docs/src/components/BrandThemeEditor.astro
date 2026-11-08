@@ -1,6 +1,7 @@
 ---
 import { frameworks } from '@framework-tracker/results/frameworks'
 import { BRAND_VARIANTS, frameworkBrands } from '../lib/framework-logos'
+import { VISION_MODES, feColorMatrixValues } from '../lib/color-vision'
 
 // Dev-only panel for trying out framework colours; changes apply to charts live.
 const extraNames: Record<string, string> = {
@@ -16,7 +17,27 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
 }))
 ---
 
-<div class="brand-theme-editor" data-brands={JSON.stringify(brands)}>
+<div
+  class="brand-theme-editor"
+  data-brands={JSON.stringify(brands)}
+  popover="manual"
+>
+  <svg class="bte-filters" aria-hidden="true" focusable="false">
+    {
+      VISION_MODES.map((mode) => (
+        <filter
+          id={`bte-cvd-${mode.id}`}
+          color-interpolation-filters="linearRGB"
+        >
+          <feColorMatrix
+            type="matrix"
+            values={feColorMatrixValues(mode.matrix)}
+          />
+        </filter>
+      ))
+    }
+  </svg>
+
   <button
     type="button"
     class="bte-toggle"
@@ -41,11 +62,25 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
   >
     <header class="bte-header">
       <h2>Framework colours</h2>
-      <div class="bte-themes" role="group" aria-label="Theme being edited">
+      <div class="bte-segmented" role="group" aria-label="Theme being edited">
         <button type="button" data-theme-tab="dark">Dark</button>
         <button type="button" data-theme-tab="light">Light</button>
       </div>
     </header>
+
+    <label class="bte-vision">
+      <span>Colour vision</span>
+      <select class="bte-vision-select">
+        <option value="none">Typical vision</option>
+        {
+          VISION_MODES.map((mode) => (
+            <option value={mode.id}>
+              {mode.name} ({mode.description}) · {mode.prevalence}
+            </option>
+          ))
+        }
+      </select>
+    </label>
 
     <ul class="bte-list">
       {
@@ -71,6 +106,13 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
                 aria-label={`${brand.name} colour picker`}
               />
             </label>
+            <span class="bte-swatch bte-sim" hidden />
+            <span class="bte-caption" aria-hidden="true">
+              Actual
+            </span>
+            <span class="bte-caption bte-caption-sim" aria-hidden="true">
+              Simulated
+            </span>
             <input
               type="text"
               class="bte-hex"
@@ -106,7 +148,16 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
 </div>
 
 <style>
+  /* A top-layer popover, so the colour vision filter on <html> skips it. */
   .brand-theme-editor {
+    inset: auto;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    background: none;
     --bte-bg: #141414;
     --bte-surface: #1f1f1f;
     --bte-border: #2e2e2e;
@@ -171,7 +222,38 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     font-weight: 700;
   }
 
-  .bte-themes {
+  .bte-filters {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .bte-vision {
+    display: flex;
+    margin: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--bte-border);
+    color: var(--bte-muted);
+    font-size: 0.75rem;
+  }
+
+  .bte-vision-select {
+    min-width: 0;
+    margin: 0;
+    padding: 0.35rem 0.5rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--bte-surface);
+    color: var(--bte-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .bte-segmented {
     display: flex;
     margin: 0;
     padding: 2px;
@@ -179,7 +261,7 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     background: var(--bte-surface);
   }
 
-  .bte-themes button {
+  .bte-segmented button {
     margin: 0;
     padding: 0.15rem 0.6rem;
     border: 0;
@@ -191,7 +273,7 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     cursor: pointer;
   }
 
-  .bte-themes button[aria-pressed='true'] {
+  .bte-segmented button[aria-pressed='true'] {
     background: var(--bte-border);
     color: var(--bte-text);
   }
@@ -213,8 +295,37 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     margin: 0 0 0.75rem;
   }
 
-  .bte-label {
+  .bte-row:has(.bte-sim:not([hidden])) {
+    grid-template-columns: 2.25rem 2.25rem 1fr;
+  }
+
+  /* With two samples, captions sit above them in the label row. */
+  .bte-caption {
+    display: none;
+    grid-row: 1;
+    grid-column: 1;
+    align-self: end;
+    justify-self: center;
+    color: var(--bte-muted);
+    font-size: 0.625rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .bte-caption-sim {
     grid-column: 2;
+  }
+
+  .bte-row:has(.bte-sim:not([hidden])) .bte-caption {
+    display: block;
+  }
+
+  .bte-row:has(.bte-sim:not([hidden])) .bte-swatch {
+    grid-row: 2;
+  }
+
+  .bte-label {
+    grid-column: -2;
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -303,7 +414,28 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     background: var(--swatch);
   }
 
-  .bte-row[data-variant='segmented'] .bte-swatch::after {
+  .bte-sim {
+    grid-column: 2;
+    cursor: default;
+  }
+
+  .bte-sim[hidden] {
+    display: none;
+  }
+
+  .bte-sim::after {
+    background: var(--sim-swatch);
+  }
+
+  .bte-row[data-variant='segmented'] .bte-sim::after {
+    background: repeating-linear-gradient(
+      135deg,
+      var(--sim-swatch) 0 4px,
+      transparent 4px 7px
+    );
+  }
+
+  .bte-row[data-variant='segmented'] .bte-swatch:not(.bte-sim)::after {
     background: repeating-linear-gradient(
       135deg,
       var(--swatch) 0 4px,
@@ -321,7 +453,7 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
   }
 
   .bte-hex {
-    grid-column: 2;
+    grid-column: -2;
     width: 100%;
     margin: 0;
     padding: 0.35rem 0.6rem;
@@ -422,11 +554,25 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     type BrandVariant,
     type ThemedValue,
   } from '../lib/framework-logos'
+  import {
+    findVisionMode,
+    simulateHex,
+    type VisionMode,
+  } from '../lib/color-vision'
 
   type Brand = BrandStyle & { key: string; name: string }
   type Theme = 'dark' | 'light'
 
   const OPEN_KEY = 'ft-brand-editor-open'
+  const VISION_KEY = 'ft-brand-editor-vision'
+
+  function currentVision() {
+    return findVisionMode(document.documentElement.dataset.cvd)
+  }
+
+  function simulate(hex: string, vision: VisionMode | undefined) {
+    return vision ? simulateHex(hex, vision.matrix) : hex
+  }
 
   function currentTheme(): Theme {
     return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
@@ -542,10 +688,37 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     // Rendered inside the footer, whose stacking context sits under the
     // "On this page" sidebar; lift it to <body> so it can receive clicks.
     document.body.append(root)
+    // Top layer: above every stacking context and outside the <html> filter.
+    root.showPopover?.()
     const brands = JSON.parse(root.dataset.brands ?? '[]') as Brand[]
     const toggle = root.querySelector<HTMLButtonElement>('.bte-toggle')!
     const panel = root.querySelector<HTMLElement>('.bte-panel')!
     const tabs = root.querySelectorAll<HTMLButtonElement>('[data-theme-tab]')
+    const visionSelect =
+      root.querySelector<HTMLSelectElement>('.bte-vision-select')!
+
+    function setVision(id: string) {
+      const html = document.documentElement
+      const mode = findVisionMode(id)
+      if (mode) {
+        html.dataset.cvd = mode.id
+        html.style.filter = `url(#bte-cvd-${mode.id})`
+      } else {
+        delete html.dataset.cvd
+        html.style.removeProperty('filter')
+      }
+      try {
+        localStorage.setItem(VISION_KEY, mode?.id ?? 'none')
+      } catch {
+        // ignore
+      }
+    }
+    visionSelect.addEventListener('change', () => setVision(visionSelect.value))
+    try {
+      setVision(localStorage.getItem(VISION_KEY) ?? 'none')
+    } catch {
+      // ignore
+    }
 
     function effective(brand: Brand): BrandStyle {
       const override = getBrandOverrides()[brand.key]
@@ -563,7 +736,9 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
           String(tab.dataset.themeTab === theme),
         ),
       )
-      const background = pageBackground()
+      const vision = currentVision()
+      visionSelect.value = vision?.id ?? 'none'
+      const background = simulate(pageBackground(), vision)
       for (const brand of brands) {
         const row = root.querySelector<HTMLElement>(
           `.bte-row[data-brand="${CSS.escape(brand.key)}"]`,
@@ -582,12 +757,20 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
         const resolved = toHex(resolveBrandColor(style.color, theme))
         row.querySelector<HTMLInputElement>('.bte-picker')!.value = resolved
 
-        const ratio = contrastRatio(resolved, background)
+        const simulated = simulate(resolved, vision)
+        const sim = row.querySelector<HTMLElement>('.bte-sim')!
+        sim.hidden = vision == null
+        sim.title = vision ? `${simulated} with ${vision.name}` : ''
+        row.style.setProperty('--sim-swatch', simulated)
+
+        const ratio = contrastRatio(simulated, background)
         const contrast = row.querySelector<HTMLElement>('.bte-contrast')!
         contrast.textContent = `${ratio.toFixed(2)}:1`
         const { level, note } = contrastLevel(ratio)
         contrast.dataset.level = level
-        contrast.title = `Contrast against the ${theme} background: ${note}`
+        contrast.title = `Contrast against the ${theme} background${
+          vision ? ` (${vision.name})` : ''
+        }: ${note}`
         row.querySelector<HTMLSelectElement>('.bte-variant')!.value =
           style.variant
         row.style.setProperty('--swatch', raw)
@@ -723,7 +906,7 @@ const brands = Object.entries(frameworkBrands).map(([key, brand]) => ({
     onBrandThemeChange(render)
     new MutationObserver(render).observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme'],
+      attributeFilter: ['data-theme', 'data-cvd'],
     })
     render()
   }

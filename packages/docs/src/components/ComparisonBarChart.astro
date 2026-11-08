@@ -48,12 +48,6 @@ const chartPayload = JSON.stringify({
   >
     <div class="comparison-chart-host"></div>
     <div class="comparison-logo-layer" aria-hidden="true"></div>
-    <svg class="comparison-median-defs" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient gradientUnits="userSpaceOnUse" x1="0" x2="0"
-        ></linearGradient>
-      </defs>
-    </svg>
     <div class="comparison-chart-data sr-only">
       <table aria-label={`${title} data`}>
         <caption>{title} data</caption>
@@ -74,10 +68,6 @@ const chartPayload = JSON.stringify({
           }
         </tbody>
       </table>
-      <p>
-        The chart includes a dotted median reference line calculated from the
-        visible framework values.
-      </p>
     </div>
   </div>
 </figure>
@@ -114,14 +104,6 @@ const chartPayload = JSON.stringify({
     z-index: 1;
   }
 
-  .comparison-median-defs {
-    position: absolute;
-    width: 0;
-    height: 0;
-    margin: 0;
-    overflow: hidden;
-  }
-
   .comparison-chart-wrapper :global(.comparison-logo) {
     position: absolute;
     width: 20px;
@@ -144,7 +126,6 @@ const chartPayload = JSON.stringify({
     barX,
     defineChart,
     mountChart,
-    ruleX,
     ruleY,
     text,
     type ChartHost,
@@ -152,7 +133,6 @@ const chartPayload = JSON.stringify({
   } from '@tanstack/charts'
   import { scaleBand } from '@tanstack/charts/scales/band'
   import { scaleLinear } from '@tanstack/charts/scales/linear'
-  import { decorative } from '@tanstack/charts/mark/decorative'
   import { tooltip } from '@tanstack/charts/tooltip'
   import {
     SHARED_BAR_INSET,
@@ -169,18 +149,13 @@ const chartPayload = JSON.stringify({
   }
   type RenderContext = ChartRenderContext<ChartDatum, number, string>
 
-  const MEDIAN_COLORS = ['#ec8f5e', '#f2ca60', '#bece57', '#7bb560']
   const LOGO_SIZE = 20
   const LOGO_MARGIN = LOGO_SIZE + 16
-  const MEDIAN_LABEL_MARGIN = 24
-  const MEDIAN_LABEL_GAP = 12
   const BAND_PADDING = 0.18
   const hosts = new WeakMap<
     HTMLElement,
     ChartHost<ChartDatum, number, string>
   >()
-
-  let medianGradientCount = 0
 
   function getCssVar(name: string, fallback: string) {
     return (
@@ -239,39 +214,6 @@ const chartPayload = JSON.stringify({
     layer.style.visibility = 'visible'
   }
 
-  function setupMedianGradient(wrapper: HTMLElement) {
-    const gradient = wrapper.querySelector('linearGradient')!
-    if (!gradient.id) {
-      gradient.id = `comparison-median-gradient-${++medianGradientCount}`
-      gradient.replaceChildren(
-        ...MEDIAN_COLORS.map((_, index) => {
-          const stop = document.createElementNS(
-            'http://www.w3.org/2000/svg',
-            'stop',
-          )
-          stop.setAttribute(
-            'offset',
-            String(index / (MEDIAN_COLORS.length - 1)),
-          )
-          stop.setAttribute(
-            'stop-color',
-            MEDIAN_COLORS[MEDIAN_COLORS.length - 1 - index]!,
-          )
-          return stop
-        }),
-      )
-    }
-    return gradient
-  }
-
-  function positionMedianGradient(
-    gradient: SVGLinearGradientElement,
-    { scene }: RenderContext,
-  ) {
-    gradient.setAttribute('y1', String(scene.chart.y))
-    gradient.setAttribute('y2', String(scene.chart.y + scene.chart.height))
-  }
-
   function getPayload(wrapper: HTMLElement): Payload | null {
     const dataAttr = wrapper.dataset.comparison
     if (!dataAttr) return null
@@ -306,19 +248,13 @@ const chartPayload = JSON.stringify({
     const height = SHARED_CHART_HEIGHT
 
     const mutedColor = getCssVar('--ft-muted', '#697586')
-    const accentColor = getCssVar(
-      '--sl-color-text-accent',
-      getCssVar('--ft-text', '#1f2933'),
-    )
-
     const names = rows.map((d) => d.name)
     const logoLayer = renderLogoLayer(wrapper, names)
-    const medianGradient = setupMedianGradient(wrapper)
 
     const definition = defineChart({
       margin: {
         left: LOGO_MARGIN,
-        top: MEDIAN_LABEL_MARGIN,
+        top: 12,
         bottom: variance ? 32 : 0,
       },
       focusRing: false,
@@ -383,33 +319,6 @@ const chartPayload = JSON.stringify({
                 },
               ],
             }),
-            ruleX([median], {
-              id: 'median',
-              stroke: `url(#${medianGradient.id})`,
-              strokeOpacity: 1,
-              strokeWidth: 3,
-              strokeDasharray: '5 4',
-            }),
-            decorative(
-              text([median], {
-                id: 'median-label',
-                x: (d) => d,
-                y: () => rows[0]!.name,
-                dy: () => {
-                  const step =
-                    (height - MEDIAN_LABEL_MARGIN) /
-                    (rows.length + BAND_PADDING)
-                  const firstBandCenter =
-                    step * (BAND_PADDING + (1 - BAND_PADDING) / 2)
-                  return -(firstBandCenter + MEDIAN_LABEL_GAP)
-                },
-                text: () => `Median: ${format(median)}`,
-                fill: accentColor,
-                fontWeight: 600,
-                fontSize: 13,
-                anchor: 'middle',
-              }),
-            ),
             text(rows, {
               id: 'value-labels',
               x: 'value',
@@ -471,7 +380,6 @@ const chartPayload = JSON.stringify({
       ariaLabel: `${payload.title}. Horizontal bar chart; a data table follows.`,
       onRender: (context: RenderContext) => {
         positionLogos(logoLayer, names, context)
-        positionMedianGradient(medianGradient, context)
       },
     }
 

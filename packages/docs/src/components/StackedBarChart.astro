@@ -216,11 +216,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
                   x1: 'start',
                   x2: 'end',
                   y: 'name',
-                  fill: d.color.startsWith('var(')
-                    ? getComputedStyle(document.documentElement)
-                        .getPropertyValue(d.color.slice(4, -1))
-                        .trim() || muted
-                    : d.color,
+                  fill: d.color,
                   inset: SHARED_BAR_INSET,
                   radius: [
                     d.start === 0 ? 8 : 0,

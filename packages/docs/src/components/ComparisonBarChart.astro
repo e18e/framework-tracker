@@ -140,6 +140,7 @@ const chartPayload = JSON.stringify({
     formatChartValue,
     getFrameworkLogoSource,
   } from '../lib/chart'
+  import { highlightedGray, primaryGray } from '../lib/chart-styles'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
 
   type Payload = ComparisonChartPayload & {
@@ -148,8 +149,6 @@ const chartPayload = JSON.stringify({
   }
   type RenderContext = ChartRenderContext<ChartDatum, number, string>
 
-  const BAR_COLOR = '#c0b9dd'
-  const BAR_HOVER_COLOR = '#b2a8d8'
   const LOGO_SIZE = 20
   const LOGO_MARGIN = LOGO_SIZE + 16
   const BAND_PADDING = 0.18
@@ -248,8 +247,6 @@ const chartPayload = JSON.stringify({
     const median = getMedian(values)
     const height = SHARED_CHART_HEIGHT
 
-    const barColor = getCssVar('--ft-chart-bar', BAR_COLOR)
-    const barHoverColor = getCssVar('--ft-chart-bar-hover', BAR_HOVER_COLOR)
     const mutedColor = getCssVar('--ft-muted', '#697586')
     const names = rows.map((d) => d.name)
     const logoLayer = renderLogoLayer(wrapper, names)
@@ -265,7 +262,7 @@ const chartPayload = JSON.stringify({
         ? [
             ruleY(rows, {
               y: 'name',
-              stroke: mutedColor,
+              stroke: primaryGray,
               strokeOpacity: 0.5,
               strokeDasharray: '3 5',
             }),
@@ -273,14 +270,14 @@ const chartPayload = JSON.stringify({
               x1: (d) => d.range?.min ?? d.value,
               x2: (d) => d.range?.max ?? d.value,
               y: 'name',
-              fill: getCssVar('--sl-color-white', '#fff'),
+              fill: primaryGray,
               maxThickness: 2,
             }),
             text(rows, {
               x: (d) => d.range?.min ?? d.value,
               y: 'name',
               text: () => '│',
-              fill: getCssVar('--sl-color-white', '#fff'),
+              fill: primaryGray,
               anchor: 'middle',
               fontSize: 20,
             }),
@@ -288,7 +285,7 @@ const chartPayload = JSON.stringify({
               x: (d) => d.range?.max ?? d.value,
               y: 'name',
               text: () => '│',
-              fill: getCssVar('--sl-color-white', '#fff'),
+              fill: primaryGray,
               anchor: 'middle',
               fontSize: 20,
             }),
@@ -297,7 +294,7 @@ const chartPayload = JSON.stringify({
               y: 'name',
               text: () => '◆',
               dy: 1.5,
-              fill: getCssVar('--sl-color-white', '#fff'),
+              fill: primaryGray,
               anchor: 'middle',
               fontSize: 15,
             }),
@@ -307,13 +304,13 @@ const chartPayload = JSON.stringify({
               id: 'values',
               x: 'value',
               y: 'name',
-              fill: barColor,
+              fill: primaryGray,
               radius: 8,
               inset: SHARED_BAR_INSET,
               states: [
                 {
                   when: { focus: 'primary' },
-                  style: { fill: barHoverColor },
+                  style: { fill: highlightedGray },
                   transition: {
                     type: 'tween',
                     duration: 140,

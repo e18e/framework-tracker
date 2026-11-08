@@ -21,10 +21,10 @@ const { title, data } = Astro.props
       INTERACTION_PHASES.map(({ key }) => [key, datum[key]]),
     ),
   }))}
-  series={INTERACTION_PHASES.map(({ key, label, colorVar }) => ({
+  series={INTERACTION_PHASES.map(({ key, label, color }) => ({
     key,
     label,
-    color: `var(${colorVar})`,
+    color,
   }))}
   valueFormat="ms"
   yAxisLabel="Interaction latency (ms)"

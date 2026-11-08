@@ -138,13 +138,15 @@ function seriesColorVars(
     --ts-chart-tooltip-active-row-font-weight: inherit;
     --ts-chart-tooltip-active-row-background: none;
     --ts-chart-tooltip-active-row-shadow: none;
+    /* Otherwise the divider curls up at the row's rounded corners */
+    --ts-chart-tooltip-active-row-border-radius: 0;
   }
 
   .comparison-line-chart-wrapper
-    :global(.ts-chart-tooltip__row[data-active='true']) {
-    color: var(--tooltip-active-color, inherit);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    :global(.ts-chart-tooltip__row[data-active='true']:not(:last-child)) {
+    margin-bottom: 0.3rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--ft-border, #d9dee7);
   }
 
   .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {

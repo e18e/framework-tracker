@@ -144,7 +144,11 @@ export const lineChartTooltips = {
     position: { anchor: 'point', placement: ['right', 'left'], offset: 20 },
     content: (rows, { scale, format, primary }) => ({
       title: scale.formatX(rows[0]!.x),
-      rows: rows.map((row) => ({
+      // Hovered series first; CSS draws the divider beneath it
+      rows: [
+        ...rows.filter((row) => row === primary),
+        ...rows.filter((row) => row !== primary),
+      ].map((row) => ({
         label: row.version ? `${row.name} v${row.version}` : row.name,
         value: formatValue(row.value, format),
         active: row === primary,

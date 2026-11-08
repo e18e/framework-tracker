@@ -111,16 +111,19 @@ function seriesColorVars(
   }
 
   .comparison-line-chart-swatch {
-    width: 14px;
-    height: 0;
-    border-top: 3px solid var(--series-color);
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--series-color);
     border-radius: 2px;
   }
 
   .comparison-line-chart-legend
     li[data-variant='segmented']
     .comparison-line-chart-swatch {
-    border-top-style: dashed;
+    box-sizing: border-box;
+    background: none;
+    border: 2px dashed var(--series-color);
   }
 
   .comparison-line-chart-wrapper {

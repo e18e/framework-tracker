@@ -245,8 +245,13 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
                         .getPropertyValue(d.color.slice(4, -1))
                         .trim() || muted
                     : d.color,
-                  inset: 1,
-                  radius: 8,
+                  inset: 2,
+                  radius: [
+                    d.start === 0 ? 8 : 0,
+                    d.end === d.total ? 8 : 0,
+                    d.end === d.total ? 8 : 0,
+                    d.start === 0 ? 8 : 0,
+                  ],
                 }),
               ),
             text(labels, {

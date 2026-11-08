@@ -7,6 +7,13 @@ import starlight from '@astrojs/starlight'
 export default defineConfig({
   redirects: { '/all-frameworks': '/', '/all-results': '/' },
   site: 'https://frameworks.e18e.dev',
+  vite: {
+    define: {
+      'import.meta.env.PUBLIC_BRAND_THEME_EDITOR': JSON.stringify(
+        process.env.WORKERS_CI_BRANCH === 'preview-pr-799-fresh',
+      ),
+    },
+  },
   integrations: [
     starlight({
       title: 'Framework Tracker',

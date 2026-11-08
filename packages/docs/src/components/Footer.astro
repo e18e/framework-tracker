@@ -4,4 +4,8 @@ import BrandThemeEditor from './BrandThemeEditor.astro'
 ---
 
 <Default><slot /></Default>
-{import.meta.env.DEV && <BrandThemeEditor />}
+{
+  (import.meta.env.DEV || import.meta.env.PUBLIC_BRAND_THEME_EDITOR) && (
+    <BrandThemeEditor />
+  )
+}

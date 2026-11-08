@@ -14,8 +14,8 @@ export type BrandOverrides = Record<string, Partial<BrandStyle>>
 export const BRAND_THEME_EVENT = 'ft:brand-theme-change'
 const STORAGE_KEY = 'ft-brand-overrides'
 
-// Overrides only exist while developing; production always uses the config.
-const enabled = import.meta.env.DEV
+// Enable overrides in development and on the dedicated editor preview.
+const enabled = import.meta.env.DEV || import.meta.env.PUBLIC_BRAND_THEME_EDITOR
 
 let overrides: BrandOverrides = enabled ? load() : {}
 

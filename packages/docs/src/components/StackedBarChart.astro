@@ -135,7 +135,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
 </style>
 <script>
   import {
-    barX,
+    rect,
     defineChart,
     mountChart,
     text,
@@ -229,27 +229,27 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
         const definition = defineChart({
           margin: { left: 36, right: 0, top: 24, bottom: 0 },
           marks: [
-            barX(
-              segments.filter((d) => d.value > 0),
-              {
-                x1: 'start',
-                x2: 'end',
-                y: 'name',
-                fill: (d) =>
-                  d.color.startsWith('var(')
+            ...segments
+              .filter((d) => d.value > 0)
+              .map((d) =>
+                rect([d], {
+                  x1: 'start',
+                  x2: 'end',
+                  y: 'name',
+                  fill: d.color.startsWith('var(')
                     ? getComputedStyle(document.documentElement)
                         .getPropertyValue(d.color.slice(4, -1))
                         .trim() || muted
                     : d.color,
-                inset: 0,
-                radius: (d) => [
-                  d.start === 0 ? 8 : 0,
-                  d.end === d.total ? 8 : 0,
-                  d.end === d.total ? 8 : 0,
-                  d.start === 0 ? 8 : 0,
-                ],
-              },
-            ),
+                  inset: 2,
+                  radius: [
+                    d.start === 0 ? 8 : 0,
+                    d.end === d.total ? 8 : 0,
+                    d.end === d.total ? 8 : 0,
+                    d.start === 0 ? 8 : 0,
+                  ],
+                }),
+              ),
             text(labels, {
               x: 'total',
               y: 'name',

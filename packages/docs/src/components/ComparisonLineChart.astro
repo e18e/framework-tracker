@@ -1,5 +1,5 @@
 ---
-import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
 import { lineChartScales } from '../lib/line-chart-config'
 import type { LineComparisonChartPayload } from '../lib/types'
 
@@ -20,14 +20,12 @@ function seriesColorVars(
 ---
 
 <figure class="comparison-line-chart">
-  <figcaption class="comparison-line-chart-title">{title}</figcaption>
   {description ? <p>{description}</p> : null}
 
   <ul class="comparison-line-chart-legend" aria-hidden="true">
     {
       series.map((s) => (
         <li
-          data-focused={s.focused ? 'true' : 'false'}
           data-baseline={s.baseline ? 'true' : 'false'}
           style={seriesColorVars(s.color)}
         >
@@ -40,7 +38,7 @@ function seriesColorVars(
   <div
     class="comparison-line-chart-wrapper"
     data-comparison-line={chartPayload}
-    style={`--comparison-line-chart-height: ${COMPARISON_CHART_HEIGHT}px`}
+    style={`--chart-height: ${SHARED_CHART_HEIGHT}px`}
   >
     <div class="comparison-line-chart-host"></div>
     <div class="comparison-line-chart-data sr-only">
@@ -61,7 +59,7 @@ function seriesColorVars(
         <tbody>
           {
             series.map((s) => (
-              <tr data-focused={s.focused ? 'true' : 'false'}>
+              <tr>
                 <th scope="row">{s.name}</th>
                 {s.points.map((point) => (
                   <td>
@@ -83,13 +81,6 @@ function seriesColorVars(
   .comparison-line-chart {
     width: 100%;
     margin: 0 0 2em;
-  }
-
-  .comparison-line-chart-title {
-    color: var(--sl-color-white);
-    font-size: 16px;
-    font-weight: 600;
-    line-height: var(--sl-line-height-headings);
   }
 
   .comparison-line-chart-note {
@@ -140,7 +131,7 @@ function seriesColorVars(
   .comparison-line-chart-wrapper {
     position: relative;
     width: 100%;
-    min-height: var(--comparison-line-chart-height);
+    min-height: var(--chart-height);
     margin-top: 0.5rem;
     color: var(--ft-text, #1f2933);
   }
@@ -161,12 +152,6 @@ function seriesColorVars(
   .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
     outline: none;
   }
-
-  :global([data-framework-scope='focused'])
-    .comparison-line-chart
-    [data-focused='false'] {
-    display: none;
-  }
 </style>
 
 <script>
@@ -183,7 +168,7 @@ function seriesColorVars(
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
   import { curveMonotoneX } from 'd3-shape'
-  import { COMPARISON_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+  import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
   import { resolveThemedValue } from '../lib/framework-logos'
   import {
     lineChartScales,
@@ -233,9 +218,7 @@ function seriesColorVars(
     const scale = lineChartScales[payload.scale]
     const tooltipConfig = lineChartTooltips[payload.tooltip]
 
-    const scopedParent = wrapper.closest<HTMLElement>('[data-framework-scope]')
-    const focusedOnly = scopedParent?.dataset.frameworkScope === 'focused'
-    const series = payload.series.filter((s) => !focusedOnly || s.focused)
+    const series = payload.series
     if (series.length === 0) return
 
     const theme = document.documentElement.dataset.theme
@@ -414,7 +397,7 @@ function seriesColorVars(
 
     const options = {
       definition,
-      height: COMPARISON_CHART_HEIGHT,
+      height: SHARED_CHART_HEIGHT,
       ariaLabel: `${payload.title} by ${scale.label.toLowerCase()}. Line chart; a data table follows.`,
     }
 

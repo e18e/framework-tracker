@@ -17,13 +17,26 @@ const { bar, line } = Astro.props
     class="comparison-composition-select"
     aria-label={`${bar.title} chart type`}
   >
-    <option value="bar" selected>Bar</option>
-    <option value="line">Line</option>
+    <option value="bar" selected>Comparison</option>
+    {
+      bar.data.some((datum) => datum.range) && (
+        <option value="variance">Variance</option>
+      )
+    }
+    <option value="line">Over time</option>
   </select>
 
   <div data-view-panel="bar">
     <ComparisonBarChart {...bar} />
   </div>
+
+  {
+    bar.data.some((datum) => datum.range) && (
+      <div data-view-panel="variance" hidden>
+        <ComparisonBarChart {...bar} view="variance" />
+      </div>
+    )
+  }
 
   <div data-view-panel="line" hidden>
     <ComparisonLineChart {...line} />
@@ -36,7 +49,7 @@ const { bar, line } = Astro.props
   }
 
   .comparison-composition :global(figcaption) {
-    padding-right: 6.5rem;
+    padding-right: 8rem;
   }
 
   .comparison-composition-select {
@@ -45,10 +58,14 @@ const { bar, line } = Astro.props
     right: 0;
     z-index: 2;
     margin: 0;
-    padding: 0.2rem 0.4rem;
+    padding: 0.2rem 1.8rem 0.2rem 0.6rem;
+    appearance: none;
     border: 1px solid var(--ft-border);
     border-radius: 6px;
     background-color: var(--ft-bg-muted);
+    background-image: url('../assets/chevron-down.svg');
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
     color: var(--ft-text);
     font: inherit;
     font-size: 0.8125rem;

@@ -1,60 +1,26 @@
 ---
-import { starterHistory, starterStats } from '../../lib/prepare-chart'
-import { monthlyComparison } from '../../lib/monthly-history'
-import type { MetricDefinition } from '../../lib/types'
-import ComparisonComposition from '../../components/ComparisonComposition.astro'
+import { prepareCorePackageDependenciesTable } from '../../lib/prepare-table'
+import StatsTable from '../../components/StatsTable.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
+import StackedBarChart from '../../components/StackedBarChart.astro'
+import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
 
-type DependencyMetric =
-  'allDependencies' | 'devDependencies' | 'prodDependencies'
-
-function getChartData(metric: DependencyMetric) {
-  return starterStats
-    .flatMap((framework) => {
-      const value = framework.frameworkDependencies?.[metric]
-      if (typeof value !== 'number' || !Number.isFinite(value)) return []
-
-      return [
-        {
-          name: framework.name,
-          value,
-          focused: framework.isFocused,
-          version: framework.frameworkVersion,
-        },
-      ]
-    })
-    .sort((a, b) => a.value - b.value || a.name.localeCompare(b.name))
+const chart1 = {
+  title: 'Core Package Dependencies',
+  ...prepareDependencyStackedChart('frameworkDependencies'),
 }
-
-function getCharts(metric: DependencyMetric, title: string) {
-  const definition: MetricDefinition = {
-    id: `frameworkDependencies.${metric}`,
-    title,
-    valueFormat: 'count',
-    yAxisLabel: 'Dependency count',
-  }
-  return {
-    bar: { ...definition, data: getChartData(metric) },
-    line: monthlyComparison(
-      definition,
-      starterHistory,
-      starterStats,
-      (record) => {
-        const value = record.frameworkDependencies?.[metric]
-        return typeof value === 'number' && Number.isFinite(value)
-          ? value
-          : null
-      },
-    ),
-  }
-}
+const chart1Table = prepareCorePackageDependenciesTable(chart1)
 ---
 
-<ComparisonComposition
-  {...getCharts('allDependencies', 'Core Package Dependencies')}
-/>
-<ComparisonComposition
-  {...getCharts('devDependencies', 'Core Package Development Dependencies')}
-/>
-<ComparisonComposition
-  {...getCharts('prodDependencies', 'Core Package Production Dependencies')}
-/>
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <StackedBarChart slot="chart" {...chart1} />
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>

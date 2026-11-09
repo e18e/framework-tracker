@@ -192,6 +192,8 @@ const latestChangeLabel = formatLatestChange(latestChange)
 
 <script>
   import {
+    primaryGray,
+    highlightedGray,
     lineChartGrid,
     lineChartLineStyle,
     lineChartPointStyle,
@@ -233,7 +235,6 @@ const latestChangeLabel = formatLatestChange(latestChange)
     }
     const { data, valueFormat } = payload
     if (!data.some((datum) => datum.value != null)) return
-    const line = css('--ft-chart-line', '#697586')
     const latest = data.at(-1)
     const definition = defineChart({
       gradients: [
@@ -244,8 +245,8 @@ const latestChangeLabel = formatLatestChange(latestChange)
           x2: 0,
           y2: 1,
           stops: [
-            { offset: 0, color: line, opacity: 0.12 },
-            { offset: 0.72, color: line, opacity: 0 },
+            { offset: 0, color: primaryGray, opacity: 0.12 },
+            { offset: 0.72, color: primaryGray, opacity: 0 },
           ],
         },
       ],
@@ -265,7 +266,7 @@ const latestChangeLabel = formatLatestChange(latestChange)
           lineY(data, {
             x: 'name',
             y: 'value',
-            stroke: line,
+            stroke: primaryGray,
             ...lineChartLineStyle,
           }),
         ),
@@ -276,15 +277,15 @@ const latestChangeLabel = formatLatestChange(latestChange)
             y: 'value',
             ...lineChartPointStyle,
             fill: css('--ft-bg', '#ffffff'),
-            stroke: line,
+            stroke: primaryGray,
           },
         ),
         dot(latest ? [latest] : [], {
           x: 'name',
           y: 'value',
           ...lineChartLatestPointStyle,
-          fill: css('--ft-chart-line-hover', '#4b5565'),
-          stroke: line,
+          fill: highlightedGray,
+          stroke: primaryGray,
         }),
         crosshair({ x: true, y: false }),
       ],

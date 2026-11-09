@@ -6,7 +6,7 @@ export interface ChartDatum {
   id?: string
   name: string
   value: number
-  focused?: boolean
+  range?: { min: number; median: number; max: number }
   version?: string
 }
 
@@ -26,6 +26,19 @@ export interface VersionLineChartPayload {
   yAxisLabel: string
 }
 
+export interface StackedAreaChartPayload {
+  title: string
+  data: { name: string; total: number | null; values: Record<string, number> }[]
+  series: readonly {
+    key: string
+    label: string
+    color: string
+  }[]
+  valueFormat: ChartValueFormat
+  yAxisLabel: string
+  totalLabel?: string
+}
+
 export interface LineComparisonPoint {
   x: string
   value: number | null
@@ -37,7 +50,6 @@ export interface LineComparisonPoint {
 export interface LineComparisonSeries {
   id: string
   name: string
-  focused: boolean
   /** Reference series (Baseline HTML) drawn as a neutral dashed line. */
   baseline: boolean
   /** Brand colour from `framework-logos.ts`; null draws a neutral line. */
@@ -83,13 +95,18 @@ export interface InteractionHistoryDatum extends Record<
   name: string
 }
 
+interface DependencyCounts {
+  prodDependencies?: number
+  devDependencies?: number
+  allDependencies?: number
+}
+
 /** Measurement subset accepted by chart preparation; Astro collection records fit structurally. */
 export interface ChartMeasurement {
   package?: string
   name?: string
   frameworkVersion?: string
   releasedAt?: string
-  isFocused?: boolean
   devServerStartTime?: {
     medianMs?: number
   }
@@ -97,11 +114,8 @@ export interface ChartMeasurement {
     installTimeMs?: { mean?: number }
     nodeModulesSizeBytes?: number
   }
-  frameworkDependencies?: {
-    prodDependencies?: number
-    devDependencies?: number
-    allDependencies?: number
-  }
+  frameworkDependencies?: DependencyCounts
+  firstPartyDependencies?: DependencyCounts
   prodDependencies?: number
   devDependencies?: number
   allDependencies?: number

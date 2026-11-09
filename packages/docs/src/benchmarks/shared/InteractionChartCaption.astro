@@ -2,14 +2,14 @@
 import { INTERACTION_PHASES } from '../../lib/interaction-phases'
 
 interface Props {
-  title: string
+  title?: string
 }
 
 const { title } = Astro.props
 ---
 
 <figcaption>
-  <p class="interaction-chart-title">{title}</p>
+  {title && <p class="interaction-chart-title">{title}</p>}
   <p>
     Total latency is split into the three consecutive phases reported by
     Lighthouse.
@@ -25,9 +25,9 @@ const { title } = Astro.props
   </ul>
   <ul class="legend" aria-hidden="true">
     {
-      INTERACTION_PHASES.map(({ label, colorVar }) => (
+      INTERACTION_PHASES.map(({ label, color }) => (
         <li>
-          <span class="swatch" style={`background: var(${colorVar})`} />
+          <span class="swatch" style={`background: ${color}`} />
           {label}
         </li>
       ))

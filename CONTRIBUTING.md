@@ -185,20 +185,21 @@ previous results.
 
 ### Adding a New Framework
 
-Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If approved, follow these steps:
+Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If you add a framework through your own PR, you are expected to help maintain its integration after it is merged. This includes framework and dependency upgrades, fixing build or benchmark failures, and keeping its setup and methodology documentation current. Please state in your PR that you can provide this ongoing support. All accepted frameworks are tracked equally.
+
+If approved, follow these steps:
 
 1. **Create the starter package**: Add a new directory in `packages/` (e.g., `packages/starter-my-framework`). Set it up using the framework's official CLI or getting started guide with the recommended defaults. The starter should not be added to the pnpm workspace — it has its own independent `package.json` and lockfile. Pin the core framework dependency to an exact version (e.g., `"my-framework": "2.0.0"` not `"^2.0.0"`). Add `first-party-dependencies.json` with the starter's direct first-party packages.
 
 2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 
-3. **Add an entry to `.github/frameworks.json`**: Configure the framework's measurements:
+3. **Add an entry to `packages/results/src/frameworks.ts`**: Configure the framework's measurements:
 
    ```json
    {
      "name": "my-framework",
      "displayName": "My Framework",
      "frameworkPackage": "my-framework",
-     "focusedFramework": false,
      "starter": {
        "package": "starter-my-framework",
        "buildScript": "build:my-framework",
@@ -211,8 +212,6 @@ Adding a new framework increases the maintenance burden, so please open an issue
      }
    }
    ```
-
-   Set `focusedFramework` to `false` for new additions unless the framework is a priority for tracking.
 
 4. **Update the methodology**: Follow [Keeping the Methodology Up to Date](#keeping-the-methodology-up-to-date). Add the framework to the build tools and adapters table, document its starter setup, and explain any runtime or test-specific differences.
 

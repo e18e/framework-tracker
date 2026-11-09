@@ -1,0 +1,93 @@
+---
+import ChartTitle from './ChartTitle.astro'
+import Select from './Select.astro'
+import type { SelectOption } from './Select.astro'
+
+interface Props {
+  title?: string
+  label: string
+  options: SelectOption[]
+  defaultValue?: string
+}
+
+const {
+  title,
+  label,
+  options,
+  defaultValue = options[0]?.value ?? '',
+} = Astro.props
+if (
+  !options.length ||
+  !options.some((option) => option.value === defaultValue)
+) {
+  throw new Error('ViewSwitcher requires options and a matching defaultValue')
+}
+if (new Set(options.map((option) => option.value)).size !== options.length) {
+  throw new Error('ViewSwitcher option values must be unique')
+}
+for (const option of options) {
+  if (!Astro.slots.has(option.value)) {
+    throw new Error(`ViewSwitcher is missing the "${option.value}" slot`)
+  }
+}
+---
+
+<view-switcher>
+  <div class="view-controls">
+    {title && <ChartTitle>{title}</ChartTitle>}
+    <Select {label} {options} value={defaultValue} />
+  </div>
+  {
+    options.map((option) => (
+      <div
+        data-view-panel={option.value}
+        hidden={option.value !== defaultValue}
+      >
+        <slot name={option.value} />
+      </div>
+    ))
+  }
+</view-switcher>
+
+<style>
+  view-switcher {
+    display: block;
+  }
+
+  .view-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .view-controls > :global(select:only-child) {
+    margin-inline-start: auto;
+  }
+</style>
+
+<script>
+  class ViewSwitcher extends HTMLElement {
+    connectedCallback() {
+      const select = this.querySelector<HTMLSelectElement>(
+        ':scope > .view-controls select',
+      )!
+      const panels = this.querySelectorAll<HTMLElement>(
+        ':scope > [data-view-panel]',
+      )
+      const showSelected = () => {
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.viewPanel !== select.value
+        })
+      }
+      select.onchange = showSelected
+      showSelected()
+    }
+  }
+
+  if (!customElements.get('view-switcher')) {
+    customElements.define('view-switcher', ViewSwitcher)
+  }
+</script>

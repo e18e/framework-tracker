@@ -1,0 +1,60 @@
+---
+export interface SelectOption {
+  value: string
+  label: string
+}
+
+interface Props {
+  label: string
+  options: SelectOption[]
+  value: string
+}
+
+const { label, options, value } = Astro.props
+---
+
+<select class="select" aria-label={label}>
+  {
+    options.map((option) => (
+      <option value={option.value} selected={option.value === value}>
+        {option.label}
+      </option>
+    ))
+  }
+</select>
+
+<style>
+  .select {
+    margin: 0;
+    padding: 0.2rem 1.8rem 0.2rem 0.6rem;
+    appearance: none;
+    border: 1px solid var(--ft-border);
+    border-radius: 6px;
+    background-color: var(--ft-bg-muted);
+    background-image: url('../assets/chevron-down.svg');
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    color: var(--ft-text);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color 140ms ease-out;
+  }
+
+  .select:hover {
+    border-color: var(--ft-muted);
+  }
+
+  .select:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .select {
+      transition: none;
+    }
+  }
+</style>

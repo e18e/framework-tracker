@@ -531,7 +531,6 @@ export const FrameworkResultSchema = z.object({
   name: z.string().optional(),
   type: z.enum(['starter-kit', 'runtime-app']).optional(),
   package: z.string().optional(),
-  isFocused: z.boolean().optional(),
   order: z.number().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),

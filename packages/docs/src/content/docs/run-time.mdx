@@ -1,6 +1,6 @@
 ---
 title: Run Time Stats
-description: Focused framework browser and server runtime metrics.
+description: Framework browser and server runtime metrics.
 ---
 
 import { Content as RunTimeSetup } from '../../benchmarks/shared/RunTimeSetup.mdx'
@@ -8,18 +8,13 @@ import LighthouseClientSideRenderedCompare from '../../benchmarks/lighthouse-cli
 import LighthouseServerSideRenderedCompare from '../../benchmarks/lighthouse-server-side-rendered-tests/Compare.astro'
 import InitialLoadCompare from '../../benchmarks/initial-load/Compare.astro'
 import SSRThroughputCompare from '../../benchmarks/server-side-throughput-tests/Compare.astro'
-import SSRLoadStatsTable from '../../benchmarks/ssr-load-test/SSRLoadStatsTable.astro'
 import SSRLoadP99Charts from '../../benchmarks/ssr-load-test/SSRLoadP99Charts.astro'
 import SSRLoadP90Charts from '../../benchmarks/ssr-load-test/SSRLoadP90Charts.astro'
 import SSRLoadP75Charts from '../../benchmarks/ssr-load-test/SSRLoadP75Charts.astro'
 import { Content as SSRLoadDescription } from '../../benchmarks/ssr-load-test/Description.mdx'
 import { Content as SSRRouterLinkLoadDescription } from '../../benchmarks/ssr-router-link-load-test/Description.mdx'
 
-## Setup
-
 <RunTimeSetup />
-
-<div data-framework-scope="focused">
 
 ## Client Side Rendered Tests (Lighthouse)
 
@@ -41,8 +36,6 @@ import { Content as SSRRouterLinkLoadDescription } from '../../benchmarks/ssr-ro
 
 <SSRLoadDescription />
 
-<SSRLoadStatsTable />
-
 ### P99 Latency
 
 <SSRLoadP99Charts />
@@ -59,8 +52,6 @@ import { Content as SSRRouterLinkLoadDescription } from '../../benchmarks/ssr-ro
 
 <SSRRouterLinkLoadDescription />
 
-<SSRLoadStatsTable testsKey="ssrRouterLinkLoadTests" />
-
 ### P99 Latency
 
 <SSRLoadP99Charts testsKey="ssrRouterLinkLoadTests" />
@@ -72,5 +63,3 @@ import { Content as SSRRouterLinkLoadDescription } from '../../benchmarks/ssr-ro
 ### P75 Latency
 
 <SSRLoadP75Charts testsKey="ssrRouterLinkLoadTests" />
-
-</div>

@@ -1,11 +1,13 @@
 ---
+import { prepareInteractionBreakdownTable } from '../../lib/prepare-table'
+import StatsTable from '../../components/StatsTable.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
 import { INTERACTION_PHASES } from '../../lib/interaction-phases'
 import InteractionChartCaption from './InteractionChartCaption.astro'
 import StackedBarChart from '../../components/StackedBarChart.astro'
 
 interface InteractionBreakdownDatum {
   name: string
-  focused: boolean
   values: Record<string, number>
 }
 
@@ -15,13 +17,27 @@ interface Props {
 }
 
 const { title, data } = Astro.props
-const series = INTERACTION_PHASES.map(({ key, label, colorVar }) => ({
+const series = INTERACTION_PHASES.map(({ key, label, color }) => ({
   key,
   label,
-  color: `var(${colorVar})`,
+  color,
 }))
+
+const chart1 = { title, series, data, valueFormat: 'ms' } as const
+const chart1Table = prepareInteractionBreakdownTable(chart1)
 ---
 
-<StackedBarChart {title} {series} {data} valueFormat="ms">
-  <InteractionChartCaption slot="caption" {title} />
-</StackedBarChart>
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <StackedBarChart slot="chart" {...chart1}>
+    <InteractionChartCaption slot="caption" />
+  </StackedBarChart>
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>

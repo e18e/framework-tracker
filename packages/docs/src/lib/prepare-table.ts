@@ -1,3 +1,9 @@
+import type { TableColumn } from '../components/StatsTable.astro'
+import type {
+  ChartDatum,
+  ChartValueFormat,
+  LineComparisonSeries,
+} from './types'
 import { prepareInitialLoadResources } from './initial-load'
 import { formatChartValue } from './chart'
 import { frameworks } from '@framework-tracker/results/frameworks'
@@ -31,7 +37,6 @@ export const cwvStats = (device: Device) =>
     .map(({ data }) => ({
       name: data.name,
       package: data.package,
-      isFocused: true,
       overallPercent: Math.floor(data.overall[device] * 100),
       lcpPercent: Math.floor(data.lcp[device] * 100),
       clsPercent: Math.floor(data.cls[device] * 100),
@@ -84,10 +89,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
       return {
         name: framework.name,
         package: framework.package,
-        isFocused:
-          framework.package === 'app-baseline-html'
-            ? true
-            : framework.isFocused,
+
         peakRequestsPerSec:
           framework[key]!.representativePeak.requestsPerSec.toLocaleString(),
         peakWorkers:
@@ -112,7 +114,6 @@ export const serverSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      isFocused: framework.isFocused,
       firstPaintMs: formatMilliseconds(tests.firstPaintMs),
       fcpMs: formatMilliseconds(tests.fcpMs),
       interactionLatencyMs: formatMilliseconds(
@@ -139,7 +140,6 @@ export const clientSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      isFocused: framework.isFocused,
       firstPaintMs: formatMilliseconds(tests.firstPaintMs),
       fcpMs: formatMilliseconds(tests.fcpMs),
       interactionLatencyMs: formatMilliseconds(
@@ -162,7 +162,6 @@ function formatMilliseconds(value: number | undefined) {
 export const depsStats = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   directDependencies: [
     f.devDependencies.toLocaleString(),
     f.prodDependencies.toLocaleString(),
@@ -183,7 +182,6 @@ export const firstPartyDepsStats = starterStats.map((f) => {
   return {
     name: f.name,
     package: f.package,
-    isFocused: f.isFocused,
     directDependencies: [
       dependencies.devDependencies.toLocaleString(),
       dependencies.prodDependencies.toLocaleString(),
@@ -197,7 +195,6 @@ export const firstPartyDepsStats = starterStats.map((f) => {
 export const minimumNodeVersionTableData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   minNodeVersion: f.minimumNodeVersion ? `v${f.minimumNodeVersion}` : '—',
   imposedBy: f.minimumNodeVersionImposedBy?.length
     ? f.minimumNodeVersionImposedBy.join(', ')
@@ -230,7 +227,6 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
     {
       name: f.name,
       package: f.package,
-      isFocused: f.isFocused,
       allDependencies: dependencies.allDependencies.toLocaleString(),
       devDependencies: dependencies.devDependencies.toLocaleString(),
       prodDependencies: dependencies.prodDependencies.toLocaleString(),
@@ -243,7 +239,6 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
 export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   medianInstall: formatTimeMs(f.install.installTimeMs.median),
   minInstall: formatTimeMs(f.install.installTimeMs.min),
   maxInstall: formatTimeMs(f.install.installTimeMs.max),
@@ -258,7 +253,6 @@ export const buildInstallData = starterStats.map((f) => ({
 export const devServerStartData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  isFocused: f.isFocused,
   medianStart: formatTimeMs(f.devServerStartTime?.medianMs ?? Number.NaN),
   minStart: formatTimeMs(f.devServerStartTime?.minMs ?? Number.NaN),
   maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
@@ -269,7 +263,6 @@ export const coreJsTableData = starterStats.map((f) => {
   return {
     name: f.name,
     package: f.package,
-    isFocused: f.isFocused,
     detected: f.vendoredCoreJsSize == null ? '—' : hasCorejs ? 'Yes' : 'No',
     bundledSize: hasCorejs
       ? `${((f.vendoredCoreJsSize ?? 0) / 1024).toFixed(1)} KB`
@@ -303,7 +296,6 @@ export const browserBaselineTableData = starterStats.map((f) => {
   return {
     name: f.name,
     package: f.package,
-    isFocused: f.isFocused,
     status: formatBaselineStatus(
       baseline?.baselineStatus,
       baseline?.baselineFeatureCount,
@@ -330,7 +322,6 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
       {
         name: f.name,
         package: f.package,
-        isFocused: f.package === 'app-baseline-html' ? true : f.isFocused,
         opsPerSec: Math.round(tests.opsPerSec).toLocaleString(),
         latencyMs: `${Number(tests.latencyMs.toFixed(3))}ms`,
         bodySizeKb: `${tests.bodySizeKb}kb`,
@@ -348,7 +339,6 @@ export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
       {
         name: framework.name,
         package: framework.package,
-        isFocused: framework.isFocused,
         requests: resources.total.requestCount,
         total: formatChartValue(resources.total.transferSize / 1024, 'kb'),
         ...Object.fromEntries(
@@ -360,3 +350,659 @@ export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
     ]
   },
 )
+
+type ComparisonTableInput = {
+  title: string
+  data: ChartDatum[]
+  valueFormat: ChartValueFormat
+  yAxisLabel: string
+}
+type StackedTableInput = {
+  title: string
+  data: { name: string; values: Record<string, number> }[]
+  series: { key: string; label: string }[]
+  valueFormat?: ChartValueFormat
+}
+type LatencyTableInput = {
+  title: string
+  xValues: string[]
+  series: LineComparisonSeries[]
+  valueFormat: ChartValueFormat
+}
+const frameworkDefinition = (name: string) =>
+  frameworks.find((f) => f.displayName === name || f.name === name)
+function frameworkColumn(): TableColumn {
+  return {
+    key: 'name',
+    header: 'Framework',
+    nameCell: true,
+    alignment: 'left',
+    href: (row) => {
+      const f = frameworkDefinition(String(row.name))
+      return f && f.name !== 'baseline-html'
+        ? `/framework/${getFrameworkSlug(f.starter?.package ?? f.app?.package ?? f.name)}/`
+        : '/run-time/#server-side-throughput-tests'
+    },
+  }
+}
+function dependencyGraphColumn(
+  source: 'core' | 'first-party' | 'starter',
+): TableColumn {
+  return {
+    key: 'graph',
+    header: 'Graph',
+    href: (row) => {
+      const name = String(row.name)
+      if (source === 'core')
+        return frameworkDepsStats.find((f) => f.name === name)?.graphUrl
+      const framework = frameworkDefinition(name)
+      const file =
+        source === 'first-party'
+          ? 'first-party-dependencies.json'
+          : 'package.json'
+      return framework?.starter
+        ? `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.starter.package}/${file}`
+        : null
+    },
+  }
+}
+
+export function prepareProductionBuildSizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareBuildSizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareInstallTimeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareDevServerStartupTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareStarterDependenciesTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+    dependencyGraphColumn('starter'),
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareDependenciesTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareProductionDependenciesTable(
+  input: ComparisonTableInput,
+) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareCorePackageDependenciesTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+    dependencyGraphColumn('core'),
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareFirstPartyDuplicateDependenciesTable(
+  input: ComparisonTableInput,
+) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+    dependencyGraphColumn('first-party'),
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareFirstPartyDependenciesTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+    dependencyGraphColumn('first-party'),
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareDuplicateDependenciesTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+    dependencyGraphColumn('starter'),
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      graph: 'View graph',
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRResponseBodySizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRThroughputTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRRequestLatencyTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareCoreWebVitalTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareSSRLoadP75Table(input: LatencyTableInput) {
+  return {
+    label: `${input.title} data`,
+    columns: [
+      frameworkColumn(),
+      ...input.xValues.map((x) => ({ key: x, header: x })),
+    ],
+    data: input.series.map((s) => ({
+      name: s.name,
+      ...Object.fromEntries(
+        input.xValues.map((x) => {
+          const point = s.points.find((p) => p.x === x)
+          return [
+            x,
+            point?.value == null
+              ? '—'
+              : formatChartValue(point.value, input.valueFormat),
+          ]
+        }),
+      ),
+    })),
+  }
+}
+
+export function prepareSSRLoadP99Table(input: LatencyTableInput) {
+  return {
+    label: `${input.title} data`,
+    columns: [
+      frameworkColumn(),
+      ...input.xValues.map((x) => ({ key: x, header: x })),
+    ],
+    data: input.series.map((s) => ({
+      name: s.name,
+      ...Object.fromEntries(
+        input.xValues.map((x) => {
+          const point = s.points.find((p) => p.x === x)
+          return [
+            x,
+            point?.value == null
+              ? '—'
+              : formatChartValue(point.value, input.valueFormat),
+          ]
+        }),
+      ),
+    })),
+  }
+}
+
+export function prepareSSRLoadP90Table(input: LatencyTableInput) {
+  return {
+    label: `${input.title} data`,
+    columns: [
+      frameworkColumn(),
+      ...input.xValues.map((x) => ({ key: x, header: x })),
+    ],
+    data: input.series.map((s) => ({
+      name: s.name,
+      ...Object.fromEntries(
+        input.xValues.map((x) => {
+          const point = s.points.find((p) => p.x === x)
+          return [
+            x,
+            point?.value == null
+              ? '—'
+              : formatChartValue(point.value, input.valueFormat),
+          ]
+        }),
+      ),
+    })),
+  }
+}
+
+export function prepareInteractionBreakdownTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareClientRenderedFPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareClientRenderedFCPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareInitialLoadTable(input: StackedTableInput) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareInitialLoadWithoutJavaScriptTable(
+  input: StackedTableInput,
+) {
+  const format = (value: number) =>
+    formatChartValue(value, input.valueFormat ?? 'kb')
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    ...input.series.map((s) => ({ key: s.key, header: s.label })),
+    { key: 'total', header: 'Total' },
+  ]
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      ...Object.fromEntries(
+        input.series.map((s) => [s.key, format(row.values[s.key] ?? 0)]),
+      ),
+      total: format(
+        input.series.reduce((sum, s) => sum + (row.values[s.key] ?? 0), 0),
+      ),
+    })),
+  }
+}
+
+export function prepareNodeModulesSizeTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareServerRenderedFPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}
+
+export function prepareServerRenderedFCPTable(input: ComparisonTableInput) {
+  const columns: TableColumn[] = [
+    frameworkColumn(),
+    { key: 'value', header: input.yAxisLabel },
+  ]
+  if (input.data.some((row) => row.range))
+    columns.push(
+      { key: 'min', header: 'Minimum' },
+      { key: 'max', header: 'Maximum' },
+    )
+  return {
+    label: `${input.title} data`,
+    columns,
+    data: input.data.map((row) => ({
+      name: row.name,
+      value: formatChartValue(row.value, input.valueFormat),
+      min: row.range ? formatChartValue(row.range.min, input.valueFormat) : '—',
+      max: row.range ? formatChartValue(row.range.max, input.valueFormat) : '—',
+    })),
+  }
+}

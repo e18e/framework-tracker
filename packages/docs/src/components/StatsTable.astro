@@ -1,16 +1,17 @@
 ---
 type Row = Record<string, unknown>
 
-interface Column {
+export interface TableColumn {
   key: string
   header: string
   nameCell?: boolean
   href?: (row: Row) => string | null | undefined
+  alignment?: 'center' | 'left' | 'right'
 }
 
 interface Props {
   label: string
-  columns: Column[]
+  columns: TableColumn[]
   data: Row[]
 }
 
@@ -22,9 +23,9 @@ const { label, columns, data } = Astro.props
     <thead>
       <tr>
         {
-          columns.map((col) => (
-            <th scope="col" class={col.nameCell ? 'name-cell' : undefined}>
-              {col.header}
+          columns.map(({ alignment = 'center', header }) => (
+            <th scope="col" class={`${alignment}-column`}>
+              {header}
             </th>
           ))
         }
@@ -33,17 +34,22 @@ const { label, columns, data } = Astro.props
     <tbody>
       {
         data.map((row) => (
-          <tr data-focused={row.isFocused ? 'true' : 'false'}>
-            {columns.map((col) => {
-              const href = col.href?.(row)
+          <tr>
+            {columns.map(({ key, alignment = 'center', href, nameCell }) => {
+              const url = href?.(row)
               return (
-                <td class={col.nameCell ? 'name-cell' : undefined}>
-                  {href ? (
-                    <a href={href} class="table-link">
-                      {String(row[col.key] ?? '')}
+                <td
+                  class:list={[
+                    `${alignment}-column`,
+                    nameCell ? 'name-cell' : undefined,
+                  ]}
+                >
+                  {url ? (
+                    <a href={url} class="table-link">
+                      {String(row[key] ?? '')}
                     </a>
                   ) : (
-                    String(row[col.key] ?? '')
+                    String(row[key] ?? '')
                   )}
                 </td>
               )
@@ -82,7 +88,6 @@ const { label, columns, data } = Astro.props
 
   th {
     padding: 16px;
-    text-align: left;
     font-weight: 600;
     font-size: 14px;
     text-transform: uppercase;
@@ -90,8 +95,16 @@ const { label, columns, data } = Astro.props
     white-space: nowrap;
   }
 
-  th:not(.name-cell) {
+  .left-column {
+    text-align: left;
+  }
+
+  .center-column {
     text-align: center;
+  }
+
+  .right-column {
+    text-align: right;
   }
 
   td {
@@ -100,10 +113,6 @@ const { label, columns, data } = Astro.props
     font-size: 15px;
     color: var(--ft-muted);
     white-space: nowrap;
-  }
-
-  td:not(.name-cell) {
-    text-align: center;
   }
 
   td.name-cell {
@@ -129,10 +138,6 @@ const { label, columns, data } = Astro.props
   .table-link:hover {
     color: var(--ft-accent-hover);
     text-decoration: underline;
-  }
-
-  :global([data-framework-scope='focused']) tr[data-focused='false'] {
-    display: none;
   }
 
   /* Responsive */

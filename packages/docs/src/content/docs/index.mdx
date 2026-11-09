@@ -4,12 +4,13 @@ description: Compare the practical cost of building with modern web frameworks.
 ---
 
 import DepotLogo from '../../assets/depot-logo-horizontal.svg'
-import FocusedFrameworkCards from '../../components/frameworks/FocusedFrameworkCards.astro'
-import AdditionalFrameworkCards from '../../components/frameworks/AdditionalFrameworkCards.astro'
+import FrameworkCards from '../../components/frameworks/FrameworkCards.astro'
 
 Framework Tracker compares the real cost of building with modern web frameworks. It looks at what developers inherit when they start a project and what users and servers experience when it runs.
 
-The goal is not to crown one universal winner. It is to make trade-offs easier to see, from the dependencies you will inherit to the cost to your CI/CD pipelines, server performance, how fast the browser first paints, and more. It's an ever-growing list of tests that we will add to with community support.
+The goal is to make the trade-offs easier to see and help framework authors iterate and improve each meta-framework. Buidling on the E18E’s mission to improve the JavaScript ecosystem.
+
+It's an ever-growing list of tests that we will add to with community support.
 
 If you find an issue with a test or have an idea for new ones, please open an issue in our repo: [Framework Tracker Github Project](https://github.com/e18e/framework-tracker/issues)
 
@@ -19,25 +20,30 @@ We currently split our tests into two sections: Dev Time and Run Time. Dev Time 
 
 ### Dev Time
 
-- Dependency counts
-- Node Modules Size
-- Build and Install Times
-- Dev Server Startup
-- Core-JS Polyfills
-- Browser Baseline
-- Minimum Node Version
+- [Dependency counts](/dev-time/#dependency-counts)
+- [Node Modules Size](/dev-time/#node-modules-size)
+- [Build and Install Times](/dev-time/#build-and-install-times)
+- [Dev Server Startup](/dev-time/#dev-server-startup)
+- [Core-JS Polyfills](/dev-time/#core-js-polyfills)
+- [Browser Baseline](/dev-time/#browser-baseline)
+- [Minimum Node Version](/dev-time/#minimum-node-version)
 
 ### Run Time
 
-- Lighthouse Client-Side Rendered
-- Lighthouse Server-Side Rendered
-- Server-Side Throughput
-- SSR Load Tests
-- SS Framework Router Link Load Test
+- [Lighthouse Client-Side Rendered](/run-time/#client-side-rendered-tests-lighthouse)
+- [Lighthouse Server-Side Rendered](/run-time/#server-side-rendered-tests-lighthouse)
+- [Initial Load](/run-time/#initial-load)
+- [Server-Side Throughput](/run-time/#server-side-throughput-tests)
+- [SSR Load Tests](/run-time/#ssr-load-test)
+- [SS Framework Router Link Load Test](/run-time/#ssr-router-link-load-test)
 
 ### Core Web Vitals
 
-[Core Web Vitals](/core-web-vitals/) compares desktop and mobile website performance using HTTP Archive technology reports.
+- Largest Contentful Paint (LCP): [Desktop](/core-web-vitals/#desktop-lcp) · [Mobile](/core-web-vitals/#mobile-lcp)
+- Cumulative Layout Shift (CLS): [Desktop](/core-web-vitals/#desktop-cls) · [Mobile](/core-web-vitals/#mobile-cls)
+- First Contentful Paint (FCP): [Desktop](/core-web-vitals/#desktop-fcp) · [Mobile](/core-web-vitals/#mobile-fcp)
+- Time to First Byte (TTFB): [Desktop](/core-web-vitals/#desktop-ttfb) · [Mobile](/core-web-vitals/#mobile-ttfb)
+- Interaction to Next Paint (INP): [Desktop](/core-web-vitals/#desktop-inp) · [Mobile](/core-web-vitals/#mobile-inp)
 
 Dev Time and Run Time tests run in the CI pipeline, and we save the results to a JSON file that the Astro docs site loads. The [Methodology](/methodology) page explains how we collect each metric.
 
@@ -59,14 +65,8 @@ We track metrics for all `major` and `minor` versions. Stats show the latest ver
   </a>
 </div>
 
-## Featured frameworks
+## Frameworks
 
-We measure the following frameworks using the versions listed below.
+We measure the following frameworks using the versions listed below. The Dev Time, Run Time, and Core Web Vitals pages include all tracked frameworks with available measurements.
 
-<FocusedFrameworkCards />
-
-## Additional frameworks
-
-We also track the frameworks below. The [All Results](/all-results/) page includes every tracked framework and test, including the featured frameworks. The Dev Time, Run Time, and Core Web Vitals pages focus on the featured frameworks.
-
-<AdditionalFrameworkCards />
+<FrameworkCards />

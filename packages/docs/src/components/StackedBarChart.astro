@@ -1,5 +1,5 @@
 ---
-import { formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
 import type { ChartValueFormat } from '../lib/types'
 interface Series {
   key: string
@@ -8,7 +8,6 @@ interface Series {
 }
 interface Datum {
   name: string
-  focused: boolean
   values: Record<string, number>
 }
 interface Props {
@@ -21,7 +20,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
 ---
 
 <figure>
-  <slot name="caption"><figcaption>{title}</figcaption></slot>
+  <slot name="caption" />
   {
     !Astro.slots.has('caption') && (
       <ul class="legend" aria-label="Chart series">
@@ -37,10 +36,10 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   <div
     class="stacked-chart"
     data-stacked={JSON.stringify({ title, series, data, valueFormat })}
+    style={`--chart-height: ${SHARED_CHART_HEIGHT}px`}
   >
     <div class="chart-host"></div>
     <div class="logo-layer" aria-hidden="true"></div>
-    <div class="median-line" aria-hidden="true"><span></span></div>
   </div>
   <div class="sr-only">
     <table>
@@ -55,7 +54,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
       <tbody
         >{
           data.map((row) => (
-            <tr data-focused={String(row.focused)}>
+            <tr>
               <th scope="row">{row.name}</th>
               {series.map((item) => (
                 <td>{formatChartValue(row.values[item.key]!, valueFormat)}</td>
@@ -72,12 +71,12 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
     margin: 0 0 2em;
     width: 100%;
   }
-  figcaption {
-    font-weight: 600;
-    color: var(--sl-color-white);
-  }
   .stacked-chart {
     position: relative;
+    min-height: var(--chart-height);
+  }
+  .stacked-chart :global(.ts-chart:focus:not(:focus-visible)) {
+    outline: none;
   }
   .logo-layer {
     position: absolute;
@@ -93,29 +92,6 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
     margin: 0;
     object-fit: contain;
     transform: translate(-100%, -50%);
-  }
-  .median-line {
-    position: absolute;
-    width: 3px;
-    pointer-events: none;
-    margin: 0;
-  }
-  .median-line::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, #7bb560, #bece57, #f2ca60, #ec8f5e);
-    mask: repeating-linear-gradient(to bottom, #000 0 5px, transparent 5px 9px);
-  }
-  .median-line span {
-    position: absolute;
-    top: -24px;
-    left: 0;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    color: var(--sl-color-text-accent);
-    font-size: 0.75rem;
-    font-weight: 600;
   }
   .legend {
     display: flex;
@@ -137,13 +113,10 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
     border-radius: 2px;
     border: 1px solid var(--ft-border);
   }
-  :global([data-framework-scope='focused']) tr[data-focused='false'] {
-    display: none;
-  }
 </style>
 <script>
   import {
-    barX,
+    rect,
     defineChart,
     mountChart,
     text,
@@ -153,7 +126,12 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   import { scaleBand } from '@tanstack/charts/scales/band'
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
-  import { formatChartValue, getFrameworkLogoSource } from '../lib/chart'
+  import {
+    SHARED_BAR_INSET,
+    SHARED_CHART_HEIGHT,
+    formatChartValue,
+    getFrameworkLogoSource,
+  } from '../lib/chart'
   import type { ChartValueFormat } from '../lib/types'
   interface Segment {
     name: string
@@ -168,7 +146,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
     title: string
     valueFormat: ChartValueFormat
     series: { key: string; label: string; color: string }[]
-    data: { name: string; focused: boolean; values: Record<string, number> }[]
+    data: { name: string; values: Record<string, number> }[]
   }
   const hosts = new WeakMap<HTMLElement, ChartHost<Segment, number, string>>()
   function initCharts() {
@@ -176,14 +154,9 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
       .querySelectorAll<HTMLElement>('[data-stacked]')
       .forEach((element) => {
         const payload = JSON.parse(element.dataset.stacked!) as Payload
-        const focused =
-          element.closest<HTMLElement>('[data-framework-scope]')?.dataset
-            .frameworkScope === 'focused'
         const totalFor = (row: Payload['data'][number]) =>
           payload.series.reduce((sum, item) => sum + row.values[item.key]!, 0)
-        const rows = payload.data
-          .filter((row) => !focused || row.focused)
-          .sort((a, b) => totalFor(a) - totalFor(b))
+        const rows = payload.data.sort((a, b) => totalFor(a) - totalFor(b))
         if (!rows.length) return
         const segments = rows.flatMap((row) => {
           let offset = 0
@@ -210,12 +183,6 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
           (segment) => segment.label === payload.series[0]!.label,
         )
         const max = Math.max(1, ...labels.map((d) => d.total))
-        const sorted = labels.map((d) => d.total).sort((a, b) => a - b)
-        const mid = Math.floor(sorted.length / 2)
-        const median =
-          sorted.length % 2
-            ? sorted[mid]!
-            : (sorted[mid - 1]! + sorted[mid]!) / 2
         const logoLayer = element.querySelector<HTMLElement>('.logo-layer')!
         logoLayer.replaceChildren(
           ...rows.map((row) => {
@@ -232,7 +199,6 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
             return logo
           }),
         )
-        const medianLine = element.querySelector<HTMLElement>('.median-line')!
         const muted =
           getComputedStyle(document.documentElement)
             .getPropertyValue('--ft-muted')
@@ -240,29 +206,26 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
         const format = (value: number) =>
           formatChartValue(value, payload.valueFormat)
         const definition = defineChart({
-          margin: { left: 36, right: 0, top: 24, bottom: 0 },
+          margin: { left: 36, right: 0, top: 12, bottom: 0 },
+          focusRing: false,
           marks: [
-            barX(
-              segments.filter((d) => d.value > 0),
-              {
-                x1: 'start',
-                x2: 'end',
-                y: 'name',
-                fill: (d) =>
-                  d.color.startsWith('var(')
-                    ? getComputedStyle(document.documentElement)
-                        .getPropertyValue(d.color.slice(4, -1))
-                        .trim() || muted
-                    : d.color,
-                inset: 0,
-                radius: (d) => [
-                  d.start === 0 ? 8 : 0,
-                  d.end === d.total ? 8 : 0,
-                  d.end === d.total ? 8 : 0,
-                  d.start === 0 ? 8 : 0,
-                ],
-              },
-            ),
+            ...segments
+              .filter((d) => d.value > 0)
+              .map((d) =>
+                rect([d], {
+                  x1: 'start',
+                  x2: 'end',
+                  y: 'name',
+                  fill: d.color,
+                  inset: SHARED_BAR_INSET,
+                  radius: [
+                    d.start === 0 ? 8 : 0,
+                    d.end === d.total ? 8 : 0,
+                    d.end === d.total ? 8 : 0,
+                    d.start === 0 ? 8 : 0,
+                  ],
+                }),
+              ),
             text(labels, {
               x: 'total',
               y: 'name',
@@ -303,18 +266,21 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
             content: (points) => ({
               title: points[0]!.datum.name,
               rows: [
-                {
-                  label: points[0]!.datum.label,
-                  value: format(points[0]!.datum.value),
-                },
                 { label: 'Total', value: format(points[0]!.datum.total) },
+                ...segments
+                  .filter((segment) => segment.name === points[0]!.datum.name)
+                  .map((segment) => ({
+                    label: segment.label,
+                    value: format(segment.value),
+                    color: segment.color,
+                  })),
               ],
             }),
           },
         })
         const options = {
           definition,
-          height: Math.max(80, rows.length * 56 + 24),
+          height: SHARED_CHART_HEIGHT,
           onRender: ({
             scene,
           }: ChartRenderContext<Segment, number, string>) => {
@@ -323,11 +289,6 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
               logo.style.left = `${scene.chart.x - 12}px`
               logo.style.top = `${scene.scales.y!.map(rows[index]!.name)}px`
             })
-            medianLine.style.left = `${scene.scales.x!.map(median)}px`
-            medianLine.style.top = `${scene.chart.y}px`
-            medianLine.style.height = `${scene.chart.height}px`
-            medianLine.querySelector('span')!.textContent =
-              `Median: ${format(median)}`
           },
           ariaLabel: `${payload.title}. Stacked bar chart; a data table follows.`,
         }

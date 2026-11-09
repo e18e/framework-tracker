@@ -1,7 +1,7 @@
 ---
 import { browserBaselineTableData } from '../../lib/prepare-table'
 import { getFrameworkSlug } from '../../lib/utils'
-import StatsTable from '../../components/StatsTable.astro'
+import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 interface Props {
   packageName?: string
@@ -20,6 +20,7 @@ const columns = [
     key: 'name',
     header: 'Framework',
     nameCell: true,
+    alignment: 'left',
     href: (row: Record<string, unknown>) =>
       `/framework/${getFrameworkSlug(row.package as string)}`,
   },
@@ -27,7 +28,7 @@ const columns = [
   { key: 'feature', header: 'Feature' },
   { key: 'year', header: 'Year' },
   { key: 'features', header: 'Features' },
-]
+] satisfies TableColumn[]
 ---
 
 <StatsTable label={label} columns={columns} data={data} />

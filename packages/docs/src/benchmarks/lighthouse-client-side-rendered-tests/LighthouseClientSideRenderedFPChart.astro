@@ -5,7 +5,11 @@ import {
   runtimeHistory,
   ssrRequestThroughputStats,
 } from '../../lib/prepare-chart'
-import ComparisonComposition from '../../components/ComparisonComposition.astro'
+import StatsTable from '../../components/StatsTable.astro'
+import { prepareClientRenderedFPTable } from '../../lib/prepare-table'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
+import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
+import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 
 const bar = prepareLighthouseClientSideRenderedTestsFirstPaintMsComparison(
   ssrRequestThroughputStats,
@@ -15,6 +19,27 @@ const line =
     runtimeHistory,
     ssrRequestThroughputStats,
   )
+
+const hasVariance = bar.data.some((datum) => datum.range)
+const options = [
+  { value: 'bar', label: 'Comparison' },
+  ...(hasVariance ? [{ value: 'variance', label: 'Variance' }] : []),
+  { value: 'line', label: 'Over time' },
+  { value: 'table', label: 'Table' },
+]
+const table = prepareClientRenderedFPTable(bar)
 ---
 
-<ComparisonComposition bar={bar} line={line} />
+<ViewSwitcher
+  title={bar.title}
+  label={`${bar.title} chart type`}
+  {options}
+  defaultValue="bar"
+>
+  <ComparisonBarChart slot="bar" {...bar} />
+  <Fragment slot="variance">
+    {hasVariance && <ComparisonBarChart {...bar} view="variance" />}
+  </Fragment>
+  <ComparisonLineChart slot="line" {...line} />
+  <StatsTable slot="table" {...table} />
+</ViewSwitcher>

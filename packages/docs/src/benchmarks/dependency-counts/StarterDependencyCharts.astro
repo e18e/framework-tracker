@@ -1,9 +1,28 @@
 ---
-import DepsChart from './DepsChart.astro'
+import { prepareStarterDependenciesTable } from '../../lib/prepare-table'
+import StatsTable from '../../components/StatsTable.astro'
+import ViewSwitcher from '../../components/ViewSwitcher.astro'
+import StackedBarChart from '../../components/StackedBarChart.astro'
+import { prepareDependencyStackedChart } from '../../lib/prepare-chart'
 import DuplicateDependencyChart from './DuplicateDependencyChart.astro'
-import ProdDepsChart from './ProdDepsChart.astro'
+
+const chart1 = {
+  title: 'Starter Dependencies',
+  ...prepareDependencyStackedChart(),
+}
+const chart1Table = prepareStarterDependenciesTable(chart1)
 ---
 
-<DepsChart />
-<ProdDepsChart />
+<ViewSwitcher
+  title={chart1.title}
+  label={`${chart1.title} view`}
+  options={[
+    { value: 'chart', label: 'Comparison' },
+    { value: 'table', label: 'Table' },
+  ]}
+  defaultValue="chart"
+>
+  <StackedBarChart slot="chart" {...chart1} />
+  <StatsTable slot="table" {...chart1Table} />
+</ViewSwitcher>
 <DuplicateDependencyChart />

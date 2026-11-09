@@ -1,10 +1,12 @@
 import { INTERACTION_PHASES } from './interaction-phases'
+import { stackGrays } from './chart-styles'
 import { prepareInitialLoadResources } from './initial-load'
 import { getCollection } from 'astro:content'
 import { frameworks } from '@framework-tracker/results/frameworks'
 export * from './chart-measurements'
 import type { CombinedResult } from '@framework-tracker/results/storage'
 import { prepareRuntimeResult, prepareStarterResult } from './result-content'
+import type { ChartMeasurement, StackedAreaChartPayload } from './types'
 
 const resultFiles = import.meta.glob<CombinedResult>(
   '../../../../results/**/*.json',
@@ -90,7 +92,6 @@ export function getRenderedInteractionBreakdownData(
 
     return {
       name: framework.name,
-      focused: framework.isFocused !== false,
       interactionLatencyMs: interaction.interactionLatencyMs,
       values: Object.fromEntries(
         INTERACTION_PHASES.map(({ key }) => [key, interaction[key]]),
@@ -115,7 +116,6 @@ export function getCWVStatsChartData(cwv: CWV, device: Device) {
     .map((stat) => ({
       name: stat.name,
       value: stat[`${cwv}Percent`],
-      focused: true,
     }))
 }
 
@@ -123,10 +123,10 @@ const cwvEntries = await getCollection('cwv')
 export type Device = 'desktop' | 'mobile'
 
 export const initialLoadSeries = [
-  { key: 'html', label: 'HTML', color: '#e34c26' },
-  { key: 'css', label: 'CSS', color: '#1572b6' },
-  { key: 'js', label: 'JavaScript', color: '#f7df1e' },
-  { key: 'other', label: 'Other', color: 'var(--ft-muted)' },
+  { key: 'html', label: 'HTML', color: stackGrays[0] },
+  { key: 'css', label: 'CSS', color: stackGrays[1] },
+  { key: 'js', label: 'JavaScript', color: stackGrays[2] },
+  { key: 'other', label: 'Other', color: stackGrays[3] },
 ]
 
 export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
@@ -136,7 +136,6 @@ export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
     return [
       {
         name: framework.name,
-        focused: framework.isFocused,
         requests: resources.total.requestCount,
         total: resources.total.transferSize / 1024,
         values: prepareInitialLoadResources(resources),
@@ -144,3 +143,60 @@ export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
     ]
   },
 )
+
+export type DependencySource =
+  'frameworkDependencies' | 'firstPartyDependencies'
+
+const dependencySeries = [
+  { key: 'prod', label: 'Production', color: stackGrays[0] },
+  { key: 'dev', label: 'Development', color: stackGrays[1] },
+]
+
+export function prepareDependencyStackedChart(source?: DependencySource) {
+  const data = starterStats.flatMap((framework) => {
+    const dependencies = source ? framework[source] : framework
+    const prod = dependencies?.prodDependencies
+    const dev = dependencies?.devDependencies
+    if (
+      typeof prod !== 'number' ||
+      !Number.isFinite(prod) ||
+      typeof dev !== 'number' ||
+      !Number.isFinite(dev)
+    )
+      return []
+    return [{ name: framework.name, values: { prod, dev } }]
+  })
+  return { series: dependencySeries, data, valueFormat: 'count' as const }
+}
+
+export function prepareDependencyHistoryChart(
+  versions: readonly ChartMeasurement[],
+  source?: DependencySource,
+): Omit<StackedAreaChartPayload, 'title'> {
+  const data = versions.flatMap((version) => {
+    const counts = source ? version[source] : version
+    const prod = counts?.prodDependencies
+    const dev = counts?.devDependencies
+    if (
+      prod == null ||
+      dev == null ||
+      !Number.isFinite(prod) ||
+      !Number.isFinite(dev)
+    )
+      return []
+    return [
+      {
+        name: version.frameworkVersion ?? 'Unknown',
+        values: { prod, dev },
+        total: counts?.allDependencies ?? null,
+      },
+    ]
+  })
+  return {
+    data,
+    series: dependencySeries,
+    valueFormat: 'count',
+    yAxisLabel: 'Dependencies',
+    totalLabel: 'Measured total',
+  }
+}

@@ -1,5 +1,5 @@
 ---
-import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatValue } from '../lib/chart'
 import type { ChartValueFormat } from '../lib/types'
 interface Series {
   key: string
@@ -57,7 +57,11 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
             <tr>
               <th scope="row">{row.name}</th>
               {series.map((item) => (
-                <td>{formatChartValue(row.values[item.key]!, valueFormat)}</td>
+                <td>
+                  {formatValue(row.values[item.key]!, valueFormat, {
+                    sigFigs: 2,
+                  })}
+                </td>
               ))}
             </tr>
           ))
@@ -128,7 +132,7 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
   import {
     SHARED_BAR_INSET,
     SHARED_CHART_HEIGHT,
-    formatChartValue,
+    formatValue,
     getFrameworkLogoSource,
   } from '../lib/chart'
   import type { ChartValueFormat } from '../lib/types'
@@ -203,7 +207,9 @@ const { title, series, data, valueFormat = 'kb' } = Astro.props
             .getPropertyValue('--ft-muted')
             .trim() || '#697586'
         const format = (value: number) =>
-          formatChartValue(value, payload.valueFormat)
+          formatValue(value, payload.valueFormat, {
+            sigFigs: 2,
+          })
         const definition = defineChart({
           margin: { left: 36, right: 0, top: 12, bottom: 0 },
           focusRing: false,

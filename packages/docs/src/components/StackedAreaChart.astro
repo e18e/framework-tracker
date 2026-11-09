@@ -1,5 +1,5 @@
 ---
-import { formatChartValue } from '../lib/chart'
+import { formatValue } from '../lib/chart'
 import type { StackedAreaChartPayload } from '../lib/types'
 
 type Props = StackedAreaChartPayload
@@ -72,11 +72,15 @@ const chartPayload = JSON.stringify({
                     <td>
                       {total == null
                         ? '—'
-                        : formatChartValue(total, valueFormat)}
+                        : formatValue(total, valueFormat, {
+                            sigFigs: 2,
+                          })}
                     </td>
                     {series.map(({ key }) => (
                       <td>
-                        {formatChartValue(datum.values[key]!, valueFormat)}
+                        {formatValue(datum.values[key]!, valueFormat, {
+                          sigFigs: 2,
+                        })}
                       </td>
                     ))}
                   </tr>
@@ -161,7 +165,7 @@ const chartPayload = JSON.stringify({
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { scalePoint } from '@tanstack/charts/scales/point'
   import { tooltip } from '@tanstack/charts/tooltip'
-  import { formatChartValue } from '../lib/chart'
+  import { formatValue } from '../lib/chart'
   import type { StackedAreaChartPayload } from '../lib/types'
 
   interface SeriesPoint {
@@ -269,7 +273,9 @@ const chartPayload = JSON.stringify({
                 ? {
                     format: (value: string | number | Date) =>
                       Number.isInteger(Number(value))
-                        ? formatChartValue(Number(value), 'count')
+                        ? formatValue(Number(value), 'count', {
+                            sigFigs: 2,
+                          })
                         : '',
                   }
                 : undefined,
@@ -294,14 +300,20 @@ const chartPayload = JSON.stringify({
               ...series
                 .map(({ key, label }, index) => ({
                   label,
-                  value: formatChartValue(datum.values[key]!, valueFormat),
+                  value: formatValue(datum.values[key]!, valueFormat, {
+                    sigFigs: 2,
+                  }),
                   color: seriesColors[index]!,
                 }))
                 .reverse(),
               {
                 label: totalLabel,
                 value:
-                  total == null ? '—' : formatChartValue(total, valueFormat),
+                  total == null
+                    ? '—'
+                    : formatValue(total, valueFormat, {
+                        sigFigs: 2,
+                      }),
                 active: true,
               },
             ],

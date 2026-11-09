@@ -1,5 +1,5 @@
 ---
-import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatValue } from '../lib/chart'
 import { lineChartScales } from '../lib/line-chart-config'
 import type { LineComparisonChartPayload } from '../lib/types'
 
@@ -13,9 +13,7 @@ const tableLabel = `${title} by ${scaleConfig.label.toLowerCase()}`
 function seriesColorVars(
   color: LineComparisonChartPayload['series'][number]['color'],
 ) {
-  return color == null
-    ? ''
-    : `--series-dark: ${color.dark}; --series-light: ${color.light ?? color.dark}`
+  return `--series-dark: ${color.dark}; --series-light: ${color.light ?? color.dark}`
 }
 ---
 
@@ -25,10 +23,7 @@ function seriesColorVars(
   <ul class="comparison-line-chart-legend" aria-hidden="true">
     {
       series.map((s) => (
-        <li
-          data-baseline={s.baseline ? 'true' : 'false'}
-          style={seriesColorVars(s.color)}
-        >
+        <li data-variant={s.variant} style={seriesColorVars(s.color)}>
           <span class="comparison-line-chart-swatch" />
           {s.name}
         </li>
@@ -65,7 +60,7 @@ function seriesColorVars(
                   <td>
                     {point.value == null
                       ? '—'
-                      : `${formatChartValue(point.value, valueFormat)} (v${point.version})`}
+                      : `${formatValue(point.value, valueFormat)} (v${point.version})`}
                   </td>
                 ))}
               </tr>
@@ -114,16 +109,19 @@ function seriesColorVars(
   }
 
   .comparison-line-chart-swatch {
-    width: 14px;
-    height: 0;
-    border-top: 3px solid var(--series-color);
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    background: var(--series-color);
     border-radius: 2px;
   }
 
   .comparison-line-chart-legend
-    li[data-baseline='true']
+    li[data-variant='segmented']
     .comparison-line-chart-swatch {
-    border-top-style: dashed;
+    box-sizing: border-box;
+    background: none;
+    border: 2px dashed var(--series-color);
   }
 
   .comparison-line-chart-wrapper {
@@ -138,13 +136,15 @@ function seriesColorVars(
     --ts-chart-tooltip-active-row-font-weight: inherit;
     --ts-chart-tooltip-active-row-background: none;
     --ts-chart-tooltip-active-row-shadow: none;
+    /* Otherwise the divider curls up at the row's rounded corners */
+    --ts-chart-tooltip-active-row-border-radius: 0;
   }
 
   .comparison-line-chart-wrapper
-    :global(.ts-chart-tooltip__row[data-active='true']) {
-    color: var(--tooltip-active-color, inherit);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    :global(.ts-chart-tooltip__row[data-active='true']:not(:last-child)) {
+    margin-bottom: 0.3rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--ft-border, #d9dee7);
   }
 
   .comparison-line-chart-wrapper :global(.ts-chart:focus:not(:focus-visible)) {
@@ -166,8 +166,8 @@ function seriesColorVars(
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
   import { curveMonotoneX } from 'd3-shape'
-  import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
-  import { resolveThemedValue } from '../lib/framework-logos'
+  import { SHARED_CHART_HEIGHT, formatValue } from '../lib/chart'
+  import { resolveBrandColor } from '../lib/framework-logos'
   import {
     lineChartScales,
     lineChartTooltips,
@@ -176,6 +176,9 @@ function seriesColorVars(
   import type { LineComparisonChartPayload } from '../lib/types'
 
   type Row = LineChartRow & { stroke: string }
+  type Series = LineComparisonChartPayload['series'][number]
+
+  const SEGMENTED_DASHARRAY = '5 4'
 
   // Monotone smoothing never overshoots
   const CURVE = d3Curve(curveMonotoneX)
@@ -212,7 +215,7 @@ function seriesColorVars(
     if (!payload) return
 
     const format = (value: number) =>
-      formatChartValue(value, payload.valueFormat)
+      formatValue(value, payload.valueFormat, { sigFigs: 2 })
     const scale = lineChartScales[payload.scale]
     const tooltipConfig = lineChartTooltips[payload.tooltip]
 
@@ -220,45 +223,43 @@ function seriesColorVars(
     if (series.length === 0) return
 
     const theme = document.documentElement.dataset.theme
-    const mutedColor = getCssVar('--ft-muted', '#697586')
     const backgroundColor = getCssVar('--ft-bg', '#ffffff')
-    const toRows = (baseline: boolean) =>
-      series
-        .filter((s) => s.baseline === baseline)
+    const styled = series.map((s) => ({
+      ...s,
+      stroke: resolveBrandColor(s.color, theme),
+    }))
+
+    const toRows = (variant: Series['variant']) =>
+      styled
+        .filter((s) => s.variant === variant)
         .flatMap((s) =>
           s.points.map((point): Row => ({
             ...point,
             xPos: scale.getX(point.x, payload.xValues),
             y: point.value == null ? null : scale.getY(point.value),
             name: s.name,
-            stroke:
-              s.color == null ? mutedColor : resolveThemedValue(s.color, theme),
+            stroke: s.stroke,
           })),
         )
-    const frameworkRows = toRows(false)
-    const baselineRows = toRows(true)
-    const ys = [...frameworkRows, ...baselineRows].flatMap((row) =>
+    const solidRows = toRows('solid')
+    const segmentedRows = toRows('segmented')
+    const ys = [...solidRows, ...segmentedRows].flatMap((row) =>
       row.y == null ? [] : [row.y],
     )
     if (ys.length === 0) return
     const xAxis = scale.getXAxis(payload.xValues)
-    const yAxis = scale.getYAxis(ys, { label: payload.yAxisLabel, format })
+    const yAxis = scale.getYAxis(ys, {
+      label: payload.yAxisLabel,
+      format: (value: number) =>
+        formatValue(value, payload.valueFormat, { sigFigs: 0 }),
+    })
 
     const gridColor = getCssVar(
       '--ft-chart-grid',
       getCssVar('--ft-border', '#d9dee7'),
     )
 
-    const baselineLine = {
-      x: 'xPos',
-      y: 'y',
-      z: 'name',
-      stroke: mutedColor,
-      strokeWidth: 2,
-      strokeDasharray: '5 4',
-      curve: CURVE,
-    } as const
-    const frameworkLine = {
+    const solidLine = {
       x: 'xPos',
       y: 'y',
       z: 'name',
@@ -266,25 +267,26 @@ function seriesColorVars(
       strokeWidth: 2,
       curve: CURVE,
     } as const
-    const pointsFor = (s: (typeof series)[number]) => ({
+    const segmentedLine = {
+      ...solidLine,
+      strokeDasharray: SEGMENTED_DASHARRAY,
+    } as const
+    const pointsFor = (s: (typeof styled)[number]) => ({
       x: 'xPos' as const,
       y: 'y' as const,
       // group-x focus dedupes by z; without it only one series shows
       z: 'name' as const,
       r: 4,
       fill: backgroundColor,
-      stroke:
-        s.baseline || s.color == null
-          ? mutedColor
-          : resolveThemedValue(s.color, theme),
+      stroke: s.stroke,
       strokeWidth: 3,
     })
-    const rowsFor = (s: (typeof series)[number]) =>
-      [...baselineRows, ...frameworkRows].filter(
+    const rowsFor = (s: Series) =>
+      [...segmentedRows, ...solidRows].filter(
         (row) => row.name === s.name && row.y != null,
       )
 
-    const pointMarks = series.map((s) =>
+    const pointMarks = styled.map((s) =>
       dot(rowsFor(s), {
         id: `points-${s.id}`,
         ...pointsFor(s),
@@ -294,16 +296,13 @@ function seriesColorVars(
     // Copies of the hovered series painted above every other line
     const focusedSeriesMarks = [
       whenFocused(
-        lineY(baselineRows, { id: 'baseline-focus', ...baselineLine }),
-        {
-          match: 'series',
-        },
-      ),
-      whenFocused(
-        lineY(frameworkRows, { id: 'frameworks-focus', ...frameworkLine }),
+        lineY(segmentedRows, { id: 'segmented-focus', ...segmentedLine }),
         { match: 'series' },
       ),
-      ...series.map((s) =>
+      whenFocused(lineY(solidRows, { id: 'solid-focus', ...solidLine }), {
+        match: 'series',
+      }),
+      ...styled.map((s) =>
         whenFocused(
           dot(rowsFor(s), { id: `points-focus-${s.id}`, ...pointsFor(s) }),
           {
@@ -312,7 +311,7 @@ function seriesColorVars(
         ),
       ),
       // Solid fill marks the selected point itself
-      ...series.map((s) => {
+      ...styled.map((s) => {
         const points = pointsFor(s)
         return whenFocused(
           dot(rowsFor(s), {
@@ -331,16 +330,16 @@ function seriesColorVars(
       focusRing: false,
       marks: [
         decorative(
-          lineY(baselineRows, {
-            id: 'baseline',
-            ...baselineLine,
+          lineY(segmentedRows, {
+            id: 'segmented',
+            ...segmentedLine,
             states: [DIM_UNFOCUSED_SERIES],
           }),
         ),
         decorative(
-          lineY(frameworkRows, {
-            id: 'frameworks',
-            ...frameworkLine,
+          lineY(solidRows, {
+            id: 'solid',
+            ...solidLine,
             states: [DIM_UNFOCUSED_SERIES],
           }),
         ),

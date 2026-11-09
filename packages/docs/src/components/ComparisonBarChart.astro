@@ -1,5 +1,5 @@
 ---
-import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT, formatValue } from '../lib/chart'
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 interface Props {
@@ -62,7 +62,11 @@ const chartPayload = JSON.stringify({
             chartData.map((datum) => (
               <tr>
                 <th scope="row">{datum.name}</th>
-                <td>{formatChartValue(datum.value, valueFormat)}</td>
+                <td>
+                  {formatValue(datum.value, valueFormat, {
+                    sigFigs: 2,
+                  })}
+                </td>
               </tr>
             ))
           }
@@ -135,7 +139,7 @@ const chartPayload = JSON.stringify({
   import {
     SHARED_BAR_INSET,
     SHARED_CHART_HEIGHT,
-    formatChartValue,
+    formatValue,
     getFrameworkLogoSource,
   } from '../lib/chart'
   import { highlightedGray, primaryGray } from '../lib/chart-styles'
@@ -233,7 +237,10 @@ const chartPayload = JSON.stringify({
     wrapper.querySelector<HTMLElement>('.comparison-logo-layer')!.hidden = false
 
     const format = (value: number, prefix?: boolean) =>
-      formatChartValue(value, payload.valueFormat, prefix)
+      formatValue(value, payload.valueFormat, {
+        prefixPositive: prefix,
+        sigFigs: 2,
+      })
 
     const rows = payload.data
     if (rows.length === 0) return
@@ -329,7 +336,14 @@ const chartPayload = JSON.stringify({
         x: {
           scale: () => scaleLinear().domain([0, max > 0 ? max * 1.15 : 1]),
           axis: variance
-            ? { ticks: { format: (value) => format(Number(value)) } }
+            ? {
+                ticks: {
+                  format: (value) =>
+                    formatValue(Number(value), payload.valueFormat, {
+                      sigFigs: 0,
+                    }),
+                },
+              }
             : false,
         },
         y: {

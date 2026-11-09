@@ -1,7 +1,7 @@
 import { getViteConfig } from 'astro/config'
 import { playwright } from '@vitest/browser-playwright'
 import type { BrowserCommand } from 'vitest/node'
-import type { FixtureName } from './src/components/test/fixtures'
+import type { FixtureName } from './src/components/test/fixtures.ts'
 
 // `.astro` files have to be rendered by the Node-side Vite server; importing
 // them in the browser would run their client scripts during render.
@@ -11,7 +11,7 @@ const renderFixture: BrowserCommand<[name: FixtureName]> = async (
 ) => {
   const { renderFixture } = (await ctx.project.vite.ssrLoadModule(
     '/src/components/test/fixtures.ts',
-  )) as typeof import('./src/components/test/fixtures')
+  )) as typeof import('./src/components/test/fixtures.ts')
   return renderFixture(name)
 }
 

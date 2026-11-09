@@ -33,10 +33,9 @@ const statsTable = (): ComponentProps<typeof StatsTable> => ({
     },
     { key: 'size', header: 'Node Modules Size' },
   ],
-  data: frameworks.map(({ name, package: pkg, isFocused, sizeMb }) => ({
+  data: frameworks.map(({ name, package: pkg, sizeMb }) => ({
     name,
     package: pkg,
-    isFocused,
     size: pkg === 'app-pracht' ? undefined : `${sizeMb} MB`,
   })),
 })

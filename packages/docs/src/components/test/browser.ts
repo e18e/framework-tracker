@@ -3,8 +3,8 @@ import { expect } from 'vitest'
 import { commands } from 'vitest/browser'
 import type { FixtureName } from './fixtures'
 // Starlight's package exports hide its base styles, so they load by path.
-import '../../../node_modules/@astrojs/starlight/style/props.css'
-import '../../../node_modules/@astrojs/starlight/style/util.css'
+import '../../../node_modules/@astrojs/starlight/dist/style/props.css'
+import '../../../node_modules/@astrojs/starlight/dist/style/util.css'
 import '../../styles/starlight.css'
 
 declare module 'vitest/browser' {

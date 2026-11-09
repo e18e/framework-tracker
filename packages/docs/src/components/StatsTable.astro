@@ -18,7 +18,7 @@ interface Props {
 const { label, columns, data } = Astro.props
 ---
 
-<div class="wrapper">
+<div class="table-scroll">
   <table aria-label={label}>
     <thead>
       <tr>
@@ -37,20 +37,11 @@ const { label, columns, data } = Astro.props
           <tr>
             {columns.map(({ key, alignment = 'center', href, nameCell }) => {
               const url = href?.(row)
+              const value = String(row[key] ?? '')
+              const content = url ? <a href={url}>{value}</a> : value
               return (
-                <td
-                  class:list={[
-                    `${alignment}-column`,
-                    nameCell ? 'name-cell' : undefined,
-                  ]}
-                >
-                  {url ? (
-                    <a href={url} class="table-link">
-                      {String(row[key] ?? '')}
-                    </a>
-                  ) : (
-                    String(row[key] ?? '')
-                  )}
+                <td class={`${alignment}-column`}>
+                  {nameCell ? <strong>{content}</strong> : content}
                 </td>
               )
             })}
@@ -62,37 +53,35 @@ const { label, columns, data } = Astro.props
 </div>
 
 <style>
-  .wrapper {
-    width: 100%;
-    max-width: 100%;
+  .table-scroll {
+    margin-block: 1rem 2rem;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-top: 16px;
-    margin-bottom: 2em;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
   }
 
   table {
+    display: table;
     width: 100%;
-    min-width: max-content;
     border-collapse: collapse;
-    background: var(--ft-bg);
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--ft-border);
+    white-space: nowrap;
   }
 
   thead {
-    background: var(--ft-bg-muted);
-    color: var(--ft-text);
+    background: var(--sl-color-gray-6);
   }
 
   th {
-    padding: 16px;
-    font-weight: 600;
-    font-size: 14px;
+    padding: 1rem;
     text-transform: uppercase;
-    letter-spacing: 0;
-    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.875rem 1rem;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
   }
 
   .left-column {
@@ -107,49 +96,10 @@ const { label, columns, data } = Astro.props
     text-align: right;
   }
 
-  td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--ft-border);
-    font-size: 15px;
-    color: var(--ft-muted);
-    white-space: nowrap;
-  }
-
-  td.name-cell {
-    font-weight: 500;
-    color: var(--ft-text);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  tbody tr:hover {
-    background: color-mix(in srgb, var(--ft-accent-hover), transparent 96%);
-  }
-
-  .table-link {
-    color: var(--ft-accent);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
-  .table-link:hover {
-    color: var(--ft-accent-hover);
-    text-decoration: underline;
-  }
-
-  /* Responsive */
-  @media screen and (max-width: 768px) {
+  @media (max-width: 48rem) {
     th,
     td {
-      padding: 12px 8px;
-      font-size: 13px;
-    }
-
-    th {
-      font-size: 12px;
+      padding: 0.75rem 0.5rem;
     }
   }
 </style>

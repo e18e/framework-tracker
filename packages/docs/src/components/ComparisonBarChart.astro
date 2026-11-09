@@ -115,9 +115,7 @@ const chartPayload = JSON.stringify({
   .comparison-chart-wrapper :global(.comparison-logo-fallback) {
     display: grid;
     place-items: center;
-    font:
-      700 12px system-ui,
-      sans-serif;
+    font-weight: 700;
   }
 </style>
 
@@ -279,7 +277,6 @@ const chartPayload = JSON.stringify({
               text: () => '│',
               fill: primaryGray,
               anchor: 'middle',
-              fontSize: 20,
             }),
             text(rows, {
               x: (d) => d.range?.max ?? d.value,
@@ -287,7 +284,6 @@ const chartPayload = JSON.stringify({
               text: () => '│',
               fill: primaryGray,
               anchor: 'middle',
-              fontSize: 20,
             }),
             text(rows, {
               x: (d) => d.range?.median ?? d.value,
@@ -296,7 +292,6 @@ const chartPayload = JSON.stringify({
               dy: 1.5,
               fill: primaryGray,
               anchor: 'middle',
-              fontSize: 15,
             }),
           ]
         : [
@@ -326,7 +321,6 @@ const chartPayload = JSON.stringify({
               text: (d) => format(d.value),
               fill: mutedColor,
               fontWeight: 600,
-              fontSize: 13,
               anchor: 'start',
               dx: 10,
             }),

@@ -113,7 +113,7 @@ const tabs = await Promise.all(
     display: flex;
     flex-wrap: wrap;
     padding: 0;
-    border-bottom: 2px solid var(--ft-border);
+    border-bottom: 2px solid var(--sl-color-gray-5);
   }
 
   /* Starlight gives every sibling inside .sl-markdown-content a 1rem top margin,
@@ -128,7 +128,7 @@ const tabs = await Promise.all(
     border: 0;
     border-bottom: 2px solid transparent;
     background: none;
-    color: var(--ft-muted);
+    color: inherit;
     cursor: pointer;
     opacity: 0.75;
   }
@@ -139,8 +139,7 @@ const tabs = await Promise.all(
   }
 
   .code-comparison-tab[aria-selected='true'] {
-    border-bottom-color: var(--ft-accent);
-    color: var(--ft-text);
+    border-bottom-color: var(--sl-color-text-accent);
     opacity: 1;
   }
 
@@ -158,7 +157,6 @@ const tabs = await Promise.all(
   .code-comparison-symbol {
     display: inline-grid;
     place-items: center;
-    font-size: 1.25rem;
     line-height: 1;
   }
 

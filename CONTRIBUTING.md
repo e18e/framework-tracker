@@ -281,8 +281,18 @@ To get the project running locally:
    ```
 
 5. **Linting and formatting**:
+
    ```bash
    pnpm lint:all        # Run linting across workspace and framework packages
    pnpm format          # Format code with Prettier
    pnpm type-check:all  # Run type checking across workspace and framework packages
    ```
+
+6. **Tests**:
+
+   ```bash
+   pnpm --filter @framework-tracker/docs exec playwright install --only-shell chromium  # Once, for the docs component tests
+   pnpm -r test
+   ```
+
+   Docs component tests live next to their component in `packages/docs/src/components` as `*.browser.test.ts`. They render the component with test data from `src/components/test/fixtures.ts` and run its real client script in headless Chromium.

@@ -82,5 +82,8 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Chromium for docs component tests
+        run: pnpm --filter @framework-tracker/docs exec playwright install --with-deps --only-shell chromium
+
       - name: Run workspace tests
         run: pnpm -r test

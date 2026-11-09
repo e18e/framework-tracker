@@ -4,6 +4,7 @@ import { commands } from 'vitest/browser'
 import type { FixtureName } from './fixtures'
 // Starlight's package exports hide its base styles, so they load by path.
 import '../../../node_modules/@astrojs/starlight/dist/style/props.css'
+import '../../../node_modules/@astrojs/starlight/dist/style/reset.css'
 import '../../../node_modules/@astrojs/starlight/dist/style/util.css'
 import '../../styles/starlight.css'
 

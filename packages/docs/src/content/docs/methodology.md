@@ -58,7 +58,7 @@ runtime configuration details are described in Framework Specific Notes.
 | Framework      | UI library                           | Bundler / build tool         | Adapter / server    |
 | -------------- | ------------------------------------ | ---------------------------- | ------------------- |
 | Astro          | Astro; React for client-only content | Vite (via Astro)             | Node adapter        |
-| Lit            | Lit (web components)                 | Vite                         | No runtime app      |
+| Lit            | Lit (web components)                 | Vite                         | Static file server  |
 | Next.js        | React                                | Turbopack (via `next build`) | Next.js server      |
 | Nuxt           | Vue                                  | Vite (via Nuxt)              | Nitro               |
 | Pracht         | Preact                               | Vite                         | Node adapter        |
@@ -118,8 +118,7 @@ Lit TypeScript template, the closest equivalent to a new Lit app.
 
 The starter is a client-rendered single page with no router or server. The `lit`
 dependency is pinned to an exact version and a `pnpm-workspace.yaml` is added so
-the package installs outside the repository workspace. Lit has no runtime app,
-so it appears in Dev Time benchmarks only.
+the package installs outside the repository workspace.
 
 #### Next.js
 
@@ -340,6 +339,7 @@ throughput, and load behavior for comparable production apps.
 Current pinned dependencies are listed in each project's `package.json`:
 
 - [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/app-astro/package.json)
+- [Lit](https://github.com/e18e/framework-tracker/blob/main/packages/app-lit/package.json)
 - [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/app-next-js/package.json)
 - [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/app-nuxt/package.json)
 - [Pracht](https://github.com/e18e/framework-tracker/blob/main/packages/app-pracht/package.json)
@@ -365,6 +365,11 @@ Current pinned dependencies are listed in each project's `package.json`:
   request-time rendering to block without an explicit Suspense fallback.
   Both linked SSR tables use Client Components. Next.js renders all 1,000
   rows on the server and hydrates the tables when loaded in a browser.
+- Lit's runtime app is a client-rendered single page built with Vite and routed
+  with `@lit-labs/router`. A small `node:http` server in the app serves the build
+  output and falls back to `index.html` for unknown paths. Lit has no server
+  rendering here, so it only runs the client side rendered and initial load
+  benchmarks; its `/initial-load` page is rendered in the browser.
 
 ### Client Side Rendered Tests (Lighthouse)
 
@@ -395,6 +400,8 @@ Current pinned dependencies are listed in each project's `package.json`:
   navigation; the other tested frameworks use client routers.
 - Pracht generates UUID rows in the browser. Both routes use `render: 'spa'`
   and navigate with `<Link>`.
+- Lit renders the table as a light DOM custom element, loaded with a dynamic
+  import when the route is entered. `@lit-labs/router` handles the link click.
 
 ### Server Side Rendered Tests (Lighthouse)
 

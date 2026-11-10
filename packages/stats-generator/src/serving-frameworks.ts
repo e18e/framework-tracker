@@ -13,6 +13,12 @@ export const servingFrameworks: ServingFrameworkConfig[] = [
     fullDocumentNavigation: true,
   },
   {
+    displayName: 'Hono + Lit Server Side Rendered',
+    package: 'app-hono-lit',
+    serveScript: 'hono-lit.ts',
+    fullDocumentNavigation: true,
+  },
+  {
     displayName: 'Lit',
     package: 'app-lit',
     serveScript: 'lit.ts',

@@ -99,6 +99,7 @@ test('routes and result keys separate the two load tests', () => {
     'app-solid',
     'app-sveltekit',
     'app-baseline-html',
+    'app-hono-lit',
   ]) {
     assert.equal(getSSRLoadPath(pkg, 'ssrLoad'), '/server-side-rendered')
     assert.throws(() => getSSRLoadPath(pkg, 'ssrRouterLinkLoad'))

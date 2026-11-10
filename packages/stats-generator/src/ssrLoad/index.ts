@@ -26,6 +26,12 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     serveScript: 'baseline-html.ts',
   },
   {
+    name: 'hono-lit-ssr-load',
+    displayName: 'Hono + Lit SSR Load',
+    package: 'app-hono-lit',
+    serveScript: 'hono-lit.ts',
+  },
+  {
     name: 'astro-ssr-load',
     displayName: 'Astro SSR Load',
     package: 'app-astro',

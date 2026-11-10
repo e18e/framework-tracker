@@ -29,6 +29,22 @@ export const frameworks = [
     },
   },
   {
+    name: 'hono-lit',
+    displayName: 'Hono + Lit',
+    frameworkPackage: 'hono',
+    app: {
+      package: 'app-hono-lit',
+      buildScript: 'build',
+      buildOutputDir: '.',
+      measurements: [
+        'ssrRequestThroughput',
+        'serverSideRendered',
+        'initialLoad',
+        'ssrLoad',
+      ],
+    },
+  },
+  {
     name: 'astro',
     displayName: 'Astro',
     frameworkPackage: 'astro',

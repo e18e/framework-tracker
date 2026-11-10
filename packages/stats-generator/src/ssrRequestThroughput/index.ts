@@ -1,6 +1,7 @@
 import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
 import { buildBaselineHtmlHandler } from './handlers/baseline-html.ts'
+import { buildHonoLitHandler } from './handlers/hono-lit.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
 import { buildPrachtHandler } from './handlers/pracht.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
@@ -28,6 +29,12 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
       displayName: 'Baseline HTML SSR Request Handler Throughput',
       package: 'app-baseline-html',
       buildHandler: buildBaselineHtmlHandler,
+    },
+    {
+      name: 'hono-lit-ssr-request-throughput',
+      displayName: 'Hono + Lit SSR Request Handler Throughput',
+      package: 'app-hono-lit',
+      buildHandler: buildHonoLitHandler,
     },
     {
       name: 'astro-ssr-request-throughput',

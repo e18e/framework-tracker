@@ -376,7 +376,8 @@ Current pinned dependencies are listed in each project's `package.json`:
 - The benchmark clicks the first row's detail link and waits for the detail
   content.
 - Full-document navigations use Lighthouse navigation mode; client-routed
-  navigations use timespan mode.
+  navigations use timespan mode, which ends 100 ms after two animation frames
+  so a late presentation is still recorded.
 - Interaction latency sums the input delay, processing duration, and
   presentation delay from Lighthouse's INP breakdown. It measures this
   controlled interaction, not page-lifetime INP.
@@ -405,7 +406,8 @@ Current pinned dependencies are listed in each project's `package.json`:
 - The benchmark clicks the first row's detail link and waits for the detail
   content.
 - Full-document navigations use Lighthouse navigation mode; client-routed
-  navigations use timespan mode.
+  navigations use timespan mode, which ends 100 ms after two animation frames
+  so a late presentation is still recorded.
 - Interaction latency sums the input delay, processing duration, and
   presentation delay from Lighthouse's INP breakdown. It measures this
   controlled interaction, not page-lifetime INP.

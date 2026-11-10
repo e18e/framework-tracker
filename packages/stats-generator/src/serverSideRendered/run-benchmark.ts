@@ -80,6 +80,9 @@ async function runOnce(
           nextFrame(() => nextFrame(resolve))
         })
       })
+      // Give a slow presentation time to land in the trace: a client router
+      // that swaps 1,000 rows synchronously can paint after the double rAF.
+      await new Promise((resolve) => setTimeout(resolve, 100))
       await flow.endTimespan()
     }
 

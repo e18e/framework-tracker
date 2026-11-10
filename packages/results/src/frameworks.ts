@@ -59,6 +59,24 @@ export const frameworks = [
     },
   },
   {
+    name: 'lit',
+    displayName: 'Lit',
+    frameworkPackage: 'lit',
+    starter: {
+      package: 'starter-lit',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      devServerPort: 5173,
+      measurements: [
+        'install',
+        'build',
+        'devServer',
+        'dependencies',
+        'browserBaseline',
+      ],
+    },
+  },
+  {
     name: 'next',
     displayName: 'Next.js',
     frameworkPackage: 'next',

@@ -63,6 +63,7 @@ export const PackagePathSchema = z.enum([
   'packages/starter-astro',
   'packages/app-astro',
   'packages/starter-lit',
+  'packages/app-lit',
   'packages/starter-next-js',
   'packages/app-next-js',
   'packages/starter-nuxt',

@@ -75,6 +75,12 @@ export const frameworks = [
         'browserBaseline',
       ],
     },
+    app: {
+      package: 'app-lit',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      measurements: ['clientSideRendered', 'initialLoad'],
+    },
   },
   {
     name: 'next',

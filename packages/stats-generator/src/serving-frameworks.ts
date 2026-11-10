@@ -13,6 +13,12 @@ export const servingFrameworks: ServingFrameworkConfig[] = [
     fullDocumentNavigation: true,
   },
   {
+    displayName: 'Lit',
+    package: 'app-lit',
+    serveScript: 'lit.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     displayName: 'Next.js Server Side Rendered',
     package: 'app-next-js',
     serveScript: 'next.ts',

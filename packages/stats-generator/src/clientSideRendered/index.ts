@@ -27,6 +27,13 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: true,
   },
   {
+    name: 'lit-client-side-rendered',
+    displayName: 'Lit Client Side Rendered',
+    package: 'app-lit',
+    serveScript: 'lit.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'next-client-side-rendered',
     displayName: 'Next.js Client Side Rendered',
     package: 'app-next-js',

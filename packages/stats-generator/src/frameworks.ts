@@ -1,1 +1,1 @@
-export { frameworks } from '@framework-tracker/results/frameworks'
+export { frameworks } from '@framework-performance/results/frameworks'

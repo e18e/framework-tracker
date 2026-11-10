@@ -5,7 +5,7 @@ import {
   InitialLoadResourceTypeSchema,
   InitialLoadResourceSchema,
   InitialLoadStatsSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 import { findChromium } from '../find-chromium.ts'
 
 const ResourceRowsSchema = z.array(

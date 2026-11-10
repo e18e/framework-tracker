@@ -15,12 +15,12 @@ import type {
   InstallBenchmarkSchema,
   InstallResultSchema,
   InitialLoadStatsSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 import type { SSRLoadTests } from './ssrLoad/types.ts'
 export type {
   FrameworkConfig,
   TestConfig,
-} from '@framework-tracker/results/frameworks'
+} from '@framework-performance/results/frameworks'
 
 export interface InteractionTiming {
   interactionLatencyMs: number

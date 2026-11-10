@@ -4,7 +4,7 @@ import {
   CombinedResultSchema,
   mergeProjectResult,
   projectResult,
-} from '@framework-tracker/results/storage'
+} from '@framework-performance/results/storage'
 
 test('combining projects preserves their independent measurements and metadata', () => {
   const starter = {

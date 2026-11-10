@@ -76,11 +76,11 @@ jobs:
           node-version-file: '.nvmrc'
 
       - name: Install stats-generator dependencies
-        run: pnpm install --frozen-lockfile --filter @framework-tracker/stats-generator...
+        run: pnpm install --frozen-lockfile --filter @framework-performance/stats-generator...
 
       - name: Run install benchmark
         run: |
-          pnpm --filter @framework-tracker/stats-generator run:install ${{ matrix.framework.package }}
+          pnpm --filter @framework-performance/stats-generator run:install ${{ matrix.framework.package }}
 
       - name: Upload install stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -116,14 +116,14 @@ jobs:
 
       - name: Run build benchmark
         run: |
-          pnpm --filter @framework-tracker/stats-generator run:build ${{ matrix.framework.package }}
+          pnpm --filter @framework-performance/stats-generator run:build ${{ matrix.framework.package }}
 
       - name: Scan build output for vendored core-js
-        run: pnpm --filter @framework-tracker/stats-generator run:corejs ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:corejs ${{ matrix.framework.package }}
 
       - name: Scan build output for browser baseline requirements
         if: contains(toJson(matrix.framework.measurements), 'browserBaseline')
-        run: pnpm --filter @framework-tracker/stats-generator run:browser-baseline ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:browser-baseline ${{ matrix.framework.package }}
 
       - name: Upload build stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -177,7 +177,7 @@ jobs:
 
       - name: Run dev server benchmark
         run: |
-          pnpm --filter @framework-tracker/stats-generator run:dev-server ${{ matrix.framework.package }}
+          pnpm --filter @framework-performance/stats-generator run:dev-server ${{ matrix.framework.package }}
 
       - name: Upload dev server stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -220,7 +220,7 @@ jobs:
         run: pnpm build
 
       - name: Run SSR request throughput benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:ssr-request-throughput ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:ssr-request-throughput ${{ matrix.framework.package }}
 
       - name: Upload SSR request throughput stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -252,7 +252,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install stats-generator dependencies
-        run: pnpm install --frozen-lockfile --filter @framework-tracker/stats-generator...
+        run: pnpm install --frozen-lockfile --filter @framework-performance/stats-generator...
 
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
@@ -273,7 +273,7 @@ jobs:
         run: node packages/stats-generator/src/run-first-party-dependency-scan.ts "$STARTER_PACKAGE"
 
       - name: Scan installed dependencies for Node engine constraints
-        run: pnpm --filter @framework-tracker/stats-generator run:node-engines ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:node-engines ${{ matrix.framework.package }}
 
       - name: Upload dependency stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -329,7 +329,7 @@ jobs:
         run: pnpm build
 
       - name: Run SSR load benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:ssr-load:containerized ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:ssr-load:containerized ${{ matrix.framework.package }}
 
       - name: Upload SSR load stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -374,7 +374,7 @@ jobs:
         run: pnpm build
 
       - name: Run SSR router link load benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:ssr-router-link-load:containerized ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:ssr-router-link-load:containerized ${{ matrix.framework.package }}
 
       - name: Upload SSR router link load stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -420,7 +420,7 @@ jobs:
         run: google-chrome --version
 
       - name: Run client-side rendered benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:client-side-rendered ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:client-side-rendered ${{ matrix.framework.package }}
 
       - name: Upload client-side rendered stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -466,7 +466,7 @@ jobs:
         run: google-chrome --version
 
       - name: Run server-side rendered benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:server-side-rendered ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:server-side-rendered ${{ matrix.framework.package }}
 
       - name: Upload server-side rendered stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -514,7 +514,7 @@ jobs:
         run: google-chrome --version
 
       - name: Run initial load benchmark
-        run: pnpm --filter @framework-tracker/stats-generator run:initial-load ${{ matrix.framework.package }}
+        run: pnpm --filter @framework-performance/stats-generator run:initial-load ${{ matrix.framework.package }}
 
       - name: Upload initial load stats
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

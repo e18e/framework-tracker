@@ -6,11 +6,11 @@ import type {
 } from './types'
 import { prepareInitialLoadResources } from './initial-load'
 import { formatChartValue } from './chart'
-import { frameworks } from '@framework-tracker/results/frameworks'
+import { frameworks } from '@framework-performance/results/frameworks'
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
 
-import type { CombinedResult } from '@framework-tracker/results/storage'
+import type { CombinedResult } from '@framework-performance/results/storage'
 import { prepareStarterResult, prepareRuntimeResult } from './result-content'
 const resultFiles = import.meta.glob<CombinedResult>(
   '../../../../results/**/latest.json',
@@ -401,7 +401,7 @@ function dependencyGraphColumn(
           ? 'first-party-dependencies.json'
           : 'package.json'
       return framework?.starter
-        ? `https://npmgraph.js.org/?q=https://github.com/e18e/framework-tracker/blob/main/packages/${framework.starter.package}/${file}`
+        ? `https://npmgraph.js.org/?q=https://github.com/e18e/framework-performance/blob/main/packages/${framework.starter.package}/${file}`
         : null
     },
   }

@@ -1,4 +1,4 @@
-import type { MetricBase } from '@framework-tracker/results'
+import type { MetricBase } from '@framework-performance/results'
 import type { TimeStat } from './types.ts'
 
 function round(value: number, decimalPlaces: number): number {

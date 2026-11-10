@@ -1,9 +1,9 @@
 ---
 title: Glossary
-description: Terminology and concepts used by Framework Tracker.
+description: Terminology and concepts used by the Framework Performance project.
 ---
 
-This site describes the terminology and concepts used in the framework tracker.
+This site describes the terminology and concepts used in the Framework Performance project.
 
 ## Application Architecture
 

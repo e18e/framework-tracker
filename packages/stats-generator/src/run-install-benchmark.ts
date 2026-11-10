@@ -15,7 +15,7 @@ import {
 import {
   InstallBenchmarkSchema,
   InstallResultSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 
 function execCommand(command: string, cwd: string): string {
   return execSync(command, {

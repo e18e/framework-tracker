@@ -1,4 +1,4 @@
-import type { InitialLoadStats } from '@framework-tracker/results'
+import type { InitialLoadStats } from '@framework-performance/results'
 
 export function prepareInitialLoadResources(
   resources: InitialLoadStats['resources'],

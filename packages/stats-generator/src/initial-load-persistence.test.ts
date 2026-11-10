@@ -3,11 +3,11 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { InitialLoadResourceTypeSchema } from '@framework-tracker/results'
+import { InitialLoadResourceTypeSchema } from '@framework-performance/results'
 import {
   projectResult,
   readProjectResult,
-} from '@framework-tracker/results/storage'
+} from '@framework-performance/results/storage'
 import { frameworks } from './frameworks.ts'
 import { processCIStats } from './save-ci-stats.ts'
 

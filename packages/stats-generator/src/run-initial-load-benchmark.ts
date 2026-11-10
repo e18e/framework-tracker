@@ -1,5 +1,5 @@
-import { readProjectResult } from '@framework-tracker/results/storage'
-import { InitialLoadResultSchema } from '@framework-tracker/results'
+import { readProjectResult } from '@framework-performance/results/storage'
+import { InitialLoadResultSchema } from '@framework-performance/results'
 import { join } from 'node:path'
 import { runInitialLoadBenchmark } from './initialLoad/index.ts'
 import { packagesDir } from './constants.ts'

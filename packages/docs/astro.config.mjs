@@ -9,7 +9,7 @@ export default defineConfig({
   site: 'https://frameworks.e18e.dev',
   integrations: [
     starlight({
-      title: 'Framework Tracker',
+      title: 'Framework Performance',
       logo: { src: './src/assets/e18e.svg', alt: 'e18e' },
       description:
         'Track and compare framework performance metrics across popular meta-frameworks.',
@@ -35,7 +35,7 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/e18e/framework-tracker',
+          href: 'https://github.com/e18e/framework-performance',
         },
       ],
     }),

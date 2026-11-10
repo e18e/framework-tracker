@@ -1,4 +1,4 @@
-import { FirstPartyDependencyScanSchema } from '@framework-tracker/results'
+import { FirstPartyDependencyScanSchema } from '@framework-performance/results'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {

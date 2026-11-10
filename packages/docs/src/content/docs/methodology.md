@@ -1,9 +1,9 @@
 ---
 title: Methodology
-description: How Framework Tracker benchmark metrics are collected.
+description: How the Framework Performance project's benchmark metrics are collected.
 ---
 
-Framework Tracker create two types of benchmarks Run Time and Dev Time. Our Dev Time benchmarks use each meta-framework’s `starter-*` package. Each starter follows its framework’s CLI or documented setup, with the selected options and adjustments recorded in the [setup section](/methodology/#default-benchmark-setup). Run Time benchmarks use each meta-framework’s `app-*` package/ Currently, each test uses a different route in its app, configured to meet each test's requirements.
+The Framework Performance project creates two types of benchmarks Run Time and Dev Time. Our Dev Time benchmarks use each meta-framework’s `starter-*` package. Each starter follows its framework’s CLI or documented setup, with the selected options and adjustments recorded in the [setup section](/methodology/#default-benchmark-setup). Run Time benchmarks use each meta-framework’s `app-*` package/ Currently, each test uses a different route in its app, configured to meet each test's requirements.
 
 The goal is to show both the default project cost developers inherit when
 starting a framework and the runtime cost of serving and hydrating a comparable
@@ -83,14 +83,14 @@ of a typical new project.
 
 Current pinned dependencies are listed in each project's `package.json`:
 
-- [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/starter-astro/package.json)
-- [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/starter-next-js/package.json)
-- [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/starter-nuxt/package.json)
-- [Pracht](https://github.com/e18e/framework-tracker/blob/main/packages/starter-pracht/package.json)
-- [React Router](https://github.com/e18e/framework-tracker/blob/main/packages/starter-react-router/package.json)
-- [SolidStart](https://github.com/e18e/framework-tracker/blob/main/packages/starter-solid-start/package.json)
-- [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/starter-sveltekit/package.json)
-- [TanStack Start (React)](https://github.com/e18e/framework-tracker/blob/main/packages/starter-tanstack-start-react/package.json)
+- [Astro](https://github.com/e18e/framework-performance/blob/main/packages/starter-astro/package.json)
+- [Next.js](https://github.com/e18e/framework-performance/blob/main/packages/starter-next-js/package.json)
+- [Nuxt](https://github.com/e18e/framework-performance/blob/main/packages/starter-nuxt/package.json)
+- [Pracht](https://github.com/e18e/framework-performance/blob/main/packages/starter-pracht/package.json)
+- [React Router](https://github.com/e18e/framework-performance/blob/main/packages/starter-react-router/package.json)
+- [SolidStart](https://github.com/e18e/framework-performance/blob/main/packages/starter-solid-start/package.json)
+- [SvelteKit](https://github.com/e18e/framework-performance/blob/main/packages/starter-sveltekit/package.json)
+- [TanStack Start (React)](https://github.com/e18e/framework-performance/blob/main/packages/starter-tanstack-start-react/package.json)
 
 ### Project Setups
 
@@ -324,15 +324,15 @@ throughput, and load behavior for comparable production apps.
 
 Current pinned dependencies are listed in each project's `package.json`:
 
-- [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/app-astro/package.json)
-- [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/app-next-js/package.json)
-- [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/app-nuxt/package.json)
-- [Pracht](https://github.com/e18e/framework-tracker/blob/main/packages/app-pracht/package.json)
-- [React Router](https://github.com/e18e/framework-tracker/blob/main/packages/app-react-router/package.json)
-- [SolidStart](https://github.com/e18e/framework-tracker/blob/main/packages/app-solid-start/package.json)
-- [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/app-sveltekit/package.json)
-- [TanStack Start (React)](https://github.com/e18e/framework-tracker/blob/main/packages/app-tanstack-start-react/package.json)
-- [Baseline HTML](https://github.com/e18e/framework-tracker/blob/main/packages/app-baseline-html/package.json)
+- [Astro](https://github.com/e18e/framework-performance/blob/main/packages/app-astro/package.json)
+- [Next.js](https://github.com/e18e/framework-performance/blob/main/packages/app-next-js/package.json)
+- [Nuxt](https://github.com/e18e/framework-performance/blob/main/packages/app-nuxt/package.json)
+- [Pracht](https://github.com/e18e/framework-performance/blob/main/packages/app-pracht/package.json)
+- [React Router](https://github.com/e18e/framework-performance/blob/main/packages/app-react-router/package.json)
+- [SolidStart](https://github.com/e18e/framework-performance/blob/main/packages/app-solid-start/package.json)
+- [SvelteKit](https://github.com/e18e/framework-performance/blob/main/packages/app-sveltekit/package.json)
+- [TanStack Start (React)](https://github.com/e18e/framework-performance/blob/main/packages/app-tanstack-start-react/package.json)
+- [Baseline HTML](https://github.com/e18e/framework-performance/blob/main/packages/app-baseline-html/package.json)
 
 ### Framework Specific Notes
 

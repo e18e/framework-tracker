@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import type { ClientRenderingBenchmarkSchema } from '@framework-tracker/results'
+import type { ClientRenderingBenchmarkSchema } from '@framework-performance/results'
 import type { InteractionTiming } from '../types.ts'
 
 export interface ClientSideRenderedRunResult {

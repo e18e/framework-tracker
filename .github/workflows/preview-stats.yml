@@ -143,12 +143,12 @@ jobs:
         run: find artifacts -type f -name "*.json" 2>/dev/null || echo "No artifacts found"
 
       - name: Save CI stats
-        run: pnpm --filter @framework-tracker/stats-generator save:ci-stats $GITHUB_WORKSPACE/artifacts
+        run: pnpm --filter @framework-performance/stats-generator save:ci-stats $GITHUB_WORKSPACE/artifacts
 
       - name: Generate comment
         run: |
           FRAMEWORK_ARGS=$(echo '${{ needs.setup.outputs.framework-names }}' | jq -r '.[]' | tr '\n' ' ')
-          pnpm --filter @framework-tracker/stats-generator generate:preview-comment $FRAMEWORK_ARGS
+          pnpm --filter @framework-performance/stats-generator generate:preview-comment $FRAMEWORK_ARGS
 
       - name: Post preview comment
         run: gh pr comment ${{ needs.setup.outputs.pr-number }} --body-file comment.md

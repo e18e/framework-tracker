@@ -1,6 +1,6 @@
-import type { CombinedResult } from '@framework-tracker/results/storage'
-import { frameworks } from '@framework-tracker/results/frameworks'
-import type { FrameworkResult } from '@framework-tracker/results'
+import type { CombinedResult } from '@framework-performance/results/storage'
+import { frameworks } from '@framework-performance/results/frameworks'
+import type { FrameworkResult } from '@framework-performance/results'
 
 function formatTime(
   value: NonNullable<

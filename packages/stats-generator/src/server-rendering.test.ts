@@ -4,7 +4,7 @@ import { assembleServerRendering } from './server-rendering.ts'
 import {
   ServerRenderingBenchmarkSchema,
   ServerSideRenderedStatsSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 
 test('assembles server rendering from exact raw browser measurements', () => {
   const iterations = [1, 3].map((value) => ({

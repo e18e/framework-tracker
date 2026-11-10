@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { InitialLoadResourceTypeSchema } from '@framework-tracker/results'
+import { InitialLoadResourceTypeSchema } from '@framework-performance/results'
 import { parseResourceSummary } from './initialLoad/run-benchmark.ts'
 
 const items = InitialLoadResourceTypeSchema.options.map((resourceType) => ({

@@ -58,6 +58,7 @@ runtime configuration details are described in Framework Specific Notes.
 | Framework      | UI library                           | Bundler / build tool         | Adapter / server    |
 | -------------- | ------------------------------------ | ---------------------------- | ------------------- |
 | Astro          | Astro; React for client-only content | Vite (via Astro)             | Node adapter        |
+| Lit            | Lit (web components)                 | Vite                         | No runtime app      |
 | Next.js        | React                                | Turbopack (via `next build`) | Next.js server      |
 | Nuxt           | Vue                                  | Vite (via Nuxt)              | Nitro               |
 | Pracht         | Preact                               | Vite                         | Node adapter        |
@@ -84,6 +85,7 @@ of a typical new project.
 Current pinned dependencies are listed in each project's `package.json`:
 
 - [Astro](https://github.com/e18e/framework-tracker/blob/main/packages/starter-astro/package.json)
+- [Lit](https://github.com/e18e/framework-tracker/blob/main/packages/starter-lit/package.json)
 - [Next.js](https://github.com/e18e/framework-tracker/blob/main/packages/starter-next-js/package.json)
 - [Nuxt](https://github.com/e18e/framework-tracker/blob/main/packages/starter-nuxt/package.json)
 - [Pracht](https://github.com/e18e/framework-tracker/blob/main/packages/starter-pracht/package.json)
@@ -105,6 +107,19 @@ Installed using the CLI
 - Step 5: Initialize a new git repository?: `No`
 
 The Astro starter builds static output without an adapter or React integration.
+
+#### Lit
+
+Lit has no app CLI of its own. Its official starter kits are templates for
+publishing a reusable component package, so the starter instead uses Vite's
+Lit TypeScript template, the closest equivalent to a new Lit app.
+
+- Step 1: `pnpm dlx create-vite@latest starter-lit --template lit-ts`
+
+The starter is a client-rendered single page with no router or server. The `lit`
+dependency is pinned to an exact version and a `pnpm-workspace.yaml` is added so
+the package installs outside the repository workspace. Lit has no runtime app,
+so it appears in Dev Time benchmarks only.
 
 #### Next.js
 

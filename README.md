@@ -30,6 +30,7 @@ If you would like to play around with the collected data to build your own visua
   - [Nuxt](./results/nuxt/latest.json)
   - [SvelteKit](./results/sveltekit/latest.json)
   - [Astro](./results/astro/latest.json)
+  - [Lit](./results/lit/latest.json)
   - [Pracht](./results/pracht/latest.json)
   - [React Router](./results/react-router/latest.json)
   - [SolidStart](./results/solid-start/latest.json)

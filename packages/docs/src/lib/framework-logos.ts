@@ -17,6 +17,10 @@ export const frameworkBrands: Record<string, FrameworkBrand> = {
     },
     color: { dark: '#BC52EE' },
   },
+  lit: {
+    logo: { dark: '/framework-logos/lit.svg' },
+    color: { dark: '#324FFF' },
+  },
   next: {
     logo: {
       dark: '/framework-logos/nextdotjs-light.svg',

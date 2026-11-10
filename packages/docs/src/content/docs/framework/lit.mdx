@@ -1,0 +1,54 @@
+---
+title: Lit
+description: Lit version comparison page.
+---
+
+import { Content as DevTimeSetup } from '../../../benchmarks/shared/DevTimeSetup.mdx'
+import DependencyCountsDetails from '../../../benchmarks/dependency-counts/Details.astro'
+import NodeModulesSizeDetails from '../../../benchmarks/node-modules-size/Details.astro'
+import BuildInstallDetails from '../../../benchmarks/build-and-install-times/Details.astro'
+import DevServerStartupDetails from '../../../benchmarks/dev-server-startup/Details.astro'
+import CoreJsDetails from '../../../benchmarks/core-js-polyfills/Details.astro'
+import BrowserBaselineDetails from '../../../benchmarks/browser-baseline/Details.astro'
+
+import { getStarterVersionStats } from '../../../lib/prepare-chart'
+
+export const litStarterVersions = getStarterVersionStats('starter-lit')
+
+{
+litStarterVersions.length === 0 ? (
+
+<p>Measurements will appear after the first Lit benchmark run.</p>
+) : null
+}
+
+Lit is tracked for Dev Time only. It has no runtime app, so it does not appear
+in the Run Time benchmarks.
+
+## Dev Time
+
+<DevTimeSetup />
+
+### Dependency Counts
+
+<DependencyCountsDetails versions={litStarterVersions} />
+
+### Node Modules Size
+
+<NodeModulesSizeDetails versions={litStarterVersions} />
+
+### Build and Install Times
+
+<BuildInstallDetails versions={litStarterVersions} />
+
+### Dev Server Startup
+
+<DevServerStartupDetails versions={litStarterVersions} />
+
+### Core-JS Polyfills
+
+<CoreJsDetails versions={litStarterVersions} />
+
+### Browser Baseline
+
+<BrowserBaselineDetails versions={litStarterVersions} />

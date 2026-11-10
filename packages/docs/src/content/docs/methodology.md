@@ -334,6 +334,13 @@ implement the same small benchmark routes and data shape wherever possible, so
 the stats focus on browser rendering, server rendering, request-handler
 throughput, and load behavior for comparable production apps.
 
+Every `app-*` package is a server-rendered (SSR) app, because the throughput,
+server-rendered, and load tests need a production server that renders HTML.
+The client-rendered test uses the same server, with server rendering turned off
+for its routes. For a framework whose default project renders only in the
+browser, the runtime app adds server rendering, and Framework Specific Notes
+says how.
+
 ### Package Versions
 
 Current pinned dependencies are listed in each project's `package.json`:
@@ -352,10 +359,11 @@ Current pinned dependencies are listed in each project's `package.json`:
 ### Framework Specific Notes
 
 - Astro's runtime app uses standalone mode to serve on-demand routes.
-- Ember's runtime app adds the ember.nvp `ssr` layer. Its `server.js` renders
-  each page with vite-ember-ssr, which runs the app in a pool of worker threads
-  with a happy-dom document, and serves static files with sirv. The browser
-  rehydrates the rendered DOM. The server table routes also render their rows
+- Ember apps render only in the browser by default, and the Dev Time starter
+  keeps that default. Server rendering is opt-in, so the runtime app adds the
+  ember.nvp `ssr` layer. Its `server.js` renders each page with vite-ember-ssr,
+  which runs the app in a pool of worker threads with a happy-dom document, and
+  serves static files with sirv. The browser rehydrates the rendered DOM. The server table routes also render their rows
   as JSON into the page, so the browser rehydrates the same rows.
 - SolidStart and TanStack Start explicitly select Nitro's `node-server` preset.
 - TanStack Start's runtime app replaces the global `Response` constructor with

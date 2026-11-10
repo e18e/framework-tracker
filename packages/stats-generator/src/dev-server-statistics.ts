@@ -1,5 +1,5 @@
 import { summarizeMetric } from './sample-statistics.ts'
-import { DevServerStatsSchema } from '@framework-tracker/results'
+import { DevServerStatsSchema } from '@framework-performance/results'
 
 export function createDevServerStats(samples: number[]) {
   return DevServerStatsSchema.parse({

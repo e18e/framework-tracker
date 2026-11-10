@@ -1,4 +1,4 @@
-import { FrameworkDependencyScanSchema } from '@framework-tracker/results'
+import { FrameworkDependencyScanSchema } from '@framework-performance/results'
 import { join } from 'node:path'
 import { packagesDir } from './constants.ts'
 import {

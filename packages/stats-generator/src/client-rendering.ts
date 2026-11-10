@@ -1,4 +1,4 @@
-import { ClientRenderingBenchmarkSchema } from '@framework-tracker/results'
+import { ClientRenderingBenchmarkSchema } from '@framework-performance/results'
 import { summarizeMetric } from './sample-statistics.ts'
 import type { RenderedTestSample } from './types.ts'
 

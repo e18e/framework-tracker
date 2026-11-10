@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import type { FrameworkResult } from '@framework-tracker/results'
+import type { FrameworkResult } from '@framework-performance/results'
 import {
   prepareLighthouseClientSideRenderedTestsInteractionHistory,
   prepareLighthouseServerSideRenderedTestsInteractionHistory,

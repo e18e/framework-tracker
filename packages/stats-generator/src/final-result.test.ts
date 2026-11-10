@@ -5,11 +5,11 @@ import { test } from 'node:test'
 import {
   FrameworkResultSchema,
   MetricBaseSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 import {
   CombinedResultSchema,
   resultsRoot,
-} from '@framework-tracker/results/storage'
+} from '@framework-performance/results/storage'
 
 function assertStoredUnits(value: unknown, path: string): void {
   if (Array.isArray(value)) {

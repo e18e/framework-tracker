@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { formatThroughput } from './result-content.ts'
-import type { FrameworkResult } from '@framework-tracker/results'
+import type { FrameworkResult } from '@framework-performance/results'
 import {
   prepareSsrRequestThroughputTestsOpsPerSecComparison,
   prepareSsrRequestThroughputTestsLatencyMsComparison,

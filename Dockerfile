@@ -7,8 +7,8 @@ RUN corepack enable
 FROM base AS build
 COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --filter @framework-tracker/cwv-stats... --prod --frozen-lockfile
-RUN pnpm deploy --filter=@framework-tracker/cwv-stats --prod /prod/cwv-stats --legacy
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --filter @framework-performance/cwv-stats... --prod --frozen-lockfile
+RUN pnpm deploy --filter=@framework-performance/cwv-stats --prod /prod/cwv-stats --legacy
 
 FROM base AS cwv-stats
 ENV NODE_ENV=production

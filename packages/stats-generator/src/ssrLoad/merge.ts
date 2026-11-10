@@ -3,7 +3,7 @@ import type { CIStats } from '../types.ts'
 import {
   SSRLoadStatsSchema,
   SSRRouterLinkLoadStatsSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 import { getSSRLoadStatsKey, type SSRLoadKind } from './config.ts'
 
 /** Jobs upload a full ci-stats file, including possibly stale sibling results.

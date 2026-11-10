@@ -19,7 +19,7 @@ import {
   SSRRouterLinkLoadStatsSchema,
   ClientSideRenderedStatsSchema,
   ServerSideRenderedStatsSchema,
-} from '@framework-tracker/results'
+} from '@framework-performance/results'
 
 type BenchmarkType =
   | 'dependencies'

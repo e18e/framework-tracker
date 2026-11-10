@@ -4,7 +4,7 @@ import {
   mergeProjectResult,
   resultLocation,
   type CombinedResult,
-} from '@framework-tracker/results/storage'
+} from '@framework-performance/results/storage'
 import {
   DependencyScanSchema,
   CoreJsStatsSchema,
@@ -21,8 +21,8 @@ import {
   InstallResultSchema,
   FrameworkResultSchema,
   type FrameworkResult,
-} from '@framework-tracker/results'
-import { withSummaryVariance } from '@framework-tracker/results/comparison'
+} from '@framework-performance/results'
+import { withSummaryVariance } from '@framework-performance/results/comparison'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   mergeRequestThroughputArtifact,

@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
-import { getLoadPeakStage } from '@framework-tracker/results/selection'
+import { getLoadPeakStage } from '@framework-performance/results/selection'
 import { normalizeCIStats } from './utils.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
-import { SSRLoadTestsSchema } from '@framework-tracker/results'
+import { SSRLoadTestsSchema } from '@framework-performance/results'
 import assert from 'node:assert/strict'
-import { readProjectResult } from '@framework-tracker/results/storage'
+import { readProjectResult } from '@framework-performance/results/storage'
 import { test } from 'node:test'
 import {
   getSSRLoadPath,

@@ -1,4 +1,4 @@
-# Framework Tracker
+# Framework Performance
 
 A comprehensive comparison site for modern meta-frameworks, tracking performance metrics, developer experience, and runtime characteristics across popular options like Next.js, Nuxt, SvelteKit, Astro, and more.
 
@@ -9,7 +9,7 @@ This project aims to provide objective, data-driven comparisons of meta-framewor
 - **Dev Time Performance**: Dependencies, build times, CI/CD performance, and developer experience
 - **Runtime Performance**: Core Web Vitals, bundle sizes, hydration strategies, and end-user experience
 
-Methodology and tests can be found inside the docs. You can run locally with `pnpm run dev:docs` or find the deployed version at [framework-tracker](https://frameworks.e18e.dev)
+Methodology and tests can be found inside the docs. You can run locally with `pnpm run dev:docs` or find the deployed version at [Framework Performance](https://frameworks.e18e.dev)
 
 ## Getting Involved
 

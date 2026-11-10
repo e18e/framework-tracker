@@ -1,9 +1,9 @@
 ---
 title: Impact
-description: Improvements to frameworks, routers, and documentation that came out of Framework Tracker.
+description: Improvements to frameworks, routers, and documentation that came out of the Framework Performance project.
 ---
 
-The Framework Tracker project measures frameworks, but the comparisons also surface
+The Framework Performance project measures frameworks, but the comparisons also surface
 concrete improvement opportunities in the frameworks themselves, their
 dependencies, and their documentation. This page collects upstream changes that
 came out of the project or were influenced by its output.
@@ -14,7 +14,7 @@ came out of the project or were influenced by its output.
   avoids one hydration-triggered render per ordinary React Router link by only
   subscribing links to hydration state when their active matching compares URL
   hashes. Hash-sensitive links keep the update they need. Found while
-  investigating Framework Tracker's 1,000-link table and proposed upstream to
+  investigating the Framework Performance project's 1,000-link table and proposed upstream to
   TanStack Router.
 
 ## Nuxt
@@ -57,8 +57,8 @@ came out of the project or were influenced by its output.
   needs binding to the request. Handling a 1,000-row result goes from 0.91
   to 0.56 ms. Merged into Solid and released in `2.0.0-rc.20`.
 
-All three were found while adding Solid 2.0 to Framework Tracker
-([#709](https://github.com/e18e/framework-tracker/pull/709)). On its CI
+All three were found while adding Solid 2.0 to the Framework Performance project
+([#709](https://github.com/e18e/framework-performance/pull/709)). On its CI
 runner, the Solid 2.0 app's SSR load test went from 170 to 280 requests per
 second with one connection and from about 200 to about 390 under
 concurrency after upgrading to these releases.

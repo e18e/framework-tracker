@@ -3,7 +3,7 @@ import { file, glob } from 'astro/loaders'
 import { docsLoader } from '@astrojs/starlight/loaders'
 import { docsSchema } from '@astrojs/starlight/schema'
 import { z } from 'astro/zod'
-import { frameworks } from '@framework-tracker/results/frameworks'
+import { frameworks } from '@framework-performance/results/frameworks'
 
 const cwvCollection = defineCollection({
   loader: file('src/content/cwv/cwv-stats.json'),

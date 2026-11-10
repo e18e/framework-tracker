@@ -1,10 +1,10 @@
-# Contributing to Framework Tracker
+# Contributing to the Framework Performance Project
 
-Framework Tracker is part of the e18e.dev community. Want to get involved? Head to our Discord at https://chat.e18e.dev. If you're keen to contribute to the project and get stuck straight into code, we have an open list of good first issues in our GitHub repo: [Good First Issues](https://github.com/e18e/framework-tracker/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22). We keep this list updated and add new issues every week. It's one of the easiest ways to get involved and help push the project forward.
+The Framework Performance project is part of the e18e.dev community. Want to get involved? Head to our Discord at https://chat.e18e.dev. If you're keen to contribute to the project and get stuck straight into code, we have an open list of good first issues in our GitHub repo: [Good First Issues](https://github.com/e18e/framework-performance/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22). We keep this list updated and add new issues every week. It's one of the easiest ways to get involved and help push the project forward.
 
 ## Where to Start
 
-Framework Tracker has a few different areas which you can contribute to:
+The Framework Performance project has a few different areas which you can contribute to:
 
 - **Improving Metrics**: Suggest new metrics or improve the way we collect and display existing ones.
 
@@ -21,7 +21,7 @@ This is a monorepo managed with pnpm workspaces hosting multiple packages. Howev
 Included in the workspace are the documentation site, built with Astro, and the stats generator, which is a tool for collecting and processing the metrics for each framework.
 
 ```
-framework-tracker/
+framework-performance/
 ├── packages/
 │   ├── docs/            # Astro-based documentation site
 │   └── stats-generator/ # Tool for collecting framework metrics
@@ -30,7 +30,7 @@ framework-tracker/
 Outside of the workspace, we have individual packages for each framework's starter project and app project. These are used to run the actual measurements for each framework.
 
 ```
-framework-tracker/
+framework-performance/
 ├── starter-*/       # Metaframeworks configured using default set up
 ├── app-*/           # Metaframeworks configured for run time tests
 ```
@@ -259,8 +259,8 @@ To get the project running locally:
 2. **Clone the repo**:
 
    ```bash
-   git clone https://github.com/e18e/framework-tracker.git
-   cd framework-tracker
+   git clone https://github.com/e18e/framework-performance.git
+   cd framework-performance
    ```
 
 3. **Select the pinned Node.js version and install workspace dependencies**:
@@ -291,7 +291,7 @@ To get the project running locally:
 6. **Tests**:
 
    ```bash
-   pnpm --filter @framework-tracker/docs exec playwright install --only-shell chromium  # Once, for the docs component tests
+   pnpm --filter @framework-performance/docs exec playwright install --only-shell chromium  # Once, for the docs component tests
    pnpm -r test
    ```
 

@@ -88,7 +88,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Validate first-party dependency manifests
-        run: pnpm --filter @framework-tracker/stats-generator validate:first-party-dependencies
+        run: pnpm --filter @framework-performance/stats-generator validate:first-party-dependencies
 
       - name: Set matrices from TypeScript config
         id: set-matrix
@@ -154,7 +154,7 @@ jobs:
           path: artifacts
 
       - name: Validate all measurement artifacts and assembled results
-        run: pnpm --filter @framework-tracker/stats-generator validate:ci-stats "$GITHUB_WORKSPACE/artifacts"
+        run: pnpm --filter @framework-performance/stats-generator validate:ci-stats "$GITHUB_WORKSPACE/artifacts"
 
   generate-stats:
     name: Create stats update PR
@@ -189,7 +189,7 @@ jobs:
         run: find artifacts -type f -name "*.json" 2>/dev/null || echo "No artifacts found"
 
       - name: Save CI stats
-        run: pnpm --filter @framework-tracker/stats-generator save:ci-stats "$GITHUB_WORKSPACE/artifacts" --require-all-artifacts
+        run: pnpm --filter @framework-performance/stats-generator save:ci-stats "$GITHUB_WORKSPACE/artifacts" --require-all-artifacts
 
       - name: Format
         run: pnpm format

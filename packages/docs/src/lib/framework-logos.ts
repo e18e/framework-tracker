@@ -1,4 +1,4 @@
-import { frameworks } from '@framework-tracker/results/frameworks'
+import { frameworks } from '@framework-performance/results/frameworks'
 
 export type ThemedValue = { dark: string; light?: string }
 export type FrameworkLogo = ThemedValue

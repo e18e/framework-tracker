@@ -1,6 +1,7 @@
 ---
 import { formatChartValue } from '../lib/chart'
 import type { StackedAreaChartPayload } from '../lib/types'
+import StatsTable from './StatsTable.astro'
 
 type Props = StackedAreaChartPayload
 
@@ -12,7 +13,7 @@ const {
   yAxisLabel,
   totalLabel = 'Total',
 } = Astro.props
-const showTableOnly = valueFormat === 'count' && data.length === 1
+const singleMeasurement = data.length === 1 ? data[0] : undefined
 const chartPayload = JSON.stringify({
   title,
   data,
@@ -21,74 +22,110 @@ const chartPayload = JSON.stringify({
   yAxisLabel,
   totalLabel,
 })
+
+function formatTotal(total: number | null) {
+  return total == null ? '—' : formatChartValue(total, valueFormat)
+}
 ---
 
-{
-  data.length < 2 && !showTableOnly ? (
-    <figure class="stacked-area-chart">
-      <p class="stacked-area-chart-title">{title}</p>
-      <p class="stacked-area-chart-empty">
-        Not enough data yet. This chart needs at least two versions.
-      </p>
-    </figure>
-  ) : (
-    <figure class="stacked-area-chart">
-      <slot name="caption">
+<figure class="stacked-area-chart">
+  {
+    data.length < 2 ? (
+      <>
         <figcaption class="stacked-area-chart-title">{title}</figcaption>
-      </slot>
-      {!Astro.slots.has('caption') && (
-        <ul class="stacked-area-chart-legend" aria-label="Chart series">
-          {series.map(({ label, color }) => (
-            <li>
-              <span style={`background: ${color}`} />
-              {label}
-            </li>
-          ))}
-        </ul>
-      )}
-      <div
-        class="stacked-area-chart-wrapper"
-        data-stacked-area-chart={showTableOnly ? undefined : chartPayload}
-      >
-        {!showTableOnly && <div class="stacked-area-chart-host" />}
-        <div class:list={[{ 'sr-only': !showTableOnly }]}>
-          <table>
-            <caption>{title} data</caption>
-            <thead>
-              <tr>
-                <th scope="col">Framework version</th>
-                <th scope="col">{totalLabel}</th>
-                {series.map(({ label }) => (
-                  <th scope="col">{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((datum) => {
-                const { total } = datum
-                return (
+        <div class="stacked-area-chart-empty">
+          <p>
+            {singleMeasurement
+              ? 'Only one measurement is available. The chart will appear once a second version is measured.'
+              : 'No measurements available yet.'}
+          </p>
+          {singleMeasurement && (
+            <StatsTable
+              label={`${title} data`}
+              columns={[
+                {
+                  key: 'version',
+                  header: 'Framework version',
+                  alignment: 'left',
+                  nameCell: true,
+                },
+                { key: 'total', header: totalLabel },
+                ...series.map(({ key, label }) => ({
+                  key: `series-${key}`,
+                  header: label,
+                })),
+              ]}
+              data={[
+                {
+                  version: singleMeasurement.name,
+                  total: formatTotal(singleMeasurement.total),
+                  ...Object.fromEntries(
+                    series.map(({ key }) => [
+                      `series-${key}`,
+                      formatChartValue(
+                        singleMeasurement.values[key]!,
+                        valueFormat,
+                      ),
+                    ]),
+                  ),
+                },
+              ]}
+            />
+          )}
+        </div>
+      </>
+    ) : (
+      <>
+        <slot name="caption">
+          <figcaption class="stacked-area-chart-title">{title}</figcaption>
+        </slot>
+        {!Astro.slots.has('caption') && (
+          <ul class="stacked-area-chart-legend" aria-label="Chart series">
+            {series.map(({ label, color }) => (
+              <li>
+                <span style={`background: ${color}`} />
+                {label}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div
+          class="stacked-area-chart-wrapper"
+          data-stacked-area-chart={chartPayload}
+        >
+          <div class="stacked-area-chart-host" />
+          <div class="sr-only">
+            <table>
+              <caption>{title} data</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Framework version</th>
+                  <th scope="col">{totalLabel}</th>
+                  {series.map(({ label }) => (
+                    <th scope="col">{label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((datum) => (
                   <tr>
                     <th scope="row">{datum.name}</th>
-                    <td>
-                      {total == null
-                        ? '—'
-                        : formatChartValue(total, valueFormat)}
-                    </td>
+                    <td>{formatTotal(datum.total)}</td>
                     {series.map(({ key }) => (
                       <td>
                         {formatChartValue(datum.values[key]!, valueFormat)}
                       </td>
                     ))}
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-    </figure>
-  )
-}
+      </>
+    )
+  }
+</figure>
 
 <style>
   .stacked-area-chart {
@@ -129,11 +166,19 @@ const chartPayload = JSON.stringify({
   }
 
   .stacked-area-chart-empty {
-    padding: 2rem 1rem;
+    padding: 1rem;
     border: 1px dashed var(--ft-border);
     border-radius: 0.5rem;
+  }
+
+  .stacked-area-chart-empty > p {
+    max-width: none;
     color: var(--ft-muted);
     text-align: center;
+  }
+
+  .stacked-area-chart-empty > :global(.table-scroll) {
+    margin-block-end: 0;
   }
 
   .stacked-area-chart-wrapper {
@@ -225,7 +270,6 @@ const chartPayload = JSON.stringify({
       }))
     })
     const byVersion = new Map(data.map((datum) => [datum.name, datum]))
-
     const definition = defineChart({
       margin: { top: 12 },
       focusRing: false,

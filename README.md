@@ -46,6 +46,7 @@ If you would like to play around with the collected data to build your own visua
   - [React Router](./results/react-router/latest.json)
   - [SolidStart](./results/solid-start/latest.json)
   - [Tanstack Start](./results/tanstack/latest.json)
+  - [Hono + Lit](./results/hono-lit/latest.json)
 
 ## Sponsors
 

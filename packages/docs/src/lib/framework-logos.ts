@@ -17,6 +17,10 @@ export const frameworkBrands: Record<string, FrameworkBrand> = {
     },
     color: { dark: '#BC52EE' },
   },
+  'hono-lit': {
+    logo: { dark: '/framework-logos/hono.svg' },
+    color: { dark: '#E36002' },
+  },
   lit: {
     logo: { dark: '/framework-logos/lit.svg' },
     color: { dark: '#324FFF' },

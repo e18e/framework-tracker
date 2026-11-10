@@ -67,8 +67,9 @@ runtime configuration details are described in Framework Specific Notes.
 | SvelteKit      | Svelte                               | Vite                         | Node adapter        |
 | TanStack Start | React                                | Vite                         | Nitro               |
 | Baseline HTML  | None                                 | No build step                | Node.js             |
+| Hono + Lit     | Lit, rendered with `@lit-labs/ssr`   | No build step                | `@hono/node-server` |
 
-Baseline HTML is a runtime-only comparison. Each project's `package.json`
+Baseline HTML and Hono + Lit are runtime-only comparisons. Each project's `package.json`
 declares dependency versions or ranges; its lockfile records resolved versions.
 Test-specific rendering and routing choices are described in the relevant
 benchmark sections below.
@@ -348,6 +349,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - [SvelteKit](https://github.com/e18e/framework-tracker/blob/main/packages/app-sveltekit/package.json)
 - [TanStack Start (React)](https://github.com/e18e/framework-tracker/blob/main/packages/app-tanstack-start-react/package.json)
 - [Baseline HTML](https://github.com/e18e/framework-tracker/blob/main/packages/app-baseline-html/package.json)
+- [Hono + Lit](https://github.com/e18e/framework-tracker/blob/main/packages/app-hono-lit/package.json)
 
 ### Framework Specific Notes
 
@@ -370,6 +372,12 @@ Current pinned dependencies are listed in each project's `package.json`:
   output and falls back to `index.html` for unknown paths. Lit has no server
   rendering here, so it only runs the client side rendered and initial load
   benchmarks; its `/initial-load` page is rendered in the browser.
+- Hono + Lit is a hand-built Hono server on Node.js that renders Lit templates
+  with `@lit-labs/ssr`. Pages ship no JavaScript, so the detail link performs a
+  full-document navigation. Lit SSR's hydration comment markers stay in the
+  HTML. The throughput benchmark calls `app.fetch` directly, so it does not
+  include the `@hono/node-server` request and response conversion; the SSR load
+  test does.
 
 ### Client Side Rendered Tests (Lighthouse)
 

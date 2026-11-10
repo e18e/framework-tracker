@@ -1,0 +1,45 @@
+---
+title: Hono + Lit
+description: Hono + Lit version comparison page.
+---
+
+import { Content as RunTimeSetup } from '../../../benchmarks/shared/RunTimeSetup.mdx'
+import LighthouseServerSideRenderedDetails from '../../../benchmarks/lighthouse-server-side-rendered-tests/Details.astro'
+import SSRThroughputDetails from '../../../benchmarks/server-side-throughput-tests/Details.astro'
+import InitialLoadDetails from '../../../benchmarks/initial-load/Details.astro'
+import SSRLoadDetails from '../../../benchmarks/ssr-load-test/Details.astro'
+
+import { getRuntimeVersionStats } from '../../../lib/prepare-chart'
+
+export const honoLitRuntimeVersions = getRuntimeVersionStats('app-hono-lit')
+
+{
+honoLitRuntimeVersions.length === 0 ? (
+
+<p>Measurements will appear after the first Hono + Lit benchmark run.</p>
+) : null
+}
+
+Hono has no Lit integration, so this is a hand-built Hono server that renders
+Lit templates with `@lit-labs/ssr`. Like Baseline HTML, it is a Run Time
+comparison only, with no Dev Time starter. The version shown is Hono's.
+
+## Run Time
+
+<RunTimeSetup />
+
+### Initial Load
+
+<InitialLoadDetails versions={honoLitRuntimeVersions} />
+
+### Server Side Rendered Tests (Lighthouse)
+
+<LighthouseServerSideRenderedDetails versions={honoLitRuntimeVersions} />
+
+### Server Side Throughput Tests
+
+<SSRThroughputDetails versions={honoLitRuntimeVersions} />
+
+### SSR Load Test
+
+<SSRLoadDetails versions={honoLitRuntimeVersions} />

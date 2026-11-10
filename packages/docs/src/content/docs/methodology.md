@@ -116,7 +116,8 @@ with its default layers:
 - Step 1: `pnpm dlx ember.nvp --name starter-ember --path ./starter-ember --type app --packageManager pnpm`
 - Step 2: Layers: `agents-md` and `readme` (the defaults)
 
-`ember-source` is pinned to an exact version after generation. The app uses
+`ember-source` is pinned to an exact version after generation, and the
+commented-out route bundle example in `app/router.js` is removed. The app uses
 `@nullvoxpopuli/ember-vite` for its Vite configuration and template-tag
 (`.gjs`) components.
 

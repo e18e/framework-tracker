@@ -1,4 +1,10 @@
 ---
+import { FormattedValue } from '../lib/utils'
+import {
+  getBrandByDisplayName,
+  getBrandByPackage,
+} from '../lib/framework-logos'
+
 type Row = Record<string, unknown>
 
 export interface TableColumn {
@@ -16,16 +22,49 @@ interface Props {
 }
 
 const { label, columns, data } = Astro.props
+
+function sortValue(raw: unknown): number | string | null {
+  const value = raw instanceof FormattedValue ? raw.value : raw
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null
+
+  const text = String(value ?? '').trim()
+  if (text === '' || text === '—') return null
+
+  if (/^[+-]?\d/.test(text)) {
+    const parsed = Number.parseFloat(text)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return text.toLowerCase()
+}
+
+function getLogo(row: Row) {
+  const brand =
+    (typeof row.package === 'string' && getBrandByPackage(row.package)) ||
+    getBrandByDisplayName(String(row.name ?? ''))
+  return brand ? brand.logo : undefined
+}
+
+const sortRows = data.map((row) =>
+  Object.fromEntries(columns.map(({ key }) => [key, sortValue(row[key])])),
+)
 ---
 
 <div class="table-scroll">
-  <table aria-label={label}>
+  <table
+    class="stats-table"
+    aria-label={label}
+    data-sort-rows={JSON.stringify(sortRows)}
+    data-sort-keys={JSON.stringify(columns.map(({ key }) => key))}
+  >
     <thead>
       <tr>
         {
-          columns.map(({ alignment = 'center', header }) => (
-            <th scope="col" class={`${alignment}-column`}>
-              {header}
+          columns.map(({ alignment = 'center', header, key }) => (
+            <th scope="col" class={`${alignment}-column`} data-key={key}>
+              <button type="button" class="sort-button">
+                {header}
+                <span class="sort-indicator" aria-hidden="true" />
+              </button>
             </th>
           ))
         }
@@ -33,15 +72,44 @@ const { label, columns, data } = Astro.props
     </thead>
     <tbody>
       {
-        data.map((row) => (
-          <tr>
+        data.map((row, index) => (
+          <tr data-row-id={index}>
             {columns.map(({ key, alignment = 'center', href, nameCell }) => {
               const url = href?.(row)
               const value = String(row[key] ?? '')
               const content = url ? <a href={url}>{value}</a> : value
+              if (!nameCell)
+                return <td class={`${alignment}-column`}>{content}</td>
+
+              const logo = getLogo(row)
               return (
                 <td class={`${alignment}-column`}>
-                  {nameCell ? <strong>{content}</strong> : content}
+                  <span class="name-cell">
+                    {logo && (
+                      <>
+                        <img
+                          class:list={[
+                            'framework-logo',
+                            logo.light != null && 'framework-logo--dark',
+                          ]}
+                          src={logo.dark}
+                          alt=""
+                          width="18"
+                          height="18"
+                        />
+                        {logo.light != null && (
+                          <img
+                            class="framework-logo framework-logo--light"
+                            src={logo.light}
+                            alt=""
+                            width="18"
+                            height="18"
+                          />
+                        )}
+                      </>
+                    )}
+                    <strong>{content}</strong>
+                  </span>
                 </td>
               )
             })}
@@ -51,6 +119,86 @@ const { label, columns, data } = Astro.props
     </tbody>
   </table>
 </div>
+
+<script>
+  import {
+    constructTable,
+    createSortedRowModel,
+    rowSortingFeature,
+    sortFn_basic,
+    tableFeatures,
+  } from '@tanstack/table-core'
+  import { storeReactivityBindings } from '@tanstack/table-core/store-reactivity-bindings'
+
+  type SortRow = Record<string, number | string | null>
+
+  const features = tableFeatures({
+    coreReactivityFeature: storeReactivityBindings(),
+    rowSortingFeature,
+    sortedRowModel: createSortedRowModel(),
+    sortFns: { basic: sortFn_basic },
+  })
+
+  function initSortableTable(element: HTMLTableElement) {
+    const tbody = element.tBodies.item(0)
+    if (!tbody) return
+    const data: SortRow[] = JSON.parse(element.dataset.sortRows ?? '[]')
+    const keys: string[] = JSON.parse(element.dataset.sortKeys ?? '[]')
+    const rowElements = new Map(
+      Array.from(tbody.rows, (tr) => [tr.dataset.rowId ?? '', tr]),
+    )
+
+    const table = constructTable({
+      features,
+      data,
+      enableMultiSort: false,
+      getRowId: (_row, index) => String(index),
+      columns: keys.map((key) => ({
+        id: key,
+        accessorFn: (row: SortRow) => row[key] ?? undefined,
+        sortFn: 'basic' as const,
+        sortUndefined: 'last' as const,
+      })),
+    })
+
+    const headers =
+      element.querySelectorAll<HTMLTableCellElement>('th[data-key]')
+
+    const render = () => {
+      for (const th of headers) {
+        const sorted = table.getColumn(th.dataset.key ?? '')?.getIsSorted()
+        if (sorted) {
+          th.setAttribute(
+            'aria-sort',
+            sorted === 'asc' ? 'ascending' : 'descending',
+          )
+        } else {
+          th.removeAttribute('aria-sort')
+        }
+        th.dataset.sorted = sorted || ''
+      }
+      tbody.append(
+        ...table
+          .getRowModel()
+          .rows.map((row) => rowElements.get(row.id))
+          .filter((tr): tr is HTMLTableRowElement => tr != null),
+      )
+    }
+
+    for (const th of headers) {
+      th.querySelector('button')?.addEventListener('click', () => {
+        table.getColumn(th.dataset.key ?? '')?.toggleSorting()
+        render()
+      })
+    }
+  }
+
+  for (const element of document.querySelectorAll<HTMLTableElement>(
+    'table.stats-table',
+  )) {
+    initSortableTable(element)
+  }
+</script>
 
 <style>
   .table-scroll {
@@ -80,8 +228,65 @@ const { label, columns, data } = Astro.props
     padding: 0.875rem 1rem;
   }
 
+  .name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .framework-logo {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
   tbody tr:last-child td {
     border-bottom: 0;
+  }
+
+  .sort-button {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font: inherit;
+    text-transform: inherit;
+    color: inherit;
+  }
+
+  .sort-button:focus-visible {
+    outline: 2px solid var(--ft-accent);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  .sort-indicator {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    background-color: currentColor;
+    mask: url('../assets/chevron-down.svg') center / contain no-repeat;
+    opacity: 0;
+    transition:
+      opacity 0.15s,
+      transform 0.15s;
+  }
+
+  .sort-button:hover .sort-indicator,
+  .sort-button:focus-visible .sort-indicator {
+    opacity: 0.4;
+  }
+
+  th[data-sorted='asc'] .sort-indicator,
+  th[data-sorted='desc'] .sort-indicator {
+    opacity: 1;
+  }
+
+  th[data-sorted='asc'] .sort-indicator {
+    transform: rotate(180deg);
   }
 
   .left-column {

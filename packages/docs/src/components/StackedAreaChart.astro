@@ -1,5 +1,5 @@
 ---
-import { formatChartValue } from '../lib/chart'
+import { formatTextValue } from '../lib/utils'
 import type { StackedAreaChartPayload } from '../lib/types'
 import StatsTable from './StatsTable.astro'
 
@@ -24,7 +24,9 @@ const chartPayload = JSON.stringify({
 })
 
 function formatTotal(total: number | null) {
-  return total == null ? '—' : formatChartValue(total, valueFormat)
+  return total == null
+    ? '—'
+    : formatTextValue(total, valueFormat, { sigFigs: 2 })
 }
 ---
 
@@ -62,9 +64,10 @@ function formatTotal(total: number | null) {
                   ...Object.fromEntries(
                     series.map(({ key }) => [
                       `series-${key}`,
-                      formatChartValue(
+                      formatTextValue(
                         singleMeasurement.values[key]!,
                         valueFormat,
+                        { sigFigs: 2 },
                       ),
                     ]),
                   ),
@@ -113,7 +116,9 @@ function formatTotal(total: number | null) {
                     <td>{formatTotal(datum.total)}</td>
                     {series.map(({ key }) => (
                       <td>
-                        {formatChartValue(datum.values[key]!, valueFormat)}
+                        {formatTextValue(datum.values[key]!, valueFormat, {
+                          sigFigs: 2,
+                        })}
                       </td>
                     ))}
                   </tr>
@@ -206,7 +211,7 @@ function formatTotal(total: number | null) {
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { scalePoint } from '@tanstack/charts/scales/point'
   import { tooltip } from '@tanstack/charts/tooltip'
-  import { formatChartValue } from '../lib/chart'
+  import { formatTextValue } from '../lib/utils'
   import type { StackedAreaChartPayload } from '../lib/types'
 
   interface SeriesPoint {
@@ -313,7 +318,7 @@ function formatTotal(total: number | null) {
                 ? {
                     format: (value: string | number | Date) =>
                       Number.isInteger(Number(value))
-                        ? formatChartValue(Number(value), 'count')
+                        ? formatTextValue(Number(value), 'count')
                         : '',
                   }
                 : undefined,
@@ -338,14 +343,18 @@ function formatTotal(total: number | null) {
               ...series
                 .map(({ key, label }, index) => ({
                   label,
-                  value: formatChartValue(datum.values[key]!, valueFormat),
+                  value: formatTextValue(datum.values[key]!, valueFormat, {
+                    sigFigs: 2,
+                  }),
                   color: seriesColors[index]!,
                 }))
                 .reverse(),
               {
                 label: totalLabel,
                 value:
-                  total == null ? '—' : formatChartValue(total, valueFormat),
+                  total == null
+                    ? '—'
+                    : formatTextValue(total, valueFormat, { sigFigs: 2 }),
                 active: true,
               },
             ],

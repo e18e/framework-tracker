@@ -1,5 +1,6 @@
 ---
-import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT } from '../lib/chart'
+import { formatTextValue } from '../lib/utils'
 import type { ChartDatum, ChartValueFormat } from '../lib/types'
 
 interface Props {
@@ -62,7 +63,9 @@ const chartPayload = JSON.stringify({
             chartData.map((datum) => (
               <tr>
                 <th scope="row">{datum.name}</th>
-                <td>{formatChartValue(datum.value, valueFormat)}</td>
+                <td>
+                  {formatTextValue(datum.value, valueFormat, { sigFigs: 2 })}
+                </td>
               </tr>
             ))
           }
@@ -135,9 +138,9 @@ const chartPayload = JSON.stringify({
   import {
     SHARED_BAR_INSET,
     SHARED_CHART_HEIGHT,
-    formatChartValue,
     getFrameworkLogoSource,
   } from '../lib/chart'
+  import { formatTextValue } from '../lib/utils'
   import { highlightedGray, primaryGray } from '../lib/chart-styles'
   import type { ChartDatum, ComparisonChartPayload } from '../lib/types'
 
@@ -233,7 +236,10 @@ const chartPayload = JSON.stringify({
     wrapper.querySelector<HTMLElement>('.comparison-logo-layer')!.hidden = false
 
     const format = (value: number, prefix?: boolean) =>
-      formatChartValue(value, payload.valueFormat, prefix)
+      formatTextValue(value, payload.valueFormat, {
+        prefixPositive: prefix,
+        sigFigs: 2,
+      })
 
     const rows = payload.data
     if (rows.length === 0) return

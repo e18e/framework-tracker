@@ -1,5 +1,6 @@
 ---
-import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+import { SHARED_CHART_HEIGHT } from '../lib/chart'
+import { formatTextValue } from '../lib/utils'
 import { lineChartScales } from '../lib/line-chart-config'
 import type { LineComparisonChartPayload } from '../lib/types'
 
@@ -65,7 +66,7 @@ function seriesColorVars(
                   <td>
                     {point.value == null
                       ? '—'
-                      : `${formatChartValue(point.value, valueFormat)} (v${point.version})`}
+                      : `${formatTextValue(point.value, valueFormat, { sigFigs: 2 })} (v${point.version})`}
                   </td>
                 ))}
               </tr>
@@ -166,7 +167,8 @@ function seriesColorVars(
   import { scaleLinear } from '@tanstack/charts/scales/linear'
   import { tooltip } from '@tanstack/charts/tooltip'
   import { curveMonotoneX } from 'd3-shape'
-  import { SHARED_CHART_HEIGHT, formatChartValue } from '../lib/chart'
+  import { SHARED_CHART_HEIGHT } from '../lib/chart'
+  import { formatTextValue } from '../lib/utils'
   import { resolveThemedValue } from '../lib/framework-logos'
   import {
     lineChartScales,
@@ -212,7 +214,7 @@ function seriesColorVars(
     if (!payload) return
 
     const format = (value: number) =>
-      formatChartValue(value, payload.valueFormat)
+      formatTextValue(value, payload.valueFormat, { sigFigs: 2 })
     const scale = lineChartScales[payload.scale]
     const tooltipConfig = lineChartTooltips[payload.tooltip]
 

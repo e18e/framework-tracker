@@ -1,5 +1,6 @@
 export type SSRLoadKind = 'ssrLoad' | 'ssrRouterLinkLoad'
 export const routerLinkPackages = new Set([
+  'app-ember',
   'app-next-js',
   'app-nuxt',
   'app-pracht',

@@ -58,6 +58,7 @@ runtime configuration details are described in Framework Specific Notes.
 | Framework      | UI library                           | Bundler / build tool         | Adapter / server    |
 | -------------- | ------------------------------------ | ---------------------------- | ------------------- |
 | Astro          | Astro; React for client-only content | Vite (via Astro)             | Node adapter        |
+| Ember          | Ember (Glimmer)                      | Vite                         | vite-ember-ssr      |
 | Next.js        | React                                | Turbopack (via `next build`) | Next.js server      |
 | Nuxt           | Vue                                  | Vite (via Nuxt)              | Nitro               |
 | Pracht         | Preact                               | Vite                         | Node adapter        |
@@ -84,6 +85,7 @@ of a typical new project.
 Current pinned dependencies are listed in each project's `package.json`:
 
 - [Astro](https://github.com/e18e/framework-performance/blob/main/packages/starter-astro/package.json)
+- [Ember](https://github.com/e18e/framework-performance/blob/main/packages/starter-ember/package.json)
 - [Next.js](https://github.com/e18e/framework-performance/blob/main/packages/starter-next-js/package.json)
 - [Nuxt](https://github.com/e18e/framework-performance/blob/main/packages/starter-nuxt/package.json)
 - [Pracht](https://github.com/e18e/framework-performance/blob/main/packages/starter-pracht/package.json)
@@ -105,6 +107,18 @@ Installed using the CLI
 - Step 5: Initialize a new git repository?: `No`
 
 The Astro starter builds static output without an adapter or React integration.
+
+#### Ember
+
+Installed using the [ember.nvp](https://github.com/NullVoxPopuli/ember.nvp) CLI
+with its default layers:
+
+- Step 1: `pnpm dlx ember.nvp --name starter-ember --path ./starter-ember --type app --packageManager pnpm`
+- Step 2: Layers: `agents-md` and `readme` (the defaults)
+
+`ember-source` is pinned to an exact version after generation. The app uses
+`@nullvoxpopuli/ember-vite` for its Vite configuration and template-tag
+(`.gjs`) components.
 
 #### Next.js
 
@@ -325,6 +339,7 @@ throughput, and load behavior for comparable production apps.
 Current pinned dependencies are listed in each project's `package.json`:
 
 - [Astro](https://github.com/e18e/framework-performance/blob/main/packages/app-astro/package.json)
+- [Ember](https://github.com/e18e/framework-performance/blob/main/packages/app-ember/package.json)
 - [Next.js](https://github.com/e18e/framework-performance/blob/main/packages/app-next-js/package.json)
 - [Nuxt](https://github.com/e18e/framework-performance/blob/main/packages/app-nuxt/package.json)
 - [Pracht](https://github.com/e18e/framework-performance/blob/main/packages/app-pracht/package.json)
@@ -337,6 +352,11 @@ Current pinned dependencies are listed in each project's `package.json`:
 ### Framework Specific Notes
 
 - Astro's runtime app uses standalone mode to serve on-demand routes.
+- Ember's runtime app adds the ember.nvp `ssr` layer. Its `server.js` renders
+  each page with vite-ember-ssr, which runs the app in a pool of worker threads
+  with a happy-dom document, and serves static files with sirv. The browser
+  rehydrates the rendered DOM. The server table routes also render their rows
+  as JSON into the page, so the browser rehydrates the same rows.
 - SolidStart and TanStack Start explicitly select Nitro's `node-server` preset.
 - TanStack Start's runtime app replaces the global `Response` constructor with
   srvx's `FastResponse` to improve Node.js throughput. Its Dev Time starter keeps
@@ -375,6 +395,8 @@ Current pinned dependencies are listed in each project's `package.json`:
   be zero.
 - Each framework uses its supported production routing and rendering controls.
 - Next.js disables SSR for the measured table and detail content.
+- Ember's routes return no model on the server, so the server renders an empty
+  page and the browser renders the table and detail content.
 - Astro uses React client-only islands. Its detail link performs a full-document
   navigation; the other tested frameworks use client routers.
 - Pracht generates UUID rows in the browser. Both routes use `render: 'spa'`

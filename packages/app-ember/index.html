@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Minimal App</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- VITE_EMBER_SSR_HEAD -->
+  </head>
+  <body>
+    <!-- VITE_EMBER_SSR_BODY -->
+    <script type="module">
+      import Application from '#app/app'
+      import environment from '#config'
+      import { bootRehydrated, installShoebox } from 'vite-ember-ssr/client'
+
+      installShoebox()
+      bootRehydrated(Application, environment)
+    </script>
+  </body>
+</html>

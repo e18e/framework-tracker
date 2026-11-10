@@ -198,6 +198,10 @@ test('Next.js SSR routes load the same data and render equivalent client tables'
 test('paired route sources preserve the loader and table except for link implementation', () => {
   const paths = [
     [
+      'app-ember/app/templates/server-side-rendered.gjs',
+      'app-ember/app/templates/server-side-rendered-plain-links.gjs',
+    ],
+    [
       'app-nuxt/app/pages/server-side-rendered/index.vue',
       'app-nuxt/app/pages/server-side-rendered-plain-links/index.vue',
     ],
@@ -217,8 +221,8 @@ test('paired route sources preserve the loader and table except for link impleme
   for (const [routerPath, anchorPath] of paths) {
     const original = readRouteSource(routerPath)
     const anchor = readRouteSource(anchorPath)
-    assert.match(original, /<(?:Link|NuxtLink)\b/, routerPath)
-    assert.doesNotMatch(anchor, /<(?:Link|NuxtLink)\b/, anchorPath)
+    assert.match(original, /<(?:Link|LinkTo|NuxtLink)\b/, routerPath)
+    assert.doesNotMatch(anchor, /<(?:Link|LinkTo|NuxtLink)\b/, anchorPath)
     const normalized = original
       .replace(
         "import { Link, type RouteComponentProps } from '@pracht/core'",
@@ -229,6 +233,11 @@ test('paired route sources preserve the loader and table except for link impleme
         '<a href={`/server-side-rendered/${entry.id}`}>',
       )
       .replace(/import \{ Link \} from 'react-router'\n/, '')
+      .replace("import { LinkTo } from '@ember/routing'\n", '')
+      .replace(
+        /<LinkTo\s+@route="server-side-rendered-detail"\s+@model=\{\{entry\.id\}\}\s*>/,
+        '<a href="/server-side-rendered/{{entry.id}}">',
+      )
       .replace('createFileRoute, Link', 'createFileRoute')
       .replace(
         "createFileRoute('/server-side-rendered')",
@@ -244,7 +253,7 @@ test('paired route sources preserve the loader and table except for link impleme
       )
       .replace(/<Link (?:href|to)=/g, '<a href=')
       .replace(/<NuxtLink :to=/g, '<a :href=')
-      .replace(/<\/(?:Link|NuxtLink)>/g, '</a>')
+      .replace(/<\/(?:Link|LinkTo|NuxtLink)>/g, '</a>')
     assert.equal(compact(anchor), compact(normalized), routerPath)
   }
 })

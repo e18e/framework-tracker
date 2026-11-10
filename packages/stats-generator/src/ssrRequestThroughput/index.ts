@@ -1,6 +1,7 @@
 import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
 import { buildBaselineHtmlHandler } from './handlers/baseline-html.ts'
+import { buildEmberHandler } from './handlers/ember.ts'
 import { buildNuxtHandler } from './handlers/nuxt.ts'
 import { buildPrachtHandler } from './handlers/pracht.ts'
 import { buildSvelteKitHandler } from './handlers/sveltekit.ts'
@@ -34,6 +35,12 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
       displayName: 'Astro SSR Request Handler Throughput',
       package: 'app-astro',
       buildHandler: buildAstroHandler,
+    },
+    {
+      name: 'ember-ssr-request-throughput',
+      displayName: 'Ember SSR Request Handler Throughput',
+      package: 'app-ember',
+      buildHandler: buildEmberHandler,
     },
     {
       name: 'nuxt-ssr-request-throughput',

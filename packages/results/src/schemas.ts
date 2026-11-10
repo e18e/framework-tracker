@@ -47,6 +47,7 @@ const OperationsPerSecondMetricSchema = metricWithUnit('ops/s')
 export const FrameworkSchema = z.enum([
   'baseline-html',
   'astro',
+  'ember',
   'next',
   'nuxt',
   'pracht',
@@ -61,6 +62,8 @@ export const PackagePathSchema = z.enum([
   'packages/app-baseline-html',
   'packages/starter-astro',
   'packages/app-astro',
+  'packages/starter-ember',
+  'packages/app-ember',
   'packages/starter-next-js',
   'packages/app-next-js',
   'packages/starter-nuxt',

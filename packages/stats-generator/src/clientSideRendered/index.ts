@@ -27,6 +27,13 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: true,
   },
   {
+    name: 'ember-client-side-rendered',
+    displayName: 'Ember Client Side Rendered',
+    package: 'app-ember',
+    serveScript: 'ember.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'next-client-side-rendered',
     displayName: 'Next.js Client Side Rendered',
     package: 'app-next-js',

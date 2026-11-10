@@ -13,6 +13,12 @@ export const servingFrameworks: ServingFrameworkConfig[] = [
     fullDocumentNavigation: true,
   },
   {
+    displayName: 'Ember Server Side Rendered',
+    package: 'app-ember',
+    serveScript: 'ember.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     displayName: 'Next.js Server Side Rendered',
     package: 'app-next-js',
     serveScript: 'next.ts',

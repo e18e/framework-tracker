@@ -59,6 +59,37 @@ export const frameworks = [
     },
   },
   {
+    name: 'ember',
+    displayName: 'Ember',
+    frameworkPackage: 'ember-source',
+    starter: {
+      package: 'starter-ember',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      devServerPort: 4200,
+      measurements: [
+        'install',
+        'build',
+        'devServer',
+        'dependencies',
+        'browserBaseline',
+      ],
+    },
+    app: {
+      package: 'app-ember',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      measurements: [
+        'ssrRequestThroughput',
+        'clientSideRendered',
+        'serverSideRendered',
+        'initialLoad',
+        'ssrLoad',
+        'ssrRouterLinkLoad',
+      ],
+    },
+  },
+  {
     name: 'next',
     displayName: 'Next.js',
     frameworkPackage: 'next',

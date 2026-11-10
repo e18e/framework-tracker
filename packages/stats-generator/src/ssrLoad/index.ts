@@ -32,6 +32,12 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     serveScript: 'astro.ts',
   },
   {
+    name: 'ember-ssr-load',
+    displayName: 'Ember SSR Load',
+    package: 'app-ember',
+    serveScript: 'ember.ts',
+  },
+  {
     name: 'next-ssr-load',
     displayName: 'Next.js SSR Load',
     package: 'app-next-js',

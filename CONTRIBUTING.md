@@ -18,21 +18,24 @@ The Framework Performance project has a few different areas which you can contri
 
 This is a monorepo managed with pnpm workspaces hosting multiple packages. However, some of the packages are not part of the workspace.
 
-Included in the workspace are the documentation site, built with Astro, and the stats generator, which is a tool for collecting and processing the metrics for each framework.
+The workspace includes the Astro documentation site, the stats generator, the results package, and the Core Web Vitals collector.
 
 ```
 framework-performance/
-├── packages/
-│   ├── docs/            # Astro-based documentation site
-│   └── stats-generator/ # Tool for collecting framework metrics
+└── packages/
+    ├── docs/            # Astro-based documentation site
+    ├── stats-generator/ # Tool for collecting framework metrics
+    ├── results/         # Framework config, schemas, and benchmark results
+    └── cwv-stats/       # Core Web Vitals data collection
 ```
 
 Outside of the workspace, we have individual packages for each framework's starter project and app project. These are used to run the actual measurements for each framework.
 
 ```
 framework-performance/
-├── starter-*/       # Metaframeworks configured using default set up
-├── app-*/           # Metaframeworks configured for run time tests
+└── packages/
+    ├── starter-*/    # Metaframeworks configured using default set up
+    └── app-*/        # Metaframeworks configured for run time tests
 ```
 
 Any project marked with `starter` in the name should be a direct setup of the meta-framework's recommended default configuration. For most of these, we have followed the official getting started guide and used the CLI to set up the project with the recommended path. We often use these to measure dev time performance metrics like build times, dependency counts, and CI performance. It's hard to compare meta-frameworks, so sometimes it's easier to compare the default setup of each framework, as this is what most users will start with and gives a good baseline for comparison. Full details on each `starter` set up can be found in our docs site [methodologies page](https://frameworks.e18e.dev/methodology/#project-setups).
@@ -43,52 +46,81 @@ Having both a `starter` and `app` project for each framework allows us to get a 
 
 ### How Metrics Work
 
-Please note that metrics collection is in early stages and the process is likely to change as we iterate on it. The current process is as follows but is subject to change:
-
-We currently run scripts in CI using GitHub Actions or if the test is more complex we run it locally in container and push the results to the repo.
+GitHub Actions runs the benchmark scripts from `packages/stats-generator` on Depot runners.
 
 #### CI Metrics Collection
 
 The current flow for collecting metrics is as follows:
 
-1. A PR is merged which triggers the CI Pipeline: `generate-stats` which uses functions from `packages/stats-generator` to run measurements for each framework
-2. The CI Pipeline reads the framework config from `.github/frameworks.json` and runs measurements based on each framework's `app` and `starter` config
+1. The [Benchmarks workflow](./.github/workflows/generate-stats.yml) runs on PRs to `main` and pushes to `main` that match its path filters. It also supports manual runs.
+2. It validates first-party dependency manifests and reads the framework config to select measurements for each `app` and `starter`.
 3. Repository benchmarks run on Depot; see [Default Benchmark Setup](./packages/docs/src/content/docs/methodology.md#default-benchmark-setup) for the shared environment and test-specific exceptions.
-4. The collected metrics are passed into the final step which runs the scripts from `packages/stats-generator`
-5. The `stats-generator` reads `frameworks.json` and generates stats only for the configured measurements
-6. Stats are then saved into each package and passed into `packages/docs`
+4. The measurement jobs upload JSON artifacts. **Validate results** checks those artifacts and the assembled results.
+5. After validation on `main`, the workflow opens or updates a PR if results changed. The docs site reads the combined data from `packages/results/data/<framework>/latest.json` and `versions/<version>.json`.
+
+```mermaid
+flowchart LR
+  A["Framework config"] --> B["CI benchmark jobs"] --> C["JSON artifacts"]
+  C --> D["Validate results"] --> E["Results JSON in stats PR"]
+```
 
 ### Framework Configuration
 
-All frameworks are configured in `.github/frameworks.json`. Each entry specifies what measurements to run:
+- [`frameworks.ts`](./packages/results/src/frameworks.ts) selects which measurements run for each starter and app.
+- Put benchmark settings in [`measurements.ts`](./packages/results/src/measurements.ts). For example, `install: { runs: 5 }` runs five install measurements per job for each enabled starter. Entries like `dependencies: {}` have no configurable repeat count here.
 
-```json
+Edit the TypeScript config. [`print-frameworks.ts`](./packages/stats-generator/src/print-frameworks.ts)
+prints it as JSON so CI can build its benchmark matrices. Astro imports the same
+registry for framework names and ordering, and for validating Code Comparison slugs.
+
+```ts
 {
-  "name": "astro",
-  "displayName": "Astro",
-  "frameworkPackage": "astro",
-  "starter": {
-    "package": "starter-astro",
-    "buildScript": "build:astro",
-    "buildOutputDir": "dist",
-    "measurements": [
-      { "type": "install", "runFrequency": 5 },
-      { "type": "build", "runFrequency": 5 },
-      { "type": "dependencies" }
-    ]
+  name: 'astro',
+  displayName: 'Astro',
+  frameworkPackage: 'astro',
+  starter: {
+    package: 'starter-astro',
+    buildScript: 'build',
+    buildOutputDir: 'dist',
+    measurements: ['install', 'build', 'dependencies'],
   },
-  "app": {
-    "package": "app-astro",
-    "buildScript": "build:app-astro",
-    "buildOutputDir": "dist",
-    "measurements": [{ "type": "ssrRequestThroughput" }]
-  }
+  app: {
+    package: 'app-astro',
+    buildScript: 'build',
+    buildOutputDir: 'dist',
+    measurements: ['ssrRequestThroughput'],
+  },
 },
 ```
 
 #### Container Metrics Collection
 
-Coming soon but will also pull from `.github/frameworks.json`
+The SSR Load and SSR Router Link Load benchmarks run in Docker on Depot. The
+commands for reproducing each job are in [Measure Framework](./.github/workflows/measure-framework.yml).
+
+### Result Schemas
+
+[`schemas.ts`](./packages/results/src/schemas.ts) defines the Zod schemas used
+to validate benchmark output and derive TypeScript types. Record what actually
+ran, the samples, and the summaries in the benchmark result using the fields
+defined by its schema. Update `FrameworkSchema` and `PackagePathSchema` when
+adding a framework.
+[`storage.ts`](./packages/results/src/storage.ts) uses those schemas to validate
+the combined JSON and associate each measurement with its starter or app.
+
+### How the Docs Use Results
+
+Astro imports benchmark JSON from `packages/results/data/` at build time.
+
+- [`prepare-table.ts`](./packages/docs/src/lib/prepare-table.ts) reads `latest.json` and formats table data.
+- [`prepare-chart.ts`](./packages/docs/src/lib/prepare-chart.ts) reads `latest.json` and `versions/*.json` to prepare current and historical chart data.
+
+```mermaid
+flowchart LR
+  L["latest.json"] --> T["prepare-table.ts"] --> A["Astro components"]
+  L --> C["prepare-chart.ts"] --> A
+  V["versions/*.json"] --> C
+```
 
 ### Versioning
 
@@ -101,18 +133,18 @@ release date.
 For a newer patch within a major or minor version already tracked (for example,
 SolidStart `2.0.0` to `2.0.5`), update the exact framework version in both the
 starter and app `package.json` files, regenerate both lockfiles, and update the
-starter's `first-party-dependencies.json`. Update `frameworkVersion` and the
-framework package version in both `ci-stats.json` files, then rename the
-existing `stats/<old-version>.json` files to the new patch version and update
-their version fields. Make the same changes to the current and versioned stats
-JSON files under `packages/docs/src/content/devtime` and `runtime`. Replace the
-old patch entry rather than adding another point to the major or minor history.
+starter's `first-party-dependencies.json`. Under `packages/results/data/<framework>/`,
+update `frameworkVersion` and the framework dependency version for each affected
+project in `latest.json` and `versions/<old-version>.json`. Rename the versioned
+file to the new patch version to replace the old entry in the major or minor
+history.
 Leave measured values and diagnostic messages unchanged; they still reflect the
 previous patch until the Benchmarks workflow reruns after the change reaches
 `main` and opens a stats update PR.
 
-Framework version bumps are currently manual; CI handles the measurements after
-the change reaches `main`.
+Framework version bumps are currently manual. CI runs the measurements on the
+PR and publishes fresh results through a stats update PR after the change
+reaches `main`.
 
 #### First-party direct dependencies
 
@@ -142,7 +174,7 @@ new first-party package, remove one no longer declared, and leave third-party
 packages out. Confirm ownership from the package's source project rather than
 assuming matching names or scopes are first-party.
 
-The validation workflow checks that every entry remains in the same dependency
+The Benchmarks workflow checks that every entry remains in the same dependency
 section with the same version as the starter's `package.json`.
 
 When an upgrade changes the build tool, adapter, starter setup, or benchmark
@@ -193,24 +225,20 @@ If approved, follow these steps:
 
 2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 
-3. **Add an entry to `packages/results/src/frameworks.ts`**: Configure the framework's measurements:
+3. **Add an entry to `packages/results/src/frameworks.ts`** using the same format as the framework configuration example above.
 
-   ```json
+   ```ts
    {
-     "name": "my-framework",
-     "displayName": "My Framework",
-     "frameworkPackage": "my-framework",
-     "starter": {
-       "package": "starter-my-framework",
-       "buildScript": "build:my-framework",
-       "buildOutputDir": "dist",
-       "measurements": [
-         { "type": "install", "runFrequency": 5 },
-         { "type": "build", "runFrequency": 5 },
-         { "type": "dependencies" }
-       ]
-     }
-   }
+     name: 'my-framework',
+     displayName: 'My Framework',
+     frameworkPackage: 'my-framework',
+     starter: {
+       package: 'starter-my-framework',
+       buildScript: 'build',
+       buildOutputDir: 'dist',
+       measurements: ['install', 'build', 'dependencies'],
+     },
+   },
    ```
 
 4. **Update the methodology**: Follow [Keeping the Methodology Up to Date](#keeping-the-methodology-up-to-date). Add the framework to the build tools and adapters table, document its starter setup, and explain any runtime or test-specific differences.
@@ -223,7 +251,7 @@ If approved, follow these steps:
 
 ### Adding a Code Comparison Example
 
-The [Code Comparison](https://frameworks.e18e.dev/code-comparison/) page is driven by markdown files in `packages/docs/src/content/code-comparison/<example>/<framework>.md`. One file per framework, named after the framework's slug, which is its `packages/docs/src/content/devtime/starter-*.json` filename without the prefix. Anything else under that folder fails `pnpm type-check`, including a stray file at the wrong depth or with the wrong extension. A framework with no file gets a placeholder tab, so a partial example still ships.
+The [Code Comparison](https://frameworks.e18e.dev/code-comparison/) page is driven by markdown files in `packages/docs/src/content/code-comparison/<example>/<framework>.md`. One file per framework, named after its starter package in the framework config with the `starter-` prefix removed. Anything else under that folder fails `pnpm type-check`, including a stray file at the wrong depth or with the wrong extension. A framework with no file gets a placeholder tab, so a partial example still ships.
 
 Each file holds optional frontmatter, optional prose, and one fenced code block per file the task needs:
 
@@ -246,7 +274,7 @@ The rules the page depends on:
 
 Adding a new example means adding the folder plus a `##` heading and a `<CodeComparison example="..." />` line in `packages/docs/src/content/docs/code-comparison.mdx`. Nothing else changes, so examples can be contributed in parallel.
 
-Verify a snippet before opening the PR, because nothing in CI can. Copy the starter to a scratch directory, `pnpm install`, write every block into it at its `title=` path, run `pnpm dev`, and request the routes the example adds.
+Verify a snippet before opening the PR. CI checks the Markdown during the docs build. To test the snippet itself, copy the starter to a scratch directory, run `pnpm install`, write every block into it at its `title=` path, run `pnpm dev`, and request the routes the example adds.
 
 Run `pnpm format` too. Prettier reformats `astro`, `vue`, `ts`, and `tsx` fences to this repo's style. It leaves `svelte` fences alone, since `prettier-plugin-svelte` is not installed here, so format those by hand to match.
 
@@ -272,7 +300,7 @@ To get the project running locally:
    pnpm install
    ```
 
-   This installs dependencies for the workspace packages (docs and stats-generator). The `starter-*` and `app-*` packages are not part of the workspace and have their own lockfiles.
+   This installs dependencies for the workspace packages listed above. Install dependencies inside the `starter-*` or `app-*` package when working on it directly.
 
 4. **Run the docs site locally**:
 
@@ -283,9 +311,10 @@ To get the project running locally:
 5. **Linting and formatting**:
 
    ```bash
-   pnpm lint:all        # Run linting across workspace and framework packages
-   pnpm format          # Format code with Prettier
-   pnpm type-check:all  # Run type checking across workspace and framework packages
+   pnpm install:all:frozen  # Install framework package dependencies for the full checks
+   pnpm lint:all            # Run linting across workspace and framework packages
+   pnpm format              # Format code with Prettier
+   pnpm type-check:all      # Run type checking across workspace and framework packages
    ```
 
 6. **Tests**:

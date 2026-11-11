@@ -66,8 +66,9 @@ runtime configuration details are described in Framework Specific Notes.
 | SvelteKit      | Svelte                               | Vite                         | Node adapter        |
 | TanStack Start | React                                | Vite                         | Nitro               |
 | Baseline HTML  | None                                 | No build step                | Node.js             |
+| WebUI          | WebUI                                | WebUI compiler; esbuild      | Axum / Tokio (Rust) |
 
-Baseline HTML is a runtime-only comparison. Each project's `package.json`
+Baseline HTML and WebUI are runtime-only comparisons without starter projects. Each project's `package.json`
 declares dependency versions or ranges; its lockfile records resolved versions.
 Test-specific rendering and routing choices are described in the relevant
 benchmark sections below.
@@ -333,9 +334,21 @@ Current pinned dependencies are listed in each project's `package.json`:
 - [SvelteKit](https://github.com/e18e/framework-performance/blob/main/packages/app-sveltekit/package.json)
 - [TanStack Start (React)](https://github.com/e18e/framework-performance/blob/main/packages/app-tanstack-start-react/package.json)
 - [Baseline HTML](https://github.com/e18e/framework-performance/blob/main/packages/app-baseline-html/package.json)
+- [WebUI](https://github.com/e18e/framework-performance/blob/main/packages/app-webui/package.json)
 
 ### Framework Specific Notes
 
+- WebUI ports Astro's runtime routes to native Rust SSR with Light DOM templates.
+  The compiler and renderer versions match the browser runtime. Protocols are
+  decoded once at startup; requests borrow one immutable 1,000-row UUID fixture
+  and render fresh HTML, without cloning or serializing the fixture per request.
+  A Tokio 1 ms timer mirrors Node's minimum zero-delay timer; scheduling differs
+  by runtime. Tokio uses a multithreaded runtime while Node apps retain their
+  production defaults, so HTTP results compare complete server configurations.
+  Browser and HTTP load measurements are enabled; there is no Dev Time starter,
+  client-router-link load, or in-process JavaScript-handler throughput result.
+  Rust is pinned in the app's toolchain file. Linux x64 release builds use static
+  musl to run unchanged inside the shared Debian benchmark container.
 - Astro's runtime app uses standalone mode to serve on-demand routes.
 - SolidStart and TanStack Start explicitly select Nitro's `node-server` preset.
 - TanStack Start's runtime app replaces the global `Response` constructor with
@@ -376,7 +389,9 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Each framework uses its supported production routing and rendering controls.
 - Next.js disables SSR for the measured table and detail content.
 - Astro uses React client-only islands. Its detail link performs a full-document
-  navigation; the other tested frameworks use client routers.
+  navigation. WebUI also uses full-document navigation, generating its table
+  UUIDs and detail ID in authored components after hydration; the other tested
+  frameworks use client routers.
 - Pracht generates UUID rows in the browser. Both routes use `render: 'spa'`
   and navigate with `<Link>`.
 
@@ -432,6 +447,8 @@ Current pinned dependencies are listed in each project's `package.json`:
 
 ### Server Side Throughput Tests
 
+- WebUI is excluded because this test requires an in-process JavaScript handler.
+  Its equivalent `/ssr-throughput` route is not measured over HTTP as a substitute.
 - Each framework renders `/ssr-throughput`: 1,000 rows with UUID id/name columns
   and no links or framework link components.
 - Production request handlers receive Web API `Request` objects or mock Node.js
@@ -468,6 +485,9 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Tests run in production Node.js containers on the larger Depot runner
   described in the setup. The server and Autocannon use separate CPU sets but
   share memory and other host resources.
+- WebUI runs its release Rust executable directly inside the same server
+  container, with the same CPU allocation and load generator. Node launches and
+  supervises that process but is not in its HTTP request path.
 
 ### SSR Router Link Load Test
 

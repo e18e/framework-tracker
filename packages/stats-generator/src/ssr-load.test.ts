@@ -99,6 +99,7 @@ test('routes and result keys separate the two load tests', () => {
     'app-solid',
     'app-sveltekit',
     'app-baseline-html',
+    'app-webui',
   ]) {
     assert.equal(getSSRLoadPath(pkg, 'ssrLoad'), '/server-side-rendered')
     assert.throws(() => getSSRLoadPath(pkg, 'ssrRouterLinkLoad'))
@@ -155,6 +156,20 @@ test('HTTP table verification rejects missing rows, wrong columns, text, and des
     html.replace('/server-side-rendered/', '/wrong/'),
   ]) {
     assert.throws(() => verifySSRLoadTable(invalid))
+  }
+})
+
+test('HTTP table verification accepts HTML-encoded slashes in link destinations', async () => {
+  const html = renderBaselineHtml(await testData())
+  for (const slash of ['&#x2F;', '&#47;']) {
+    const encoded = html.replaceAll(
+      '/server-side-rendered/',
+      `${slash}server-side-rendered${slash}`,
+    )
+    verifySSRLoadTable(encoded)
+    assert.throws(() =>
+      verifySSRLoadTable(encoded.replaceAll('server-side-rendered', 'wrong')),
+    )
   }
 })
 

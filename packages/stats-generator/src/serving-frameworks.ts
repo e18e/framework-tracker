@@ -1,11 +1,19 @@
-export interface ServingFrameworkConfig {
+export type BenchmarkServerConfig = { package: string } & (
+  { serveScript: string } | { serveBinary: string }
+)
+
+export type ServingFrameworkConfig = BenchmarkServerConfig & {
   displayName: string
-  package: string
-  serveScript: string
   fullDocumentNavigation: boolean
 }
 
 export const servingFrameworks: ServingFrameworkConfig[] = [
+  {
+    displayName: 'WebUI Server Side Rendered',
+    package: 'app-webui',
+    serveBinary: 'app-webui',
+    fullDocumentNavigation: true,
+  },
   {
     displayName: 'Astro Server Side Rendered',
     package: 'app-astro',

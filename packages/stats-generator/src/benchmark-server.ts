@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
 import { packagesDir } from './constants.ts'
-import type { ServingFrameworkConfig } from './serving-frameworks.ts'
+import type { BenchmarkServerConfig } from './serving-frameworks.ts'
 
 export async function waitForBenchmarkServer(
   url: string,
@@ -23,7 +23,7 @@ export async function waitForBenchmarkServer(
 }
 
 export async function startBenchmarkServer(
-  config: Pick<ServingFrameworkConfig, 'package' | 'serveScript'>,
+  config: BenchmarkServerConfig,
   options: {
     host: string
     port: number
@@ -32,13 +32,27 @@ export async function startBenchmarkServer(
   },
 ): Promise<() => void> {
   const { host, port, readinessPath, timeoutMs = 30_000 } = options
-  const scriptPath = fileURLToPath(
-    new URL(`./serve/${config.serveScript}`, import.meta.url),
-  )
+  const appDir = join(packagesDir, config.package)
+  const binary =
+    'serveBinary' in config
+      ? join(
+          appDir,
+          'dist',
+          `${config.serveBinary}${process.platform === 'win32' ? '.exe' : ''}`,
+        )
+      : undefined
   const proc = spawn(
-    process.execPath,
-    [scriptPath, join(packagesDir, config.package)],
+    binary ?? process.execPath,
+    'serveScript' in config
+      ? [
+          fileURLToPath(
+            new URL(`./serve/${config.serveScript}`, import.meta.url),
+          ),
+          appDir,
+        ]
+      : [],
     {
+      cwd: appDir,
       env: {
         ...process.env,
         HOST: host,

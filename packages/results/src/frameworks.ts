@@ -273,6 +273,22 @@ export const frameworks = [
     },
   },
   {
+    name: 'webui',
+    displayName: 'WebUI',
+    frameworkPackage: '@microsoft/webui',
+    app: {
+      package: 'app-webui',
+      buildScript: 'build',
+      buildOutputDir: 'dist',
+      measurements: [
+        'clientSideRendered',
+        'serverSideRendered',
+        'initialLoad',
+        'ssrLoad',
+      ],
+    },
+  },
+  {
     name: 'tanstack',
     displayName: 'TanStack Start',
     frameworkPackage: '@tanstack/react-start',

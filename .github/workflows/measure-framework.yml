@@ -324,6 +324,10 @@ jobs:
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm install --frozen-lockfile
 
+      - name: Setup WebUI Rust build
+        if: matrix.framework.package == 'app-webui'
+        uses: ./.github/actions/setup-webui
+
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm build
@@ -412,6 +416,10 @@ jobs:
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm install --frozen-lockfile
 
+      - name: Setup WebUI Rust build
+        if: matrix.framework.package == 'app-webui'
+        uses: ./.github/actions/setup-webui
+
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm build
@@ -458,6 +466,10 @@ jobs:
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm install --frozen-lockfile
 
+      - name: Setup WebUI Rust build
+        if: matrix.framework.package == 'app-webui'
+        uses: ./.github/actions/setup-webui
+
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm build
@@ -503,6 +515,10 @@ jobs:
       - name: Install package dependencies
         working-directory: ./packages/${{ matrix.framework.package }}
         run: pnpm install --frozen-lockfile
+
+      - name: Setup WebUI Rust build
+        if: matrix.framework.package == 'app-webui'
+        uses: ./.github/actions/setup-webui
 
       - name: Build app
         working-directory: ./packages/${{ matrix.framework.package }}

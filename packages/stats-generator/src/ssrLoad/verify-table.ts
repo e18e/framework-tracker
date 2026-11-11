@@ -24,7 +24,10 @@ export function verifySSRLoadTable(html: string): void {
     assert.match(name, uuid)
     ids.add(id)
     assert.equal([...link.matchAll(/<a\b/gi)].length, 1)
-    assert.match(link, new RegExp(`href=["']/server-side-rendered/${id}["']`))
+    assert.match(
+      link.replace(/&#(?:x0*2f|0*47);/gi, '/'),
+      new RegExp(`href=["']/server-side-rendered/${id}["']`),
+    )
     assert.equal(
       link
         .replace(/<[^>]+>/g, '')

@@ -1,0 +1,22 @@
+{
+  "name": "app-webui",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.1.1",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "node scripts/start.mjs",
+    "type-check": "tsc --noEmit && cargo check --locked",
+    "test": "node scripts/build.mjs --templates-only && cargo test --locked",
+    "test:browser": "node --test tests/browser.test.mjs"
+  },
+  "dependencies": {
+    "@microsoft/webui": "3.1.1",
+    "@microsoft/webui-framework": "3.1.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "puppeteer-core": "25.5.0",
+    "typescript": "7.0.2"
+  }
+}

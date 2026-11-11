@@ -1,7 +1,5 @@
-import { spawn } from 'node:child_process'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { packagesDir } from '../constants.ts'
+import { startBenchmarkServer } from '../benchmark-server.ts'
+import type { BenchmarkServerConfig } from '../serving-frameworks.ts'
 import { getHost, getPort } from '../serve/common.ts'
 import { runLoadTest } from './run-load-test.ts'
 import type { SSRLoadBenchmarkResult } from './types.ts'
@@ -11,14 +9,18 @@ import { verifySSRLoadTable } from './verify-table.ts'
 
 export const DEFAULT_SSR_LOAD_PORT = 3003
 
-interface SSRLoadFrameworkConfig {
+type SSRLoadFrameworkConfig = BenchmarkServerConfig & {
   name: string
   displayName: string
-  package: string
-  serveScript: string
 }
 
 const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
+  {
+    name: 'webui-ssr-load',
+    displayName: 'WebUI SSR Load',
+    package: 'app-webui',
+    serveBinary: 'app-webui',
+  },
   {
     name: 'baseline-html-ssr-load',
     displayName: 'Baseline HTML SSR Load',
@@ -133,54 +135,11 @@ async function spawnServer(
 ): Promise<() => void> {
   const host = getHost()
   const port = getPort(DEFAULT_SSR_LOAD_PORT)
-  const appDir = join(packagesDir, config.package)
-  const scriptPath = fileURLToPath(
-    new URL(`../serve/${config.serveScript}`, import.meta.url),
-  )
-
-  const proc = spawn('node', [scriptPath, appDir], {
-    env: {
-      ...process.env,
-      HOST: host,
-      NODE_ENV: 'production',
-      PORT: String(port),
-    },
-    stdio: ['ignore', 'pipe', 'pipe'],
+  return startBenchmarkServer(config, {
+    host,
+    port,
+    readinessPath: getSSRLoadPath(config.package, getSSRLoadKind()),
   })
-
-  proc.stdout?.on('data', (chunk: Buffer) =>
-    process.stdout.write(`[${config.package}] ${chunk}`),
-  )
-  proc.stderr?.on('data', (chunk: Buffer) =>
-    process.stderr.write(`[${config.package}] ${chunk}`),
-  )
-
-  let exited = false
-  proc.on('exit', (code) => {
-    exited = true
-    if (code != null && code !== 0) {
-      console.error(`[${config.package}] server exited with code ${code}`)
-    }
-  })
-
-  const exitPromise = new Promise<never>((_, reject) => {
-    proc.on('exit', (code) => {
-      if (code != null && code !== 0) {
-        reject(new Error(`Server process exited with code ${code}`))
-      }
-    })
-  })
-
-  await Promise.race([
-    waitForServer(
-      `http://${host}:${port}${getSSRLoadPath(config.package, getSSRLoadKind())}`,
-    ),
-    exitPromise,
-  ])
-
-  return () => {
-    if (!exited) proc.kill('SIGTERM')
-  }
 }
 
 export async function runSSRLoadBenchmark(

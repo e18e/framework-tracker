@@ -1,0 +1,16 @@
+name: Setup WebUI Rust build
+description: Install the pinned Rust toolchain and static Linux target for WebUI benchmarks.
+runs:
+  using: composite
+  steps:
+    - name: Install Rust toolchain and musl target
+      shell: bash
+      working-directory: packages/app-webui
+      run: |
+        rustup show
+        rustup target add x86_64-unknown-linux-musl
+    - name: Install musl linker
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y musl-tools

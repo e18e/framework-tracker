@@ -13,7 +13,7 @@ import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
 import type { CombinedResult } from '@framework-performance/results/storage'
 import { prepareStarterResult, prepareRuntimeResult } from './result-content'
 const resultFiles = import.meta.glob<CombinedResult>(
-  '../../../../results/**/latest.json',
+  '../../../results/data/**/latest.json',
   { eager: true, import: 'default' },
 )
 const results = Object.values(resultFiles).sort(

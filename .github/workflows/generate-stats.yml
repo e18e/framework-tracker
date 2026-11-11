@@ -205,7 +205,7 @@ jobs:
           fi
 
           git checkout -B automated-stats-update
-          git add packages/ results/
+          git add packages/
           git commit -m "Update CI stats and generated stats after starter changes"
           git push --force-with-lease origin automated-stats-update
 
@@ -215,8 +215,8 @@ jobs:
               --body "Automated stats update triggered by changes to starter packages.
 
           Includes:
-          - Combined framework measurements (results/<framework>/latest.json)
-          - Versioned stats history (results/<framework>/versions/<version>.json)
+          - Combined framework measurements (packages/results/data/<framework>/latest.json)
+          - Versioned stats history (packages/results/data/<framework>/versions/<version>.json)
           - Starter and app test results with project attribution
 
           This PR was automatically created and will auto-merge if all checks pass." \

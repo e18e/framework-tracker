@@ -9,7 +9,7 @@ import { prepareRuntimeResult, prepareStarterResult } from './result-content'
 import type { ChartMeasurement, StackedAreaChartPayload } from './types'
 
 const resultFiles = import.meta.glob<CombinedResult>(
-  '../../../../results/**/*.json',
+  '../../../results/data/**/*.json',
   { eager: true, import: 'default' },
 )
 const latest = Object.entries(resultFiles)

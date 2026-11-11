@@ -1,6 +1,7 @@
+import { resultsRoot } from '@framework-performance/results/storage'
 import { execFileSync } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 
 const MAX_DIFF_LINES = 500
 const COMMENT_MARKER = '<!-- stats-preview-comment -->'
@@ -19,10 +20,11 @@ async function main() {
     encoding: 'utf-8',
   }).trim()
 
-  const fullDiff = execFileSync('git', ['diff', '--', 'results/'], {
-    cwd: repoRoot,
-    encoding: 'utf-8',
-  })
+  const fullDiff = execFileSync(
+    'git',
+    ['diff', '--', relative(repoRoot, resultsRoot)],
+    { cwd: repoRoot, encoding: 'utf-8' },
+  )
 
   const diffLines = fullDiff.trimEnd().split('\n').filter(Boolean)
   const truncated = diffLines.length > MAX_DIFF_LINES

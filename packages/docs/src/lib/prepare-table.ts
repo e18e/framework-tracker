@@ -9,13 +9,20 @@ import { frameworks } from '@framework-tracker/results/frameworks'
 import { getCollection } from 'astro:content'
 import {
   formatBytesToMB,
-  formatTimeMs,
+  formatTime,
   formatValue,
   getFrameworkSlug,
 } from './utils'
 
 import type { CombinedResult } from '@framework-tracker/results/storage'
 import { prepareStarterResult, prepareRuntimeResult } from './result-content'
+
+const seconds = (ms: number | null | undefined) =>
+  formatTime(ms, 's', { sigFigs: 2 })
+
+const milliseconds = (ms: number | null | undefined) =>
+  formatTime(ms, 'ms', { sigFigs: 2 })
+
 const resultFiles = import.meta.glob<CombinedResult>(
   '../../../../results/**/latest.json',
   { eager: true, import: 'default' },
@@ -98,9 +105,9 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
           framework[key]!.representativePeak.requestsPerSec.toLocaleString(),
         peakWorkers:
           framework[key]!.representativePeak.workers.toLocaleString(),
-        worker25P99LatencyMs: `${worker25Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
-        worker50P99LatencyMs: `${worker50Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
-        worker100P99LatencyMs: `${worker100Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
+        worker25P99LatencyMs: milliseconds(worker25Stage.p99LatencyMs),
+        worker50P99LatencyMs: milliseconds(worker50Stage.p99LatencyMs),
+        worker100P99LatencyMs: milliseconds(worker100Stage.p99LatencyMs),
         totalRequests: framework[key]!.totalRequests.toLocaleString(),
       }
     })
@@ -118,16 +125,16 @@ export const serverSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      firstPaintMs: formatMilliseconds(tests.firstPaintMs),
-      fcpMs: formatMilliseconds(tests.fcpMs),
-      interactionLatencyMs: formatMilliseconds(
+      firstPaintMs: milliseconds(tests.firstPaintMs),
+      fcpMs: milliseconds(tests.fcpMs),
+      interactionLatencyMs: milliseconds(
         interaction?.interactionLatencyMs,
       ),
-      inputDelayMs: formatMilliseconds(interaction?.inputDelayMs),
-      processingDurationMs: formatMilliseconds(
+      inputDelayMs: milliseconds(interaction?.inputDelayMs),
+      processingDurationMs: milliseconds(
         interaction?.processingDurationMs,
       ),
-      presentationDelayMs: formatMilliseconds(interaction?.presentationDelayMs),
+      presentationDelayMs: milliseconds(interaction?.presentationDelayMs),
     }
   })
 
@@ -144,24 +151,18 @@ export const clientSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      firstPaintMs: formatMilliseconds(tests.firstPaintMs),
-      fcpMs: formatMilliseconds(tests.fcpMs),
-      interactionLatencyMs: formatMilliseconds(
+      firstPaintMs: milliseconds(tests.firstPaintMs),
+      fcpMs: milliseconds(tests.fcpMs),
+      interactionLatencyMs: milliseconds(
         interaction?.interactionLatencyMs,
       ),
-      inputDelayMs: formatMilliseconds(interaction?.inputDelayMs),
-      processingDurationMs: formatMilliseconds(
+      inputDelayMs: milliseconds(interaction?.inputDelayMs),
+      processingDurationMs: milliseconds(
         interaction?.processingDurationMs,
       ),
-      presentationDelayMs: formatMilliseconds(interaction?.presentationDelayMs),
+      presentationDelayMs: milliseconds(interaction?.presentationDelayMs),
     }
   })
-
-function formatMilliseconds(value: number | undefined) {
-  return value != null && Number.isFinite(value)
-    ? `${Number(value.toFixed(3))}ms`
-    : '—'
-}
 
 export const depsStats = starterStats.map((f) => ({
   name: f.name,
@@ -243,23 +244,23 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
 export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  medianInstall: formatTimeMs(f.install.installTimeMs.median),
-  minInstall: formatTimeMs(f.install.installTimeMs.min),
-  maxInstall: formatTimeMs(f.install.installTimeMs.max),
-  medianColdBuild: formatTimeMs(f.coldBuildTime.medianMs),
-  minColdBuild: formatTimeMs(f.coldBuildTime.minMs),
-  maxColdBuild: formatTimeMs(f.coldBuildTime.maxMs),
-  medianWarmBuild: formatTimeMs(f.warmBuildTime.medianMs),
-  minWarmBuild: formatTimeMs(f.warmBuildTime.minMs),
-  maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
+  medianInstall: seconds(f.install.installTimeMs.median),
+  minInstall: seconds(f.install.installTimeMs.min),
+  maxInstall: seconds(f.install.installTimeMs.max),
+  medianColdBuild: seconds(f.coldBuildTime.medianMs),
+  minColdBuild: seconds(f.coldBuildTime.minMs),
+  maxColdBuild: seconds(f.coldBuildTime.maxMs),
+  medianWarmBuild: seconds(f.warmBuildTime.medianMs),
+  minWarmBuild: seconds(f.warmBuildTime.minMs),
+  maxWarmBuild: seconds(f.warmBuildTime.maxMs),
 }))
 
 export const devServerStartData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  medianStart: formatTimeMs(f.devServerStartTime?.medianMs ?? Number.NaN),
-  minStart: formatTimeMs(f.devServerStartTime?.minMs ?? Number.NaN),
-  maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
+  medianStart: seconds(f.devServerStartTime?.medianMs),
+  minStart: seconds(f.devServerStartTime?.minMs),
+  maxStart: seconds(f.devServerStartTime?.maxMs),
 }))
 
 export const coreJsTableData = starterStats.map((f) => {
@@ -327,7 +328,7 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
         name: f.name,
         package: f.package,
         opsPerSec: Math.round(tests.opsPerSec).toLocaleString(),
-        latencyMs: `${Number(tests.latencyMs.toFixed(3))}ms`,
+        latencyMs: milliseconds(tests.latencyMs),
         bodySizeKb: `${tests.bodySizeKb}kb`,
         duplicationFactor: `${tests.duplicationFactor}x`,
       },

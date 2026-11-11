@@ -24,15 +24,6 @@ export function formatBytesToMB(bytes: number): string {
   return `${mb.toFixed(2)}MB`
 }
 
-/**
- * Formats a duration in milliseconds as seconds with two decimal places (e.g. "1.23s").
- * Callers should pass a finite, non-negative number; otherwise returns "—".
- */
-export function formatTimeMs(ms: number): string {
-  if (!Number.isFinite(ms) || ms < 0) return '—'
-  return `${(ms / 1000).toFixed(2)}s`
-}
-
 export interface FormatOptions {
   prefixPositive?: boolean
   /** Decimal places for non-count formats. Defaults to 0. */
@@ -47,10 +38,12 @@ export type FormattedText<F extends ChartValueFormat = ChartValueFormat> =
   string & { readonly __format: F }
 
 export function formatTextValue<F extends ChartValueFormat>(
-  value: number,
+  value: number | null | undefined,
   format: F,
   ops?: FormatOptions,
-): FormattedText<F> {
+): FormattedText<F> | typeof MISSING_TEXT {
+  if (value == null || !Number.isFinite(value)) return MISSING_TEXT
+
   const { prefixPositive, sigFigs = 0 } = ops ?? {}
   const fixed = value.toFixed(sigFigs)
 
@@ -71,24 +64,33 @@ export function formatTextValue<F extends ChartValueFormat>(
     default:
       formatted = `${fixed} ms`
   }
-  return (
-    prefixPositive && value > 0 ? `+${formatted}` : formatted
-  ) as FormattedText<F>
+
+  if (prefixPositive && value > 0) formatted = `+${formatted}`
+
+  return formatted as FormattedText<F>
 }
+
+/** Display text for a missing or invalid value. */
+export const MISSING_TEXT = '—'
 
 /**
  * Runtime tag: keeps the raw number and format alongside the display text.
  * Stringifies (template literals, `String()`, JSON) to the display text.
+ * `value` is `null` when the input was missing or invalid.
  */
 export class FormattedValue<F extends ChartValueFormat = ChartValueFormat> {
-  readonly value: number
+  readonly value: number | null | undefined
   readonly format: F
-  readonly text: FormattedText<F>
+  readonly text: FormattedText<F> | typeof MISSING_TEXT
 
-  constructor(value: number, format: F, ops?: FormatOptions) {
+  constructor(
+    value: number | null | undefined,
+    format: F,
+    text: FormattedText<F> | typeof MISSING_TEXT,
+  ) {
     this.value = value
     this.format = format
-    this.text = formatTextValue(value, format, ops)
+    this.text = text
   }
 
   toString(): string {
@@ -101,9 +103,59 @@ export class FormattedValue<F extends ChartValueFormat = ChartValueFormat> {
 }
 
 export function formatValue<F extends ChartValueFormat>(
-  value: number,
+  value: number | null | undefined,
   format: F,
   ops?: FormatOptions,
 ) {
-  return new FormattedValue(value, format, ops)
+  return new FormattedValue(value, format, formatTextValue(value, format, ops))
+}
+
+export type TimeUnit = Extract<ChartValueFormat, 'ms' | 's'>
+
+/**
+ * Compile-time tag: a string produced by `formatTextTime` with unit `U`.
+ * A subtype of `FormattedText<U>`, so it can be used wherever that is expected.
+ * At runtime it is a plain string.
+ */
+export type FormattedTimeText<U extends TimeUnit = TimeUnit> =
+  FormattedText<U> & { readonly __time: true }
+
+export interface TimeFormatOptions {
+  sigFigs?: number
+}
+
+export function formatTextTime<U extends TimeUnit>(
+  ms: number | null | undefined,
+  unit: U,
+  ops?: TimeFormatOptions,
+): FormattedTimeText<U> | typeof MISSING_TEXT {
+  if (ms == null || !Number.isFinite(ms) || ms < 0) return MISSING_TEXT
+
+  const { sigFigs = 0 } = ops ?? {}
+
+  let formatted: string
+
+  switch (unit) {
+    case 's':
+      formatted = `${(ms / 1000).toFixed(sigFigs)}s`
+      break
+    default:
+      formatted = `${ms.toFixed(sigFigs)} ms`
+  }
+
+  return formatted as FormattedTimeText<U>
+}
+
+export class FormattedTime<
+  U extends TimeUnit = TimeUnit,
+> extends FormattedValue<U> {}
+
+export function formatTime<U extends TimeUnit>(
+  ms: number | null | undefined,
+  unit: U,
+  ops?: TimeFormatOptions,
+) {
+  const text = formatTextTime(ms, unit, ops)
+  const value = text === MISSING_TEXT ? null : (ms as number)
+  return new FormattedTime(value, unit, text)
 }

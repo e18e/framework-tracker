@@ -5,9 +5,7 @@ import { z } from 'zod'
 import { FrameworkResultSchema } from './schemas.ts'
 import { frameworks } from './frameworks.ts'
 
-export const resultsRoot = fileURLToPath(
-  new URL('../../../results/', import.meta.url),
-)
+export const resultsRoot = fileURLToPath(new URL('../data/', import.meta.url))
 const metadataFields = {
   framework: true,
   packagePath: true,

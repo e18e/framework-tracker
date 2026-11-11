@@ -19,31 +19,31 @@ We welcome contributions from the community! Whether you're interested in adding
 
 If you would like to play around with the collected data to build your own visualizations or analyses, you can find the raw data output here:
 
-- Final formatted data: `results/<framework>/latest.json` and `versions/<version>.json`, with `project: "starter"` on each test
+- Final formatted data: `packages/results/data/<framework>/latest.json` and `versions/<version>.json`, with `project: "starter"` on each test
 
 - Final formatted data: the same framework result files, with `project: "app"` on each test
 
-- Raw data for each framework with past versions can be found in each package:
+- Latest results by framework:
 
   Dev Time Performance:
-  - [Next.js](./results/next/latest.json)
-  - [Nuxt](./results/nuxt/latest.json)
-  - [SvelteKit](./results/sveltekit/latest.json)
-  - [Astro](./results/astro/latest.json)
-  - [Pracht](./results/pracht/latest.json)
-  - [React Router](./results/react-router/latest.json)
-  - [SolidStart](./results/solid-start/latest.json)
-  - [Tanstack Start](./results/tanstack/latest.json)
+  - [Next.js](./packages/results/data/next/latest.json)
+  - [Nuxt](./packages/results/data/nuxt/latest.json)
+  - [SvelteKit](./packages/results/data/sveltekit/latest.json)
+  - [Astro](./packages/results/data/astro/latest.json)
+  - [Pracht](./packages/results/data/pracht/latest.json)
+  - [React Router](./packages/results/data/react-router/latest.json)
+  - [SolidStart](./packages/results/data/solid-start/latest.json)
+  - [Tanstack Start](./packages/results/data/tanstack/latest.json)
 
   Runtime Performance:
-  - [Next.js](./results/next/latest.json)
-  - [Nuxt](./results/nuxt/latest.json)
-  - [SvelteKit](./results/sveltekit/latest.json)
-  - [Astro](./results/astro/latest.json)
-  - [Pracht](./results/pracht/latest.json)
-  - [React Router](./results/react-router/latest.json)
-  - [SolidStart](./results/solid-start/latest.json)
-  - [Tanstack Start](./results/tanstack/latest.json)
+  - [Next.js](./packages/results/data/next/latest.json)
+  - [Nuxt](./packages/results/data/nuxt/latest.json)
+  - [SvelteKit](./packages/results/data/sveltekit/latest.json)
+  - [Astro](./packages/results/data/astro/latest.json)
+  - [Pracht](./packages/results/data/pracht/latest.json)
+  - [React Router](./packages/results/data/react-router/latest.json)
+  - [SolidStart](./packages/results/data/solid-start/latest.json)
+  - [Tanstack Start](./packages/results/data/tanstack/latest.json)
 
 ## Sponsors
 

@@ -269,11 +269,11 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.ssrDuplicationFactor === 'number'
   ) {
     stats.ssrRequestThroughputTests = {
-      opsPerSec: { value: legacyStats.ssrOpsPerSec, unit: 'ops/s' },
-      avgLatencyMs: { value: legacyStats.ssrAvgLatencyMs, unit: 'ms' },
-      medianLatencyMs: { value: legacyStats.ssrMedianLatencyMs, unit: 'ms' },
+      operationThroughput: { value: legacyStats.ssrOpsPerSec, unit: 'ops/s' },
+      avgLatency: { value: legacyStats.ssrAvgLatencyMs, unit: 'ms' },
+      medianLatency: { value: legacyStats.ssrMedianLatencyMs, unit: 'ms' },
       samples: { value: legacyStats.ssrSamples, unit: 'requests' },
-      bodySizeKb: { value: legacyStats.ssrBodySizeKb, unit: 'KiB' },
+      bodySize: { value: legacyStats.ssrBodySizeKb, unit: 'KiB' },
       duplicationFactor: {
         value: legacyStats.ssrDuplicationFactor,
         unit: 'ratio',
@@ -289,12 +289,12 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.clientSideRenderedRuns === 'number'
   ) {
     stats.clientSideRenderedTests = {
-      firstPaintMs: {
+      firstPaint: {
         value: legacyStats.clientSideRenderedFirstPaintMs,
         unit: 'ms',
       },
-      fcpMs: { value: legacyStats.clientSideRenderedFCPMs, unit: 'ms' },
-      inpMs: { value: legacyStats.clientSideRenderedINPMs, unit: 'ms' },
+      fcp: { value: legacyStats.clientSideRenderedFCPMs, unit: 'ms' },
+      inp: { value: legacyStats.clientSideRenderedINPMs, unit: 'ms' },
       runs: legacyStats.clientSideRenderedRuns,
     }
   }
@@ -325,9 +325,9 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.mpaRuns === 'number'
   ) {
     stats.serverSideRenderedTests = {
-      firstPaintMs: { value: legacyStats.mpaFirstPaintMs, unit: 'ms' },
-      fcpMs: { value: legacyStats.mpaFCPMs, unit: 'ms' },
-      inpMs: { value: legacyStats.mpaINPMs, unit: 'ms' },
+      firstPaint: { value: legacyStats.mpaFirstPaintMs, unit: 'ms' },
+      fcp: { value: legacyStats.mpaFCPMs, unit: 'ms' },
+      inp: { value: legacyStats.mpaINPMs, unit: 'ms' },
       runs: legacyStats.mpaRuns,
     }
   }

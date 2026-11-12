@@ -58,14 +58,14 @@ async function main() {
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
   console.info(
-    `  First Paint: ${result.clientSideRenderedTests.firstPaintMs.mean}ms`,
+    `  First Paint: ${result.clientSideRenderedTests.firstPaint.mean}ms`,
   )
-  console.info(`  FCP:         ${result.clientSideRenderedTests.fcpMs.mean}ms`)
+  console.info(`  FCP:         ${result.clientSideRenderedTests.fcp.mean}ms`)
   const interaction = result.clientSideRenderedTests.interactionTests
-  console.info(`  Interaction: ${interaction.interactionLatencyMs.mean}ms`)
-  console.info(`    Input delay:  ${interaction.inputDelayMs.mean}ms`)
-  console.info(`    Processing:   ${interaction.processingDurationMs.mean}ms`)
-  console.info(`    Presentation: ${interaction.presentationDelayMs.mean}ms`)
+  console.info(`  Interaction: ${interaction.interactionLatency.mean}ms`)
+  console.info(`    Input delay:  ${interaction.inputDelay.mean}ms`)
+  console.info(`    Processing:   ${interaction.processingDuration.mean}ms`)
+  console.info(`    Presentation: ${interaction.presentationDelay.mean}ms`)
 }
 
 main().catch((error) => {

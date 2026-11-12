@@ -274,7 +274,7 @@ export async function processCIStats(
         stats = {
           ...stats,
           corejs: CoreJsStatsSchema.parse({ ...coreJsStats, name: 'corejs' }),
-          vendoredCoreJsSize: coreJsStats.totalVendoredBytes,
+          vendoredCoreJsSize: coreJsStats.totalVendoredSize,
           vendoredCoreJsUnnecessaryModules: coreJsStats.unnecessaryModules,
         }
       } else {

@@ -95,34 +95,33 @@ export async function getNavigationInteractionTimingFromLighthouse(
 }
 
 function getInteractionTimingFromPhases(
-  inputDelayMs: number | undefined,
-  processingDurationMs: number | undefined,
-  presentationDelayMs: number | undefined,
+  inputDelay: number | undefined,
+  processingDuration: number | undefined,
+  presentationDelay: number | undefined,
 ): InteractionTiming | null {
   if (
-    typeof inputDelayMs !== 'number' ||
-    !Number.isFinite(inputDelayMs) ||
-    inputDelayMs < 0 ||
-    typeof processingDurationMs !== 'number' ||
-    !Number.isFinite(processingDurationMs) ||
-    processingDurationMs < 0 ||
-    typeof presentationDelayMs !== 'number' ||
-    !Number.isFinite(presentationDelayMs) ||
-    presentationDelayMs < 0
+    typeof inputDelay !== 'number' ||
+    !Number.isFinite(inputDelay) ||
+    inputDelay < 0 ||
+    typeof processingDuration !== 'number' ||
+    !Number.isFinite(processingDuration) ||
+    processingDuration < 0 ||
+    typeof presentationDelay !== 'number' ||
+    !Number.isFinite(presentationDelay) ||
+    presentationDelay < 0
   ) {
     return null
   }
 
-  const interactionLatencyMs =
-    inputDelayMs + processingDurationMs + presentationDelayMs
+  const interactionLatency = inputDelay + processingDuration + presentationDelay
 
-  if (interactionLatencyMs <= 0) return null
+  if (interactionLatency <= 0) return null
 
   return {
-    interactionLatencyMs,
-    inputDelayMs,
-    processingDurationMs,
-    presentationDelayMs,
+    interactionLatency,
+    inputDelay,
+    processingDuration,
+    presentationDelay,
   }
 }
 
@@ -131,19 +130,19 @@ export function getInteractionTimingFromLighthouse(
 ): InteractionTiming | null {
   const details = audit?.details as INPBreakdownDetails | undefined
   const items = details?.items?.find((item) => item.type === 'table')?.items
-  const inputDelayMs = items?.find(
+  const inputDelay = items?.find(
     (item) => item.subpart === 'inputDelay',
   )?.duration
-  const processingDurationMs = items?.find(
+  const processingDuration = items?.find(
     (item) => item.subpart === 'processingDuration',
   )?.duration
-  const presentationDelayMs = items?.find(
+  const presentationDelay = items?.find(
     (item) => item.subpart === 'presentationDelay',
   )?.duration
 
   return getInteractionTimingFromPhases(
-    inputDelayMs,
-    processingDurationMs,
-    presentationDelayMs,
+    inputDelay,
+    processingDuration,
+    presentationDelay,
   )
 }

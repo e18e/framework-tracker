@@ -15,14 +15,14 @@ test('combining projects preserves their independent measurements and metadata',
   const app = {
     frameworkVersion: '2.0.0',
     runner: 'app-runner',
-    testTimeMs: { value: 20, unit: 'ms' },
+    testTime: { value: 20, unit: 'ms' },
   }
   const first = mergeProjectResult(null, 'starter-astro', starter)
   const combined = mergeProjectResult(first, 'app-astro', app)
   assert.deepEqual(projectResult(combined, 'starter'), starter)
   assert.deepEqual(projectResult(combined, 'app'), app)
   assert.equal(combined.tests.prodDependencies?.project, 'starter')
-  assert.equal(combined.tests.testTimeMs?.project, 'app')
+  assert.equal(combined.tests.testTime?.project, 'app')
   const updated = mergeProjectResult(combined, 'starter-astro', {
     ...starter,
     prodDependencies: { value: 4, unit: 'count' },
@@ -38,12 +38,12 @@ test('combining results rejects invalid measurements and name collisions', () =>
     }),
   )
   const existing = mergeProjectResult(null, 'starter-astro', {
-    testTimeMs: { value: 1, unit: 'ms' },
+    testTime: { value: 1, unit: 'ms' },
   })
   assert.throws(
     () =>
       mergeProjectResult(existing, 'app-astro', {
-        testTimeMs: { value: 2, unit: 'ms' },
+        testTime: { value: 2, unit: 'ms' },
       }),
     /collision/,
   )

@@ -59,7 +59,7 @@ function benchmarkConfiguration(value: unknown) {
     'warmupDurationMs',
     'minimumSamples',
     'warmupMinimumSamples',
-    'bodySizeKb',
+    'bodySize',
     'duplicationFactor',
   ]
   return Object.fromEntries(

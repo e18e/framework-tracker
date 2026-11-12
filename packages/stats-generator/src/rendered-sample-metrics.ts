@@ -3,13 +3,13 @@ import type { RenderedTestSample } from './types.ts'
 export function renderedSampleMetrics(sample: RenderedTestSample) {
   const timing = sample.interactionTests
   return {
-    firstPaintMs: { value: sample.firstPaintMs, unit: 'ms' },
-    fcpMs: { value: sample.fcpMs, unit: 'ms' },
+    firstPaint: { value: sample.firstPaint, unit: 'ms' },
+    fcp: { value: sample.fcp, unit: 'ms' },
     interactionTests: {
-      interactionLatencyMs: { value: timing.interactionLatencyMs, unit: 'ms' },
-      inputDelayMs: { value: timing.inputDelayMs, unit: 'ms' },
-      processingDurationMs: { value: timing.processingDurationMs, unit: 'ms' },
-      presentationDelayMs: { value: timing.presentationDelayMs, unit: 'ms' },
+      interactionLatency: { value: timing.interactionLatency, unit: 'ms' },
+      inputDelay: { value: timing.inputDelay, unit: 'ms' },
+      processingDuration: { value: timing.processingDuration, unit: 'ms' },
+      presentationDelay: { value: timing.presentationDelay, unit: 'ms' },
     },
   }
 }

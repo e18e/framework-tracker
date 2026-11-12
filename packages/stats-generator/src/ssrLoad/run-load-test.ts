@@ -34,17 +34,17 @@ async function runStage(
 
   return measureLoadStage({
     workers,
-    elapsedTimeMs: round(result.duration * 1000),
+    elapsedTime: round(result.duration * 1000),
     requests: result.requests.total,
     errors: result.errors + result.timeouts + result.non2xx,
-    requestsPerSec: round(result.requests.average),
-    avgLatencyMs: round(result.latency.average),
-    p50LatencyMs: round(result.latency.p50),
-    p75LatencyMs: round(result.latency.p75),
-    p90LatencyMs: round(result.latency.p90),
-    p99LatencyMs: round(result.latency.p99),
-    maxLatencyMs: round(result.latency.max),
-    bytesPerSec: round(result.throughput.average),
+    requestThroughput: round(result.requests.average),
+    avgLatency: round(result.latency.average),
+    p50Latency: round(result.latency.p50),
+    p75Latency: round(result.latency.p75),
+    p90Latency: round(result.latency.p90),
+    p99Latency: round(result.latency.p99),
+    maxLatency: round(result.latency.max),
+    byteThroughput: round(result.throughput.average),
   })
 }
 
@@ -53,17 +53,17 @@ type RawLoadStage = { [K in keyof SSRLoadStageStats]: number }
 export function measureLoadStage(stage: RawLoadStage): SSRLoadStageStats {
   return {
     workers: stage.workers,
-    elapsedTimeMs: { value: stage.elapsedTimeMs, unit: 'ms' },
+    elapsedTime: { value: stage.elapsedTime, unit: 'ms' },
     requests: { value: stage.requests, unit: 'requests' },
     errors: { value: stage.errors, unit: 'errors' },
-    requestsPerSec: { value: stage.requestsPerSec, unit: 'requests/s' },
-    avgLatencyMs: { value: stage.avgLatencyMs, unit: 'ms' },
-    p50LatencyMs: { value: stage.p50LatencyMs, unit: 'ms' },
-    p75LatencyMs: { value: stage.p75LatencyMs, unit: 'ms' },
-    p90LatencyMs: { value: stage.p90LatencyMs, unit: 'ms' },
-    p99LatencyMs: { value: stage.p99LatencyMs, unit: 'ms' },
-    maxLatencyMs: { value: stage.maxLatencyMs, unit: 'ms' },
-    bytesPerSec: { value: stage.bytesPerSec, unit: 'bytes/s' },
+    requestThroughput: { value: stage.requestThroughput, unit: 'requests/s' },
+    avgLatency: { value: stage.avgLatency, unit: 'ms' },
+    p50Latency: { value: stage.p50Latency, unit: 'ms' },
+    p75Latency: { value: stage.p75Latency, unit: 'ms' },
+    p90Latency: { value: stage.p90Latency, unit: 'ms' },
+    p99Latency: { value: stage.p99Latency, unit: 'ms' },
+    maxLatency: { value: stage.maxLatency, unit: 'ms' },
+    byteThroughput: { value: stage.byteThroughput, unit: 'bytes/s' },
   }
 }
 
@@ -87,7 +87,7 @@ export async function runLoadTest(
       const warmup = await measureStage(url, WORKER_STAGES[0])
       if (warmup.errors.value === 0 && warmup.requests.value > 0) break
 
-      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests.value} requests, ${warmup.errors.value} errors, ${warmup.elapsedTimeMs.value}ms`
+      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests.value} requests, ${warmup.errors.value} errors, ${warmup.elapsedTime.value}ms`
       if (attempt === WARMUP_ATTEMPTS) {
         throw new Error(
           `SSR load warm-up failed (${details}); expected requests without errors after recovery.`,
@@ -103,7 +103,7 @@ export async function runLoadTest(
       console.info(`  ${workers} workers for ${STAGE_DURATION_SECONDS}s`)
       const stage = await measureStage(url, workers)
       console.info(
-        `    ${stage.requests.value} requests, ${stage.errors.value} errors, ${stage.requestsPerSec.value} req/s`,
+        `    ${stage.requests.value} requests, ${stage.errors.value} errors, ${stage.requestThroughput.value} req/s`,
       )
       stages.push(stage)
     }
@@ -140,14 +140,14 @@ export function summarizeLoadSweeps(
   const fields = [
     'requests',
     'errors',
-    'requestsPerSec',
-    'avgLatencyMs',
-    'p50LatencyMs',
-    'p75LatencyMs',
-    'p90LatencyMs',
-    'p99LatencyMs',
-    'maxLatencyMs',
-    'bytesPerSec',
+    'requestThroughput',
+    'avgLatency',
+    'p50Latency',
+    'p75Latency',
+    'p90Latency',
+    'p99Latency',
+    'maxLatency',
+    'byteThroughput',
   ] as const
   const workers = samples[0]!.map((stage) => stage.workers)
   if (

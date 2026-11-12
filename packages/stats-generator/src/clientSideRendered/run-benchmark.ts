@@ -124,8 +124,8 @@ async function runOnce(
     const metricsItems = (
       navLhr.audits['metrics']?.details as { items?: Record<string, number>[] }
     )?.items?.[0]
-    const firstPaintMs = metricsItems?.observedFirstPaint ?? null
-    const fcpMs = navLhr.audits['first-contentful-paint']?.numericValue ?? null
+    const firstPaint = metricsItems?.observedFirstPaint ?? null
+    const fcp = navLhr.audits['first-contentful-paint']?.numericValue ?? null
     const interaction =
       fullDocumentNavigation && interactionArtifacts
         ? await getNavigationInteractionTimingFromLighthouse(
@@ -137,7 +137,7 @@ async function runOnce(
           )
 
     await page.close()
-    return { firstPaintMs, fcpMs, interaction }
+    return { firstPaint, fcp, interaction }
   } finally {
     await browser.close()
   }
@@ -166,9 +166,9 @@ export async function runBenchmark(
   }
 
   const fp = results
-    .map((r) => r.firstPaintMs)
+    .map((r) => r.firstPaint)
     .filter((v): v is number => v !== null)
-  const fcp = results.map((r) => r.fcpMs).filter((v): v is number => v !== null)
+  const fcp = results.map((r) => r.fcp).filter((v): v is number => v !== null)
   if (
     fp.length !== results.length ||
     fp.some((value) => !Number.isFinite(value) || value <= 0)
@@ -191,8 +191,8 @@ export async function runBenchmark(
   }
 
   const samples = results.map((_, index) => ({
-    firstPaintMs: fp[index],
-    fcpMs: fcp[index],
+    firstPaint: fp[index],
+    fcp: fcp[index],
     interactionTests: interactions[index],
   }))
   return {

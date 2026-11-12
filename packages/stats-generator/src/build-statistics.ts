@@ -7,9 +7,9 @@ export function createBuildStats(cold: number[], warm: number[]) {
       name,
       runs: samples.length,
       iterations: samples.map((timeMs) => ({
-        timeMs: { value: timeMs, unit: 'ms' },
+        time: { value: timeMs, unit: 'ms' },
       })),
-      timeMs: summarizeMetric(samples),
+      time: summarizeMetric(samples),
     }
   }
   return BuildStatsSchema.parse({

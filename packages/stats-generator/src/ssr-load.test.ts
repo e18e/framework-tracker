@@ -30,17 +30,17 @@ function loadStage(
 ): SSRLoadStageStats {
   return measureLoadStage({
     workers: 1,
-    elapsedTimeMs: 5000,
+    elapsedTime: 5000,
     requests: 500,
     errors: 0,
-    requestsPerSec: 100,
-    avgLatencyMs: 10,
-    p50LatencyMs: 9,
-    p75LatencyMs: 12,
-    p90LatencyMs: 15,
-    p99LatencyMs: 20,
-    maxLatencyMs: 30,
-    bytesPerSec: 1000,
+    requestThroughput: 100,
+    avgLatency: 10,
+    p50Latency: 9,
+    p75Latency: 12,
+    p90Latency: 15,
+    p99Latency: 20,
+    maxLatency: 30,
+    byteThroughput: 1000,
     ...overrides,
   })
 }
@@ -51,15 +51,15 @@ function loadSweep(stages: SSRLoadStageStats[]) {
 
 test('load peak excludes failing stages while preserving their diagnostics', () => {
   const stages = [
-    loadStage({ workers: 1, requestsPerSec: 500, errors: 1 }),
-    loadStage({ workers: 5, requestsPerSec: 200, p99LatencyMs: 25 }),
-    loadStage({ workers: 10, requestsPerSec: 100 }),
-    loadStage({ workers: 25, requestsPerSec: 1000, errors: 10 }),
+    loadStage({ workers: 1, requestThroughput: 500, errors: 1 }),
+    loadStage({ workers: 5, requestThroughput: 200, p99Latency: 25 }),
+    loadStage({ workers: 10, requestThroughput: 100 }),
+    loadStage({ workers: 25, requestThroughput: 1000, errors: 10 }),
   ]
   const result = getLoadPeakStage(stages)
   assert.equal(result.workers, 5)
-  assert.equal(result.requestsPerSec.value, 200)
-  assert.equal(result.p99LatencyMs.value, 25)
+  assert.equal(result.requestThroughput.value, 200)
+  assert.equal(result.p99Latency.value, 25)
   assert.equal(stages.length, 4)
   assert.equal(stages[3]!.errors.value, 10)
 })
@@ -67,11 +67,11 @@ test('load peak excludes failing stages while preserving their diagnostics', () 
 test('load peak picks the fastest clean stage and keeps the first on ties', () => {
   const result = getLoadPeakStage([
     loadStage(),
-    loadStage({ workers: 5, requestsPerSec: 200 }),
-    loadStage({ workers: 10, requestsPerSec: 200 }),
+    loadStage({ workers: 5, requestThroughput: 200 }),
+    loadStage({ workers: 10, requestThroughput: 200 }),
   ])
   assert.equal(result.workers, 5)
-  assert.equal(result.requestsPerSec.value, 200)
+  assert.equal(result.requestThroughput.value, 200)
 })
 
 test('load peak fails explicitly when no stage qualifies', () => {
@@ -254,26 +254,26 @@ test('paired route sources preserve the loader and table except for link impleme
 })
 
 test('repeated load sweeps select the median peak sweep without mixing metrics', () => {
-  const samples = [300, 100, 200].map((requestsPerSec) =>
+  const samples = [300, 100, 200].map((requestThroughput) =>
     loadSweep([
-      loadStage({ requestsPerSec, p99LatencyMs: requestsPerSec / 2 }),
+      loadStage({ requestThroughput, p99Latency: requestThroughput / 2 }),
     ]),
   )
   const result = summarizeLoadSweeps(samples)
   assert.equal(result.stage1.requests.unit, 'requests')
   assert.equal(result.stage1.errors.unit, 'errors')
-  assert.equal(result.stage1.requestsPerSec.unit, 'requests/s')
-  assert.equal(result.stage1.bytesPerSec.unit, 'bytes/s')
-  assert.equal(result.stage1.p99LatencyMs.unit, 'ms')
+  assert.equal(result.stage1.requestThroughput.unit, 'requests/s')
+  assert.equal(result.stage1.byteThroughput.unit, 'bytes/s')
+  assert.equal(result.stage1.p99Latency.unit, 'ms')
   assert.equal(result.representativeIterationIndex, 2)
   const peak = getLoadPeakStage(
     result.iterations[result.representativeIterationIndex]!,
   )
-  assert.equal(peak.requestsPerSec.value, 200)
-  assert.equal(peak.p99LatencyMs.value, 100)
+  assert.equal(peak.requestThroughput.value, 200)
+  assert.equal(peak.p99Latency.value, 100)
   assert.deepEqual(result.iterations, samples)
   assert.equal(result.runs, 3)
-  assert.equal(samples[0]![0]!.requestsPerSec.value, 300)
+  assert.equal(samples[0]![0]!.requestThroughput.value, 300)
   assert.throws(() => summarizeLoadSweeps([]))
   assert.throws(() => summarizeLoadSweeps(samples.slice(0, 2)))
   SSRLoadTestsSchema.parse(result)
@@ -413,16 +413,16 @@ test('summaries compare each latency statistic at matching workers across sweeps
     loadSweep([
       loadStage({
         workers: 1,
-        requestsPerSec: rate,
-        avgLatencyMs: rate / 10,
-        p99LatencyMs: rate,
+        requestThroughput: rate,
+        avgLatency: rate / 10,
+        p99Latency: rate,
         requests: rate * 5,
       }),
       loadStage({
         workers: 5,
-        requestsPerSec: rate * 2,
-        avgLatencyMs: rate / 20,
-        p99LatencyMs: rate * 3,
+        requestThroughput: rate * 2,
+        avgLatency: rate / 20,
+        p99Latency: rate * 3,
         requests: rate * 10,
       }),
     ]),
@@ -430,10 +430,10 @@ test('summaries compare each latency statistic at matching workers across sweeps
   const result = summarizeLoadSweeps(sweeps)
   assert.equal(result.stage1.connections, 1)
   assert.equal(result.stage2!.connections, 5)
-  assert.equal(result.stage1.requestsPerSec.mean, 200)
-  assert.equal(result.stage2!.requestsPerSec.mean, 400)
-  assert.equal(result.stage1!.avgLatencyMs.mean, 20)
-  assert.equal(result.stage1!.p99LatencyMs.mean, 200)
+  assert.equal(result.stage1.requestThroughput.mean, 200)
+  assert.equal(result.stage2!.requestThroughput.mean, 400)
+  assert.equal(result.stage1!.avgLatency.mean, 20)
+  assert.equal(result.stage1!.p99Latency.mean, 200)
   assert.equal(result.totalRequests.value, 9000)
   assert.deepEqual(result.iterations, sweeps)
   validateSSRLoadForPersistence({ ssrLoadTests: result })
@@ -448,7 +448,7 @@ test('summaries compare each latency statistic at matching workers across sweeps
     validateSSRLoadForPersistence({ ssrLoadTests: wrongCount }),
   )
   const invalid = structuredClone(result)
-  invalid.stage1!.p99LatencyMs.mean = 1
+  invalid.stage1!.p99Latency.mean = 1
   assert.throws(() => validateSSRLoadForPersistence({ ssrLoadTests: invalid }))
   assert.throws(() =>
     mergeSSRLoadArtifact({}, { ssrLoadTests: invalid }, 'ssrLoad'),

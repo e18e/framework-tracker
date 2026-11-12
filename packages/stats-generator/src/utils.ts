@@ -58,19 +58,19 @@ export function getDependencyStatsFromE18e(e18eStats: E18eStats) {
   )
 
   return {
-    prodDependencies: {
+    productionDependencyCount: {
       value: e18eStats.stats.dependencyCount.production,
       unit: 'count',
     },
-    devDependencies: {
+    developmentDependencyCount: {
       value: e18eStats.stats.dependencyCount.development,
       unit: 'count',
     },
-    duplicateDependencies:
+    duplicateDependencyCount:
       typeof duplicateEntry?.value === 'number'
         ? { value: duplicateEntry.value, unit: 'count' }
         : undefined,
-    depInstallSize:
+    dependencyInstallSize:
       e18eStats.stats.installSize == null
         ? undefined
         : { value: e18eStats.stats.installSize, unit: 'bytes' },
@@ -115,23 +115,23 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
   const { dependencies, devDependencies } = getPackageJsonDeps(packageName)
 
   const lockfilePath = join(packagesDir, packageName, 'pnpm-lock.yaml')
-  const allDependencies = existsSync(lockfilePath)
+  const totalDependencyCount = existsSync(lockfilePath)
     ? countPnpmLockPackages(readFileSync(lockfilePath, 'utf-8'))
     : undefined
 
   return {
-    prodDependencies: {
+    productionDependencyCount: {
       value: Object.keys(dependencies).length,
       unit: 'count',
     },
-    devDependencies: {
+    developmentDependencyCount: {
       value: Object.keys(devDependencies).length,
       unit: 'count',
     },
-    allDependencies:
-      allDependencies == null
+    totalDependencyCount:
+      totalDependencyCount == null
         ? undefined
-        : { value: allDependencies, unit: 'count' },
+        : { value: totalDependencyCount, unit: 'count' },
   }
 }
 
@@ -161,15 +161,15 @@ export function getFrameworkDependencyCountsFromPackageMetadata(
   const devDependencies = packageJson.devDependencies ?? {}
 
   return {
-    prodDependencies: {
+    productionDependencyCount: {
       value: Object.keys(dependencies).length,
       unit: 'count',
     },
-    devDependencies: {
+    developmentDependencyCount: {
       value: Object.keys(devDependencies).length,
       unit: 'count',
     },
-    allDependencies: {
+    totalDependencyCount: {
       value: new Set([
         ...Object.keys(dependencies),
         ...Object.keys(devDependencies),
@@ -219,7 +219,7 @@ export async function getFrameworkVersion(
 export function normalizeCIStats<T extends CIStats>(stats: T): T {
   const legacyStats = stats as T & {
     nodeModulesSizeProdOnly?: unknown
-    serverRenderThroughputTests?: CIStats['ssrRequestThroughputTests']
+    serverRenderThroughputTests?: CIStats['ssrRequestThroughput']
     ssrOpsPerSec?: unknown
     ssrAvgLatencyMs?: unknown
     ssrMedianLatencyMs?: unknown
@@ -253,14 +253,14 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   }
 
   if (
-    stats.ssrRequestThroughputTests == null &&
+    stats.ssrRequestThroughput == null &&
     legacyStats.serverRenderThroughputTests != null
   ) {
-    stats.ssrRequestThroughputTests = legacyStats.serverRenderThroughputTests
+    stats.ssrRequestThroughput = legacyStats.serverRenderThroughputTests
   }
 
   if (
-    stats.ssrRequestThroughputTests == null &&
+    stats.ssrRequestThroughput == null &&
     typeof legacyStats.ssrOpsPerSec === 'number' &&
     typeof legacyStats.ssrAvgLatencyMs === 'number' &&
     typeof legacyStats.ssrMedianLatencyMs === 'number' &&
@@ -268,11 +268,11 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.ssrBodySizeKb === 'number' &&
     typeof legacyStats.ssrDuplicationFactor === 'number'
   ) {
-    stats.ssrRequestThroughputTests = {
-      operationThroughput: { value: legacyStats.ssrOpsPerSec, unit: 'ops/s' },
+    stats.ssrRequestThroughput = {
+      requestThroughput: { value: legacyStats.ssrOpsPerSec, unit: 'ops/s' },
       avgLatency: { value: legacyStats.ssrAvgLatencyMs, unit: 'ms' },
       medianLatency: { value: legacyStats.ssrMedianLatencyMs, unit: 'ms' },
-      samples: { value: legacyStats.ssrSamples, unit: 'requests' },
+      requestCount: { value: legacyStats.ssrSamples, unit: 'requests' },
       bodySize: { value: legacyStats.ssrBodySizeKb, unit: 'KiB' },
       duplicationFactor: {
         value: legacyStats.ssrDuplicationFactor,
@@ -282,25 +282,28 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   }
 
   if (
-    stats.clientSideRenderedTests == null &&
+    stats.clientSideRendered == null &&
     typeof legacyStats.clientSideRenderedFirstPaintMs === 'number' &&
     typeof legacyStats.clientSideRenderedFCPMs === 'number' &&
     typeof legacyStats.clientSideRenderedINPMs === 'number' &&
     typeof legacyStats.clientSideRenderedRuns === 'number'
   ) {
-    stats.clientSideRenderedTests = {
+    stats.clientSideRendered = {
       firstPaint: {
         value: legacyStats.clientSideRenderedFirstPaintMs,
         unit: 'ms',
       },
-      fcp: { value: legacyStats.clientSideRenderedFCPMs, unit: 'ms' },
+      firstContentfulPaint: {
+        value: legacyStats.clientSideRenderedFCPMs,
+        unit: 'ms',
+      },
       inp: { value: legacyStats.clientSideRenderedINPMs, unit: 'ms' },
       runs: legacyStats.clientSideRenderedRuns,
     }
   }
 
   if (
-    stats.ssrLoadTests == null &&
+    stats.ssrLoad == null &&
     typeof legacyStats.ssrLoadPeakWorkers === 'number' &&
     typeof legacyStats.ssrLoadPeakRequestsPerSec === 'number' &&
     typeof legacyStats.ssrLoadPeakAvgLatencyMs === 'number' &&
@@ -318,22 +321,22 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
   }
 
   if (
-    stats.serverSideRenderedTests == null &&
+    stats.serverSideRendered == null &&
     typeof legacyStats.mpaFirstPaintMs === 'number' &&
     typeof legacyStats.mpaFCPMs === 'number' &&
     typeof legacyStats.mpaINPMs === 'number' &&
     typeof legacyStats.mpaRuns === 'number'
   ) {
-    stats.serverSideRenderedTests = {
+    stats.serverSideRendered = {
       firstPaint: { value: legacyStats.mpaFirstPaintMs, unit: 'ms' },
-      fcp: { value: legacyStats.mpaFCPMs, unit: 'ms' },
+      firstContentfulPaint: { value: legacyStats.mpaFCPMs, unit: 'ms' },
       inp: { value: legacyStats.mpaINPMs, unit: 'ms' },
       runs: legacyStats.mpaRuns,
     }
   }
 
   if (
-    stats.browserBaselineTests == null &&
+    stats.browserBaseline == null &&
     (legacyStats.baselineStatus === 'high' ||
       legacyStats.baselineStatus === 'low' ||
       legacyStats.baselineStatus === false ||
@@ -344,7 +347,7 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
       legacyStats.baselineReason === null) &&
     typeof legacyStats.baselineFeatureCount === 'number'
   ) {
-    stats.browserBaselineTests = {
+    stats.browserBaseline = {
       name: 'browserBaseline',
       baselineStatus: legacyStats.baselineStatus,
       baselineYear: legacyStats.baselineYear,

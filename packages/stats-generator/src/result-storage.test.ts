@@ -10,7 +10,7 @@ test('combining projects preserves their independent measurements and metadata',
   const starter = {
     frameworkVersion: '1.0.0',
     runner: 'starter-runner',
-    prodDependencies: { value: 3, unit: 'count' },
+    productionDependencyCount: { value: 3, unit: 'count' },
   }
   const app = {
     frameworkVersion: '2.0.0',
@@ -21,11 +21,11 @@ test('combining projects preserves their independent measurements and metadata',
   const combined = mergeProjectResult(first, 'app-astro', app)
   assert.deepEqual(projectResult(combined, 'starter'), starter)
   assert.deepEqual(projectResult(combined, 'app'), app)
-  assert.equal(combined.tests.prodDependencies?.project, 'starter')
+  assert.equal(combined.tests.productionDependencyCount?.project, 'starter')
   assert.equal(combined.tests.testTime?.project, 'app')
   const updated = mergeProjectResult(combined, 'starter-astro', {
     ...starter,
-    prodDependencies: { value: 4, unit: 'count' },
+    productionDependencyCount: { value: 4, unit: 'count' },
   })
   assert.deepEqual(projectResult(updated, 'app'), app)
   assert.deepEqual(projectResult(first, 'starter'), starter)
@@ -34,7 +34,7 @@ test('combining projects preserves their independent measurements and metadata',
 test('combining results rejects invalid measurements and name collisions', () => {
   assert.throws(() =>
     mergeProjectResult(null, 'starter-astro', {
-      prodDependencies: { value: -1, unit: 'count' },
+      productionDependencyCount: { value: -1, unit: 'count' },
     }),
   )
   const existing = mergeProjectResult(null, 'starter-astro', {
@@ -67,7 +67,7 @@ test('stored tests always validate their result and require project metadata', (
     framework: 'astro',
     projects: {},
     tests: {
-      prodDependencies: {
+      productionDependencyCount: {
         project: 'starter',
         result: { value: 3, unit: 'count' },
       },
@@ -76,7 +76,8 @@ test('stored tests always validate their result and require project metadata', (
   assert.equal(orphan.success, false)
   assert.ok(
     orphan.error?.issues.some(
-      (issue) => issue.path.join('.') === 'tests.prodDependencies.project',
+      (issue) =>
+        issue.path.join('.') === 'tests.productionDependencyCount.project',
     ),
   )
   assert.equal(

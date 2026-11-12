@@ -1,7 +1,7 @@
 import { readProjectResult } from '@framework-performance/results/storage'
 import { getLoadPeakStage } from '@framework-performance/results/selection'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
-import { getSSRLoadKind, getSSRLoadStatsKey } from './ssrLoad/config.ts'
+import { getSSRLoadKind } from './ssrLoad/config.ts'
 import { join } from 'node:path'
 import {
   runSSRLoadBenchmark,
@@ -56,7 +56,7 @@ async function main() {
     timingMeasuredAt: timestamp,
     runner,
     frameworkVersion: frameworkVersion ?? existingStats.frameworkVersion,
-    [getSSRLoadStatsKey(getSSRLoadKind())]: result.tests,
+    [getSSRLoadKind()]: result.tests,
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
@@ -67,7 +67,7 @@ async function main() {
     result.tests.iterations[result.tests.representativeIterationIndex]!,
   )
   console.info(
-    `\n✓ Saved ${label} stats for ${packageName}: ${peak.requestThroughput.value} req/s at ${peak.workers} workers`,
+    `\n✓ Saved ${label} stats for ${packageName}: ${peak.requestThroughput.value} req/s at ${peak.connections} connections`,
   )
 }
 

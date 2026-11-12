@@ -125,7 +125,8 @@ async function runOnce(
       navLhr.audits['metrics']?.details as { items?: Record<string, number>[] }
     )?.items?.[0]
     const firstPaint = metricsItems?.observedFirstPaint ?? null
-    const fcp = navLhr.audits['first-contentful-paint']?.numericValue ?? null
+    const firstContentfulPaint =
+      navLhr.audits['first-contentful-paint']?.numericValue ?? null
     const interaction =
       fullDocumentNavigation && interactionArtifacts
         ? await getNavigationInteractionTimingFromLighthouse(
@@ -137,7 +138,7 @@ async function runOnce(
           )
 
     await page.close()
-    return { firstPaint, fcp, interaction }
+    return { firstPaint, firstContentfulPaint, interaction }
   } finally {
     await browser.close()
   }
@@ -168,7 +169,9 @@ export async function runBenchmark(
   const fp = results
     .map((r) => r.firstPaint)
     .filter((v): v is number => v !== null)
-  const fcp = results.map((r) => r.fcp).filter((v): v is number => v !== null)
+  const firstContentfulPaint = results
+    .map((r) => r.firstContentfulPaint)
+    .filter((v): v is number => v !== null)
   if (
     fp.length !== results.length ||
     fp.some((value) => !Number.isFinite(value) || value <= 0)
@@ -176,8 +179,8 @@ export async function runBenchmark(
     throw new Error('First Paint was missing, non-finite, or zero')
   }
   if (
-    fcp.length !== results.length ||
-    fcp.some((value) => !Number.isFinite(value) || value <= 0)
+    firstContentfulPaint.length !== results.length ||
+    firstContentfulPaint.some((value) => !Number.isFinite(value) || value <= 0)
   ) {
     throw new Error('FCP was missing, non-finite, or zero')
   }
@@ -192,7 +195,7 @@ export async function runBenchmark(
 
   const samples = results.map((_, index) => ({
     firstPaint: fp[index],
-    fcp: fcp[index],
+    firstContentfulPaint: firstContentfulPaint[index],
     interactionTests: interactions[index],
   }))
   return {
@@ -200,6 +203,6 @@ export async function runBenchmark(
     displayName,
     package: packageName,
     browserVersion,
-    clientSideRenderedTests: assembleClientRendering(samples),
+    clientSideRendered: assembleClientRendering(samples),
   }
 }

@@ -3,7 +3,7 @@ import type { ServerRenderingBenchmarkSchema } from '@framework-performance/resu
 import type { InteractionTiming } from '../types.ts'
 export interface ServerSideRenderedRunResult {
   firstPaint: number | null
-  fcp: number | null
+  firstContentfulPaint: number | null
   interaction: InteractionTiming | null
 }
 
@@ -12,5 +12,5 @@ export interface ServerSideRenderedBenchmarkResult {
   displayName: string
   package: string
   browserVersion: string
-  serverSideRenderedTests: z.infer<typeof ServerRenderingBenchmarkSchema>
+  serverSideRendered: z.infer<typeof ServerRenderingBenchmarkSchema>
 }

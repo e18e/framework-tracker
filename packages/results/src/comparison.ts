@@ -57,8 +57,8 @@ function benchmarkConfiguration(value: unknown) {
     'path',
     'durationMs',
     'warmupDurationMs',
-    'minimumSamples',
-    'warmupMinimumSamples',
+    'minimumRequestCount',
+    'warmupMinimumRequestCount',
     'bodySize',
     'duplicationFactor',
   ]
@@ -90,7 +90,7 @@ export function withSummaryVariance(
       if (!measured.has(test)) continue
       const baseline = oldSummaries.get(path)
       const browserTest =
-        test === 'clientSideRenderedTests' || test === 'serverSideRenderedTests'
+        test === 'clientSideRendered' || test === 'serverSideRendered'
       const comparable =
         sameVersion &&
         baseline &&

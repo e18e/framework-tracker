@@ -51,8 +51,8 @@ test('final contract validates nested benchmarks and test identity', () => {
       install: {
         name: 'install',
         runs: 2,
-        iterations: [{ installTime: 10 }],
-        installTime: { mean: 10, median: 10, min: 10, max: 10 },
+        iterations: [{ duration: 10 }],
+        duration: { mean: 10, median: 10, min: 10, max: 10 },
         nodeModulesSize: 100,
       },
     }).success,
@@ -60,7 +60,7 @@ test('final contract validates nested benchmarks and test identity', () => {
   )
   assert.equal(
     FrameworkResultSchema.safeParse({
-      ssrRouterLinkLoadTests: { name: 'ssrLoad' },
+      ssrRouterLinkLoad: { name: 'ssrLoad' },
     }).success,
     false,
   )

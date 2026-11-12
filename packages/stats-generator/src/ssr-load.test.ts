@@ -6,11 +6,7 @@ import { SSRLoadTestsSchema } from '@framework-performance/results'
 import assert from 'node:assert/strict'
 import { readProjectResult } from '@framework-performance/results/storage'
 import { test } from 'node:test'
-import {
-  getSSRLoadPath,
-  getSSRLoadStatsKey,
-  routerLinkPackages,
-} from './ssrLoad/config.ts'
+import { getSSRLoadPath, routerLinkPackages } from './ssrLoad/config.ts'
 import { mergeSSRLoadArtifact } from './ssrLoad/merge.ts'
 import { verifySSRLoadTable } from './ssrLoad/verify-table.ts'
 import { renderBaselineHtml } from './baseline-html.ts'
@@ -22,17 +18,14 @@ import {
 import type { SSRLoadStageStats, SSRLoadTests } from './ssrLoad/types.ts'
 import { testData } from '../../testdata/src/ssr.ts'
 
-const historical = readProjectResult('app-next-js')!
-  .ssrRouterLinkLoadTests as SSRLoadTests
-
 function loadStage(
   overrides: Partial<Parameters<typeof measureLoadStage>[0]> = {},
 ): SSRLoadStageStats {
   return measureLoadStage({
-    workers: 1,
-    elapsedTime: 5000,
-    requests: 500,
-    errors: 0,
+    connections: 1,
+    duration: 5000,
+    requestCount: 500,
+    errorCount: 0,
     requestThroughput: 100,
     avgLatency: 10,
     p50Latency: 9,
@@ -51,33 +44,36 @@ function loadSweep(stages: SSRLoadStageStats[]) {
 
 test('load peak excludes failing stages while preserving their diagnostics', () => {
   const stages = [
-    loadStage({ workers: 1, requestThroughput: 500, errors: 1 }),
-    loadStage({ workers: 5, requestThroughput: 200, p99Latency: 25 }),
-    loadStage({ workers: 10, requestThroughput: 100 }),
-    loadStage({ workers: 25, requestThroughput: 1000, errors: 10 }),
+    loadStage({ connections: 1, requestThroughput: 500, errorCount: 1 }),
+    loadStage({ connections: 5, requestThroughput: 200, p99Latency: 25 }),
+    loadStage({ connections: 10, requestThroughput: 100 }),
+    loadStage({ connections: 25, requestThroughput: 1000, errorCount: 10 }),
   ]
   const result = getLoadPeakStage(stages)
-  assert.equal(result.workers, 5)
+  assert.equal(result.connections, 5)
   assert.equal(result.requestThroughput.value, 200)
   assert.equal(result.p99Latency.value, 25)
   assert.equal(stages.length, 4)
-  assert.equal(stages[3]!.errors.value, 10)
+  assert.equal(stages[3]!.errorCount.value, 10)
 })
 
 test('load peak picks the fastest clean stage and keeps the first on ties', () => {
   const result = getLoadPeakStage([
     loadStage(),
-    loadStage({ workers: 5, requestThroughput: 200 }),
-    loadStage({ workers: 10, requestThroughput: 200 }),
+    loadStage({ connections: 5, requestThroughput: 200 }),
+    loadStage({ connections: 10, requestThroughput: 200 }),
   ])
-  assert.equal(result.workers, 5)
+  assert.equal(result.connections, 5)
   assert.equal(result.requestThroughput.value, 200)
 })
 
 test('load peak fails explicitly when no stage qualifies', () => {
   for (const stages of [
     [],
-    [loadStage({ errors: 1 }), loadStage({ workers: 5, errors: 2 })],
+    [
+      loadStage({ errorCount: 1 }),
+      loadStage({ connections: 5, errorCount: 2 }),
+    ],
   ]) {
     assert.throws(
       () => getLoadPeakStage(stages),
@@ -107,28 +103,25 @@ test('routes and result keys separate the two load tests', () => {
     assert.equal(getSSRLoadPath(pkg, 'ssrLoad'), '/server-side-rendered')
     assert.throws(() => getSSRLoadPath(pkg, 'ssrRouterLinkLoad'))
   }
-  assert.equal(getSSRLoadStatsKey('ssrLoad'), 'ssrLoadTests')
-  assert.equal(
-    getSSRLoadStatsKey('ssrRouterLinkLoad'),
-    'ssrRouterLinkLoadTests',
-  )
 })
 
 test('separate job artifacts cannot overwrite sibling measurements in either merge order', () => {
+  const historical = readProjectResult('app-next-js')!
+    .ssrRouterLinkLoad as SSRLoadTests
   const anchor = summarizeLoadSweeps([
-    loadSweep([loadStage({ requests: 123 })]),
+    loadSweep([loadStage({ requestCount: 123 })]),
   ])
   const router = summarizeLoadSweeps(
-    [loadSweep([loadStage({ requests: 456 })])],
+    [loadSweep([loadStage({ requestCount: 456 })])],
     'ssrRouterLinkLoad',
   )
   const anchorArtifact = {
-    ssrLoadTests: anchor,
-    ssrRouterLinkLoadTests: historical,
+    ssrLoad: anchor,
+    ssrRouterLinkLoad: historical,
   }
   const routerArtifact = {
-    ssrLoadTests: historical,
-    ssrRouterLinkLoadTests: router,
+    ssrLoad: historical,
+    ssrRouterLinkLoad: router,
   }
   for (const reverse of [false, true]) {
     const result = reverse
@@ -142,8 +135,8 @@ test('separate job artifacts cannot overwrite sibling measurements in either mer
           routerArtifact,
           'ssrRouterLinkLoad',
         )
-    assert.deepEqual(result.ssrLoadTests, anchor)
-    assert.deepEqual(result.ssrRouterLinkLoadTests, router)
+    assert.deepEqual(result.ssrLoad, anchor)
+    assert.deepEqual(result.ssrRouterLinkLoad, router)
   }
 
   assert.throws(() => mergeSSRLoadArtifact({}, {}, 'ssrLoad'))
@@ -260,8 +253,8 @@ test('repeated load sweeps select the median peak sweep without mixing metrics',
     ]),
   )
   const result = summarizeLoadSweeps(samples)
-  assert.equal(result.stage1.requests.unit, 'requests')
-  assert.equal(result.stage1.errors.unit, 'errors')
+  assert.equal(result.stage1.requestCount.unit, 'requests')
+  assert.equal(result.stage1.errorCount.unit, 'errors')
   assert.equal(result.stage1.requestThroughput.unit, 'requests/s')
   assert.equal(result.stage1.byteThroughput.unit, 'bytes/s')
   assert.equal(result.stage1.p99Latency.unit, 'ms')
@@ -284,11 +277,11 @@ test('load runner warms up before each full sweep and excludes warm-up requests'
   const pauses: number[] = []
   const result = await runLoadTest(
     'http://example.test/server-side-rendered',
-    async (_, workers) => {
-      calls.push(workers)
+    async (_, connections) => {
+      calls.push(connections)
       return loadStage({
-        workers,
-        requests: calls.length % 8 === 1 ? 99999 : 500,
+        connections,
+        requestCount: calls.length % 8 === 1 ? 99999 : 500,
       })
     },
     async (ms) => {
@@ -302,11 +295,11 @@ test('load runner warms up before each full sweep and excludes warm-up requests'
   assert.deepEqual(pauses, [5000, 5000])
   assert.equal(result.runs, 3)
   assert.equal(result.configuration.warmupDurationMs, 5000)
-  assert.equal(result.totalRequests.value, 10500)
+  assert.equal(result.totalRequestCount.value, 10500)
   assert.ok(
     result.iterations!.every(
       (sample) =>
-        sample.reduce((total, stage) => total + stage.requests.value, 0) ===
+        sample.reduce((total, stage) => total + stage.requestCount.value, 0) ===
         3500,
     ),
   )
@@ -318,13 +311,13 @@ test('warm-up recovers after an overloaded sweep without retaining retry measure
   let calls = 0
   const result = await runLoadTest(
     'http://example.test/server-side-rendered',
-    async (_, workers) => {
-      events.push(`stage:${workers}`)
+    async (_, connections) => {
+      events.push(`stage:${connections}`)
       calls++
       return loadStage({
-        workers,
-        requests: calls === 9 ? 99999 : 500,
-        errors: calls === 9 ? 2 : 0,
+        connections,
+        requestCount: calls === 9 ? 99999 : 500,
+        errorCount: calls === 9 ? 2 : 0,
       })
     },
     async (ms) => {
@@ -343,21 +336,24 @@ test('warm-up recovers after an overloaded sweep without retaining retry measure
   assert.ok(
     result.iterations!.every(
       (sample) =>
-        sample.reduce((total, stage) => total + stage.requests.value, 0) ===
-          3500 && sample.every((stage) => stage.errors.value === 0),
+        sample.reduce((total, stage) => total + stage.requestCount.value, 0) ===
+          3500 && sample.every((stage) => stage.errorCount.value === 0),
     ),
   )
 })
 
 test('persistently unhealthy warm-up stops after three attempts with diagnostics', async () => {
-  for (const stage of [loadStage({ errors: 2 }), loadStage({ requests: 0 })]) {
+  for (const stage of [
+    loadStage({ errorCount: 2 }),
+    loadStage({ requestCount: 0 }),
+  ]) {
     let calls = 0
     const pauses: number[] = []
     await assert.rejects(
       runLoadTest(
         'http://example.test/server-side-rendered',
-        async (_, workers) => {
-          assert.equal(workers, 1)
+        async (_, connections) => {
+          assert.equal(connections, 1)
           calls++
           return stage
         },
@@ -369,7 +365,7 @@ test('persistently unhealthy warm-up stops after three attempts with diagnostics
         assert.match(error.message, /warm-up failed .*sweep 1\/3, attempt 3\/3/)
         assert.ok(
           error.message.includes(
-            `${stage.requests.value} requests, ${stage.errors.value} errors`,
+            `${stage.requestCount.value} requests, ${stage.errorCount.value} errors`,
           ),
         )
         return true
@@ -393,7 +389,7 @@ test('load schema requires complete iterations and aligned stages', () => {
     { ...result, stages: [result.stage1] },
     { ...result, stage1: undefined },
     { ...result, stage1: { ...result.stage1, connections: 5 } },
-    { ...result, totalRequests: { mean: 500 } },
+    { ...result, totalRequestCount: { mean: 500 } },
   ]) {
     assert.equal(SSRLoadTestsSchema.safeParse(invalid).success, false)
   }
@@ -402,28 +398,28 @@ test('load schema requires complete iterations and aligned stages', () => {
       summarizeLoadSweeps([
         sweep,
         sweep,
-        loadSweep([loadStage({ workers: 5 })]),
+        loadSweep([loadStage({ connections: 5 })]),
       ]),
     /matching worker/,
   )
 })
 
-test('summaries compare each latency statistic at matching workers across sweeps', () => {
+test('summaries compare each latency statistic at matching connections across sweeps', () => {
   const sweeps = [100, 200, 300].map((rate) =>
     loadSweep([
       loadStage({
-        workers: 1,
+        connections: 1,
         requestThroughput: rate,
         avgLatency: rate / 10,
         p99Latency: rate,
-        requests: rate * 5,
+        requestCount: rate * 5,
       }),
       loadStage({
-        workers: 5,
+        connections: 5,
         requestThroughput: rate * 2,
         avgLatency: rate / 20,
         p99Latency: rate * 3,
-        requests: rate * 10,
+        requestCount: rate * 10,
       }),
     ]),
   )
@@ -434,27 +430,23 @@ test('summaries compare each latency statistic at matching workers across sweeps
   assert.equal(result.stage2!.requestThroughput.mean, 400)
   assert.equal(result.stage1!.avgLatency.mean, 20)
   assert.equal(result.stage1!.p99Latency.mean, 200)
-  assert.equal(result.totalRequests.value, 9000)
+  assert.equal(result.totalRequestCount.value, 9000)
   assert.deepEqual(result.iterations, sweeps)
-  validateSSRLoadForPersistence({ ssrLoadTests: result })
+  validateSSRLoadForPersistence({ ssrLoad: result })
   const wrongCount = {
     ...result,
-    totalRequests: {
-      ...result.totalRequests,
-      value: result.totalRequests.value + 1,
+    totalRequestCount: {
+      ...result.totalRequestCount,
+      value: result.totalRequestCount.value + 1,
     },
   }
-  assert.throws(() =>
-    validateSSRLoadForPersistence({ ssrLoadTests: wrongCount }),
-  )
+  assert.throws(() => validateSSRLoadForPersistence({ ssrLoad: wrongCount }))
   const invalid = structuredClone(result)
   invalid.stage1!.p99Latency.mean = 1
-  assert.throws(() => validateSSRLoadForPersistence({ ssrLoadTests: invalid }))
+  assert.throws(() => validateSSRLoadForPersistence({ ssrLoad: invalid }))
+  assert.throws(() => mergeSSRLoadArtifact({}, { ssrLoad: invalid }, 'ssrLoad'))
   assert.throws(() =>
-    mergeSSRLoadArtifact({}, { ssrLoadTests: invalid }, 'ssrLoad'),
-  )
-  assert.throws(() =>
-    mergeSSRLoadArtifact({}, { ssrLoadTests: result }, 'ssrRouterLinkLoad'),
+    mergeSSRLoadArtifact({}, { ssrLoad: result }, 'ssrRouterLinkLoad'),
   )
 })
 

@@ -4,7 +4,7 @@ import type { InteractionTiming } from '../types.ts'
 
 export interface ClientSideRenderedRunResult {
   firstPaint: number | null
-  fcp: number | null
+  firstContentfulPaint: number | null
   interaction: InteractionTiming | null
 }
 
@@ -13,5 +13,5 @@ export interface ClientSideRenderedBenchmarkResult {
   displayName: string
   package: string
   browserVersion: string
-  clientSideRenderedTests: z.infer<typeof ClientRenderingBenchmarkSchema>
+  clientSideRendered: z.infer<typeof ClientRenderingBenchmarkSchema>
 }

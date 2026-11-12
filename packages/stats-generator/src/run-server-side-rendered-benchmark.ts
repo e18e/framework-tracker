@@ -47,7 +47,7 @@ async function main() {
     runner,
     browserVersion: result.browserVersion,
     frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
-    serverSideRenderedTests: result.serverSideRenderedTests,
+    serverSideRendered: result.serverSideRendered,
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
@@ -57,11 +57,11 @@ async function main() {
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
+  console.info(`  First Paint: ${result.serverSideRendered.firstPaint.mean}ms`)
   console.info(
-    `  First Paint: ${result.serverSideRenderedTests.firstPaint.mean}ms`,
+    `  FCP:         ${result.serverSideRendered.firstContentfulPaint.mean}ms`,
   )
-  console.info(`  FCP:         ${result.serverSideRenderedTests.fcp.mean}ms`)
-  const interaction = result.serverSideRenderedTests.interactionTests
+  const interaction = result.serverSideRendered.interactionTests
   console.info(`  Interaction: ${interaction.interactionLatency.mean}ms`)
   console.info(`    Input delay:  ${interaction.inputDelay.mean}ms`)
   console.info(`    Processing:   ${interaction.processingDuration.mean}ms`)

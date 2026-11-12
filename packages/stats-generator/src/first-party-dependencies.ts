@@ -179,16 +179,16 @@ export function getFirstPartyDependencyStats(
 
   return {
     name: 'firstPartyDependencies',
-    prodDependencies: {
+    productionDependencyCount: {
       value: Object.keys(manifest.dependencies ?? {}).length,
       unit: 'count',
     },
-    devDependencies: {
+    developmentDependencyCount: {
       value: Object.keys(manifest.devDependencies ?? {}).length,
       unit: 'count',
     },
-    allDependencies: { value: packageKeys.size, unit: 'count' },
-    duplicateDependencies: {
+    totalDependencyCount: { value: packageKeys.size, unit: 'count' },
+    duplicateDependencyCount: {
       value: [...versionsByName.values()].filter(
         (versions) => versions.size > 1,
       ).length,

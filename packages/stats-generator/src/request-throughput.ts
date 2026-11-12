@@ -22,9 +22,9 @@ export function createRequestThroughputIteration(
     )
   }
   return RequestThroughputIterationSchema.parse({
-    operationThroughput: summarizeMetric(throughputSamples),
+    requestThroughput: summarizeMetric(throughputSamples),
     latency: summarizeMetric(latencySamplesMs),
-    samples: { value: latencySamplesMs.length, unit: 'requests' },
+    requestCount: { value: latencySamplesMs.length, unit: 'requests' },
   })
 }
 
@@ -34,8 +34,8 @@ type Configuration = Pick<
   | 'duplicationFactor'
   | 'durationMs'
   | 'warmupDurationMs'
-  | 'minimumSamples'
-  | 'warmupMinimumSamples'
+  | 'minimumRequestCount'
+  | 'warmupMinimumRequestCount'
 >
 
 export function assembleRequestThroughput(
@@ -49,15 +49,15 @@ export function assembleRequestThroughput(
     path: '/ssr-throughput',
     runs: iterations.length,
     iterations,
-    samples: {
+    totalRequestCount: {
       value: iterations.reduce(
-        (count, iteration) => count + iteration.samples.value,
+        (count, iteration) => count + iteration.requestCount.value,
         0,
       ),
       unit: 'requests',
     },
-    operationThroughput: summarizeMetric(
-      iterations.map((value) => value.operationThroughput.mean),
+    requestThroughput: summarizeMetric(
+      iterations.map((value) => value.requestThroughput.mean),
     ),
     latency: summarizeMetric(iterations.map((value) => value.latency.mean)),
   })
@@ -71,14 +71,14 @@ export function mergeRequestThroughputArtifact(
   const merged = {
     ...stats,
     frameworkVersion: incoming.frameworkVersion ?? stats.frameworkVersion,
-    ssrRequestThroughputTests: incoming.ssrRequestThroughputTests,
+    ssrRequestThroughput: incoming.ssrRequestThroughput,
   }
   SSRRequestThroughputStatsSchema.parse(merged)
   return merged
 }
 
 export function validateRequestThroughputForPersistence(stats: CIStats): void {
-  if (stats.ssrRequestThroughputTests !== undefined) {
+  if (stats.ssrRequestThroughput !== undefined) {
     SSRRequestThroughputStatsSchema.parse(stats)
   }
 }

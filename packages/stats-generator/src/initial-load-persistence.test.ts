@@ -37,7 +37,7 @@ test('CI requires, validates, and preserves initial load artifacts', async () =>
   const artifact = {
     frameworkVersion: readProjectResult('app-astro')?.frameworkVersion,
     browserVersion: 'Chrome/156',
-    initialLoadTests: {
+    initialLoad: {
       name: 'initialLoad',
       source: 'lighthouse-resource-summary',
       path: '/initial-load',
@@ -53,14 +53,14 @@ test('CI requires, validates, and preserves initial load artifacts', async () =>
     writeFileSync(path, JSON.stringify(artifact))
     const results = await processCIStats(directory, options)
     assert.deepEqual(
-      projectResult(results.get('astro')!, 'app')?.initialLoadTests,
-      artifact.initialLoadTests,
+      projectResult(results.get('astro')!, 'app')?.initialLoad,
+      artifact.initialLoad,
     )
     assert.equal(
       projectResult(results.get('astro')!, 'app')?.frameworkVersion,
       artifact.frameworkVersion,
     )
-    writeFileSync(path, JSON.stringify({ ...artifact, initialLoadTests: {} }))
+    writeFileSync(path, JSON.stringify({ ...artifact, initialLoad: {} }))
     await assert.rejects(processCIStats(directory, options))
   } finally {
     rmSync(directory, { recursive: true, force: true })

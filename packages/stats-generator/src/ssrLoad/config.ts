@@ -19,6 +19,3 @@ export function getSSRLoadPath(packageName: string, kind: SSRLoadKind): string {
     ? '/server-side-rendered-plain-links'
     : '/server-side-rendered'
 }
-export function getSSRLoadStatsKey(kind: SSRLoadKind) {
-  return kind === 'ssrLoad' ? 'ssrLoadTests' : 'ssrRouterLinkLoadTests'
-}

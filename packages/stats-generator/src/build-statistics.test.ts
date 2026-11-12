@@ -5,7 +5,7 @@ import { BuildStatsSchema } from '@framework-performance/results'
 
 test('build schema requires identity and complete iterations', () => {
   const result = createBuildStats([10, 20, 30], [5])
-  for (const benchmark of [result.coldBuildTime, result.warmBuildTime]) {
+  for (const benchmark of [result.coldBuild, result.warmBuild]) {
     assert.equal(Object.hasOwn(benchmark, 'framework'), false)
     assert.equal(Object.hasOwn(benchmark, 'packagePath'), false)
   }
@@ -17,7 +17,7 @@ test('build schema requires identity and complete iterations', () => {
     assert.equal(
       BuildStatsSchema.safeParse({
         ...result,
-        coldBuildTime: { ...result.coldBuildTime, ...patch },
+        coldBuild: { ...result.coldBuild, ...patch },
       }).success,
       false,
     )

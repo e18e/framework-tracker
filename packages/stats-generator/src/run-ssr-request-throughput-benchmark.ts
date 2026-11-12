@@ -59,7 +59,7 @@ async function main() {
     timingMeasuredAt: timestamp,
     runner: process.env.RUNNER_LABEL || 'local',
     frameworkVersion: frameworkVersion ?? existingStats.frameworkVersion,
-    ssrRequestThroughputTests: result.benchmark,
+    ssrRequestThroughput: result.benchmark,
   }
 
   const outputPath = join(packagesDir, result.package, 'ci-stats.json')

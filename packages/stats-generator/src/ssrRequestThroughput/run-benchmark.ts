@@ -204,8 +204,8 @@ export async function runBenchmark(
       benchmark: assembleRequestThroughput(iterationsByName.get(config.name)!, {
         durationMs: options.time,
         warmupDurationMs: options.warmupTime,
-        minimumSamples: options.iterations,
-        warmupMinimumSamples: options.warmupIterations,
+        minimumRequests: options.iterations,
+        warmupMinimumRequests: options.warmupIterations,
         bodySize: { value: Number((length / 1024).toFixed(2)), unit: 'KiB' },
         duplicationFactor: {
           value: Number(duplicationFactor.toFixed(2)),

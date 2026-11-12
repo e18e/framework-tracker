@@ -72,7 +72,7 @@ export async function runBenchmark(url: string) {
     }
     return {
       browserVersion: await browser.version(),
-      initialLoadTests: parseResourceSummary(
+      initialLoad: parseResourceSummary(
         lhr.audits['resource-summary']?.details,
       ),
     }

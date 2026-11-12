@@ -5,15 +5,15 @@ import { DevServerStatsSchema } from '@framework-performance/results'
 
 test('startup results retain iterations and summarize measurements', () => {
   assert.deepEqual(createDevServerStats([10, 20, 30]), {
-    devServerStartTime: {
+    devServer: {
       name: 'devServer',
       runs: 3,
       iterations: [
-        { time: { value: 10, unit: 'ms' } },
-        { time: { value: 20, unit: 'ms' } },
-        { time: { value: 30, unit: 'ms' } },
+        { duration: { value: 10, unit: 'ms' } },
+        { duration: { value: 20, unit: 'ms' } },
+        { duration: { value: 30, unit: 'ms' } },
       ],
-      time: { unit: 'ms', mean: 20, median: 20, min: 10, max: 30 },
+      duration: { unit: 'ms', mean: 20, median: 20, min: 10, max: 30 },
     },
   })
 })
@@ -29,23 +29,23 @@ test('startup schema requires its test name, complete runs, and statistics', () 
     { iterations: undefined },
     {
       iterations: [
-        { time: { value: -1, unit: 'ms' } },
-        { time: { value: 20, unit: 'ms' } },
-        { time: { value: 30, unit: 'ms' } },
+        { duration: { value: -1, unit: 'ms' } },
+        { duration: { value: 20, unit: 'ms' } },
+        { duration: { value: 30, unit: 'ms' } },
       ],
     },
-    { time: { unit: 'ms', mean: 20, min: 10, max: 30 } },
+    { duration: { unit: 'ms', mean: 20, min: 10, max: 30 } },
   ]) {
     assert.equal(
       DevServerStatsSchema.safeParse({
-        devServerStartTime: { ...result.devServerStartTime, ...patch },
+        devServer: { ...result.devServer, ...patch },
       }).success,
       false,
     )
   }
   assert.equal(
     DevServerStatsSchema.safeParse({
-      devServerStartTime: { avgMs: 20, minMs: 10, maxMs: 30 },
+      devServer: { avgMs: 20, minMs: 10, maxMs: 30 },
     }).success,
     false,
   )

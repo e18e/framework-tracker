@@ -98,10 +98,10 @@ export interface InteractionHistoryDatum extends Record<
 
 type DependencyCounts = Pick<
   FrameworkResult,
-  | 'prodDependencies'
-  | 'devDependencies'
-  | 'allDependencies'
-  | 'duplicateDependencies'
+  | 'productionDependencyCount'
+  | 'developmentDependencyCount'
+  | 'totalDependencyCount'
+  | 'duplicateDependencyCount'
 >
 
 /** Measurement subset accepted by chart preparation; Astro collection records fit structurally. */
@@ -110,52 +110,50 @@ export interface ChartMeasurement {
   name?: string
   frameworkVersion?: string
   releasedAt?: string
-  devServerStartTime?: {
+  devServer?: {
     medianMs?: number
   }
   install?: {
-    installTime?: { mean?: number }
+    duration?: { mean?: number }
     nodeModulesSize?: NonNullable<FrameworkResult['install']>['nodeModulesSize']
   }
   frameworkDependencies?: DependencyCounts
   firstPartyDependencies?: DependencyCounts
-  prodDependencies?: FrameworkResult['prodDependencies']
-  devDependencies?: FrameworkResult['devDependencies']
-  allDependencies?: FrameworkResult['allDependencies']
-  duplicateDependencies?: FrameworkResult['duplicateDependencies']
-  clientSideRenderedTests?: {
+  productionDependencyCount?: FrameworkResult['productionDependencyCount']
+  developmentDependencyCount?: FrameworkResult['developmentDependencyCount']
+  totalDependencyCount?: FrameworkResult['totalDependencyCount']
+  duplicateDependencyCount?: FrameworkResult['duplicateDependencyCount']
+  clientSideRendered?: {
     firstPaint?: number
-    fcp?: number
+    firstContentfulPaint?: number
     interactionTests?: InteractionTimings
   }
-  coldBuildTime?: {
+  coldBuild?: {
     medianMs?: number
   }
-  warmBuildTime?: {
+  warmBuild?: {
     medianMs?: number
   }
   vendoredCoreJsSize?: FrameworkResult['vendoredCoreJsSize']
-  serverSideRenderedTests?: {
+  serverSideRendered?: {
     firstPaint?: number
-    fcp?: number
+    firstContentfulPaint?: number
     interactionTests?: InteractionTimings
   }
-  ssrRequestThroughputTests?: {
-    operationThroughput?: number
-    bodySize?: NonNullable<
-      FrameworkResult['ssrRequestThroughputTests']
-    >['bodySize']
+  ssrRequestThroughput?: {
+    requestThroughput?: number
+    bodySize?: NonNullable<FrameworkResult['ssrRequestThroughput']>['bodySize']
     latency?: number
   }
-  depInstallSize?: FrameworkResult['depInstallSize']
-  ssrLoadTests?: SSRLoadMeasurements
-  ssrRouterLinkLoadTests?: SSRLoadMeasurements
+  dependencyInstallSize?: FrameworkResult['dependencyInstallSize']
+  ssrLoad?: SSRLoadMeasurements
+  ssrRouterLinkLoad?: SSRLoadMeasurements
 }
 
 interface SSRLoadMeasurements {
-  totalRequests?: NonNullable<FrameworkResult['ssrLoadTests']>['totalRequests']
+  totalRequests?: NonNullable<FrameworkResult['ssrLoad']>['totalRequests']
   stages?: {
-    workers: number
+    connections: number
     latencyRanges?: Partial<
       Record<
         'p75Latency' | 'p90Latency' | 'p99Latency',
@@ -171,7 +169,7 @@ interface SSRLoadMeasurements {
 /** Install charts require a completed install benchmark. */
 export type InstallChartMeasurement = ChartMeasurement & {
   install: {
-    installTime: { median: number }
+    duration: { median: number }
     nodeModulesSize: NonNullable<FrameworkResult['install']>['nodeModulesSize']
   }
 }

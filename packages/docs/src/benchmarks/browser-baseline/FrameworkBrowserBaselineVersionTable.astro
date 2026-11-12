@@ -11,13 +11,13 @@ interface BrowserBaselineTests {
   baselineYear?: number | null
   baselineReason?: string | string[] | null
   baselineFeatureCount?: NonNullable<
-    FrameworkResult['browserBaselineTests']
+    FrameworkResult['browserBaseline']
   >['baselineFeatureCount']
 }
 
 interface VersionStats {
   frameworkVersion?: string
-  browserBaselineTests?: BrowserBaselineTests
+  browserBaseline?: BrowserBaselineTests
 }
 
 interface Props {
@@ -35,7 +35,7 @@ const columns = [
 ] satisfies TableColumn[]
 
 const data = versions.flatMap((version) => {
-  const baseline = version.browserBaselineTests
+  const baseline = version.browserBaseline
   if (baseline == null) return []
 
   const featureCount = baseline.baselineFeatureCount?.value

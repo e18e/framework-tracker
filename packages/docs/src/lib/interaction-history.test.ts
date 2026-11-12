@@ -37,7 +37,7 @@ test('rendered tests take interaction phases from the run with the median total'
     runs: runs.length,
     iterations: runs.map((interactionTests) => ({
       firstPaint: { value: 100, unit: 'ms' },
-      fcp: { value: 100, unit: 'ms' },
+      firstContentfulPaint: { value: 100, unit: 'ms' },
       interactionTests: {
         inputDelay: { value: interactionTests.inputDelay, unit: 'ms' },
         processingDuration: {
@@ -55,7 +55,7 @@ test('rendered tests take interaction phases from the run with the median total'
       },
     })),
     firstPaint: metric(100),
-    fcp: metric(100),
+    firstContentfulPaint: metric(100),
     interactionTests: {
       scenario: 'first-row-detail-navigation',
       source: 'lighthouse-inp-breakdown',
@@ -78,18 +78,18 @@ test('history keeps versions with complete interaction data, in input order', ()
     {
       package: 'app-next',
       frameworkVersion: '14.0.0',
-      clientSideRenderedTests: { interactionTests: timings(1, 2, 3) },
+      clientSideRendered: { interactionTests: timings(1, 2, 3) },
     },
-    { frameworkVersion: '15.0.0', clientSideRenderedTests: {} },
+    { frameworkVersion: '15.0.0', clientSideRendered: {} },
     {
       frameworkVersion: '16.0.0',
-      clientSideRenderedTests: {
+      clientSideRendered: {
         interactionTests: { ...timings(1, 2, 3), inputDelay: Number.NaN },
       },
     },
     {
       frameworkVersion: '17.0.0',
-      clientSideRenderedTests: { interactionTests: timings(4, 5, 6) },
+      clientSideRendered: { interactionTests: timings(4, 5, 6) },
     },
   ]
   assert.deepEqual(
@@ -105,8 +105,8 @@ test('server history reads the server measurements', () => {
   const [row] = prepareLighthouseServerSideRenderedTestsInteractionHistory([
     {
       frameworkVersion: '14.0.0',
-      clientSideRenderedTests: { interactionTests: timings(1, 1, 1) },
-      serverSideRenderedTests: { interactionTests: timings(7, 8, 9) },
+      clientSideRendered: { interactionTests: timings(1, 1, 1) },
+      serverSideRendered: { interactionTests: timings(7, 8, 9) },
     },
   ])
   assert.equal(row?.interactionLatency, 24)

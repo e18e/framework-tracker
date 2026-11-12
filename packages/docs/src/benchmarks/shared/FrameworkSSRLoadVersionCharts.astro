@@ -8,10 +8,10 @@ import VersionLineChart from '../../components/VersionLineChart.astro'
 
 interface Props {
   versions: ChartMeasurement[]
-  testsKey?: 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
+  testsKey?: 'ssrLoad' | 'ssrRouterLinkLoad'
 }
 
-const { versions, testsKey = 'ssrLoadTests' } = Astro.props
+const { versions, testsKey = 'ssrLoad' } = Astro.props
 const hasMeasurements = versions.some(
   (version) =>
     version != null && typeof version === 'object' && testsKey in version,

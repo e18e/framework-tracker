@@ -40,14 +40,14 @@ const astroVersions = [
     name: 'Astro',
     frameworkVersion: '7.1.6',
     releasedAt: '2026-07-29T14:21:53Z',
-    prodDependencies: { value: 10, unit: 'count' as const },
+    productionDependencyCount: { value: 10, unit: 'count' as const },
   },
   {
     package: 'starter-astro',
     name: 'Astro',
     frameworkVersion: '7.2.10',
     releasedAt: '2026-08-31T19:39:50Z',
-    prodDependencies: { value: 12, unit: 'count' as const },
+    productionDependencyCount: { value: 12, unit: 'count' as const },
   },
 ]
 const astroLatest = {
@@ -55,7 +55,7 @@ const astroLatest = {
   name: 'Astro',
   frameworkVersion: '7.4.0',
   releasedAt: '2026-10-15T14:49:24Z',
-  prodDependencies: { value: 14, unit: 'count' as const },
+  productionDependencyCount: { value: 14, unit: 'count' as const },
 }
 
 test('leaves gaps before a framework’s first tracked release', () => {
@@ -65,7 +65,7 @@ test('leaves gaps before a framework’s first tracked release', () => {
     now,
   )
 
-  assert.equal(chart.id, 'prodDependencies-monthly')
+  assert.equal(chart.id, 'productionDependencyCount-monthly')
   const [astro] = chart.series
   assert.deepEqual(astro!.color, { dark: '#BC52EE' })
   assert.deepEqual(

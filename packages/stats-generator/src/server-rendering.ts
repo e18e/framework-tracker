@@ -9,7 +9,9 @@ export function assembleServerRendering(iterations: RenderedTestSample[]) {
     runs: iterations.length,
     iterations: iterations.map(renderedSampleMetrics),
     firstPaint: summarizeMetric(iterations.map((value) => value.firstPaint)),
-    fcp: summarizeMetric(iterations.map((value) => value.fcp)),
+    firstContentfulPaint: summarizeMetric(
+      iterations.map((value) => value.firstContentfulPaint),
+    ),
     interactionTests: {
       scenario: 'first-row-detail-navigation',
       source: 'lighthouse-inp-breakdown',

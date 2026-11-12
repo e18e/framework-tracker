@@ -8,15 +8,13 @@ import type { CIStats } from '../types.ts'
 import { summarizeLoadSweeps } from './run-load-test.ts'
 
 export function validateSSRLoadForPersistence(stats: CIStats): void {
-  for (const key of ['ssrLoadTests', 'ssrRouterLinkLoadTests'] as const) {
+  for (const key of ['ssrLoad', 'ssrRouterLinkLoad'] as const) {
     if (stats[key] === undefined) continue
     const schema =
-      key === 'ssrLoadTests' ? SSRLoadStatsSchema : SSRRouterLinkLoadStatsSchema
+      key === 'ssrLoad' ? SSRLoadStatsSchema : SSRRouterLinkLoadStatsSchema
     const parsed = schema.parse(stats)
     const value =
-      'ssrLoadTests' in parsed
-        ? parsed.ssrLoadTests
-        : parsed.ssrRouterLinkLoadTests
+      'ssrLoad' in parsed ? parsed.ssrLoad : parsed.ssrRouterLinkLoad
     const expected = summarizeLoadSweeps(
       value.iterations,
       value.name,

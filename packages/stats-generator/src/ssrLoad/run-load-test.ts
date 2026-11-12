@@ -22,19 +22,19 @@ function round(value: number): number {
 
 async function runStage(
   url: string,
-  workers: number,
+  connections: number,
 ): Promise<SSRLoadStageStats> {
   const result = await autocannon({
     url,
-    connections: workers,
+    connections,
     duration: STAGE_DURATION_SECONDS,
     headers: { Accept: 'text/html,application/xhtml+xml' },
     timeout: STAGE_DURATION_SECONDS + 5,
   })
 
   return measureLoadStage({
-    workers,
-    elapsedTime: round(result.duration * 1000),
+    connections,
+    duration: round(result.duration * 1000),
     requests: result.requests.total,
     errors: result.errors + result.timeouts + result.non2xx,
     requestThroughput: round(result.requests.average),
@@ -52,8 +52,8 @@ type RawLoadStage = { [K in keyof SSRLoadStageStats]: number }
 
 export function measureLoadStage(stage: RawLoadStage): SSRLoadStageStats {
   return {
-    workers: stage.workers,
-    elapsedTime: { value: stage.elapsedTime, unit: 'ms' },
+    connections: stage.connections,
+    duration: { value: stage.duration, unit: 'ms' },
     requests: { value: stage.requests, unit: 'requests' },
     errors: { value: stage.errors, unit: 'errors' },
     requestThroughput: { value: stage.requestThroughput, unit: 'requests/s' },
@@ -87,7 +87,7 @@ export async function runLoadTest(
       const warmup = await measureStage(url, WORKER_STAGES[0])
       if (warmup.errors.value === 0 && warmup.requests.value > 0) break
 
-      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests.value} requests, ${warmup.errors.value} errors, ${warmup.elapsedTime.value}ms`
+      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests.value} requests, ${warmup.errors.value} errors, ${warmup.duration.value}ms`
       if (attempt === WARMUP_ATTEMPTS) {
         throw new Error(
           `SSR load warm-up failed (${details}); expected requests without errors after recovery.`,
@@ -99,9 +99,11 @@ export async function runLoadTest(
       await pause(RECOVERY_MS)
     }
     const stages: SSRLoadStageStats[] = []
-    for (const workers of WORKER_STAGES) {
-      console.info(`  ${workers} workers for ${STAGE_DURATION_SECONDS}s`)
-      const stage = await measureStage(url, workers)
+    for (const connections of WORKER_STAGES) {
+      console.info(
+        `  ${connections} connections for ${STAGE_DURATION_SECONDS}s`,
+      )
+      const stage = await measureStage(url, connections)
       console.info(
         `    ${stage.requests.value} requests, ${stage.errors.value} errors, ${stage.requestThroughput.value} req/s`,
       )
@@ -149,13 +151,13 @@ export function summarizeLoadSweeps(
     'maxLatency',
     'byteThroughput',
   ] as const
-  const workers = samples[0]!.map((stage) => stage.workers)
+  const connections = samples[0]!.map((stage) => stage.connections)
   if (
-    new Set(workers).size !== workers.length ||
+    new Set(connections).size !== connections.length ||
     samples.some(
       (sweep) =>
-        sweep.length !== workers.length ||
-        sweep.some((stage, index) => stage.workers !== workers[index]),
+        sweep.length !== connections.length ||
+        sweep.some((stage, index) => stage.connections !== connections[index]),
     )
   )
     throw new Error('Expected matching worker stages in every sweep')
@@ -166,7 +168,7 @@ export function summarizeLoadSweeps(
     runs: samples.length,
     iterations: [...samples],
     representativeIterationIndex,
-    configuration: { workerStages: workers },
+    configuration: { stageConnections: connections },
     totalRequests: {
       value: samples.reduce(
         (sum, sweep) =>
@@ -184,7 +186,7 @@ export function summarizeLoadSweeps(
       unit: 'errors',
     },
     ...Object.fromEntries(
-      workers.map((connections, index) => [
+      connections.map((connections, index) => [
         `stage${index + 1}`,
         {
           connections,

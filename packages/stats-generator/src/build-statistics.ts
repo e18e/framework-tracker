@@ -7,13 +7,13 @@ export function createBuildStats(cold: number[], warm: number[]) {
       name,
       runs: samples.length,
       iterations: samples.map((timeMs) => ({
-        time: { value: timeMs, unit: 'ms' },
+        duration: { value: timeMs, unit: 'ms' },
       })),
-      time: summarizeMetric(samples),
+      duration: summarizeMetric(samples),
     }
   }
   return BuildStatsSchema.parse({
-    coldBuildTime: benchmark('coldBuild', cold),
-    warmBuildTime: benchmark('warmBuild', warm),
+    coldBuild: benchmark('coldBuild', cold),
+    warmBuild: benchmark('warmBuild', warm),
   })
 }

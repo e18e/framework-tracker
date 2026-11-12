@@ -117,7 +117,7 @@ async function main() {
     ...new Set(vendoredFiles.flatMap((f) => f.unnecessaryModules)),
   ]
   const stats: CoreJsStats = {
-    name: 'corejs',
+    name: 'coreJs',
     totalVendoredSize: { value: totalVendoredBytes, unit: 'bytes' },
     unnecessaryModules,
   }

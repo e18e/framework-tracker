@@ -315,9 +315,7 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
   .strict()
   .refine(
     (value) => {
-      const connections = value.iterations[0]?.map(
-        (stage) => stage.connections,
-      )
+      const connections = value.iterations[0]?.map((stage) => stage.connections)
       return (
         connections !== undefined &&
         new Set(connections).size === connections.length &&
@@ -514,8 +512,14 @@ export type InitialLoadStats = z.infer<typeof InitialLoadStatsSchema>
 export type InitialLoadResult = z.infer<typeof InitialLoadResultSchema>
 
 export const DependencyCountsSchema = z.object({
-  productionDependencyCount: scalarWithUnit('count', z.number().int().nonnegative()),
-  developmentDependencyCount: scalarWithUnit('count', z.number().int().nonnegative()),
+  productionDependencyCount: scalarWithUnit(
+    'count',
+    z.number().int().nonnegative(),
+  ),
+  developmentDependencyCount: scalarWithUnit(
+    'count',
+    z.number().int().nonnegative(),
+  ),
   totalDependencyCount: scalarWithUnit('count', z.number().int().nonnegative()),
 })
 export const DependencyScanSchema = TestBaseSchema.extend(
@@ -596,7 +600,10 @@ export const FrameworkResultSchema = z.object({
     'count',
     z.number().nonnegative(),
   ).optional(),
-  totalDependencyCount: scalarWithUnit('count', z.number().nonnegative()).optional(),
+  totalDependencyCount: scalarWithUnit(
+    'count',
+    z.number().nonnegative(),
+  ).optional(),
   frameworkDependencies: DependencyCountsSchema.extend({
     name: z.literal('frameworkDependencies').optional(),
   }).optional(),

@@ -51,9 +51,9 @@ test('final contract validates nested benchmarks and test identity', () => {
       install: {
         name: 'install',
         runs: 2,
-        iterations: [{ installTimeMs: 10 }],
-        installTimeMs: { mean: 10, median: 10, min: 10, max: 10 },
-        nodeModulesSizeBytes: 100,
+        iterations: [{ installTime: 10 }],
+        installTime: { mean: 10, median: 10, min: 10, max: 10 },
+        nodeModulesSize: 100,
       },
     }).success,
     false,

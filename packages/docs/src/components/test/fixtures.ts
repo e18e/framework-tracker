@@ -13,8 +13,8 @@ const barChart = (): ComponentProps<typeof ComparisonBarChart> =>
       ...framework,
       frameworkVersion: '1.0.0',
       install: {
-        installTimeMs: { median: 1000 },
-        nodeModulesSizeBytes: { value: framework.sizeMb * MB, unit: 'bytes' },
+        installTime: { median: 1000 },
+        nodeModulesSize: { value: framework.sizeMb * MB, unit: 'bytes' },
       },
     })),
   )

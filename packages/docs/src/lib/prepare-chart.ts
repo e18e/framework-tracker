@@ -92,7 +92,7 @@ export function getRenderedInteractionBreakdownData(
 
     return {
       name: framework.name,
-      interactionLatencyMs: interaction.interactionLatencyMs,
+      interactionLatency: interaction.interactionLatency,
       values: Object.fromEntries(
         INTERACTION_PHASES.map(({ key }) => [key, interaction[key]]),
       ),

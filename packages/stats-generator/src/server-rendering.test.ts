@@ -8,24 +8,24 @@ import {
 
 test('assembles server rendering from exact raw browser measurements', () => {
   const iterations = [1, 3].map((value) => ({
-    firstPaintMs: value,
-    fcpMs: value + 1,
+    firstPaint: value,
+    fcp: value + 1,
     interactionTests: {
-      interactionLatencyMs: value,
-      inputDelayMs: 0,
-      processingDurationMs: value,
-      presentationDelayMs: 0,
+      interactionLatency: value,
+      inputDelay: 0,
+      processingDuration: value,
+      presentationDelay: 0,
     },
   }))
   const result = assembleServerRendering(iterations)
   assert.deepEqual(
-    result.iterations.map(({ firstPaintMs }) => firstPaintMs),
+    result.iterations.map(({ firstPaint }) => firstPaint),
     [
       { value: 1, unit: 'ms' },
       { value: 3, unit: 'ms' },
     ],
   )
-  assert.equal(result.firstPaintMs.mean, 2)
+  assert.equal(result.firstPaint.mean, 2)
   assert.equal(result.interactionTests.source, 'lighthouse-inp-breakdown')
   assert.equal(
     ServerRenderingBenchmarkSchema.safeParse({

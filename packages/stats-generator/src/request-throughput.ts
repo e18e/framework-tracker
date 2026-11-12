@@ -22,15 +22,15 @@ export function createRequestThroughputIteration(
     )
   }
   return RequestThroughputIterationSchema.parse({
-    opsPerSec: summarizeMetric(throughputSamples),
-    latencyMs: summarizeMetric(latencySamplesMs),
+    operationThroughput: summarizeMetric(throughputSamples),
+    latency: summarizeMetric(latencySamplesMs),
     samples: { value: latencySamplesMs.length, unit: 'requests' },
   })
 }
 
 type Configuration = Pick<
   z.infer<typeof RequestThroughputBenchmarkSchema>,
-  | 'bodySizeKb'
+  | 'bodySize'
   | 'duplicationFactor'
   | 'durationMs'
   | 'warmupDurationMs'
@@ -56,8 +56,10 @@ export function assembleRequestThroughput(
       ),
       unit: 'requests',
     },
-    opsPerSec: summarizeMetric(iterations.map((value) => value.opsPerSec.mean)),
-    latencyMs: summarizeMetric(iterations.map((value) => value.latencyMs.mean)),
+    operationThroughput: summarizeMetric(
+      iterations.map((value) => value.operationThroughput.mean),
+    ),
+    latency: summarizeMetric(iterations.map((value) => value.latency.mean)),
   })
 }
 

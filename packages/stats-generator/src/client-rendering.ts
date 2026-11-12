@@ -8,19 +8,17 @@ export function assembleClientRendering(iterations: RenderedTestSample[]) {
     name: 'clientSideRendered',
     runs: iterations.length,
     iterations: iterations.map(renderedSampleMetrics),
-    firstPaintMs: summarizeMetric(
-      iterations.map((value) => value.firstPaintMs),
-    ),
-    fcpMs: summarizeMetric(iterations.map((value) => value.fcpMs)),
+    firstPaint: summarizeMetric(iterations.map((value) => value.firstPaint)),
+    fcp: summarizeMetric(iterations.map((value) => value.fcp)),
     interactionTests: {
       scenario: 'first-row-detail-navigation',
       source: 'lighthouse-inp-breakdown',
       ...Object.fromEntries(
         [
-          'interactionLatencyMs',
-          'inputDelayMs',
-          'processingDurationMs',
-          'presentationDelayMs',
+          'interactionLatency',
+          'inputDelay',
+          'processingDuration',
+          'presentationDelay',
         ].map((key) => [
           key,
           summarizeMetric(

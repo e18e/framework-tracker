@@ -2,8 +2,8 @@ import type { z } from 'zod'
 import type { ServerRenderingBenchmarkSchema } from '@framework-performance/results'
 import type { InteractionTiming } from '../types.ts'
 export interface ServerSideRenderedRunResult {
-  firstPaintMs: number | null
-  fcpMs: number | null
+  firstPaint: number | null
+  fcp: number | null
   interaction: InteractionTiming | null
 }
 

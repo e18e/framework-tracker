@@ -45,10 +45,10 @@ test('uses the Lighthouse phase values without applying a correction', () => {
   })
 
   assert.deepEqual(result, {
-    interactionLatencyMs: 13.5,
-    inputDelayMs: 0.25,
-    processingDurationMs: 0.5,
-    presentationDelayMs: 12.75,
+    interactionLatency: 13.5,
+    inputDelay: 0.25,
+    processingDuration: 0.5,
+    presentationDelay: 12.75,
   })
 })
 

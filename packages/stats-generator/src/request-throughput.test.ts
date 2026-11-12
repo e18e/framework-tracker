@@ -7,7 +7,7 @@ import {
 } from './request-throughput.ts'
 
 const configuration = {
-  bodySizeKb: { value: 20.25, unit: 'KiB' as const },
+  bodySize: { value: 20.25, unit: 'KiB' as const },
   duplicationFactor: { value: 1.25, unit: 'ratio' as const },
   durationMs: 10_000,
   warmupDurationMs: 250,
@@ -29,7 +29,7 @@ test('artifact merge validates before merging and preserves unrelated results an
     frameworkVersion: 'old',
     runner: 'current runner',
     browserVersion: 'current browser',
-    testTimeMs: { value: 123, unit: 'ms' as const },
+    testTime: { value: 123, unit: 'ms' as const },
     timingMeasuredAt: '2026-10-22T00:00:00Z',
   }
   const artifact = {
@@ -37,7 +37,7 @@ test('artifact merge validates before merging and preserves unrelated results an
     frameworkVersion: 'new',
     runner: 'artifact runner',
     browserVersion: 'stale browser',
-    testTimeMs: { value: 999, unit: 'ms' as const },
+    testTime: { value: 999, unit: 'ms' as const },
   }
   const merged = mergeRequestThroughputArtifact(current, artifact)
   assert.deepEqual(merged, {
@@ -54,19 +54,19 @@ test('artifact merge validates before merging and preserves unrelated results an
   const result = merged.ssrRequestThroughputTests!
   assert.ok('iterations' in result)
   assert.deepEqual(result.samples, { value: 4, unit: 'requests' })
-  assert.deepEqual(result.iterations[0].latencyMs, {
+  assert.deepEqual(result.iterations[0].latency, {
     unit: 'ms',
     mean: 4,
     median: 2,
     min: 1,
     max: 9,
   })
-  assert.equal(result.opsPerSec.mean, 650.25)
-  assert.equal(result.latencyMs.mean, 2.125)
-  assert.equal(result.latencyMs.median, 2.125)
-  assert.equal('avgLatencyMs' in result, false)
-  assert.equal('medianLatencyMs' in result, false)
-  assert.equal('medianLatencyMs' in result.iterations[0], false)
+  assert.equal(result.operationThroughput.mean, 650.25)
+  assert.equal(result.latency.mean, 2.125)
+  assert.equal(result.latency.median, 2.125)
+  assert.equal('avgLatency' in result, false)
+  assert.equal('medianLatency' in result, false)
+  assert.equal('medianLatency' in result.iterations[0], false)
   assert.equal(JSON.stringify(result).includes('throughputSamples'), false)
   assert.equal(JSON.stringify(result).includes('latencySamplesMs'), false)
   assert.equal(current.frameworkVersion, 'old')

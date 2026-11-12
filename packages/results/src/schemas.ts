@@ -119,15 +119,15 @@ export function createBenchmarkBaseSchema<T extends z.ZodType>(iteration: T) {
 }
 
 export const InstallIterationSchema = z.object({
-  installTimeMs: scalarWithUnit('ms', z.number().nonnegative()),
+  installTime: scalarWithUnit('ms', z.number().nonnegative()),
 })
 
 export const InstallBenchmarkSchema = createBenchmarkBaseSchema(
   InstallIterationSchema,
 ).safeExtend({
   name: z.literal('install'),
-  installTimeMs: MillisecondsMetricSchema,
-  nodeModulesSizeBytes: scalarWithUnit('bytes', z.number().nonnegative()),
+  installTime: MillisecondsMetricSchema,
+  nodeModulesSize: scalarWithUnit('bytes', z.number().nonnegative()),
 })
 
 /** Artifact emitted by the install runner, before overall result assembly. */
@@ -137,13 +137,13 @@ export const InstallResultSchema = z.object({
 })
 
 export const BuildIterationSchema = z.object({
-  timeMs: scalarWithUnit('ms', z.number().nonnegative()),
+  time: scalarWithUnit('ms', z.number().nonnegative()),
 })
 export const BuildBenchmarkSchema = createBenchmarkBaseSchema(
   BuildIterationSchema,
 ).safeExtend({
   name: z.enum(['coldBuild', 'warmBuild']),
-  timeMs: MillisecondsMetricSchema,
+  time: MillisecondsMetricSchema,
 })
 export const BuildStatsSchema = z.object({
   coldBuildTime: BuildBenchmarkSchema.safeExtend({
@@ -155,14 +155,14 @@ export const BuildStatsSchema = z.object({
 })
 
 export const DevServerIterationSchema = z.object({
-  timeMs: scalarWithUnit('ms', z.number().nonnegative()),
+  time: scalarWithUnit('ms', z.number().nonnegative()),
 })
 
 export const DevServerBenchmarkSchema = createBenchmarkBaseSchema(
   DevServerIterationSchema,
 ).safeExtend({
   name: z.literal('devServer'),
-  timeMs: MillisecondsMetricSchema,
+  time: MillisecondsMetricSchema,
 })
 
 export const DevServerStatsSchema = z.object({
@@ -195,17 +195,17 @@ export const NodeEnginesStatsSchema = TestBaseSchema.extend({
 })
 
 export const LegacySSRRequestThroughputSchema = z.object({
-  opsPerSec: scalarWithUnit('ops/s', z.number().positive()),
-  avgLatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  medianLatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
+  operationThroughput: scalarWithUnit('ops/s', z.number().positive()),
+  avgLatency: scalarWithUnit('ms', z.number().nonnegative()),
+  medianLatency: scalarWithUnit('ms', z.number().nonnegative()),
   samples: scalarWithUnit('requests', z.number().positive()),
-  bodySizeKb: scalarWithUnit('KiB', z.number().positive()),
+  bodySize: scalarWithUnit('KiB', z.number().positive()),
   duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
 })
 
 export const RequestThroughputIterationSchema = z.object({
-  opsPerSec: OperationsPerSecondMetricSchema,
-  latencyMs: MillisecondsMetricSchema,
+  operationThroughput: OperationsPerSecondMetricSchema,
+  latency: MillisecondsMetricSchema,
   samples: scalarWithUnit('requests', z.number().int().positive()),
 })
 export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
@@ -213,10 +213,10 @@ export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
 )
   .safeExtend({
     name: z.literal('ssrRequestThroughput'),
-    opsPerSec: OperationsPerSecondMetricSchema,
-    latencyMs: MillisecondsMetricSchema,
+    operationThroughput: OperationsPerSecondMetricSchema,
+    latency: MillisecondsMetricSchema,
     samples: scalarWithUnit('requests', z.number().int().positive()),
-    bodySizeKb: scalarWithUnit('KiB', z.number().positive()),
+    bodySize: scalarWithUnit('KiB', z.number().positive()),
     duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
     durationMs: z.number().positive(),
     warmupDurationMs: z.number().nonnegative(),
@@ -257,17 +257,17 @@ export const SSRRequestThroughputStatsSchema =
 
 export const SSRLoadStageSchema = z.strictObject({
   workers: z.number().int().positive(),
-  elapsedTimeMs: scalarWithUnit('ms', z.number().positive()),
+  elapsedTime: scalarWithUnit('ms', z.number().positive()),
   requests: scalarWithUnit('requests', z.number().int().nonnegative()),
   errors: scalarWithUnit('errors', z.number().int().nonnegative()),
-  requestsPerSec: scalarWithUnit('requests/s', z.number().nonnegative()),
-  avgLatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  p50LatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  p75LatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  p90LatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  p99LatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  maxLatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  bytesPerSec: scalarWithUnit('bytes/s', z.number().nonnegative()),
+  requestThroughput: scalarWithUnit('requests/s', z.number().nonnegative()),
+  avgLatency: scalarWithUnit('ms', z.number().nonnegative()),
+  p50Latency: scalarWithUnit('ms', z.number().nonnegative()),
+  p75Latency: scalarWithUnit('ms', z.number().nonnegative()),
+  p90Latency: scalarWithUnit('ms', z.number().nonnegative()),
+  p99Latency: scalarWithUnit('ms', z.number().nonnegative()),
+  maxLatency: scalarWithUnit('ms', z.number().nonnegative()),
+  byteThroughput: scalarWithUnit('bytes/s', z.number().nonnegative()),
 })
 
 export const SSRLoadSweepSchema = z.array(SSRLoadStageSchema).nonempty()
@@ -276,14 +276,14 @@ export const SSRLoadStageSummarySchema = z.object({
   connections: z.number().int().positive(),
   requests: metricWithUnit('requests'),
   errors: metricWithUnit('errors'),
-  requestsPerSec: metricWithUnit('requests/s'),
-  avgLatencyMs: MillisecondsMetricSchema,
-  p50LatencyMs: MillisecondsMetricSchema,
-  p75LatencyMs: MillisecondsMetricSchema,
-  p90LatencyMs: MillisecondsMetricSchema,
-  p99LatencyMs: MillisecondsMetricSchema,
-  maxLatencyMs: MillisecondsMetricSchema,
-  bytesPerSec: metricWithUnit('bytes/s'),
+  requestThroughput: metricWithUnit('requests/s'),
+  avgLatency: MillisecondsMetricSchema,
+  p50Latency: MillisecondsMetricSchema,
+  p75Latency: MillisecondsMetricSchema,
+  p90Latency: MillisecondsMetricSchema,
+  p99Latency: MillisecondsMetricSchema,
+  maxLatency: MillisecondsMetricSchema,
+  byteThroughput: metricWithUnit('bytes/s'),
 })
 
 export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
@@ -377,44 +377,43 @@ export const SSRRouterLinkLoadStatsSchema = SSRLoadStatsSchema.omit({
 const InteractionTestsSchema = z.object({
   scenario: z.literal('first-row-detail-navigation'),
   source: z.literal('lighthouse-inp-breakdown'),
-  interactionLatencyMs: scalarWithUnit('ms', z.number().positive()),
-  inputDelayMs: scalarWithUnit('ms', z.number().nonnegative()),
-  processingDurationMs: scalarWithUnit('ms', z.number().nonnegative()),
-  presentationDelayMs: scalarWithUnit('ms', z.number().nonnegative()),
+  interactionLatency: scalarWithUnit('ms', z.number().positive()),
+  inputDelay: scalarWithUnit('ms', z.number().nonnegative()),
+  processingDuration: scalarWithUnit('ms', z.number().nonnegative()),
+  presentationDelay: scalarWithUnit('ms', z.number().nonnegative()),
 })
 
 export const InteractionTimingSchema = z.object({
-  interactionLatencyMs: scalarWithUnit('ms', z.number().nonnegative()),
-  inputDelayMs: scalarWithUnit('ms', z.number().nonnegative()),
-  processingDurationMs: scalarWithUnit('ms', z.number().nonnegative()),
-  presentationDelayMs: scalarWithUnit('ms', z.number().nonnegative()),
+  interactionLatency: scalarWithUnit('ms', z.number().nonnegative()),
+  inputDelay: scalarWithUnit('ms', z.number().nonnegative()),
+  processingDuration: scalarWithUnit('ms', z.number().nonnegative()),
+  presentationDelay: scalarWithUnit('ms', z.number().nonnegative()),
 })
 
 export const RenderedTestSampleSchema = z.object({
-  firstPaintMs: scalarWithUnit('ms', z.number().positive()),
-  fcpMs: scalarWithUnit('ms', z.number().positive()),
+  firstPaint: scalarWithUnit('ms', z.number().positive()),
+  fcp: scalarWithUnit('ms', z.number().positive()),
   interactionTests: InteractionTimingSchema,
 })
 
 export const LegacyRenderedTestsSchema = z
   .object({
-    firstPaintMs: scalarWithUnit('ms', z.number().positive()),
-    fcpMs: scalarWithUnit('ms', z.number().positive()),
+    firstPaint: scalarWithUnit('ms', z.number().positive()),
+    fcp: scalarWithUnit('ms', z.number().positive()),
     /** Historical only; new runs record interactionTests instead. */
-    inpMs: scalarWithUnit('ms', z.number()).optional(),
+    inp: scalarWithUnit('ms', z.number()).optional(),
     interactionTests: InteractionTestsSchema.optional(),
     runs: z.number().int().positive(),
     standardDeviation: InteractionTimingSchema.extend({
-      firstPaintMs: scalarWithUnit('ms', z.number().nonnegative()),
-      fcpMs: scalarWithUnit('ms', z.number().nonnegative()),
+      firstPaint: scalarWithUnit('ms', z.number().nonnegative()),
+      fcp: scalarWithUnit('ms', z.number().nonnegative()),
     }).optional(),
     samples: z.array(RenderedTestSampleSchema).nonempty().optional(),
   })
   .refine(
-    (stats) =>
-      stats.inpMs !== undefined || stats.interactionTests !== undefined,
+    (stats) => stats.inp !== undefined || stats.interactionTests !== undefined,
     {
-      message: 'Expected historical inpMs or current interactionTests',
+      message: 'Expected historical inp or current interactionTests',
     },
   )
   .refine(
@@ -433,15 +432,15 @@ export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
   ClientRenderingIterationSchema,
 ).safeExtend({
   name: z.literal('clientSideRendered'),
-  firstPaintMs: MillisecondsMetricSchema,
-  fcpMs: MillisecondsMetricSchema,
+  firstPaint: MillisecondsMetricSchema,
+  fcp: MillisecondsMetricSchema,
   interactionTests: z.object({
     scenario: z.literal('first-row-detail-navigation'),
     source: z.literal('lighthouse-inp-breakdown'),
-    interactionLatencyMs: MillisecondsMetricSchema,
-    inputDelayMs: MillisecondsMetricSchema,
-    processingDurationMs: MillisecondsMetricSchema,
-    presentationDelayMs: MillisecondsMetricSchema,
+    interactionLatency: MillisecondsMetricSchema,
+    inputDelay: MillisecondsMetricSchema,
+    processingDuration: MillisecondsMetricSchema,
+    presentationDelay: MillisecondsMetricSchema,
   }),
 })
 
@@ -450,15 +449,15 @@ export const ServerRenderingBenchmarkSchema = createBenchmarkBaseSchema(
   ServerRenderingIterationSchema,
 ).safeExtend({
   name: z.literal('serverSideRendered'),
-  firstPaintMs: MillisecondsMetricSchema,
-  fcpMs: MillisecondsMetricSchema,
+  firstPaint: MillisecondsMetricSchema,
+  fcp: MillisecondsMetricSchema,
   interactionTests: z.object({
     scenario: z.literal('first-row-detail-navigation'),
     source: z.literal('lighthouse-inp-breakdown'),
-    interactionLatencyMs: MillisecondsMetricSchema,
-    inputDelayMs: MillisecondsMetricSchema,
-    processingDurationMs: MillisecondsMetricSchema,
-    presentationDelayMs: MillisecondsMetricSchema,
+    interactionLatency: MillisecondsMetricSchema,
+    inputDelay: MillisecondsMetricSchema,
+    processingDuration: MillisecondsMetricSchema,
+    presentationDelay: MillisecondsMetricSchema,
   }),
 })
 
@@ -540,7 +539,7 @@ export const FirstPartyDependencyScanSchema = TestBaseSchema.extend(
 })
 export const CoreJsStatsSchema = TestBaseSchema.extend({
   name: z.literal('corejs'),
-  totalVendoredBytes: scalarWithUnit('bytes', z.number().int().nonnegative()),
+  totalVendoredSize: scalarWithUnit('bytes', z.number().int().nonnegative()),
   unnecessaryModules: z.array(z.string()),
 })
 
@@ -608,9 +607,9 @@ export const FrameworkResultSchema = z.object({
   }).optional(),
   minimumNodeVersion: z.string().optional(),
   minimumNodeVersionImposedBy: z.array(z.string()).optional(),
-  testTimeMs: scalarWithUnit('ms', z.number()).optional(),
-  coldBuildTimeMs: scalarWithUnit('ms', z.number().nonnegative()).optional(),
-  warmBuildTimeMs: scalarWithUnit('ms', z.number().nonnegative()).optional(),
+  testTime: scalarWithUnit('ms', z.number()).optional(),
+  coldBuildDuration: scalarWithUnit('ms', z.number().nonnegative()).optional(),
+  warmBuildDuration: scalarWithUnit('ms', z.number().nonnegative()).optional(),
   packageJson: z
     .object({
       dependencies: z.record(z.string(), z.string()).optional(),

@@ -78,7 +78,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
       (framework) =>
         framework[key] != null &&
         Number.isFinite(
-          framework[key].representativePeak.requestsPerSec.value,
+          framework[key].representativePeak.requestThroughput.value,
         ) &&
         getSSRLoadLatencyStage(framework, 25, key) != null &&
         getSSRLoadLatencyStage(framework, 50, key) != null &&
@@ -95,12 +95,12 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
         peakRequestsPerSec:
           framework[
             key
-          ]!.representativePeak.requestsPerSec.value.toLocaleString(),
+          ]!.representativePeak.requestThroughput.value.toLocaleString(),
         peakWorkers:
           framework[key]!.representativePeak.workers.toLocaleString(),
-        worker25P99LatencyMs: `${worker25Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
-        worker50P99LatencyMs: `${worker50Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
-        worker100P99LatencyMs: `${worker100Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
+        worker25P99LatencyMs: `${worker25Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
+        worker50P99LatencyMs: `${worker50Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
+        worker100P99LatencyMs: `${worker100Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         totalRequests: framework[key]!.totalRequests.value.toLocaleString(),
       }
     })
@@ -109,7 +109,7 @@ export const serverSideRenderedStats = ssrRequestThroughputStats
   .filter(
     (framework) =>
       framework.serverSideRenderedTests != null &&
-      Number.isFinite(framework.serverSideRenderedTests.firstPaintMs),
+      Number.isFinite(framework.serverSideRenderedTests.firstPaint),
   )
   .map((framework) => {
     const tests = framework.serverSideRenderedTests!
@@ -118,16 +118,12 @@ export const serverSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      firstPaintMs: formatMilliseconds(tests.firstPaintMs),
-      fcpMs: formatMilliseconds(tests.fcpMs),
-      interactionLatencyMs: formatMilliseconds(
-        interaction?.interactionLatencyMs,
-      ),
-      inputDelayMs: formatMilliseconds(interaction?.inputDelayMs),
-      processingDurationMs: formatMilliseconds(
-        interaction?.processingDurationMs,
-      ),
-      presentationDelayMs: formatMilliseconds(interaction?.presentationDelayMs),
+      firstPaint: formatMilliseconds(tests.firstPaint),
+      fcp: formatMilliseconds(tests.fcp),
+      interactionLatency: formatMilliseconds(interaction?.interactionLatency),
+      inputDelay: formatMilliseconds(interaction?.inputDelay),
+      processingDuration: formatMilliseconds(interaction?.processingDuration),
+      presentationDelay: formatMilliseconds(interaction?.presentationDelay),
     }
   })
 
@@ -135,7 +131,7 @@ export const clientSideRenderedStats = ssrRequestThroughputStats
   .filter(
     (framework) =>
       framework.clientSideRenderedTests != null &&
-      Number.isFinite(framework.clientSideRenderedTests.firstPaintMs),
+      Number.isFinite(framework.clientSideRenderedTests.firstPaint),
   )
   .map((framework) => {
     const tests = framework.clientSideRenderedTests!
@@ -144,16 +140,12 @@ export const clientSideRenderedStats = ssrRequestThroughputStats
     return {
       name: framework.name,
       package: framework.package,
-      firstPaintMs: formatMilliseconds(tests.firstPaintMs),
-      fcpMs: formatMilliseconds(tests.fcpMs),
-      interactionLatencyMs: formatMilliseconds(
-        interaction?.interactionLatencyMs,
-      ),
-      inputDelayMs: formatMilliseconds(interaction?.inputDelayMs),
-      processingDurationMs: formatMilliseconds(
-        interaction?.processingDurationMs,
-      ),
-      presentationDelayMs: formatMilliseconds(interaction?.presentationDelayMs),
+      firstPaint: formatMilliseconds(tests.firstPaint),
+      fcp: formatMilliseconds(tests.fcp),
+      interactionLatency: formatMilliseconds(interaction?.interactionLatency),
+      inputDelay: formatMilliseconds(interaction?.inputDelay),
+      processingDuration: formatMilliseconds(interaction?.processingDuration),
+      presentationDelay: formatMilliseconds(interaction?.presentationDelay),
     }
   })
 
@@ -174,7 +166,7 @@ export const depsStats = starterStats.map((f) => ({
   devDependencies: f.devDependencies.value,
   allDependencies: f.allDependencies.value.toLocaleString(),
   duplicateDependencies: f.duplicateDependencies?.value,
-  nodeModulesSize: formatBytesToMB(f.install.nodeModulesSizeBytes.value),
+  nodeModulesSize: formatBytesToMB(f.install.nodeModulesSize.value),
   depInstallSize:
     f.depInstallSize != null ? formatBytesToMB(f.depInstallSize.value) : '—',
   graph: 'View',
@@ -243,9 +235,9 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
 export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  medianInstall: formatTimeMs(f.install.installTimeMs.median),
-  minInstall: formatTimeMs(f.install.installTimeMs.min),
-  maxInstall: formatTimeMs(f.install.installTimeMs.max),
+  medianInstall: formatTimeMs(f.install.installTime.median),
+  minInstall: formatTimeMs(f.install.installTime.min),
+  maxInstall: formatTimeMs(f.install.installTime.max),
   medianColdBuild: formatTimeMs(f.coldBuildTime.medianMs),
   minColdBuild: formatTimeMs(f.coldBuildTime.minMs),
   maxColdBuild: formatTimeMs(f.coldBuildTime.maxMs),
@@ -326,9 +318,11 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
       {
         name: f.name,
         package: f.package,
-        opsPerSec: Math.round(tests.opsPerSec).toLocaleString(),
-        latencyMs: `${Number(tests.latencyMs.toFixed(3))}${tests.latencyUnit}`,
-        bodySizeKb: `${tests.bodySizeKb.value} ${tests.bodySizeKb.unit}`,
+        operationThroughput: Math.round(
+          tests.operationThroughput,
+        ).toLocaleString(),
+        latency: `${Number(tests.latency.toFixed(3))}${tests.latencyUnit}`,
+        bodySize: `${tests.bodySize.value} ${tests.bodySize.unit}`,
         duplicationFactor: `${tests.duplicationFactor.value}x`,
       },
     ]

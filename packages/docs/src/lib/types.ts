@@ -81,15 +81,15 @@ export interface PreparedComparisonChart extends ComparisonChartPayload {
 }
 
 export type InteractionPhaseKey =
-  'inputDelayMs' | 'processingDurationMs' | 'presentationDelayMs'
+  'inputDelay' | 'processingDuration' | 'presentationDelay'
 
 export type InteractionTimings = Partial<
-  Record<InteractionPhaseKey | 'interactionLatencyMs', number>
+  Record<InteractionPhaseKey | 'interactionLatency', number>
 >
 
 /** One framework version's interaction latency split into its phases. */
 export interface InteractionHistoryDatum extends Record<
-  InteractionPhaseKey | 'interactionLatencyMs',
+  InteractionPhaseKey | 'interactionLatency',
   number
 > {
   id: string
@@ -114,10 +114,8 @@ export interface ChartMeasurement {
     medianMs?: number
   }
   install?: {
-    installTimeMs?: { mean?: number }
-    nodeModulesSizeBytes?: NonNullable<
-      FrameworkResult['install']
-    >['nodeModulesSizeBytes']
+    installTime?: { mean?: number }
+    nodeModulesSize?: NonNullable<FrameworkResult['install']>['nodeModulesSize']
   }
   frameworkDependencies?: DependencyCounts
   firstPartyDependencies?: DependencyCounts
@@ -126,8 +124,8 @@ export interface ChartMeasurement {
   allDependencies?: FrameworkResult['allDependencies']
   duplicateDependencies?: FrameworkResult['duplicateDependencies']
   clientSideRenderedTests?: {
-    firstPaintMs?: number
-    fcpMs?: number
+    firstPaint?: number
+    fcp?: number
     interactionTests?: InteractionTimings
   }
   coldBuildTime?: {
@@ -138,16 +136,16 @@ export interface ChartMeasurement {
   }
   vendoredCoreJsSize?: FrameworkResult['vendoredCoreJsSize']
   serverSideRenderedTests?: {
-    firstPaintMs?: number
-    fcpMs?: number
+    firstPaint?: number
+    fcp?: number
     interactionTests?: InteractionTimings
   }
   ssrRequestThroughputTests?: {
-    opsPerSec?: number
-    bodySizeKb?: NonNullable<
+    operationThroughput?: number
+    bodySize?: NonNullable<
       FrameworkResult['ssrRequestThroughputTests']
-    >['bodySizeKb']
-    latencyMs?: number
+    >['bodySize']
+    latency?: number
   }
   depInstallSize?: FrameworkResult['depInstallSize']
   ssrLoadTests?: SSRLoadMeasurements
@@ -160,22 +158,20 @@ interface SSRLoadMeasurements {
     workers: number
     latencyRanges?: Partial<
       Record<
-        'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs',
+        'p75Latency' | 'p90Latency' | 'p99Latency',
         { min: number; median: number; max: number }
       >
     >
-    p75LatencyMs?: number
-    p90LatencyMs?: number
-    p99LatencyMs?: number
+    p75Latency?: number
+    p90Latency?: number
+    p99Latency?: number
   }[]
 }
 
 /** Install charts require a completed install benchmark. */
 export type InstallChartMeasurement = ChartMeasurement & {
   install: {
-    installTimeMs: { median: number }
-    nodeModulesSizeBytes: NonNullable<
-      FrameworkResult['install']
-    >['nodeModulesSizeBytes']
+    installTime: { median: number }
+    nodeModulesSize: NonNullable<FrameworkResult['install']>['nodeModulesSize']
   }
 }

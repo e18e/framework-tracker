@@ -88,7 +88,7 @@ async function main() {
 
   try {
     const iterations: {
-      installTimeMs: number
+      installTime: number
     }[] = []
     let finalProjectDir = ''
     let previousRunDir = ''
@@ -106,7 +106,7 @@ async function main() {
       console.info(`\nInstall run ${i}/${runFrequency}...`)
       const time = measureInstallTime(projectDir, storeDir, cacheDir)
       iterations.push({
-        installTimeMs: time,
+        installTime: time,
       })
       console.info(`  Install time: ${time}ms`)
 
@@ -129,13 +129,11 @@ async function main() {
       install: InstallBenchmarkSchema.parse({
         name: 'install',
         runs: iterations.length,
-        iterations: iterations.map(({ installTimeMs }) => ({
-          installTimeMs: { value: installTimeMs, unit: 'ms' },
+        iterations: iterations.map(({ installTime }) => ({
+          installTime: { value: installTime, unit: 'ms' },
         })),
-        installTimeMs: summarizeMetric(
-          iterations.map((run) => run.installTimeMs),
-        ),
-        nodeModulesSizeBytes: { value: nodeModulesSize, unit: 'bytes' },
+        installTime: summarizeMetric(iterations.map((run) => run.installTime)),
+        nodeModulesSize: { value: nodeModulesSize, unit: 'bytes' },
       }),
     })
 
@@ -143,9 +141,9 @@ async function main() {
     writeJsonFile(outputPath, stats)
 
     console.info(`\n✓ Saved install stats to ${outputPath}`)
-    console.info(`  Average: ${stats.install.installTimeMs.mean}ms`)
-    console.info(`  Min: ${stats.install.installTimeMs.min}ms`)
-    console.info(`  Max: ${stats.install.installTimeMs.max}ms`)
+    console.info(`  Average: ${stats.install.installTime.mean}ms`)
+    console.info(`  Min: ${stats.install.installTime.min}ms`)
+    console.info(`  Max: ${stats.install.installTime.max}ms`)
   } finally {
     rmSync(tempDir, { recursive: true, force: true })
   }

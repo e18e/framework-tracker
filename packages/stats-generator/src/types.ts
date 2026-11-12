@@ -24,15 +24,15 @@ export type {
 } from '@framework-performance/results/frameworks'
 
 export interface InteractionTiming {
-  interactionLatencyMs: number
-  inputDelayMs: number
-  processingDurationMs: number
-  presentationDelayMs: number
+  interactionLatency: number
+  inputDelay: number
+  processingDuration: number
+  presentationDelay: number
 }
 
 export interface RenderedTestSample {
-  firstPaintMs: number
-  fcpMs: number
+  firstPaint: number
+  fcp: number
   interactionTests: InteractionTiming
 }
 
@@ -49,7 +49,7 @@ export interface CIStats {
   coldBuildTime?: z.infer<typeof BuildStatsSchema>['coldBuildTime'] | TimeStat
   warmBuildTime?: z.infer<typeof BuildStatsSchema>['warmBuildTime'] | TimeStat
   devServerStartTime?: DevServerStats['devServerStartTime'] | TimeStat
-  testTimeMs?: FrameworkResult['testTimeMs']
+  testTime?: FrameworkResult['testTime']
   // Direct SSR request throughput stats
   ssrRequestThroughputTests?: z.infer<
     typeof SSRRequestThroughputStatsSchema

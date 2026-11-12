@@ -7,15 +7,14 @@ import {
 import { formatRendered } from './result-content.ts'
 
 const timings = (
-  inputDelayMs: number,
-  processingDurationMs: number,
-  presentationDelayMs: number,
+  inputDelay: number,
+  processingDuration: number,
+  presentationDelay: number,
 ) => ({
-  inputDelayMs,
-  processingDurationMs,
-  presentationDelayMs,
-  interactionLatencyMs:
-    inputDelayMs + processingDurationMs + presentationDelayMs,
+  inputDelay,
+  processingDuration,
+  presentationDelay,
+  interactionLatency: inputDelay + processingDuration + presentationDelay,
 })
 const metric = (value: number) => ({
   unit: 'ms' as const,
@@ -37,33 +36,33 @@ test('rendered tests take interaction phases from the run with the median total'
     name: 'clientSideRendered',
     runs: runs.length,
     iterations: runs.map((interactionTests) => ({
-      firstPaintMs: { value: 100, unit: 'ms' },
-      fcpMs: { value: 100, unit: 'ms' },
+      firstPaint: { value: 100, unit: 'ms' },
+      fcp: { value: 100, unit: 'ms' },
       interactionTests: {
-        inputDelayMs: { value: interactionTests.inputDelayMs, unit: 'ms' },
-        processingDurationMs: {
-          value: interactionTests.processingDurationMs,
+        inputDelay: { value: interactionTests.inputDelay, unit: 'ms' },
+        processingDuration: {
+          value: interactionTests.processingDuration,
           unit: 'ms',
         },
-        presentationDelayMs: {
-          value: interactionTests.presentationDelayMs,
+        presentationDelay: {
+          value: interactionTests.presentationDelay,
           unit: 'ms',
         },
-        interactionLatencyMs: {
-          value: interactionTests.interactionLatencyMs,
+        interactionLatency: {
+          value: interactionTests.interactionLatency,
           unit: 'ms',
         },
       },
     })),
-    firstPaintMs: metric(100),
-    fcpMs: metric(100),
+    firstPaint: metric(100),
+    fcp: metric(100),
     interactionTests: {
       scenario: 'first-row-detail-navigation',
       source: 'lighthouse-inp-breakdown',
-      interactionLatencyMs: metric(30),
-      inputDelayMs: metric(2),
-      processingDurationMs: metric(20),
-      presentationDelayMs: metric(9),
+      interactionLatency: metric(30),
+      inputDelay: metric(2),
+      processingDuration: metric(20),
+      presentationDelay: metric(9),
     },
   })
 
@@ -85,7 +84,7 @@ test('history keeps versions with complete interaction data, in input order', ()
     {
       frameworkVersion: '16.0.0',
       clientSideRenderedTests: {
-        interactionTests: { ...timings(1, 2, 3), inputDelayMs: Number.NaN },
+        interactionTests: { ...timings(1, 2, 3), inputDelay: Number.NaN },
       },
     },
     {
@@ -110,7 +109,7 @@ test('server history reads the server measurements', () => {
       serverSideRenderedTests: { interactionTests: timings(7, 8, 9) },
     },
   ])
-  assert.equal(row?.interactionLatencyMs, 24)
+  assert.equal(row?.interactionLatency, 24)
 })
 
 test('history is empty when no version has interaction data', () => {

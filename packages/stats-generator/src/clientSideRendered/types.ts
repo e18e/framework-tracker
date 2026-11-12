@@ -3,8 +3,8 @@ import type { ClientRenderingBenchmarkSchema } from '@framework-performance/resu
 import type { InteractionTiming } from '../types.ts'
 
 export interface ClientSideRenderedRunResult {
-  firstPaintMs: number | null
-  fcpMs: number | null
+  firstPaint: number | null
+  fcp: number | null
   interaction: InteractionTiming | null
 }
 

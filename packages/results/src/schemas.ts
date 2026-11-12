@@ -65,6 +65,7 @@ export const FrameworkSchema = z.enum([
   'solid',
   'sveltekit',
   'tanstack',
+  'void',
 ])
 
 export const PackagePathSchema = z.enum([
@@ -87,6 +88,7 @@ export const PackagePathSchema = z.enum([
   'packages/app-sveltekit',
   'packages/starter-tanstack-start-react',
   'packages/app-tanstack-start-react',
+  'packages/starter-void',
 ])
 
 export const BaseResultSchema = z.object({

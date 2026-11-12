@@ -88,7 +88,7 @@ async function main() {
   const buildOutputPath = join(
     packagesDir,
     packageName,
-    testConfig.buildOutputDir,
+    testConfig.browserBuildOutputDir ?? testConfig.buildOutputDir,
   )
   const { scanDir, copiedFileCount } =
     await stageBrowserBuildFiles(buildOutputPath)
@@ -102,13 +102,14 @@ async function main() {
 
     const featuresByFile = await detectFeatures({ cwd: scanDir })
     // These starters bundle optional Temporal serialization support (devalue
-    // in Nuxt/SvelteKit, seroval in TanStack Start). Their application code
+    // in Nuxt/SvelteKit/Void, seroval in TanStack Start). Their application code
     // does not serialize Temporal values, so this is not a browser requirement.
     if (
       [
         'starter-nuxt',
         'starter-sveltekit',
         'starter-tanstack-start-react',
+        'starter-void',
       ].includes(packageName)
     ) {
       for (const features of featuresByFile.values())

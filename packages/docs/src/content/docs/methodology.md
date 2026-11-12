@@ -65,6 +65,7 @@ runtime configuration details are described in Framework Specific Notes.
 | SolidStart     | Solid                                | Vite                         | Nitro               |
 | SvelteKit      | Svelte                               | Vite                         | Node adapter        |
 | TanStack Start | React                                | Vite                         | Nitro               |
+| Void           | React                                | Vite                         | No runtime app      |
 | Baseline HTML  | None                                 | No build step                | Node.js             |
 
 Baseline HTML is a runtime-only comparison. Each project's `package.json`
@@ -91,6 +92,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - [SolidStart](https://github.com/e18e/framework-performance/blob/main/packages/starter-solid-start/package.json)
 - [SvelteKit](https://github.com/e18e/framework-performance/blob/main/packages/starter-sveltekit/package.json)
 - [TanStack Start (React)](https://github.com/e18e/framework-performance/blob/main/packages/starter-tanstack-start-react/package.json)
+- [Void](https://github.com/e18e/framework-performance/blob/main/packages/starter-void/package.json)
 
 ### Project Setups
 
@@ -203,6 +205,31 @@ Installed using the CLI with the following setup:
 
 The TanStack Start starter uses `nitro()` without an explicit preset.
 
+#### Void
+
+Generated from the published CLI with the following selections:
+
+```sh
+pnpm dlx create-void@1.8.0 starter-void --toolchain vite --framework react --starter static --deploy none
+```
+
+- Build tool: `Vite`
+- UI framework: `React`, with the generated React Compiler setting enabled
+- Starter: `Static Pages`, without a database or server routes
+- Deployment: `None`
+
+The starter retains the generated welcome page, styles, assets, typed routes,
+and default Cloudflare build target. `void` and `@void/react` are pinned to the
+same exact published version. After generation, the standalone pnpm workspace
+is explicitly limited to this package, a `type-check` script is added, and
+benchmark output files are ignored. Void currently has a Dev Time starter only;
+there is no Run Time app.
+
+Build timing and the core-js scan include both the Worker and client builds.
+Browser baseline scans use
+`.cloudflare/output/v0/workers/default/assets`, which contains only the client
+output.
+
 ### Dependency Counts
 
 - **Core package:** Measures the direct production and development dependencies
@@ -294,9 +321,9 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
   on, or blank if any detected feature is not yet Baseline.
 - Features is the number of unique web platform feature IDs detected in the
   browser-facing build output.
-- For Nuxt, SvelteKit, and TanStack Start, the `temporal` feature is temporarily
+- For Nuxt, SvelteKit, TanStack Start, and Void, the `temporal` feature is temporarily
   excluded. These starters bundle optional Temporal serialization support
-  (devalue in Nuxt and SvelteKit, seroval in TanStack Start), but their
+  (devalue in Nuxt, SvelteKit, and Void, seroval in TanStack Start), but their
   application code does not serialize Temporal values.
 
 ### Minimum Node Version

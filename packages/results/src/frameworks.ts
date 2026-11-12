@@ -4,6 +4,7 @@ export interface TestConfig {
   package: string
   buildScript: string
   buildOutputDir: string
+  browserBuildOutputDir?: string
   devServerPort?: number
   measurements: MeasurementName[]
 }
@@ -300,6 +301,25 @@ export const frameworks = [
         'initialLoad',
         'ssrLoad',
         'ssrRouterLinkLoad',
+      ],
+    },
+  },
+  {
+    name: 'void',
+    displayName: 'Void',
+    frameworkPackage: 'void',
+    starter: {
+      package: 'starter-void',
+      buildScript: 'build',
+      buildOutputDir: '.cloudflare/output/v0',
+      browserBuildOutputDir: '.cloudflare/output/v0/workers/default/assets',
+      devServerPort: 5173,
+      measurements: [
+        'install',
+        'build',
+        'devServer',
+        'dependencies',
+        'browserBaseline',
       ],
     },
   },

@@ -14,10 +14,10 @@ import ComparisonBarChart from '../../components/ComparisonBarChart.astro'
 import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 
 type DependencyMetric =
-  | 'allDependencies'
-  | 'devDependencies'
-  | 'prodDependencies'
-  | 'duplicateDependencies'
+  | 'totalDependencyCount'
+  | 'developmentDependencyCount'
+  | 'productionDependencyCount'
+  | 'duplicateDependencyCount'
 
 function getDependencyChartData(metric: DependencyMetric) {
   return starterStats
@@ -58,7 +58,7 @@ function getDependencyCharts(metric: DependencyMetric, title: string) {
 }
 
 const { bar, line } = getDependencyCharts(
-  'duplicateDependencies',
+  'duplicateDependencyCount',
   'First-Party Duplicate Dependencies',
 )
 const options = [

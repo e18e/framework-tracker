@@ -5,10 +5,10 @@ import StackedAreaChart from '../../components/StackedAreaChart.astro'
 import { initialLoadSeries } from '../../lib/prepare-chart'
 import { prepareInitialLoadResources } from '../../lib/initial-load'
 interface Props {
-  versions: { frameworkVersion?: string; initialLoadTests?: InitialLoadStats }[]
+  versions: { frameworkVersion?: string; initialLoad?: InitialLoadStats }[]
 }
 const data = Astro.props.versions.flatMap((version) => {
-  const resources = version.initialLoadTests?.resources
+  const resources = version.initialLoad?.resources
   if (!resources) return []
   const values = prepareInitialLoadResources(resources)
   return [

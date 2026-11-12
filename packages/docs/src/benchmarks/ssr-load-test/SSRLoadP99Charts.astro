@@ -11,7 +11,7 @@ import ComparisonLineChart from '../../components/ComparisonLineChart.astro'
 interface Props {
   testsKey?: SSRLoadKey
 }
-const { testsKey = 'ssrLoadTests' } = Astro.props
+const { testsKey = 'ssrLoad' } = Astro.props
 const byConnections = prepareSSRLatencyByConnections(
   ssrRequestThroughputStats,
   'p99Latency',

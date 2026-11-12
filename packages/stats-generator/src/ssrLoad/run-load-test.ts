@@ -1,4 +1,4 @@
-import { measurements } from '../measurements.ts'
+import { measurementsConfig } from '../measurements.ts'
 import {
   getLoadPeakStage,
   selectRepresentativeIteration,
@@ -75,7 +75,7 @@ export async function runLoadTest(
     warmupDurationMs,
     warmupAttempts,
     recoveryMs,
-  } = measurements[kind]
+  } = measurementsConfig[kind]
   const samples: SSRLoadSweep[] = []
   for (let run = 1; run <= runs; run++) {
     if (run > 1) {

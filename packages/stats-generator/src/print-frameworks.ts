@@ -1,3 +1,3 @@
-import { frameworks } from './frameworks.ts'
+import { frameworksConfig } from './frameworks.ts'
 
-process.stdout.write(JSON.stringify(frameworks))
+process.stdout.write(JSON.stringify(frameworksConfig))

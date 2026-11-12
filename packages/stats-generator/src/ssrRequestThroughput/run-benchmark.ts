@@ -1,4 +1,4 @@
-import { measurements } from '../measurements.ts'
+import { measurementsConfig } from '../measurements.ts'
 import { parseRunFrequency } from '../benchmark-utils.ts'
 import type { RequestThroughputIteration } from '../request-throughput.ts'
 import {
@@ -14,7 +14,7 @@ import type {
   WebServerRenderHandler,
 } from './types.ts'
 
-const config = measurements.ssrRequestThroughput
+const config = measurementsConfig.ssrRequestThroughput
 const HTML_ACCEPT_HEADER = 'text/html,application/xhtml+xml'
 
 interface HandlerConfig {

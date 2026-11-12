@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
 import { FrameworkResultSchema } from './schemas.ts'
-import { frameworks } from './frameworks.ts'
+import { frameworksConfig } from './frameworks-config.ts'
 
 export const resultsRoot = fileURLToPath(new URL('../data/', import.meta.url))
 const metadataFields = {
@@ -81,7 +81,7 @@ export function projectResult(
   })
 }
 export function resultLocation(packageName: string) {
-  for (const framework of frameworks)
+  for (const framework of frameworksConfig)
     for (const project of ['starter', 'app'] as const) {
       if (framework[project]?.package === packageName)
         return { framework: framework.name, project }

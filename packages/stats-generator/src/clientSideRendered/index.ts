@@ -1,4 +1,4 @@
-import { measurements } from '../measurements.ts'
+import { measurementsConfig } from '../measurements.ts'
 import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -154,7 +154,7 @@ async function spawnServer(
 
 export async function runClientSideRenderedBenchmark(
   packageName: string,
-  runs: number = measurements.clientSideRendered.runs,
+  runs: number = measurementsConfig.clientSideRendered.runs,
 ): Promise<ClientSideRenderedBenchmarkResult> {
   const config = CLIENT_SIDE_RENDERED_FRAMEWORKS.find(
     (f) => f.package === packageName,

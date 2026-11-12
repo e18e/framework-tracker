@@ -1,4 +1,4 @@
-import { measurements } from './measurements.ts'
+import { measurementsConfig } from './measurements.ts'
 import { rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -98,7 +98,10 @@ async function main() {
     'Usage: run-dev-server-benchmark <package-name> [run-frequency]\nExample: run-dev-server-benchmark starter-astro 5',
   )
 
-  const runFrequency = parseRunFrequency(args[0], measurements.devServer.runs)
+  const runFrequency = parseRunFrequency(
+    args[0],
+    measurementsConfig.devServer.runs,
+  )
 
   const { framework, testConfig } = await getFrameworkByPackage(packageName)
   const port = testConfig.devServerPort

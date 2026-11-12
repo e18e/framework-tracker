@@ -6,7 +6,7 @@ import type {
 } from './types'
 import { prepareInitialLoadResources } from './initial-load'
 import { formatChartValue } from './chart'
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
 
@@ -18,8 +18,8 @@ const resultFiles = import.meta.glob<CombinedResult>(
 )
 const results = Object.values(resultFiles).sort(
   (a, b) =>
-    frameworks.findIndex((f) => f.name === a.framework) -
-    frameworks.findIndex((f) => f.name === b.framework),
+    frameworksConfig.findIndex((f) => f.name === a.framework) -
+    frameworksConfig.findIndex((f) => f.name === b.framework),
 )
 const starterStats = results
   .filter((result) => result.projects.starter)
@@ -378,7 +378,7 @@ type LatencyTableInput = {
   valueFormat: ChartValueFormat
 }
 const frameworkDefinition = (name: string) =>
-  frameworks.find((f) => f.displayName === name || f.name === name)
+  frameworksConfig.find((f) => f.displayName === name || f.name === name)
 function frameworkColumn(): TableColumn {
   return {
     key: 'name',

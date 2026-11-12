@@ -11,7 +11,7 @@ const ssrLoad = {
 const interactionScenario = 'first-row-detail-navigation'
 
 /** Shared defaults for every framework. Scans run once; benchmarks repeat. */
-export const measurements = {
+export const measurementsConfig = {
   install: { runs: 5 },
   build: { runs: 5 },
   devServer: { runs: 5 },
@@ -35,4 +35,4 @@ export const measurements = {
   },
 } as const
 
-export type MeasurementName = keyof typeof measurements
+export type MeasurementName = keyof typeof measurementsConfig

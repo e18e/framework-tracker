@@ -1,4 +1,4 @@
-import { measurements } from '../measurements.ts'
+import { measurementsConfig } from '../measurements.ts'
 
 export type SSRLoadKind = 'ssrLoad' | 'ssrRouterLinkLoad'
 export const routerLinkPackages = new Set([
@@ -19,5 +19,5 @@ export function getSSRLoadPath(packageName: string, kind: SSRLoadKind): string {
     throw new Error(`Router link load is not supported for ${packageName}`)
   return kind === 'ssrLoad' && routerLinkPackages.has(packageName)
     ? '/server-side-rendered-plain-links'
-    : measurements[kind].path
+    : measurementsConfig[kind].path
 }

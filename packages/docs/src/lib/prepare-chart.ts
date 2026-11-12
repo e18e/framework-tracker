@@ -2,7 +2,7 @@ import { INTERACTION_PHASES } from './interaction-phases'
 import { stackGrays } from './chart-styles'
 import { prepareInitialLoadResources } from './initial-load'
 import { getCollection } from 'astro:content'
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 export * from './chart-measurements'
 import type { CombinedResult } from '@framework-performance/results/storage'
 import { prepareRuntimeResult, prepareStarterResult } from './result-content'
@@ -17,8 +17,8 @@ const latest = Object.entries(resultFiles)
   .map(([, result]) => result)
   .sort(
     (a, b) =>
-      frameworks.findIndex((f) => f.name === a.framework) -
-      frameworks.findIndex((f) => f.name === b.framework),
+      frameworksConfig.findIndex((f) => f.name === a.framework) -
+      frameworksConfig.findIndex((f) => f.name === b.framework),
   )
 const history = Object.entries(resultFiles)
   .filter(([path]) => path.includes('/versions/'))

@@ -23,7 +23,7 @@ import {
   type FrameworkResult,
 } from '@framework-performance/results'
 import { withSummaryVariance } from '@framework-performance/results/comparison'
-import { measurements } from './measurements.ts'
+import { measurementsConfig } from './measurements.ts'
 import { getSSRLoadPath } from './ssrLoad/config.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
@@ -659,12 +659,12 @@ export async function processCIStats(
   if (!validateOnly) {
     for (const { starter, app } of frameworks) {
       const configuration = {
-        ...measurements,
+        ...measurementsConfig,
         ssrLoad: {
-          ...measurements.ssrLoad,
+          ...measurementsConfig.ssrLoad,
           path: app
             ? getSSRLoadPath(app.package, 'ssrLoad')
-            : measurements.ssrLoad.path,
+            : measurementsConfig.ssrLoad.path,
         },
       }
       for (const project of [starter, app]) {

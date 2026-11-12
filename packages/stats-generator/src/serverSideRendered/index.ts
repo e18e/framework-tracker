@@ -1,4 +1,4 @@
-import { measurements } from '../measurements.ts'
+import { measurementsConfig } from '../measurements.ts'
 import { servingFrameworks } from '../serving-frameworks.ts'
 import { startBenchmarkServer } from '../benchmark-server.ts'
 import { getHost } from '../serve/common.ts'
@@ -10,7 +10,7 @@ const SERVER_SIDE_RENDERED_PORT = 3002
 
 export async function runServerSideRenderedBenchmark(
   packageName: string,
-  runs: number = measurements.serverSideRendered.runs,
+  runs: number = measurementsConfig.serverSideRendered.runs,
 ): Promise<ServerSideRenderedBenchmarkResult> {
   const config = servingFrameworks.find((f) => f.package === packageName)
 

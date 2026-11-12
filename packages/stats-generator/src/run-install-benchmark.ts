@@ -1,4 +1,4 @@
-import { measurements } from './measurements.ts'
+import { measurementsConfig } from './measurements.ts'
 import { summarizeMetric } from './sample-statistics.ts'
 import { execSync } from 'node:child_process'
 import { cpSync, mkdirSync, rmSync } from 'node:fs'
@@ -69,7 +69,10 @@ async function main() {
     'Usage: run-install-benchmark <package-name> [run-frequency]\nExample: run-install-benchmark starter-astro 5',
   )
 
-  const runFrequency = parseRunFrequency(args[0], measurements.install.runs)
+  const runFrequency = parseRunFrequency(
+    args[0],
+    measurementsConfig.install.runs,
+  )
 
   const { framework } = await getFrameworkByPackage(packageName)
 

@@ -21,7 +21,7 @@ import type { SSRLoadTests } from './ssrLoad/types.ts'
 export type {
   FrameworkConfig,
   TestConfig,
-} from '@framework-performance/results/frameworks'
+} from '@framework-performance/results/frameworks-config'
 
 export interface InteractionTiming {
   interactionLatency: number

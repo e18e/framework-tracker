@@ -12,7 +12,7 @@ The Framework Performance project has a few different areas which you can contri
 
 - **UI/UX Improvements**: Help us improve the documentation site by suggesting design improvements, fixing bugs, or adding new features.
 
-- **Adding New Frameworks**: Help us expand our list of tracked frameworks by adding new ones. See the [Adding a New Framework](./CONTRIBUTING.md#adding-a-new-framework) section below for details, as each new framework adds significant maintenance burden.
+- **Adding New Frameworks**: Help us expand our list of tracked frameworks by adding new ones. See the [Adding a New Framework](./CONTRIBUTING.md#adding-a-new-framework) section below for details, as each new framework adds significant maintenance burden. PRs that add a new meta-framework without following the linked instructions will be rejected, as it takes a lot of time to ensure it meets the standards of our benchmarking suite.
 
 ### Project Structure
 
@@ -217,7 +217,9 @@ previous results.
 
 ### Adding a New Framework
 
-Adding a new framework increases the maintenance burden, so please open an issue to discuss it before starting work. If you add a framework through your own PR, you are expected to help maintain its integration after it is merged. This includes framework and dependency upgrades, fixing build or benchmark failures, and keeping its setup and methodology documentation current. Please state in your PR that you can provide this ongoing support. All accepted frameworks are tracked equally.
+Adding a new framework increases the maintenance burden, so please open an issue to discuss it and get approval before starting work. It takes a lot of time to ensure each framework is set up fairly and consistently to achieve the best outcomes for our benchmarks. We also have to ensure that any meta-framework being added meets our requirements and capabilities. For example, not being in one or two benchmarks is fine, but if the framework in question can't do half of them, it does not belong in these benchmarks. Failing to follow this process will lead to PRs being auto-rejected that add new meta-frameworks
+
+If your issue is approved and your PR merged, you are expected to help maintain its integration after it is merged. This includes framework and dependency upgrades, fixing build or benchmark failures, being available to validate setup when new benchmarks are added and keeping its setup and methodology documentation current. Please state in your PR that you can provide this ongoing support. All accepted frameworks are tracked equally.
 
 If approved, follow these steps:
 

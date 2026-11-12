@@ -35,8 +35,8 @@ async function runStage(
   return measureLoadStage({
     connections,
     duration: round(result.duration * 1000),
-    requestCount: result.requests.total,
-    errorCount: result.errors + result.timeouts + result.non2xx,
+    requests: result.requests.total,
+    errors: result.errors + result.timeouts + result.non2xx,
     requestThroughput: round(result.requests.average),
     avgLatency: round(result.latency.average),
     p50Latency: round(result.latency.p50),
@@ -54,8 +54,8 @@ export function measureLoadStage(stage: RawLoadStage): SSRLoadStageStats {
   return {
     connections: stage.connections,
     duration: { value: stage.duration, unit: 'ms' },
-    requestCount: { value: stage.requestCount, unit: 'requests' },
-    errorCount: { value: stage.errorCount, unit: 'errors' },
+    requests: { value: stage.requests, unit: 'requests' },
+    errors: { value: stage.errors, unit: 'errors' },
     requestThroughput: { value: stage.requestThroughput, unit: 'requests/s' },
     avgLatency: { value: stage.avgLatency, unit: 'ms' },
     p50Latency: { value: stage.p50Latency, unit: 'ms' },
@@ -85,9 +85,9 @@ export async function runLoadTest(
         `  Sweep ${run}/${measurements[getSSRLoadKind()].runs}: warm-up ${attempt}/${WARMUP_ATTEMPTS} for ${STAGE_DURATION_SECONDS}s`,
       )
       const warmup = await measureStage(url, WORKER_STAGES[0])
-      if (warmup.errorCount.value === 0 && warmup.requestCount.value > 0) break
+      if (warmup.errors.value === 0 && warmup.requests.value > 0) break
 
-      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requestCount.value} requests, ${warmup.errorCount.value} errors, ${warmup.duration.value}ms`
+      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests.value} requests, ${warmup.errors.value} errors, ${warmup.duration.value}ms`
       if (attempt === WARMUP_ATTEMPTS) {
         throw new Error(
           `SSR load warm-up failed (${details}); expected requests without errors after recovery.`,
@@ -105,7 +105,7 @@ export async function runLoadTest(
       )
       const stage = await measureStage(url, connections)
       console.info(
-        `    ${stage.requestCount.value} requests, ${stage.errorCount.value} errors, ${stage.requestThroughput.value} req/s`,
+        `    ${stage.requests.value} requests, ${stage.errors.value} errors, ${stage.requestThroughput.value} req/s`,
       )
       stages.push(stage)
     }
@@ -140,8 +140,8 @@ export function summarizeLoadSweeps(
   }
   const representativeIterationIndex = selectRepresentativeIteration(samples)
   const fields = [
-    'requestCount',
-    'errorCount',
+    'requests',
+    'errors',
     'requestThroughput',
     'avgLatency',
     'p50Latency',
@@ -169,20 +169,18 @@ export function summarizeLoadSweeps(
     iterations: [...samples],
     representativeIterationIndex,
     configuration: { stageConnections: connections },
-    totalRequestCount: {
+    totalRequests: {
       value: samples.reduce(
         (sum, sweep) =>
-          sum +
-          sweep.reduce((count, stage) => count + stage.requestCount.value, 0),
+          sum + sweep.reduce((count, stage) => count + stage.requests.value, 0),
         0,
       ),
       unit: 'requests',
     },
-    totalErrorCount: {
+    totalErrors: {
       value: samples.reduce(
         (sum, sweep) =>
-          sum +
-          sweep.reduce((count, stage) => count + stage.errorCount.value, 0),
+          sum + sweep.reduce((count, stage) => count + stage.errors.value, 0),
         0,
       ),
       unit: 'errors',

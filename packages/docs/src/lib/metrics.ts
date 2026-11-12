@@ -132,8 +132,8 @@ export const metricCatalogue = {
     valueFormat: 'mb',
     yAxisLabel: 'MB',
   },
-  'ssrLoad.totalRequestCount': {
-    id: 'ssrLoad.totalRequestCount',
+  'ssrLoad.totalRequests': {
+    id: 'ssrLoad.totalRequests',
     title: 'Total Measured Requests',
     valueFormat: 'count',
     yAxisLabel: 'Requests',
@@ -192,8 +192,8 @@ export const metricCatalogue = {
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoad.totalRequestCount': {
-    id: 'ssrRouterLinkLoad.totalRequestCount',
+  'ssrRouterLinkLoad.totalRequests': {
+    id: 'ssrRouterLinkLoad.totalRequests',
     title: 'Total Measured Requests',
     valueFormat: 'count',
     yAxisLabel: 'Requests',

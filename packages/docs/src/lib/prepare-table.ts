@@ -103,8 +103,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoad') =>
         worker25P99LatencyMs: `${worker25Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         worker50P99LatencyMs: `${worker50Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         worker100P99LatencyMs: `${worker100Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
-        totalRequestCount:
-          framework[key]!.totalRequestCount.value.toLocaleString(),
+        totalRequests: framework[key]!.totalRequests.value.toLocaleString(),
       }
     })
 

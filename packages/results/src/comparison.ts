@@ -57,8 +57,8 @@ function benchmarkConfiguration(value: unknown) {
     'path',
     'durationMs',
     'warmupDurationMs',
-    'minimumRequestCount',
-    'warmupMinimumRequestCount',
+    'minimumRequests',
+    'warmupMinimumRequests',
     'bodySize',
     'duplicationFactor',
   ]

@@ -151,9 +151,7 @@ export interface ChartMeasurement {
 }
 
 interface SSRLoadMeasurements {
-  totalRequestCount?: NonNullable<
-    FrameworkResult['ssrLoad']
-  >['totalRequestCount']
+  totalRequests?: NonNullable<FrameworkResult['ssrLoad']>['totalRequests']
   stages?: {
     connections: number
     latencyRanges?: Partial<

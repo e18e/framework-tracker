@@ -30,8 +30,8 @@ export function validateSSRLoadForPersistence(stats: CIStats): void {
       ),
     )
     if (
-      value.totalRequestCount.value !== expected.totalRequestCount.value ||
-      value.totalErrorCount.value !== expected.totalErrorCount.value ||
+      value.totalRequests.value !== expected.totalRequests.value ||
+      value.totalErrors.value !== expected.totalErrors.value ||
       !isDeepStrictEqual(summaries, metricSummaries(expected))
     ) {
       throw new Error(

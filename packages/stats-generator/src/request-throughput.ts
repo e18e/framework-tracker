@@ -24,7 +24,7 @@ export function createRequestThroughputIteration(
   return RequestThroughputIterationSchema.parse({
     requestThroughput: summarizeMetric(throughputSamples),
     latency: summarizeMetric(latencySamplesMs),
-    requestCount: { value: latencySamplesMs.length, unit: 'requests' },
+    requests: { value: latencySamplesMs.length, unit: 'requests' },
   })
 }
 
@@ -34,8 +34,8 @@ type Configuration = Pick<
   | 'duplicationFactor'
   | 'durationMs'
   | 'warmupDurationMs'
-  | 'minimumRequestCount'
-  | 'warmupMinimumRequestCount'
+  | 'minimumRequests'
+  | 'warmupMinimumRequests'
 >
 
 export function assembleRequestThroughput(
@@ -49,9 +49,9 @@ export function assembleRequestThroughput(
     path: '/ssr-throughput',
     runs: iterations.length,
     iterations,
-    totalRequestCount: {
+    totalRequests: {
       value: iterations.reduce(
-        (count, iteration) => count + iteration.requestCount.value,
+        (count, iteration) => count + iteration.requests.value,
         0,
       ),
       unit: 'requests',

@@ -1,5 +1,5 @@
 interface PeakCandidate {
-  errorCount: { value: number }
+  errors: { value: number }
   requestThroughput: { value: number }
 }
 
@@ -8,7 +8,7 @@ export function getLoadPeakStage<T extends PeakCandidate>(
 ): T {
   const peak = stages.reduce<T | undefined>(
     (best, stage) =>
-      stage.errorCount.value === 0 &&
+      stage.errors.value === 0 &&
       (best === undefined ||
         stage.requestThroughput.value > best.requestThroughput.value)
         ? stage

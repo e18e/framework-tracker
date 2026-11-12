@@ -198,7 +198,7 @@ export const LegacySSRRequestThroughputSchema = z.object({
   requestThroughput: scalarWithUnit('ops/s', z.number().positive()),
   avgLatency: scalarWithUnit('ms', z.number().nonnegative()),
   medianLatency: scalarWithUnit('ms', z.number().nonnegative()),
-  requestCount: scalarWithUnit('requests', z.number().positive()),
+  requests: scalarWithUnit('requests', z.number().positive()),
   bodySize: scalarWithUnit('KiB', z.number().positive()),
   duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
 })
@@ -206,7 +206,7 @@ export const LegacySSRRequestThroughputSchema = z.object({
 export const RequestThroughputIterationSchema = z.object({
   requestThroughput: OperationsPerSecondMetricSchema,
   latency: MillisecondsMetricSchema,
-  requestCount: scalarWithUnit('requests', z.number().int().positive()),
+  requests: scalarWithUnit('requests', z.number().int().positive()),
 })
 export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
   RequestThroughputIterationSchema,
@@ -215,26 +215,26 @@ export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
     name: z.literal('ssrRequestThroughput'),
     requestThroughput: OperationsPerSecondMetricSchema,
     latency: MillisecondsMetricSchema,
-    totalRequestCount: scalarWithUnit('requests', z.number().int().positive()),
+    totalRequests: scalarWithUnit('requests', z.number().int().positive()),
     bodySize: scalarWithUnit('KiB', z.number().positive()),
     duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
     durationMs: z.number().positive(),
     warmupDurationMs: z.number().nonnegative(),
-    minimumRequestCount: z.number().int().positive(),
-    warmupMinimumRequestCount: z.number().int().nonnegative(),
+    minimumRequests: z.number().int().positive(),
+    warmupMinimumRequests: z.number().int().nonnegative(),
     source: z.literal('tinybench'),
     path: z.literal('/ssr-throughput'),
   })
   .refine(
     (value) =>
-      value.totalRequestCount.value ===
+      value.totalRequests.value ===
       value.iterations.reduce(
-        (count, iteration) => count + iteration.requestCount.value,
+        (count, iteration) => count + iteration.requests.value,
         0,
       ),
     {
       message: 'Expected total HTTP sample count to match iterations',
-      path: ['totalRequestCount'],
+      path: ['totalRequests'],
     },
   )
 
@@ -258,8 +258,8 @@ export const SSRRequestThroughputStatsSchema =
 export const SSRLoadStageSchema = z.strictObject({
   connections: z.number().int().positive(),
   duration: scalarWithUnit('ms', z.number().positive()),
-  requestCount: scalarWithUnit('requests', z.number().int().nonnegative()),
-  errorCount: scalarWithUnit('errors', z.number().int().nonnegative()),
+  requests: scalarWithUnit('requests', z.number().int().nonnegative()),
+  errors: scalarWithUnit('errors', z.number().int().nonnegative()),
   requestThroughput: scalarWithUnit('requests/s', z.number().nonnegative()),
   avgLatency: scalarWithUnit('ms', z.number().nonnegative()),
   p50Latency: scalarWithUnit('ms', z.number().nonnegative()),
@@ -274,8 +274,8 @@ export const SSRLoadSweepSchema = z.array(SSRLoadStageSchema).nonempty()
 
 export const SSRLoadStageSummarySchema = z.object({
   connections: z.number().int().positive(),
-  requestCount: metricWithUnit('requests'),
-  errorCount: metricWithUnit('errors'),
+  requests: metricWithUnit('requests'),
+  errors: metricWithUnit('errors'),
   requestThroughput: metricWithUnit('requests/s'),
   avgLatency: MillisecondsMetricSchema,
   p50Latency: MillisecondsMetricSchema,
@@ -302,8 +302,8 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
       '/server-side-rendered',
       '/server-side-rendered-plain-links',
     ]),
-    totalRequestCount: scalarWithUnit('requests', z.number().int().nonnegative()),
-    totalErrorCount: scalarWithUnit('errors', z.number().int().nonnegative()),
+    totalRequests: scalarWithUnit('requests', z.number().int().nonnegative()),
+    totalErrors: scalarWithUnit('errors', z.number().int().nonnegative()),
     stage1: SSRLoadStageSummarySchema,
     stage2: SSRLoadStageSummarySchema.optional(),
     stage3: SSRLoadStageSummarySchema.optional(),

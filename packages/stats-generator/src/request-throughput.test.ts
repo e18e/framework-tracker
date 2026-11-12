@@ -11,8 +11,8 @@ const configuration = {
   duplicationFactor: { value: 1.25, unit: 'ratio' as const },
   durationMs: 10_000,
   warmupDurationMs: 250,
-  minimumRequestCount: 64,
-  warmupMinimumRequestCount: 16,
+  minimumRequests: 64,
+  warmupMinimumRequests: 16,
 }
 function fixture() {
   return assembleRequestThroughput(
@@ -53,7 +53,7 @@ test('artifact merge validates before merging and preserves unrelated results an
   )
   const result = merged.ssrRequestThroughput!
   assert.ok('iterations' in result)
-  assert.deepEqual(result.totalRequestCount, { value: 4, unit: 'requests' })
+  assert.deepEqual(result.totalRequests, { value: 4, unit: 'requests' })
   assert.deepEqual(result.iterations[0].latency, {
     unit: 'ms',
     mean: 4,

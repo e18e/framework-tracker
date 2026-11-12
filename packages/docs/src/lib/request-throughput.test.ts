@@ -21,7 +21,7 @@ const benchmark = {
   iterations: [100, 100, 1000].map((requestThroughput, index) => ({
     requestThroughput: { ...metric(requestThroughput), unit: 'ops/s' },
     latency: { ...metric(index === 2 ? 40 : 4), median: 2, unit: 'ms' },
-    requestCount: { value: 3, unit: 'requests' },
+    requests: { value: 3, unit: 'requests' },
   })),
   requestThroughput: {
     mean: 400,
@@ -31,13 +31,13 @@ const benchmark = {
     unit: 'ops/s',
   },
   latency: { mean: 16, median: 4, min: 4, max: 40, unit: 'ms' },
-  totalRequestCount: { value: 9, unit: 'requests' },
+  totalRequests: { value: 9, unit: 'requests' },
   bodySize: { value: 20.5, unit: 'KiB' },
   duplicationFactor: { value: 1.25, unit: 'ratio' },
   durationMs: 10_000,
   warmupDurationMs: 250,
-  minimumRequestCount: 64,
-  warmupMinimumRequestCount: 16,
+  minimumRequests: 64,
+  warmupMinimumRequests: 16,
   source: 'tinybench',
   path: '/ssr-throughput',
 } satisfies NonNullable<FrameworkResult['ssrRequestThroughput']>
@@ -70,7 +70,7 @@ test('legacy mean latency remains distinct from the reported request median', ()
     requestThroughput: { value: 100, unit: 'ops/s' },
     avgLatency: { value: 4, unit: 'ms' },
     medianLatency: { value: 2, unit: 'ms' },
-    requestCount: { value: 64, unit: 'requests' },
+    requests: { value: 64, unit: 'requests' },
     bodySize: { value: 20, unit: 'KiB' },
     duplicationFactor: { value: 1, unit: 'ratio' },
   } satisfies NonNullable<FrameworkResult['ssrRequestThroughput']>

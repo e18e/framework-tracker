@@ -811,10 +811,10 @@ export function prepareSSRTotalRequestsHistory(
   testsKey: SSRLoadKey = 'ssrLoad',
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue[`${testsKey}.totalRequestCount`],
+    metricCatalogue[`${testsKey}.totalRequests`],
     records.map((record) => ({
       record,
-      value: finiteValue(record[testsKey]?.totalRequestCount?.value),
+      value: finiteValue(record[testsKey]?.totalRequests?.value),
     })),
   )
 }

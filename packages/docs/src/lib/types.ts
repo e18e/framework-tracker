@@ -1,3 +1,4 @@
+import type { BrandVariant, ThemedValue } from './framework-logos'
 import type { LineChartScaleId, LineChartTooltipId } from './line-chart-config'
 
 export type ChartValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
@@ -50,10 +51,12 @@ export interface LineComparisonPoint {
 export interface LineComparisonSeries {
   id: string
   name: string
-  /** Reference series (Baseline HTML) drawn as a neutral dashed line. */
-  baseline: boolean
-  /** Brand colour from `framework-logos.ts`; null draws a neutral line. */
-  color: { dark: string; light?: string } | null
+  /** Key into `frameworkBrands`, used to apply live theme overrides. */
+  brand: string | null
+  /** Brand colour from `framework-logos.ts`. */
+  color: ThemedValue
+  /** `segmented` draws a broken line, e.g. for the Baseline HTML reference. */
+  variant: BrandVariant
   points: LineComparisonPoint[]
 }
 

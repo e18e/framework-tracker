@@ -15,6 +15,7 @@ export default defineConfig({
         'Track and compare framework performance metrics across popular meta-frameworks.',
       favicon: '/favicon.svg',
       customCss: ['./src/styles/starlight.css'],
+      components: { Footer: './src/components/Footer.astro' },
       pagefind: false,
       disable404Route: true,
       sidebar: [

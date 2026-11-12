@@ -1,4 +1,4 @@
-import { getBrandByPackage } from './framework-logos.ts'
+import { frameworkBrands, getBrandKeyByPackage } from './framework-logos.ts'
 import type {
   ChartMeasurement,
   MetricDefinition,
@@ -7,7 +7,7 @@ import type {
 } from './types'
 
 const MONTH_COUNT = 12
-const BASELINE_PACKAGE = 'app-baseline-html'
+const NEUTRAL_COLOR = { dark: 'var(--ft-muted)' }
 
 function toMonthKey(date: Date) {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`
@@ -41,17 +41,19 @@ export function selectVersionAt<T extends { releasedAt?: string }>(
 
 export const LATEST_POINT = 'latest'
 
-/** Name, focus, baseline flag and brand colour shared by every line series. */
+/** Name, focus and brand styling shared by every line series. */
 export function seriesIdentity(
   packageName: string,
   record: ChartMeasurement,
 ): Omit<LineComparisonSeries, 'points'> {
-  const baseline = packageName === BASELINE_PACKAGE
+  const brand = getBrandKeyByPackage(packageName) ?? null
+  const style = brand == null ? undefined : frameworkBrands[brand]
   return {
     id: packageName,
     name: record.name ?? packageName,
-    baseline,
-    color: baseline ? null : (getBrandByPackage(packageName)?.color ?? null),
+    brand,
+    color: style?.color ?? NEUTRAL_COLOR,
+    variant: style?.variant ?? 'solid',
   }
 }
 

@@ -39,8 +39,6 @@ test('CI requires, validates, and preserves initial load artifacts', async () =>
     browserVersion: 'Chrome/156',
     initialLoad: {
       name: 'initialLoad',
-      source: 'lighthouse-resource-summary',
-      path: '/initial-load',
       resources,
     },
   }

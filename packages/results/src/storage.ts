@@ -39,7 +39,7 @@ const testSchemas = Object.fromEntries(
     }>
   >
 }
-export const CombinedResultSchema = z
+const FrameworkFileResultSchema = z
   .strictObject({
     framework: FrameworkResultSchema.shape.framework.unwrap(),
     projects: z.partialRecord(ProjectSchema, ProjectMetadataSchema),
@@ -55,6 +55,14 @@ export const CombinedResultSchema = z
         })
     }
   })
+export const CombinedResultSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value
+  const { configuration: _configuration, ...result } = value as Record<
+    string,
+    unknown
+  >
+  return result
+}, FrameworkFileResultSchema)
 export type CombinedResult = z.infer<typeof CombinedResultSchema>
 
 export type ProjectResult = z.infer<typeof FrameworkResultSchema>
@@ -106,6 +114,7 @@ export function readProjectResult(packageName: string, version?: string) {
     throw error
   }
 }
+
 export function mergeProjectResult(
   existing: CombinedResult | null,
   packageName: string,
@@ -138,6 +147,8 @@ export function mergeProjectResult(
 export function saveProjectResult(
   packageName: string,
   stats: Record<string, unknown>,
+  configuration: object,
+  root = resultsRoot,
 ) {
   const { framework } = resultLocation(packageName)
   const version =
@@ -146,8 +157,8 @@ export function saveProjectResult(
       ? stats.frameworkVersion
       : undefined
   for (const path of [
-    resultPath(framework),
-    ...(version ? [resultPath(framework, version)] : []),
+    resultPath(framework, undefined, root),
+    ...(version ? [resultPath(framework, version, root)] : []),
   ]) {
     let existing: CombinedResult | null = null
     try {
@@ -164,6 +175,9 @@ export function saveProjectResult(
     }
     const result = mergeProjectResult(existing, packageName, stats)
     mkdirSync(dirname(path), { recursive: true })
-    writeFileSync(path, JSON.stringify(result, null, 2) + '\n')
+    writeFileSync(
+      path,
+      JSON.stringify({ ...result, configuration }, null, 2) + '\n',
+    )
   }
 }

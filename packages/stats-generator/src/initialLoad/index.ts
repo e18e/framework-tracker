@@ -1,3 +1,4 @@
+import { measurements } from '../measurements.ts'
 import { servingFrameworks } from '../serving-frameworks.ts'
 import { startBenchmarkServer } from '../benchmark-server.ts'
 import { getHost } from '../serve/common.ts'
@@ -22,7 +23,7 @@ export async function runInitialLoadBenchmark(
   const killServer = await startBenchmarkServer(config, {
     host: INITIAL_LOAD_HOST,
     port: INITIAL_LOAD_PORT,
-    readinessPath: '/initial-load',
+    readinessPath: measurements.initialLoad.path,
   })
 
   try {

@@ -291,7 +291,6 @@ test('load runner warms up before each full sweep and excludes warm-up requests'
   )
   assert.deepEqual(pauses, [5000, 5000])
   assert.equal(result.runs, 3)
-  assert.equal(result.configuration.warmupDurationMs, 5000)
   assert.equal(result.totalRequests.value, 10500)
   assert.ok(
     result.iterations!.every(

@@ -1,10 +1,71 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { InitialLoadResourceTypeSchema } from '@framework-performance/results'
 import {
   CombinedResultSchema,
   mergeProjectResult,
   projectResult,
+  resultPath,
+  saveProjectResult,
 } from '@framework-performance/results/storage'
+
+test('saving projects keeps one configuration map in both result files', () => {
+  const root = mkdtempSync(join(tmpdir(), 'framework-result-'))
+  try {
+    const frameworkVersion = '1.0.0'
+    const configuration = {
+      initialLoad: { path: '/initial-load' },
+      nodeEngines: null,
+    }
+    saveProjectResult(
+      'app-astro',
+      {
+        frameworkVersion,
+        initialLoad: {
+          name: 'initialLoad',
+          resources: Object.fromEntries(
+            InitialLoadResourceTypeSchema.options.map((type) => [
+              type,
+              {
+                requestCount: { value: 0, unit: 'requests' },
+                transferSize: { value: 0, unit: 'bytes' },
+              },
+            ]),
+          ),
+        },
+      },
+      configuration,
+      root,
+    )
+    saveProjectResult(
+      'starter-astro',
+      {
+        frameworkVersion,
+        nodeEngines: {
+          name: 'nodeEngines',
+          minimumNodeVersion: null,
+          imposedBy: [],
+        },
+      },
+      configuration,
+      root,
+    )
+    for (const version of [undefined, frameworkVersion]) {
+      const raw = JSON.parse(
+        readFileSync(resultPath('astro', version, root), 'utf8'),
+      )
+      assert.deepEqual(raw.configuration, configuration)
+      const result = CombinedResultSchema.parse(raw)
+      assert.equal('configuration' in result, false)
+      assert.equal('path' in result.tests.initialLoad!.result, false)
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
 
 test('combining projects preserves their independent measurements and metadata', () => {
   const starter = {

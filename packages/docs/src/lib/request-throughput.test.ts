@@ -34,12 +34,6 @@ const benchmark = {
   totalRequests: { value: 9, unit: 'requests' },
   bodySize: { value: 20.5, unit: 'KiB' },
   duplicationFactor: { value: 1.25, unit: 'ratio' },
-  durationMs: 10_000,
-  warmupDurationMs: 250,
-  minimumRequests: 64,
-  warmupMinimumRequests: 16,
-  source: 'tinybench',
-  path: '/ssr-throughput',
 } satisfies NonNullable<FrameworkResult['ssrRequestThroughput']>
 
 test('throughput charts use the median of run means, not the mean or request median', () => {

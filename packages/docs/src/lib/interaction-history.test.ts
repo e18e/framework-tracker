@@ -57,8 +57,6 @@ test('rendered tests take interaction phases from the run with the median total'
     firstPaint: metric(100),
     firstContentfulPaint: metric(100),
     interactionTests: {
-      scenario: 'first-row-detail-navigation',
-      source: 'lighthouse-inp-breakdown',
       interactionLatency: metric(30),
       inputDelay: metric(2),
       processingDuration: metric(20),
@@ -67,8 +65,6 @@ test('rendered tests take interaction phases from the run with the median total'
   })
 
   assert.deepEqual(formatted.interactionTests, {
-    scenario: 'first-row-detail-navigation',
-    source: 'lighthouse-inp-breakdown',
     ...timings(1, 20, 9),
   })
 })

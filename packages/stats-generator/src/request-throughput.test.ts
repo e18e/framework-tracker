@@ -6,13 +6,9 @@ import {
   mergeRequestThroughputArtifact,
 } from './request-throughput.ts'
 
-const configuration = {
+const responseMetrics = {
   bodySize: { value: 20.25, unit: 'KiB' as const },
   duplicationFactor: { value: 1.25, unit: 'ratio' as const },
-  durationMs: 10_000,
-  warmupDurationMs: 250,
-  minimumRequests: 64,
-  warmupMinimumRequests: 16,
 }
 function fixture() {
   return assembleRequestThroughput(
@@ -20,7 +16,7 @@ function fixture() {
       createRequestThroughputIteration([100.125, 300.375, 500.625], [1, 2, 9]),
       createRequestThroughputIteration([1000.125], [0.25]),
     ],
-    configuration,
+    responseMetrics,
   )
 }
 

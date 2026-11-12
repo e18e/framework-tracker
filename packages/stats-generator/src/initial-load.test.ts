@@ -12,8 +12,8 @@ const items = InitialLoadResourceTypeSchema.options.map((resourceType) => ({
 test('initial load retains Lighthouse totals without adding third-party again', () => {
   const result = parseResourceSummary({ type: 'table', items })
   assert.deepEqual(result.resources.total, {
-    requestCount: 1,
-    transferSize: 100,
+    requestCount: { value: 1, unit: 'requests' },
+    transferSize: { value: 100, unit: 'bytes' },
   })
   assert.equal('iterations' in result, false)
 })

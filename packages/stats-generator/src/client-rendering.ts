@@ -1,3 +1,4 @@
+import { renderedSampleMetrics } from './rendered-sample-metrics.ts'
 import { ClientRenderingBenchmarkSchema } from '@framework-performance/results'
 import { summarizeMetric } from './sample-statistics.ts'
 import type { RenderedTestSample } from './types.ts'
@@ -6,7 +7,7 @@ export function assembleClientRendering(iterations: RenderedTestSample[]) {
   return ClientRenderingBenchmarkSchema.parse({
     name: 'clientSideRendered',
     runs: iterations.length,
-    iterations,
+    iterations: iterations.map(renderedSampleMetrics),
     firstPaintMs: summarizeMetric(
       iterations.map((value) => value.firstPaintMs),
     ),

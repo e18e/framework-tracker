@@ -77,8 +77,8 @@ test('a mixed tree intersects to 20.9.0 imposed by the two ranges that exclude 1
   assert.equal(stats.minimumNodeVersion, '20.9.0')
   assert.deepEqual(stats.imposedBy, ['echo', 'foxtrot'])
   assert.deepEqual(stats.unsatisfiableRanges, [])
-  assert.equal(stats.packagesScanned, 7)
-  assert.equal(stats.packagesDeclaringNodeEngine, 6)
+  assert.equal(stats.packagesScanned.value, 7)
+  assert.equal(stats.packagesDeclaringNodeEngine.value, 6)
 })
 
 test('universal, garbage, blank, and missing ranges are skipped but counted', () => {
@@ -92,8 +92,8 @@ test('universal, garbage, blank, and missing ranges are skipped but counted', ()
   ])
   assert.equal(stats.minimumNodeVersion, '18.0.0')
   assert.deepEqual(stats.imposedBy, ['real'])
-  assert.equal(stats.packagesScanned, 6)
-  assert.equal(stats.packagesDeclaringNodeEngine, 4)
+  assert.equal(stats.packagesScanned.value, 6)
+  assert.equal(stats.packagesDeclaringNodeEngine.value, 4)
 })
 
 test('empty input resolves to nothing', () => {
@@ -101,8 +101,8 @@ test('empty input resolves to nothing', () => {
     name: 'nodeEngines',
     minimumNodeVersion: null,
     imposedBy: [],
-    packagesScanned: 0,
-    packagesDeclaringNodeEngine: 0,
+    packagesScanned: { value: 0, unit: 'count' },
+    packagesDeclaringNodeEngine: { value: 0, unit: 'count' },
     unsatisfiableRanges: [],
   })
 })

@@ -206,8 +206,11 @@ export async function runBenchmark(
         warmupDurationMs: options.warmupTime,
         minimumSamples: options.iterations,
         warmupMinimumSamples: options.warmupIterations,
-        bodySizeKb: Number((length / 1024).toFixed(2)),
-        duplicationFactor: Number(duplicationFactor.toFixed(2)),
+        bodySizeKb: { value: Number((length / 1024).toFixed(2)), unit: 'KiB' },
+        duplicationFactor: {
+          value: Number(duplicationFactor.toFixed(2)),
+          unit: 'ratio',
+        },
       }),
     })
   }

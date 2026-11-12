@@ -118,7 +118,7 @@ async function main() {
   ]
   const stats: CoreJsStats = {
     name: 'corejs',
-    totalVendoredBytes,
+    totalVendoredBytes: { value: totalVendoredBytes, unit: 'bytes' },
     unnecessaryModules,
   }
 

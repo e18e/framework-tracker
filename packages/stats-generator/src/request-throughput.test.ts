@@ -7,8 +7,8 @@ import {
 } from './request-throughput.ts'
 
 const configuration = {
-  bodySizeKb: 20.25,
-  duplicationFactor: 1.25,
+  bodySizeKb: { value: 20.25, unit: 'KiB' as const },
+  duplicationFactor: { value: 1.25, unit: 'ratio' as const },
   durationMs: 10_000,
   warmupDurationMs: 250,
   minimumSamples: 64,
@@ -29,7 +29,7 @@ test('artifact merge validates before merging and preserves unrelated results an
     frameworkVersion: 'old',
     runner: 'current runner',
     browserVersion: 'current browser',
-    testTimeMs: 123,
+    testTimeMs: { value: 123, unit: 'ms' as const },
     timingMeasuredAt: '2026-10-22T00:00:00Z',
   }
   const artifact = {
@@ -37,7 +37,7 @@ test('artifact merge validates before merging and preserves unrelated results an
     frameworkVersion: 'new',
     runner: 'artifact runner',
     browserVersion: 'stale browser',
-    testTimeMs: 999,
+    testTimeMs: { value: 999, unit: 'ms' as const },
   }
   const merged = mergeRequestThroughputArtifact(current, artifact)
   assert.deepEqual(merged, {
@@ -53,7 +53,7 @@ test('artifact merge validates before merging and preserves unrelated results an
   )
   const result = merged.ssrRequestThroughputTests!
   assert.ok('iterations' in result)
-  assert.equal(result.samples, 4)
+  assert.deepEqual(result.samples, { value: 4, unit: 'requests' })
   assert.deepEqual(result.iterations[0].latencyMs, {
     unit: 'ms',
     mean: 4,

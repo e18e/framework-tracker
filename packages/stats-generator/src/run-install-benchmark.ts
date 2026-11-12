@@ -129,11 +129,13 @@ async function main() {
       install: InstallBenchmarkSchema.parse({
         name: 'install',
         runs: iterations.length,
-        iterations,
+        iterations: iterations.map(({ installTimeMs }) => ({
+          installTimeMs: { value: installTimeMs, unit: 'ms' },
+        })),
         installTimeMs: summarizeMetric(
           iterations.map((run) => run.installTimeMs),
         ),
-        nodeModulesSizeBytes: nodeModulesSize,
+        nodeModulesSizeBytes: { value: nodeModulesSize, unit: 'bytes' },
       }),
     })
 

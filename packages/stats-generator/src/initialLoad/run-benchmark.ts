@@ -3,13 +3,14 @@ import { startFlow } from 'lighthouse'
 import { z } from 'zod'
 import {
   InitialLoadResourceTypeSchema,
-  InitialLoadResourceSchema,
   InitialLoadStatsSchema,
 } from '@framework-performance/results'
 import { findChromium } from '../find-chromium.ts'
 
 const ResourceRowsSchema = z.array(
-  InitialLoadResourceSchema.extend({
+  z.object({
+    requestCount: z.number().int().nonnegative(),
+    transferSize: z.number().int().nonnegative(),
     resourceType: InitialLoadResourceTypeSchema,
   }),
 )
@@ -21,7 +22,10 @@ export function parseResourceSummary(details: unknown) {
   const resources = Object.fromEntries(
     table.items.map(({ resourceType, requestCount, transferSize }) => [
       resourceType,
-      { requestCount, transferSize },
+      {
+        requestCount: { value: requestCount, unit: 'requests' },
+        transferSize: { value: transferSize, unit: 'bytes' },
+      },
     ]),
   )
   if (

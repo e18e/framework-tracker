@@ -349,14 +349,7 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
       try {
         return (
           value.representativeIterationIndex ===
-          selectRepresentativeIteration(
-            value.iterations.map((sweep) =>
-              sweep.map(({ errors, requestsPerSec }) => ({
-                errors: errors.value,
-                requestsPerSec: requestsPerSec.value,
-              })),
-            ),
-          )
+          selectRepresentativeIteration(value.iterations)
         )
       } catch {
         return false

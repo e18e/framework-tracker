@@ -58,13 +58,22 @@ export function getDependencyStatsFromE18e(e18eStats: E18eStats) {
   )
 
   return {
-    prodDependencies: e18eStats.stats.dependencyCount.production,
-    devDependencies: e18eStats.stats.dependencyCount.development,
+    prodDependencies: {
+      value: e18eStats.stats.dependencyCount.production,
+      unit: 'count',
+    },
+    devDependencies: {
+      value: e18eStats.stats.dependencyCount.development,
+      unit: 'count',
+    },
     duplicateDependencies:
       typeof duplicateEntry?.value === 'number'
-        ? duplicateEntry.value
+        ? { value: duplicateEntry.value, unit: 'count' }
         : undefined,
-    depInstallSize: e18eStats.stats.installSize,
+    depInstallSize:
+      e18eStats.stats.installSize == null
+        ? undefined
+        : { value: e18eStats.stats.installSize, unit: 'bytes' },
   }
 }
 
@@ -111,9 +120,18 @@ export function getDependencyCountsFromPackageMetadata(packageName: string) {
     : undefined
 
   return {
-    prodDependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
-    allDependencies,
+    prodDependencies: {
+      value: Object.keys(dependencies).length,
+      unit: 'count',
+    },
+    devDependencies: {
+      value: Object.keys(devDependencies).length,
+      unit: 'count',
+    },
+    allDependencies:
+      allDependencies == null
+        ? undefined
+        : { value: allDependencies, unit: 'count' },
   }
 }
 
@@ -143,12 +161,21 @@ export function getFrameworkDependencyCountsFromPackageMetadata(
   const devDependencies = packageJson.devDependencies ?? {}
 
   return {
-    prodDependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
-    allDependencies: new Set([
-      ...Object.keys(dependencies),
-      ...Object.keys(devDependencies),
-    ]).size,
+    prodDependencies: {
+      value: Object.keys(dependencies).length,
+      unit: 'count',
+    },
+    devDependencies: {
+      value: Object.keys(devDependencies).length,
+      unit: 'count',
+    },
+    allDependencies: {
+      value: new Set([
+        ...Object.keys(dependencies),
+        ...Object.keys(devDependencies),
+      ]).size,
+      unit: 'count',
+    },
   }
 }
 
@@ -242,12 +269,15 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.ssrDuplicationFactor === 'number'
   ) {
     stats.ssrRequestThroughputTests = {
-      opsPerSec: legacyStats.ssrOpsPerSec,
-      avgLatencyMs: legacyStats.ssrAvgLatencyMs,
-      medianLatencyMs: legacyStats.ssrMedianLatencyMs,
-      samples: legacyStats.ssrSamples,
-      bodySizeKb: legacyStats.ssrBodySizeKb,
-      duplicationFactor: legacyStats.ssrDuplicationFactor,
+      opsPerSec: { value: legacyStats.ssrOpsPerSec, unit: 'ops/s' },
+      avgLatencyMs: { value: legacyStats.ssrAvgLatencyMs, unit: 'ms' },
+      medianLatencyMs: { value: legacyStats.ssrMedianLatencyMs, unit: 'ms' },
+      samples: { value: legacyStats.ssrSamples, unit: 'requests' },
+      bodySizeKb: { value: legacyStats.ssrBodySizeKb, unit: 'KiB' },
+      duplicationFactor: {
+        value: legacyStats.ssrDuplicationFactor,
+        unit: 'ratio',
+      },
     }
   }
 
@@ -259,9 +289,12 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.clientSideRenderedRuns === 'number'
   ) {
     stats.clientSideRenderedTests = {
-      firstPaintMs: legacyStats.clientSideRenderedFirstPaintMs,
-      fcpMs: legacyStats.clientSideRenderedFCPMs,
-      inpMs: legacyStats.clientSideRenderedINPMs,
+      firstPaintMs: {
+        value: legacyStats.clientSideRenderedFirstPaintMs,
+        unit: 'ms',
+      },
+      fcpMs: { value: legacyStats.clientSideRenderedFCPMs, unit: 'ms' },
+      inpMs: { value: legacyStats.clientSideRenderedINPMs, unit: 'ms' },
       runs: legacyStats.clientSideRenderedRuns,
     }
   }
@@ -292,9 +325,9 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
     typeof legacyStats.mpaRuns === 'number'
   ) {
     stats.serverSideRenderedTests = {
-      firstPaintMs: legacyStats.mpaFirstPaintMs,
-      fcpMs: legacyStats.mpaFCPMs,
-      inpMs: legacyStats.mpaINPMs,
+      firstPaintMs: { value: legacyStats.mpaFirstPaintMs, unit: 'ms' },
+      fcpMs: { value: legacyStats.mpaFCPMs, unit: 'ms' },
+      inpMs: { value: legacyStats.mpaINPMs, unit: 'ms' },
       runs: legacyStats.mpaRuns,
     }
   }
@@ -316,7 +349,10 @@ export function normalizeCIStats<T extends CIStats>(stats: T): T {
       baselineStatus: legacyStats.baselineStatus,
       baselineYear: legacyStats.baselineYear,
       baselineReason: legacyStats.baselineReason,
-      baselineFeatureCount: legacyStats.baselineFeatureCount,
+      baselineFeatureCount: {
+        value: legacyStats.baselineFeatureCount,
+        unit: 'count',
+      },
     }
   }
 

@@ -6,7 +6,9 @@ export function createBuildStats(cold: number[], warm: number[]) {
     return {
       name,
       runs: samples.length,
-      iterations: samples.map((timeMs) => ({ timeMs })),
+      iterations: samples.map((timeMs) => ({
+        timeMs: { value: timeMs, unit: 'ms' },
+      })),
       timeMs: summarizeMetric(samples),
     }
   }

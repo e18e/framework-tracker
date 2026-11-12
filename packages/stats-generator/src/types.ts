@@ -1,6 +1,7 @@
 import type { z } from 'zod'
 import type {
   SSRRequestThroughputStatsSchema,
+  FrameworkResult,
   BuildStatsSchema,
   DependencyCountsSchema,
   DependencyScanSchema,
@@ -29,20 +30,10 @@ export interface InteractionTiming {
   presentationDelayMs: number
 }
 
-interface InteractionTestStats extends InteractionTiming {
-  scenario: 'first-row-detail-navigation'
-  source: 'lighthouse-inp-breakdown'
-}
-
 export interface RenderedTestSample {
   firstPaintMs: number
   fcpMs: number
   interactionTests: InteractionTiming
-}
-
-interface RenderedTestStandardDeviation extends InteractionTiming {
-  firstPaintMs: number
-  fcpMs: number
 }
 
 export interface CIStats {
@@ -58,7 +49,7 @@ export interface CIStats {
   coldBuildTime?: z.infer<typeof BuildStatsSchema>['coldBuildTime'] | TimeStat
   warmBuildTime?: z.infer<typeof BuildStatsSchema>['warmBuildTime'] | TimeStat
   devServerStartTime?: DevServerStats['devServerStartTime'] | TimeStat
-  testTimeMs?: number
+  testTimeMs?: FrameworkResult['testTimeMs']
   // Direct SSR request throughput stats
   ssrRequestThroughputTests?: z.infer<
     typeof SSRRequestThroughputStatsSchema
@@ -69,21 +60,13 @@ export interface CIStats {
   // Client-side rendered stats (browser paint + interaction timings)
   clientSideRenderedTests?:
     | z.infer<typeof ClientRenderingBenchmarkSchema>
-    | {
-        firstPaintMs: number
-        fcpMs: number
-        inpMs?: number
-        interactionTests?: InteractionTestStats
-        runs: number
-        standardDeviation?: RenderedTestStandardDeviation
-        samples?: RenderedTestSample[]
-      }
+    | z.infer<typeof LegacyRenderedTestsSchema>
   // Server-side rendered route stats (browser paint + interaction timings)
   serverSideRenderedTests?:
     | z.infer<typeof ServerRenderingBenchmarkSchema>
     | z.infer<typeof LegacyRenderedTestsSchema>
   // Core-js vendored polyfill stats
-  vendoredCoreJsSize?: number
+  vendoredCoreJsSize?: FrameworkResult['vendoredCoreJsSize']
   vendoredCoreJsUnnecessaryModules?: string[]
   // Browser baseline stats
   browserBaselineTests?: BrowserBaselineStats
@@ -98,13 +81,13 @@ export interface CIStats {
   > &
     Partial<z.infer<typeof NodeEnginesStatsSchema>>
   dependencyScan?: z.infer<typeof DependencyScanSchema>
-  prodDependencies?: number
-  devDependencies?: number
-  allDependencies?: number
+  prodDependencies?: FrameworkResult['prodDependencies']
+  devDependencies?: FrameworkResult['devDependencies']
+  allDependencies?: FrameworkResult['allDependencies']
   frameworkDependencies?: DependencyStats
   firstPartyDependencies?: FirstPartyDependencyStats
-  duplicateDependencies?: number
-  depInstallSize?: number
+  duplicateDependencies?: FrameworkResult['duplicateDependencies']
+  depInstallSize?: FrameworkResult['depInstallSize']
   // Snapshot of the package.json dependencies at measurement time
   packageJson?: {
     dependencies?: Record<string, string>

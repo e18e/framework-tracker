@@ -10,12 +10,12 @@ test('combining projects preserves their independent measurements and metadata',
   const starter = {
     frameworkVersion: '1.0.0',
     runner: 'starter-runner',
-    prodDependencies: 3,
+    prodDependencies: { value: 3, unit: 'count' },
   }
   const app = {
     frameworkVersion: '2.0.0',
     runner: 'app-runner',
-    testTimeMs: 20,
+    testTimeMs: { value: 20, unit: 'ms' },
   }
   const first = mergeProjectResult(null, 'starter-astro', starter)
   const combined = mergeProjectResult(first, 'app-astro', app)
@@ -25,7 +25,7 @@ test('combining projects preserves their independent measurements and metadata',
   assert.equal(combined.tests.testTimeMs?.project, 'app')
   const updated = mergeProjectResult(combined, 'starter-astro', {
     ...starter,
-    prodDependencies: 4,
+    prodDependencies: { value: 4, unit: 'count' },
   })
   assert.deepEqual(projectResult(updated, 'app'), app)
   assert.deepEqual(projectResult(first, 'starter'), starter)
@@ -33,11 +33,18 @@ test('combining projects preserves their independent measurements and metadata',
 
 test('combining results rejects invalid measurements and name collisions', () => {
   assert.throws(() =>
-    mergeProjectResult(null, 'starter-astro', { prodDependencies: -1 }),
+    mergeProjectResult(null, 'starter-astro', {
+      prodDependencies: { value: -1, unit: 'count' },
+    }),
   )
-  const existing = mergeProjectResult(null, 'starter-astro', { testTimeMs: 1 })
+  const existing = mergeProjectResult(null, 'starter-astro', {
+    testTimeMs: { value: 1, unit: 'ms' },
+  })
   assert.throws(
-    () => mergeProjectResult(existing, 'app-astro', { testTimeMs: 2 }),
+    () =>
+      mergeProjectResult(existing, 'app-astro', {
+        testTimeMs: { value: 2, unit: 'ms' },
+      }),
     /collision/,
   )
 })
@@ -59,7 +66,12 @@ test('stored tests always validate their result and require project metadata', (
   const orphan = CombinedResultSchema.safeParse({
     framework: 'astro',
     projects: {},
-    tests: { prodDependencies: { project: 'starter', result: 3 } },
+    tests: {
+      prodDependencies: {
+        project: 'starter',
+        result: { value: 3, unit: 'count' },
+      },
+    },
   })
   assert.equal(orphan.success, false)
   assert.ok(
@@ -71,7 +83,9 @@ test('stored tests always validate their result and require project metadata', (
     CombinedResultSchema.safeParse({
       framework: 'astro',
       projects: { starter: {} },
-      tests: { typo: { project: 'starter', result: 3 } },
+      tests: {
+        typo: { project: 'starter', result: { value: 3, unit: 'count' } },
+      },
     }).success,
     false,
   )

@@ -185,13 +185,7 @@
         "duplicationFactor": {
           "value": 1,
           "unit": "ratio"
-        },
-        "durationMs": 10000,
-        "warmupDurationMs": 250,
-        "minimumRequests": 64,
-        "warmupMinimumRequests": 16,
-        "source": "tinybench",
-        "path": "/ssr-throughput"
+        }
       }
     },
     "ssrLoad": {
@@ -1194,16 +1188,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000,
-          "recoveryMs": 5000,
-          "warmupAttempts": 3,
-          "stageDurationMs": 5000
-        },
         "representativeIterationIndex": 0,
-        "source": "autocannon",
-        "path": "/server-side-rendered",
         "totalRequests": {
           "value": 155774,
           "unit": "requests"
@@ -3054,6 +3039,25 @@
           }
         }
       }
+    }
+  },
+  "configuration": {
+    "ssrRequestThroughput": {
+      "runs": 5,
+      "durationMs": 10000,
+      "warmupDurationMs": 250,
+      "minimumRequests": 64,
+      "warmupMinimumRequests": 16,
+      "path": "/ssr-throughput"
+    },
+    "ssrLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "stageDurationMs": 5000,
+      "warmupDurationMs": 5000,
+      "warmupAttempts": 3,
+      "recoveryMs": 5000,
+      "path": "/server-side-rendered"
     }
   }
 }

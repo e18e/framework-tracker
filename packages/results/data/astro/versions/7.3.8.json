@@ -429,13 +429,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000
-        },
         "representativeIterationIndex": 0,
-        "source": "autocannon",
-        "path": "/server-side-rendered",
         "totalRequests": { "value": 139871, "unit": "requests" },
         "totalErrors": { "value": 0, "unit": "errors" },
         "stage1": {
@@ -1016,8 +1010,6 @@
           "max": 106.718
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 2.2932499999999996,
@@ -1111,8 +1103,6 @@
           "max": 65.869
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 0.94875,
@@ -1207,6 +1197,27 @@
     "warmBuildDuration": {
       "project": "starter",
       "result": { "value": 2117, "unit": "ms" }
+    }
+  },
+  "configuration": {
+    "install": { "runs": 5 },
+    "build": { "runs": 5 },
+    "devServer": { "runs": 5 },
+    "dependencies": null,
+    "browserBaseline": null,
+    "ssrLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "warmupDurationMs": 5000,
+      "path": "/server-side-rendered"
+    },
+    "clientSideRendered": {
+      "runs": 4,
+      "scenario": "first-row-detail-navigation"
+    },
+    "serverSideRendered": {
+      "runs": 4,
+      "scenario": "first-row-detail-navigation"
     }
   }
 }

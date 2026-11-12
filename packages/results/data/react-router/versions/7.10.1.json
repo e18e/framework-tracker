@@ -248,10 +248,7 @@
             }
           ]
         ],
-        "configuration": { "stageConnections": [1, 5, 10, 25, 50, 100, 200] },
         "representativeIterationIndex": 0,
-        "source": "autocannon",
-        "path": "/server-side-rendered",
         "totalRequests": { "value": 5661, "unit": "requests" },
         "totalErrors": { "value": 0, "unit": "errors" },
         "stage1": {
@@ -838,8 +835,6 @@
           "max": 177.839
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 14.028750000000002,
@@ -933,8 +928,6 @@
           "max": 146.726
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 20.84625,
@@ -1026,6 +1019,26 @@
     "warmBuildDuration": {
       "project": "starter",
       "result": { "value": 2746, "unit": "ms" }
+    }
+  },
+  "configuration": {
+    "install": { "runs": 5 },
+    "build": { "runs": 5 },
+    "devServer": { "runs": 5 },
+    "dependencies": null,
+    "browserBaseline": null,
+    "ssrRouterLinkLoad": {
+      "runs": 1,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "path": "/server-side-rendered"
+    },
+    "clientSideRendered": {
+      "runs": 4,
+      "scenario": "first-row-detail-navigation"
+    },
+    "serverSideRendered": {
+      "runs": 4,
+      "scenario": "first-row-detail-navigation"
     }
   }
 }

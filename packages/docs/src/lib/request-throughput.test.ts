@@ -19,27 +19,25 @@ const benchmark = {
   name: 'ssrRequestThroughput',
   runs: 3,
   iterations: [100, 100, 1000].map((opsPerSec, index) => ({
-    opsPerSec: metric(opsPerSec),
-    latencyMs: { ...metric(index === 2 ? 40 : 4), median: 2 },
-    samples: 3,
+    opsPerSec: { ...metric(opsPerSec), unit: 'ops/s' },
+    latencyMs: { ...metric(index === 2 ? 40 : 4), median: 2, unit: 'ms' },
+    samples: { value: 3, unit: 'requests' },
   })),
-  opsPerSec: { mean: 400, median: 100, min: 100, max: 1000 },
-  latencyMs: { mean: 16, median: 4, min: 4, max: 40 },
-  samples: 9,
-  bodySizeKb: 20.5,
-  duplicationFactor: 1.25,
+  opsPerSec: { mean: 400, median: 100, min: 100, max: 1000, unit: 'ops/s' },
+  latencyMs: { mean: 16, median: 4, min: 4, max: 40, unit: 'ms' },
+  samples: { value: 9, unit: 'requests' },
+  bodySizeKb: { value: 20.5, unit: 'KiB' },
+  duplicationFactor: { value: 1.25, unit: 'ratio' },
   durationMs: 10_000,
   warmupDurationMs: 250,
   minimumSamples: 64,
   warmupMinimumSamples: 16,
   source: 'tinybench',
   path: '/ssr-throughput',
-}
+} satisfies NonNullable<FrameworkResult['ssrRequestThroughputTests']>
 
 test('throughput charts use the median of run means, not the mean or request median', () => {
-  const normalized = formatThroughput(
-    benchmark as NonNullable<FrameworkResult['ssrRequestThroughputTests']>,
-  )
+  const normalized = formatThroughput(benchmark)
   assert.equal(normalized.opsPerSec, 100)
   assert.equal(normalized.latencyMs, 4)
   const records = [
@@ -65,13 +63,13 @@ test('throughput charts use the median of run means, not the mean or request med
 
 test('legacy mean latency remains distinct from the reported request median', () => {
   const legacy = {
-    opsPerSec: 100,
-    avgLatencyMs: 4,
-    medianLatencyMs: 2,
-    samples: 64,
-    bodySizeKb: 20,
-    duplicationFactor: 1,
-  }
+    opsPerSec: { value: 100, unit: 'ops/s' },
+    avgLatencyMs: { value: 4, unit: 'ms' },
+    medianLatencyMs: { value: 2, unit: 'ms' },
+    samples: { value: 64, unit: 'requests' },
+    bodySizeKb: { value: 20, unit: 'KiB' },
+    duplicationFactor: { value: 1, unit: 'ratio' },
+  } satisfies NonNullable<FrameworkResult['ssrRequestThroughputTests']>
   const normalized = formatThroughput(legacy)
   assert.equal(normalized.latencyMs, 4)
 })

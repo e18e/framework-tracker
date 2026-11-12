@@ -1,6 +1,10 @@
+import { getLoadPeakStage } from '@framework-performance/results/selection'
 import type { CombinedResult } from '@framework-performance/results/storage'
 import { frameworks } from '@framework-performance/results/frameworks'
-import type { FrameworkResult } from '@framework-performance/results'
+import type {
+  FrameworkResult,
+  InteractionTimingSchema,
+} from '@framework-performance/results'
 
 function formatTime(
   value: NonNullable<
@@ -13,7 +17,7 @@ function formatTime(
     medianMs: value.timeMs.median,
     minMs: value.timeMs.min,
     maxMs: value.timeMs.max,
-    samplesMs: value.iterations.map((run) => run.timeMs),
+    samplesMs: value.iterations.map((run) => run.timeMs.value),
   }
 }
 export function formatRendered(
@@ -22,13 +26,23 @@ export function formatRendered(
     | FrameworkResult['serverSideRenderedTests']
   >,
 ) {
-  if (!('name' in value)) return value
+  if (!('name' in value)) {
+    return {
+      ...value,
+      firstPaintMs: value.firstPaintMs.value,
+      fcpMs: value.fcpMs.value,
+      interactionTests: value.interactionTests && {
+        ...value.interactionTests,
+        ...interactionValues(value.interactionTests),
+      },
+    }
+  }
   // Per-phase medians do not add up to the median total, so the phases come
   // from the run whose total is the median.
   const medianRun = [...value.iterations].sort(
     (a, b) =>
-      a.interactionTests.interactionLatencyMs -
-      b.interactionTests.interactionLatencyMs,
+      a.interactionTests.interactionLatencyMs.value -
+      b.interactionTests.interactionLatencyMs.value,
   )[Math.floor(value.iterations.length / 2)]!
   return {
     ...value,
@@ -38,10 +52,21 @@ export function formatRendered(
     fcpMs: value.fcpMs.median,
     interactionTests: {
       ...value.interactionTests,
-      ...medianRun.interactionTests,
+      ...interactionValues(medianRun.interactionTests),
     },
   }
 }
+function interactionValues(
+  timings: ReturnType<typeof InteractionTimingSchema.parse>,
+) {
+  return {
+    interactionLatencyMs: timings.interactionLatencyMs.value,
+    inputDelayMs: timings.inputDelayMs.value,
+    processingDurationMs: timings.processingDurationMs.value,
+    presentationDelayMs: timings.presentationDelayMs.value,
+  }
+}
+
 export function formatThroughput(
   value: NonNullable<FrameworkResult['ssrRequestThroughputTests']>,
 ) {
@@ -52,17 +77,19 @@ export function formatThroughput(
       latencyMsRange: value.latencyMs,
       opsPerSec: value.opsPerSec.median,
       latencyMs: value.latencyMs.median,
+      latencyUnit: value.latencyMs.unit,
     }
-  return { ...value, latencyMs: value.avgLatencyMs }
+  return {
+    ...value,
+    opsPerSec: value.opsPerSec.value,
+    latencyMs: value.avgLatencyMs.value,
+    latencyUnit: value.avgLatencyMs.unit,
+  }
 }
 function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
   const representativeSweep =
     value.iterations[value.representativeIterationIndex]!
-  const representativePeak = representativeSweep
-    .filter((stage) => stage.errors === 0)
-    .reduce((best, stage) =>
-      stage.requestsPerSec > best.requestsPerSec ? stage : best,
-    )
+  const representativePeak = getLoadPeakStage(representativeSweep)
   return {
     ...value,
     representativeSweep,

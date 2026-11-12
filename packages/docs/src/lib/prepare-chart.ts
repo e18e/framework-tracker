@@ -136,8 +136,8 @@ export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
     return [
       {
         name: framework.name,
-        requests: resources.total.requestCount,
-        total: resources.total.transferSize / 1024,
+        requests: resources.total.requestCount.value,
+        total: resources.total.transferSize.value / 1024,
         values: prepareInitialLoadResources(resources),
       },
     ]
@@ -155,12 +155,12 @@ const dependencySeries = [
 export function prepareDependencyStackedChart(source?: DependencySource) {
   const data = starterStats.flatMap((framework) => {
     const dependencies = source ? framework[source] : framework
-    const prod = dependencies?.prodDependencies
-    const dev = dependencies?.devDependencies
+    const prod = dependencies?.prodDependencies?.value
+    const dev = dependencies?.devDependencies?.value
     if (
-      typeof prod !== 'number' ||
+      prod == null ||
       !Number.isFinite(prod) ||
-      typeof dev !== 'number' ||
+      dev == null ||
       !Number.isFinite(dev)
     )
       return []
@@ -175,8 +175,8 @@ export function prepareDependencyHistoryChart(
 ): Omit<StackedAreaChartPayload, 'title'> {
   const data = versions.flatMap((version) => {
     const counts = source ? version[source] : version
-    const prod = counts?.prodDependencies
-    const dev = counts?.devDependencies
+    const prod = counts?.prodDependencies?.value
+    const dev = counts?.devDependencies?.value
     if (
       prod == null ||
       dev == null ||
@@ -188,7 +188,7 @@ export function prepareDependencyHistoryChart(
       {
         name: version.frameworkVersion ?? 'Unknown',
         values: { prod, dev },
-        total: counts?.allDependencies ?? null,
+        total: counts?.allDependencies?.value ?? null,
       },
     ]
   })

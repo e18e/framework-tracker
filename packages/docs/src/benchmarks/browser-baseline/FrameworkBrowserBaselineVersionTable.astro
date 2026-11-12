@@ -3,13 +3,16 @@ import {
   formatBaselineReason,
   formatBaselineStatus,
 } from '../../lib/prepare-table'
+import type { FrameworkResult } from '@framework-performance/results'
 import StatsTable, { type TableColumn } from '../../components/StatsTable.astro'
 
 interface BrowserBaselineTests {
   baselineStatus?: 'high' | 'low' | false | null
   baselineYear?: number | null
   baselineReason?: string | string[] | null
-  baselineFeatureCount?: number
+  baselineFeatureCount?: NonNullable<
+    FrameworkResult['browserBaselineTests']
+  >['baselineFeatureCount']
 }
 
 interface VersionStats {
@@ -35,7 +38,7 @@ const data = versions.flatMap((version) => {
   const baseline = version.browserBaselineTests
   if (baseline == null) return []
 
-  const featureCount = baseline.baselineFeatureCount
+  const featureCount = baseline.baselineFeatureCount?.value
 
   return {
     version: version.frameworkVersion ?? 'Unknown',

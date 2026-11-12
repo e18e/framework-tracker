@@ -12,7 +12,7 @@ The Framework Performance project has a few different areas which you can contri
 
 - **UI/UX Improvements**: Help us improve the documentation site by suggesting design improvements, fixing bugs, or adding new features.
 
-- **Adding New Frameworks**: Help us expand our list of tracked frameworks by adding new ones. See the [Adding a New Framework](./CONTRIBUTING.md#adding-a-new-framework) section below for details, as each new framework adds significant maintenance burden. PRs that add a new meta-framework without following the linked instructions will be rejected, as it takes a lot of time to ensure it meets the standards of our benchmarking suite. 
+- **Adding New Frameworks**: Help us expand our list of tracked frameworks by adding new ones. See the [Adding a New Framework](./CONTRIBUTING.md#adding-a-new-framework) section below for details, as each new framework adds significant maintenance burden. PRs that add a new meta-framework without following the linked instructions will be rejected, as it takes a lot of time to ensure it meets the standards of our benchmarking suite.
 
 ### Project Structure
 

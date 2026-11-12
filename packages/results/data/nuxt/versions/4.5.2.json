@@ -2,6 +2,8 @@
   "framework": "nuxt",
   "projects": {
     "starter": {
+      "framework": "nuxt",
+      "packagePath": "packages/starter-nuxt",
       "timingMeasuredAt": "2026-10-04T04:21:33.714Z",
       "runner": "Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)",
       "frameworkVersion": "4.5.2",
@@ -16,13 +18,12 @@
           "@types/node": "26.1.2",
           "vue-tsc": "3.3.9"
         }
-      },
-      "framework": "nuxt",
-      "packagePath": "packages/starter-nuxt"
+      }
     },
     "app": {
       "timingMeasuredAt": "2026-10-04T04:21:33.714Z",
       "runner": "Depot depot-ubuntu-24.04 GitHub Actions runner (2 CPUs, 8 GB RAM, 100 GB disk, 2 GB disk accelerator)",
+      "browserVersion": "Google Chrome 153.0.8010.47",
       "frameworkVersion": "4.5.2",
       "releasedAt": "2026-08-05T16:16:07.597Z",
       "packageJson": {
@@ -34,18 +35,59 @@
           "@types/node": "26.1.2",
           "vue-tsc": "3.3.9"
         }
-      },
-      "browserVersion": "Google Chrome 153.0.8010.47"
+      }
     }
   },
   "tests": {
-    "coldBuildTimeMs": {
+    "install": {
       "project": "starter",
-      "result": 6962
-    },
-    "warmBuildTimeMs": {
-      "project": "starter",
-      "result": 6545
+      "result": {
+        "name": "install",
+        "runs": 5,
+        "iterations": [
+          {
+            "installTimeMs": {
+              "value": 3245,
+              "unit": "ms"
+            }
+          },
+          {
+            "installTimeMs": {
+              "value": 6392,
+              "unit": "ms"
+            }
+          },
+          {
+            "installTimeMs": {
+              "value": 5784,
+              "unit": "ms"
+            }
+          },
+          {
+            "installTimeMs": {
+              "value": 5818,
+              "unit": "ms"
+            }
+          },
+          {
+            "installTimeMs": {
+              "value": 6004,
+              "unit": "ms"
+            }
+          }
+        ],
+        "installTimeMs": {
+          "unit": "ms",
+          "mean": 5448.6,
+          "median": 5818,
+          "min": 3245,
+          "max": 6392
+        },
+        "nodeModulesSizeBytes": {
+          "value": 254095360,
+          "unit": "bytes"
+        }
+      }
     },
     "coldBuildTime": {
       "project": "starter",
@@ -54,19 +96,34 @@
         "runs": 5,
         "iterations": [
           {
-            "timeMs": 3552
+            "timeMs": {
+              "value": 3552,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3440
+            "timeMs": {
+              "value": 3440,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3438
+            "timeMs": {
+              "value": 3438,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3410
+            "timeMs": {
+              "value": 3410,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3492
+            "timeMs": {
+              "value": 3492,
+              "unit": "ms"
+            }
           }
         ],
         "timeMs": {
@@ -85,19 +142,34 @@
         "runs": 5,
         "iterations": [
           {
-            "timeMs": 3266
+            "timeMs": {
+              "value": 3266,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3258
+            "timeMs": {
+              "value": 3258,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3261
+            "timeMs": {
+              "value": 3261,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3317
+            "timeMs": {
+              "value": 3317,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 3209
+            "timeMs": {
+              "value": 3209,
+              "unit": "ms"
+            }
           }
         ],
         "timeMs": {
@@ -109,59 +181,6 @@
         }
       }
     },
-    "prodDependencies": {
-      "project": "starter",
-      "result": 3
-    },
-    "devDependencies": {
-      "project": "starter",
-      "result": 2
-    },
-    "allDependencies": {
-      "project": "starter",
-      "result": 707
-    },
-    "duplicateDependencies": {
-      "project": "starter",
-      "result": 85
-    },
-    "depInstallSize": {
-      "project": "starter",
-      "result": 215742799
-    },
-    "vendoredCoreJsSize": {
-      "project": "starter",
-      "result": 0
-    },
-    "vendoredCoreJsUnnecessaryModules": {
-      "project": "starter",
-      "result": []
-    },
-    "browserBaselineTests": {
-      "project": "starter",
-      "result": {
-        "baselineStatus": "high",
-        "baselineYear": 2023,
-        "baselineReason": null,
-        "baselineFeatureCount": 43
-      }
-    },
-    "frameworkDependencies": {
-      "project": "starter",
-      "result": {
-        "prodDependencies": 59,
-        "devDependencies": 14,
-        "allDependencies": 73
-      }
-    },
-    "minimumNodeVersion": {
-      "project": "starter",
-      "result": "22.20.0"
-    },
-    "minimumNodeVersionImposedBy": {
-      "project": "starter",
-      "result": ["@napi-rs/lzma-linux-x64-gnu"]
-    },
     "devServerStartTime": {
       "project": "starter",
       "result": {
@@ -169,19 +188,34 @@
         "runs": 5,
         "iterations": [
           {
-            "timeMs": 2477
+            "timeMs": {
+              "value": 2477,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 2434
+            "timeMs": {
+              "value": 2434,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 2478
+            "timeMs": {
+              "value": 2478,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 2447
+            "timeMs": {
+              "value": 2447,
+              "unit": "ms"
+            }
           },
           {
-            "timeMs": 2425
+            "timeMs": {
+              "value": 2425,
+              "unit": "ms"
+            }
           }
         ],
         "timeMs": {
@@ -193,233 +227,1538 @@
         }
       }
     },
-    "firstPartyDependencies": {
-      "project": "starter",
-      "result": {
-        "prodDependencies": 1,
-        "devDependencies": 0,
-        "allDependencies": 707,
-        "duplicateDependencies": 85
-      }
-    },
-    "install": {
-      "project": "starter",
-      "result": {
-        "name": "install",
-        "runs": 5,
-        "iterations": [
-          {
-            "installTimeMs": 3245
-          },
-          {
-            "installTimeMs": 6392
-          },
-          {
-            "installTimeMs": 5784
-          },
-          {
-            "installTimeMs": 5818
-          },
-          {
-            "installTimeMs": 6004
-          }
-        ],
-        "installTimeMs": {
-          "unit": "ms",
-          "mean": 5448.6,
-          "median": 5818,
-          "min": 3245,
-          "max": 6392
-        },
-        "nodeModulesSizeBytes": 254095360
-      }
-    },
-    "clientSideRenderedTests": {
+    "ssrLoadTests": {
       "project": "app",
       "result": {
-        "name": "clientSideRendered",
-        "runs": 4,
+        "name": "ssrLoad",
+        "runs": 3,
         "iterations": [
-          {
-            "firstPaintMs": 163,
-            "fcpMs": 162.774,
-            "interactionTests": {
-              "interactionLatencyMs": 9.924000000000001,
-              "inputDelayMs": 0.408,
-              "processingDurationMs": 1.338,
-              "presentationDelayMs": 8.178
+          [
+            {
+              "workers": 1,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 1490,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 298,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 3.09,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 5,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 7,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 88388403.2,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 5,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2350,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 470,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 10.05,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 9,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 11,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 12,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 15,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 27,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 139447500.81,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 10,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2390,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 478,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 20.42,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 20,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 21,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 22,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 37,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 62,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 141806796.81,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 25,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2334,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 466.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 52.61,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 51,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 52,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 55,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 84,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 360,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 138471014.4,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 50,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2146,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 429.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 113.87,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 111,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 122,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 126,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 141,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 343,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 127316787.2,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 100,
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2255,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 451,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 203.8,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 143,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 180,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 196,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 2981,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4959,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 133772083.2,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 200,
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2208,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 441.6,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 205.76,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 144,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 180,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 208,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 2941,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4973,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 130973696,
+                "unit": "bytes/s"
+              }
             }
-          },
-          {
-            "firstPaintMs": 159,
-            "fcpMs": 158.791,
-            "interactionTests": {
-              "interactionLatencyMs": 7.0920000000000005,
-              "inputDelayMs": 0.364,
-              "processingDurationMs": 1.248,
-              "presentationDelayMs": 5.48
+          ],
+          [
+            {
+              "workers": 1,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 1516,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 303.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 3.11,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 5,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 9,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 89935052.8,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 5,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2405,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 481,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 9.83,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 9,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 11,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 12,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 16,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 25,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 142671872,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 10,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2489,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 497.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 19.58,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 19,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 21,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 21,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 32,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 59,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 147652608,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 25,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2480,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 496,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 49.6,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 48,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 49,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 51,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 72,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 345,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 147128320,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 50,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2366,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 473.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 103.86,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 101,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 105,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 121,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 418,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 1303,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 140365004.81,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 100,
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2254,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 450.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 203.73,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 142,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 171,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 204,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 2950,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4957,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 133706547.2,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 200,
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2350,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 470,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 199.76,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 139,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 175,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 192,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 2911,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4965,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 139414732.81,
+                "unit": "bytes/s"
+              }
             }
-          },
-          {
-            "firstPaintMs": 172,
-            "fcpMs": 172.458,
-            "interactionTests": {
-              "interactionLatencyMs": 13.515,
-              "inputDelayMs": 0.377,
-              "processingDurationMs": 1.433,
-              "presentationDelayMs": 11.705
+          ],
+          [
+            {
+              "workers": 1,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 1557,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 311.4,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 3.1,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 3,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 5,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 8,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 92372992,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 5,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2416,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 483.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 9.86,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 9,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 11,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 12,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 18,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 23,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 143327232,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 10,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2458,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 491.6,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 19.77,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 19,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 21,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 21,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 33,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 57,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 145817600,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 25,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2409,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 481.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 51.15,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 50,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 51,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 53,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 75,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 334,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 142907801.6,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 50,
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2399,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 479.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 102.75,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 99,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 104,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 112,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 422,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 1361,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 142331084.81,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 100,
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2401,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 480.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 198.04,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 142,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 175,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 193,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 2848,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4975,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 142429388.81,
+                "unit": "bytes/s"
+              }
+            },
+            {
+              "workers": 200,
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 2399,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 479.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 196.51,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 140,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 169,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 184,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 2934,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4936,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 142324531.2,
+                "unit": "bytes/s"
+              }
             }
-          },
-          {
-            "firstPaintMs": 164,
-            "fcpMs": 164.239,
-            "interactionTests": {
-              "interactionLatencyMs": 9.253,
-              "inputDelayMs": 0.49,
-              "processingDurationMs": 4.232,
-              "presentationDelayMs": 4.531
-            }
-          }
+          ]
         ],
-        "firstPaintMs": {
-          "unit": "ms",
-          "mean": 164.5,
-          "median": 163.5,
-          "min": 159,
-          "max": 172
+        "configuration": {
+          "workerStages": [
+            1,
+            5,
+            10,
+            25,
+            50,
+            100,
+            200
+          ],
+          "warmupDurationMs": 5000
         },
-        "fcpMs": {
-          "unit": "ms",
-          "mean": 164.56550000000001,
-          "median": 163.50650000000002,
-          "min": 158.791,
-          "max": 172.458
+        "representativeIterationIndex": 2,
+        "source": "autocannon",
+        "path": "/server-side-rendered-plain-links",
+        "totalRequests": {
+          "value": 47072,
+          "unit": "requests"
         },
-        "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
-          "interactionLatencyMs": {
-            "unit": "ms",
-            "mean": 9.946000000000002,
-            "median": 9.5885,
-            "min": 7.0920000000000005,
-            "max": 13.515
+        "totalErrors": {
+          "value": 0,
+          "unit": "errors"
+        },
+        "stage1": {
+          "connections": 1,
+          "requests": {
+            "unit": "requests",
+            "mean": 1521,
+            "median": 1516,
+            "min": 1490,
+            "max": 1557
           },
-          "inputDelayMs": {
-            "unit": "ms",
-            "mean": 0.40975,
-            "median": 0.39249999999999996,
-            "min": 0.364,
-            "max": 0.49
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
           },
-          "processingDurationMs": {
-            "unit": "ms",
-            "mean": 2.0627500000000003,
-            "median": 1.3855,
-            "min": 1.248,
-            "max": 4.232
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 304.2,
+            "median": 303.2,
+            "min": 298,
+            "max": 311.4
           },
-          "presentationDelayMs": {
+          "avgLatencyMs": {
             "unit": "ms",
-            "mean": 7.4735,
-            "median": 6.829000000000001,
-            "min": 4.531,
-            "max": 11.705
+            "mean": 3.0999999999999996,
+            "median": 3.1,
+            "min": 3.09,
+            "max": 3.11
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 3,
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 3,
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 3,
+            "median": 3,
+            "min": 3,
+            "max": 3
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 5,
+            "median": 5,
+            "min": 5,
+            "max": 5
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 8,
+            "median": 8,
+            "min": 7,
+            "max": 9
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 90232149.33333333,
+            "median": 89935052.8,
+            "min": 88388403.2,
+            "max": 92372992
           }
-        }
-      }
-    },
-    "serverSideRenderedTests": {
-      "project": "app",
-      "result": {
-        "name": "serverSideRendered",
-        "runs": 4,
-        "iterations": [
-          {
-            "firstPaintMs": 131,
-            "fcpMs": 130.648,
-            "interactionTests": {
-              "interactionLatencyMs": 12.529,
-              "inputDelayMs": 0.52,
-              "processingDurationMs": 1.41,
-              "presentationDelayMs": 10.599
-            }
+        },
+        "stage2": {
+          "connections": 5,
+          "requests": {
+            "unit": "requests",
+            "mean": 2390.3333333333335,
+            "median": 2405,
+            "min": 2350,
+            "max": 2416
           },
-          {
-            "firstPaintMs": 108,
-            "fcpMs": 107.684,
-            "interactionTests": {
-              "interactionLatencyMs": 13.643,
-              "inputDelayMs": 0.607,
-              "processingDurationMs": 1.287,
-              "presentationDelayMs": 11.749
-            }
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
           },
-          {
-            "firstPaintMs": 95,
-            "fcpMs": 94.564,
-            "interactionTests": {
-              "interactionLatencyMs": 12.65,
-              "inputDelayMs": 0.447,
-              "processingDurationMs": 1.338,
-              "presentationDelayMs": 10.865
-            }
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 478.06666666666666,
+            "median": 481,
+            "min": 470,
+            "max": 483.2
           },
-          {
-            "firstPaintMs": 116,
-            "fcpMs": 116.316,
-            "interactionTests": {
-              "interactionLatencyMs": 11.882000000000001,
-              "inputDelayMs": 0.525,
-              "processingDurationMs": 1.438,
-              "presentationDelayMs": 9.919
-            }
+          "avgLatencyMs": {
+            "unit": "ms",
+            "mean": 9.913333333333334,
+            "median": 9.86,
+            "min": 9.83,
+            "max": 10.05
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 9,
+            "median": 9,
+            "min": 9,
+            "max": 9
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 11,
+            "median": 11,
+            "min": 11,
+            "max": 11
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 12,
+            "median": 12,
+            "min": 12,
+            "max": 12
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 16.333333333333332,
+            "median": 16,
+            "min": 15,
+            "max": 18
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 25,
+            "median": 25,
+            "min": 23,
+            "max": 27
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 141815534.93666667,
+            "median": 142671872,
+            "min": 139447500.81,
+            "max": 143327232
           }
-        ],
-        "firstPaintMs": {
-          "unit": "ms",
-          "mean": 112.5,
-          "median": 112,
-          "min": 95,
-          "max": 131
         },
-        "fcpMs": {
-          "unit": "ms",
-          "mean": 112.303,
-          "median": 112,
-          "min": 94.564,
-          "max": 130.648
+        "stage3": {
+          "connections": 10,
+          "requests": {
+            "unit": "requests",
+            "mean": 2445.6666666666665,
+            "median": 2458,
+            "min": 2390,
+            "max": 2489
+          },
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 489.1333333333334,
+            "median": 491.6,
+            "min": 478,
+            "max": 497.8
+          },
+          "avgLatencyMs": {
+            "unit": "ms",
+            "mean": 19.923333333333332,
+            "median": 19.77,
+            "min": 19.58,
+            "max": 20.42
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 19.333333333333332,
+            "median": 19,
+            "min": 19,
+            "max": 20
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 21,
+            "median": 21,
+            "min": 21,
+            "max": 21
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 21.333333333333332,
+            "median": 21,
+            "min": 21,
+            "max": 22
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 34,
+            "median": 33,
+            "min": 32,
+            "max": 37
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 59.333333333333336,
+            "median": 59,
+            "min": 57,
+            "max": 62
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 145092334.93666667,
+            "median": 145817600,
+            "min": 141806796.81,
+            "max": 147652608
+          }
         },
-        "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
-          "interactionLatencyMs": {
-            "unit": "ms",
-            "mean": 12.676000000000002,
-            "median": 12.589500000000001,
-            "min": 11.882000000000001,
-            "max": 13.643
+        "stage4": {
+          "connections": 25,
+          "requests": {
+            "unit": "requests",
+            "mean": 2407.6666666666665,
+            "median": 2409,
+            "min": 2334,
+            "max": 2480
           },
-          "inputDelayMs": {
-            "unit": "ms",
-            "mean": 0.52475,
-            "median": 0.5225,
-            "min": 0.447,
-            "max": 0.607
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
           },
-          "processingDurationMs": {
-            "unit": "ms",
-            "mean": 1.36825,
-            "median": 1.374,
-            "min": 1.287,
-            "max": 1.438
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 481.5333333333333,
+            "median": 481.8,
+            "min": 466.8,
+            "max": 496
           },
-          "presentationDelayMs": {
+          "avgLatencyMs": {
             "unit": "ms",
-            "mean": 10.783000000000001,
-            "median": 10.732,
-            "min": 9.919,
-            "max": 11.749
+            "mean": 51.120000000000005,
+            "median": 51.15,
+            "min": 49.6,
+            "max": 52.61
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 49.666666666666664,
+            "median": 50,
+            "min": 48,
+            "max": 51
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 50.666666666666664,
+            "median": 51,
+            "min": 49,
+            "max": 52
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 53,
+            "median": 53,
+            "min": 51,
+            "max": 55
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 77,
+            "median": 75,
+            "min": 72,
+            "max": 84
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 346.3333333333333,
+            "median": 345,
+            "min": 334,
+            "max": 360
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 142835712,
+            "median": 142907801.6,
+            "min": 138471014.4,
+            "max": 147128320
+          }
+        },
+        "stage5": {
+          "connections": 50,
+          "requests": {
+            "unit": "requests",
+            "mean": 2303.6666666666665,
+            "median": 2366,
+            "min": 2146,
+            "max": 2399
+          },
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 460.73333333333335,
+            "median": 473.2,
+            "min": 429.2,
+            "max": 479.8
+          },
+          "avgLatencyMs": {
+            "unit": "ms",
+            "mean": 106.82666666666667,
+            "median": 103.86,
+            "min": 102.75,
+            "max": 113.87
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 103.66666666666667,
+            "median": 101,
+            "min": 99,
+            "max": 111
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 110.33333333333333,
+            "median": 105,
+            "min": 104,
+            "max": 122
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 119.66666666666667,
+            "median": 121,
+            "min": 112,
+            "max": 126
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 327,
+            "median": 418,
+            "min": 141,
+            "max": 422
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 1002.3333333333334,
+            "median": 1303,
+            "min": 343,
+            "max": 1361
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 136670958.94,
+            "median": 140365004.81,
+            "min": 127316787.2,
+            "max": 142331084.81
+          }
+        },
+        "stage6": {
+          "connections": 100,
+          "requests": {
+            "unit": "requests",
+            "mean": 2303.3333333333335,
+            "median": 2255,
+            "min": 2254,
+            "max": 2401
+          },
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 460.6666666666667,
+            "median": 451,
+            "min": 450.8,
+            "max": 480.2
+          },
+          "avgLatencyMs": {
+            "unit": "ms",
+            "mean": 201.85666666666665,
+            "median": 203.73,
+            "min": 198.04,
+            "max": 203.8
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 142.33333333333334,
+            "median": 142,
+            "min": 142,
+            "max": 143
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 175.33333333333334,
+            "median": 175,
+            "min": 171,
+            "max": 180
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 197.66666666666666,
+            "median": 196,
+            "min": 193,
+            "max": 204
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 2926.3333333333335,
+            "median": 2950,
+            "min": 2848,
+            "max": 2981
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 4963.666666666667,
+            "median": 4959,
+            "min": 4957,
+            "max": 4975
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 136636006.40333334,
+            "median": 133772083.2,
+            "min": 133706547.2,
+            "max": 142429388.81
+          }
+        },
+        "stage7": {
+          "connections": 200,
+          "requests": {
+            "unit": "requests",
+            "mean": 2319,
+            "median": 2350,
+            "min": 2208,
+            "max": 2399
+          },
+          "errors": {
+            "unit": "errors",
+            "mean": 0,
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "requestsPerSec": {
+            "unit": "requests/s",
+            "mean": 463.8,
+            "median": 470,
+            "min": 441.6,
+            "max": 479.8
+          },
+          "avgLatencyMs": {
+            "unit": "ms",
+            "mean": 200.67666666666665,
+            "median": 199.76,
+            "min": 196.51,
+            "max": 205.76
+          },
+          "p50LatencyMs": {
+            "unit": "ms",
+            "mean": 141,
+            "median": 140,
+            "min": 139,
+            "max": 144
+          },
+          "p75LatencyMs": {
+            "unit": "ms",
+            "mean": 174.66666666666666,
+            "median": 175,
+            "min": 169,
+            "max": 180
+          },
+          "p90LatencyMs": {
+            "unit": "ms",
+            "mean": 194.66666666666666,
+            "median": 192,
+            "min": 184,
+            "max": 208
+          },
+          "p99LatencyMs": {
+            "unit": "ms",
+            "mean": 2928.6666666666665,
+            "median": 2934,
+            "min": 2911,
+            "max": 2941
+          },
+          "maxLatencyMs": {
+            "unit": "ms",
+            "mean": 4958,
+            "median": 4965,
+            "min": 4936,
+            "max": 4973
+          },
+          "bytesPerSec": {
+            "unit": "bytes/s",
+            "mean": 137570986.67,
+            "median": 139414732.81,
+            "min": 130973696,
+            "max": 142324531.2
           }
         }
       }
@@ -433,313 +1772,1020 @@
           [
             {
               "workers": 1,
-              "requests": 346,
-              "errors": 0,
-              "requestsPerSec": 69.2,
-              "avgLatencyMs": 13.9,
-              "p50LatencyMs": 11,
-              "p75LatencyMs": 17,
-              "p90LatencyMs": 18,
-              "p99LatencyMs": 33,
-              "maxLatencyMs": 39,
-              "bytesPerSec": 21150105.61,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 346,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 69.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 13.9,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 11,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 17,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 18,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 33,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 39,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21150105.61,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 5,
-              "requests": 368,
-              "errors": 0,
-              "requestsPerSec": 73.6,
-              "avgLatencyMs": 67.01,
-              "p50LatencyMs": 64,
-              "p75LatencyMs": 65,
-              "p90LatencyMs": 77,
-              "p99LatencyMs": 117,
-              "maxLatencyMs": 117,
-              "bytesPerSec": 22490316.8,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 368,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 73.6,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 67.01,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 64,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 65,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 77,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 117,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 117,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 22490316.8,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 10,
-              "requests": 370,
-              "errors": 0,
-              "requestsPerSec": 74,
-              "avgLatencyMs": 133.82,
-              "p50LatencyMs": 129,
-              "p75LatencyMs": 145,
-              "p90LatencyMs": 148,
-              "p99LatencyMs": 234,
-              "maxLatencyMs": 473,
-              "bytesPerSec": 22614835.2,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 370,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 74,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 133.82,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 129,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 145,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 148,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 234,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 473,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 22614835.2,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 25,
-              "requests": 355,
-              "errors": 0,
-              "requestsPerSec": 71,
-              "avgLatencyMs": 340.66,
-              "p50LatencyMs": 337,
-              "p75LatencyMs": 340,
-              "p90LatencyMs": 341,
-              "p99LatencyMs": 1890,
-              "maxLatencyMs": 2386,
-              "bytesPerSec": 21697331.2,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 355,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 71,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 340.66,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 337,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 340,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 341,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 1890,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 2386,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21697331.2,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 50,
-              "requests": 342,
-              "errors": 0,
-              "requestsPerSec": 68.41,
-              "avgLatencyMs": 497.16,
-              "p50LatencyMs": 363,
-              "p75LatencyMs": 436,
-              "p90LatencyMs": 479,
-              "p99LatencyMs": 4142,
-              "maxLatencyMs": 4844,
-              "bytesPerSec": 20898611.2,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 342,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 68.41,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 497.16,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 363,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 436,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 479,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4142,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4844,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 20898611.2,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 100,
-              "requests": 324,
-              "errors": 0,
-              "requestsPerSec": 64.8,
-              "avgLatencyMs": 509.59,
-              "p50LatencyMs": 367,
-              "p75LatencyMs": 448,
-              "p90LatencyMs": 552,
-              "p99LatencyMs": 4150,
-              "maxLatencyMs": 4836,
-              "bytesPerSec": 19802521.61,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 324,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 64.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 509.59,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 367,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 448,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 552,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4150,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4836,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 19802521.61,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 200,
-              "requests": 284,
-              "errors": 0,
-              "requestsPerSec": 56.8,
-              "avgLatencyMs": 545.07,
-              "p50LatencyMs": 331,
-              "p75LatencyMs": 418,
-              "p90LatencyMs": 1189,
-              "p99LatencyMs": 4343,
-              "maxLatencyMs": 4769,
-              "bytesPerSec": 17357209.61,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 284,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 56.8,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 545.07,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 331,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 418,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 1189,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4343,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4769,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 17357209.61,
+                "unit": "bytes/s"
+              }
             }
           ],
           [
             {
               "workers": 1,
-              "requests": 348,
-              "errors": 0,
-              "requestsPerSec": 69.6,
-              "avgLatencyMs": 13.84,
-              "p50LatencyMs": 11,
-              "p75LatencyMs": 16,
-              "p90LatencyMs": 17,
-              "p99LatencyMs": 35,
-              "maxLatencyMs": 40,
-              "bytesPerSec": 21274624,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 348,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 69.6,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 13.84,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 11,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 16,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 17,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 35,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 40,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21274624,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 5,
-              "requests": 362,
-              "errors": 0,
-              "requestsPerSec": 72.41,
-              "avgLatencyMs": 67.37,
-              "p50LatencyMs": 65,
-              "p75LatencyMs": 66,
-              "p90LatencyMs": 69,
-              "p99LatencyMs": 116,
-              "maxLatencyMs": 121,
-              "bytesPerSec": 22120038.4,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 362,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 72.41,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 67.37,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 65,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 66,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 69,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 116,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 121,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 22120038.4,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 10,
-              "requests": 371,
-              "errors": 0,
-              "requestsPerSec": 74.2,
-              "avgLatencyMs": 132.37,
-              "p50LatencyMs": 128,
-              "p75LatencyMs": 143,
-              "p90LatencyMs": 147,
-              "p99LatencyMs": 186,
-              "maxLatencyMs": 371,
-              "bytesPerSec": 22677094.4,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 371,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 74.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 132.37,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 128,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 143,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 147,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 186,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 371,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 22677094.4,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 25,
-              "requests": 356,
-              "errors": 0,
-              "requestsPerSec": 71.2,
-              "avgLatencyMs": 338.42,
-              "p50LatencyMs": 334,
-              "p75LatencyMs": 337,
-              "p90LatencyMs": 339,
-              "p99LatencyMs": 1889,
-              "maxLatencyMs": 2397,
-              "bytesPerSec": 21756313.6,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 356,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 71.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 338.42,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 334,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 337,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 339,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 1889,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 2397,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21756313.6,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 50,
-              "requests": 342,
-              "errors": 0,
-              "requestsPerSec": 68.41,
-              "avgLatencyMs": 499.82,
-              "p50LatencyMs": 368,
-              "p75LatencyMs": 440,
-              "p90LatencyMs": 481,
-              "p99LatencyMs": 4165,
-              "maxLatencyMs": 4874,
-              "bytesPerSec": 20901068.8,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 342,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 68.41,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 499.82,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 368,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 440,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 481,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4165,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4874,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 20901068.8,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 100,
-              "requests": 323,
-              "errors": 0,
-              "requestsPerSec": 64.6,
-              "avgLatencyMs": 524.01,
-              "p50LatencyMs": 370,
-              "p75LatencyMs": 451,
-              "p90LatencyMs": 577,
-              "p99LatencyMs": 4258,
-              "maxLatencyMs": 4958,
-              "bytesPerSec": 19741900.8,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 323,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 64.6,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 524.01,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 370,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 451,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 577,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4258,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4958,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 19741900.8,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 200,
-              "requests": 256,
-              "errors": 0,
-              "requestsPerSec": 51.2,
-              "avgLatencyMs": 567.42,
-              "p50LatencyMs": 332,
-              "p75LatencyMs": 388,
-              "p90LatencyMs": 1419,
-              "p99LatencyMs": 4362,
-              "maxLatencyMs": 4780,
-              "bytesPerSec": 15642624,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 256,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 51.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 567.42,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 332,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 388,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 1419,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4362,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4780,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 15642624,
+                "unit": "bytes/s"
+              }
             }
           ],
           [
             {
               "workers": 1,
-              "requests": 345,
-              "errors": 0,
-              "requestsPerSec": 69,
-              "avgLatencyMs": 13.91,
-              "p50LatencyMs": 11,
-              "p75LatencyMs": 16,
-              "p90LatencyMs": 17,
-              "p99LatencyMs": 39,
-              "maxLatencyMs": 42,
-              "bytesPerSec": 21091123.2,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 345,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 69,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 13.91,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 11,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 16,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 17,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 39,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 42,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21091123.2,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 5,
-              "requests": 370,
-              "errors": 0,
-              "requestsPerSec": 74,
-              "avgLatencyMs": 66.36,
-              "p50LatencyMs": 63,
-              "p75LatencyMs": 64,
-              "p90LatencyMs": 67,
-              "p99LatencyMs": 120,
-              "maxLatencyMs": 121,
-              "bytesPerSec": 22611558.4,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 370,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 74,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 66.36,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 63,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 64,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 67,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 120,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 121,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 22611558.4,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 10,
-              "requests": 370,
-              "errors": 0,
-              "requestsPerSec": 74,
-              "avgLatencyMs": 133.41,
-              "p50LatencyMs": 126,
-              "p75LatencyMs": 131,
-              "p90LatencyMs": 161,
-              "p99LatencyMs": 233,
-              "maxLatencyMs": 421,
-              "bytesPerSec": 22614835.2,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 370,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 74,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 133.41,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 126,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 131,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 161,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 233,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 421,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 22614835.2,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 25,
-              "requests": 356,
-              "errors": 0,
-              "requestsPerSec": 71.2,
-              "avgLatencyMs": 336.34,
-              "p50LatencyMs": 330,
-              "p75LatencyMs": 336,
-              "p90LatencyMs": 338,
-              "p99LatencyMs": 1883,
-              "maxLatencyMs": 2388,
-              "bytesPerSec": 21756313.6,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 356,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 71.2,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 336.34,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 330,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 336,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 338,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 1883,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 2388,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21756313.6,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 50,
-              "requests": 350,
-              "errors": 0,
-              "requestsPerSec": 70,
-              "avgLatencyMs": 488.96,
-              "p50LatencyMs": 373,
-              "p75LatencyMs": 456,
-              "p90LatencyMs": 487,
-              "p99LatencyMs": 4050,
-              "maxLatencyMs": 4776,
-              "bytesPerSec": 21392588.8,
-              "elapsedTimeMs": 5000
+              "elapsedTimeMs": {
+                "value": 5000,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 350,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 70,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 488.96,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 373,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 456,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 487,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4050,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4776,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 21392588.8,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 100,
-              "requests": 323,
-              "errors": 0,
-              "requestsPerSec": 64.6,
-              "avgLatencyMs": 510.11,
-              "p50LatencyMs": 364,
-              "p75LatencyMs": 440,
-              "p90LatencyMs": 551,
-              "p99LatencyMs": 4128,
-              "maxLatencyMs": 4837,
-              "bytesPerSec": 19741900.8,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 323,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 64.6,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 510.11,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 364,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 440,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 551,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4128,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4837,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 19741900.8,
+                "unit": "bytes/s"
+              }
             },
             {
               "workers": 200,
-              "requests": 287,
-              "errors": 0,
-              "requestsPerSec": 57.4,
-              "avgLatencyMs": 559.58,
-              "p50LatencyMs": 356,
-              "p75LatencyMs": 416,
-              "p90LatencyMs": 1235,
-              "p99LatencyMs": 4548,
-              "maxLatencyMs": 4988,
-              "bytesPerSec": 17540710.4,
-              "elapsedTimeMs": 5010
+              "elapsedTimeMs": {
+                "value": 5010,
+                "unit": "ms"
+              },
+              "requests": {
+                "value": 287,
+                "unit": "requests"
+              },
+              "errors": {
+                "value": 0,
+                "unit": "errors"
+              },
+              "requestsPerSec": {
+                "value": 57.4,
+                "unit": "requests/s"
+              },
+              "avgLatencyMs": {
+                "value": 559.58,
+                "unit": "ms"
+              },
+              "p50LatencyMs": {
+                "value": 356,
+                "unit": "ms"
+              },
+              "p75LatencyMs": {
+                "value": 416,
+                "unit": "ms"
+              },
+              "p90LatencyMs": {
+                "value": 1235,
+                "unit": "ms"
+              },
+              "p99LatencyMs": {
+                "value": 4548,
+                "unit": "ms"
+              },
+              "maxLatencyMs": {
+                "value": 4988,
+                "unit": "ms"
+              },
+              "bytesPerSec": {
+                "value": 17540710.4,
+                "unit": "bytes/s"
+              }
             }
           ]
         ],
         "configuration": {
-          "workerStages": [1, 5, 10, 25, 50, 100, 200],
+          "workerStages": [
+            1,
+            5,
+            10,
+            25,
+            50,
+            100,
+            200
+          ],
           "warmupDurationMs": 5000
         },
         "representativeIterationIndex": 2,
         "source": "autocannon",
         "path": "/server-side-rendered",
-        "totalRequests": 7148,
-        "totalErrors": 0,
+        "totalRequests": {
+          "value": 7148,
+          "unit": "requests"
+        },
+        "totalErrors": {
+          "value": 0,
+          "unit": "errors"
+        },
         "stage1": {
           "connections": 1,
           "requests": {
@@ -1253,833 +3299,458 @@
         }
       }
     },
-    "ssrLoadTests": {
+    "clientSideRenderedTests": {
       "project": "app",
       "result": {
-        "name": "ssrLoad",
-        "runs": 3,
+        "name": "clientSideRendered",
+        "runs": 4,
         "iterations": [
-          [
-            {
-              "workers": 1,
-              "requests": 1490,
-              "errors": 0,
-              "requestsPerSec": 298,
-              "avgLatencyMs": 3.09,
-              "p50LatencyMs": 3,
-              "p75LatencyMs": 3,
-              "p90LatencyMs": 3,
-              "p99LatencyMs": 5,
-              "maxLatencyMs": 7,
-              "bytesPerSec": 88388403.2,
-              "elapsedTimeMs": 5000
+          {
+            "firstPaintMs": {
+              "value": 163,
+              "unit": "ms"
             },
-            {
-              "workers": 5,
-              "requests": 2350,
-              "errors": 0,
-              "requestsPerSec": 470,
-              "avgLatencyMs": 10.05,
-              "p50LatencyMs": 9,
-              "p75LatencyMs": 11,
-              "p90LatencyMs": 12,
-              "p99LatencyMs": 15,
-              "maxLatencyMs": 27,
-              "bytesPerSec": 139447500.81,
-              "elapsedTimeMs": 5000
+            "fcpMs": {
+              "value": 162.774,
+              "unit": "ms"
             },
-            {
-              "workers": 10,
-              "requests": 2390,
-              "errors": 0,
-              "requestsPerSec": 478,
-              "avgLatencyMs": 20.42,
-              "p50LatencyMs": 20,
-              "p75LatencyMs": 21,
-              "p90LatencyMs": 22,
-              "p99LatencyMs": 37,
-              "maxLatencyMs": 62,
-              "bytesPerSec": 141806796.81,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 25,
-              "requests": 2334,
-              "errors": 0,
-              "requestsPerSec": 466.8,
-              "avgLatencyMs": 52.61,
-              "p50LatencyMs": 51,
-              "p75LatencyMs": 52,
-              "p90LatencyMs": 55,
-              "p99LatencyMs": 84,
-              "maxLatencyMs": 360,
-              "bytesPerSec": 138471014.4,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 50,
-              "requests": 2146,
-              "errors": 0,
-              "requestsPerSec": 429.2,
-              "avgLatencyMs": 113.87,
-              "p50LatencyMs": 111,
-              "p75LatencyMs": 122,
-              "p90LatencyMs": 126,
-              "p99LatencyMs": 141,
-              "maxLatencyMs": 343,
-              "bytesPerSec": 127316787.2,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 100,
-              "requests": 2255,
-              "errors": 0,
-              "requestsPerSec": 451,
-              "avgLatencyMs": 203.8,
-              "p50LatencyMs": 143,
-              "p75LatencyMs": 180,
-              "p90LatencyMs": 196,
-              "p99LatencyMs": 2981,
-              "maxLatencyMs": 4959,
-              "bytesPerSec": 133772083.2,
-              "elapsedTimeMs": 5010
-            },
-            {
-              "workers": 200,
-              "requests": 2208,
-              "errors": 0,
-              "requestsPerSec": 441.6,
-              "avgLatencyMs": 205.76,
-              "p50LatencyMs": 144,
-              "p75LatencyMs": 180,
-              "p90LatencyMs": 208,
-              "p99LatencyMs": 2941,
-              "maxLatencyMs": 4973,
-              "bytesPerSec": 130973696,
-              "elapsedTimeMs": 5010
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 9.924000000000001,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.408,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.338,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 8.178,
+                "unit": "ms"
+              }
             }
-          ],
-          [
-            {
-              "workers": 1,
-              "requests": 1516,
-              "errors": 0,
-              "requestsPerSec": 303.2,
-              "avgLatencyMs": 3.11,
-              "p50LatencyMs": 3,
-              "p75LatencyMs": 3,
-              "p90LatencyMs": 3,
-              "p99LatencyMs": 5,
-              "maxLatencyMs": 9,
-              "bytesPerSec": 89935052.8,
-              "elapsedTimeMs": 5000
+          },
+          {
+            "firstPaintMs": {
+              "value": 159,
+              "unit": "ms"
             },
-            {
-              "workers": 5,
-              "requests": 2405,
-              "errors": 0,
-              "requestsPerSec": 481,
-              "avgLatencyMs": 9.83,
-              "p50LatencyMs": 9,
-              "p75LatencyMs": 11,
-              "p90LatencyMs": 12,
-              "p99LatencyMs": 16,
-              "maxLatencyMs": 25,
-              "bytesPerSec": 142671872,
-              "elapsedTimeMs": 5000
+            "fcpMs": {
+              "value": 158.791,
+              "unit": "ms"
             },
-            {
-              "workers": 10,
-              "requests": 2489,
-              "errors": 0,
-              "requestsPerSec": 497.8,
-              "avgLatencyMs": 19.58,
-              "p50LatencyMs": 19,
-              "p75LatencyMs": 21,
-              "p90LatencyMs": 21,
-              "p99LatencyMs": 32,
-              "maxLatencyMs": 59,
-              "bytesPerSec": 147652608,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 25,
-              "requests": 2480,
-              "errors": 0,
-              "requestsPerSec": 496,
-              "avgLatencyMs": 49.6,
-              "p50LatencyMs": 48,
-              "p75LatencyMs": 49,
-              "p90LatencyMs": 51,
-              "p99LatencyMs": 72,
-              "maxLatencyMs": 345,
-              "bytesPerSec": 147128320,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 50,
-              "requests": 2366,
-              "errors": 0,
-              "requestsPerSec": 473.2,
-              "avgLatencyMs": 103.86,
-              "p50LatencyMs": 101,
-              "p75LatencyMs": 105,
-              "p90LatencyMs": 121,
-              "p99LatencyMs": 418,
-              "maxLatencyMs": 1303,
-              "bytesPerSec": 140365004.81,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 100,
-              "requests": 2254,
-              "errors": 0,
-              "requestsPerSec": 450.8,
-              "avgLatencyMs": 203.73,
-              "p50LatencyMs": 142,
-              "p75LatencyMs": 171,
-              "p90LatencyMs": 204,
-              "p99LatencyMs": 2950,
-              "maxLatencyMs": 4957,
-              "bytesPerSec": 133706547.2,
-              "elapsedTimeMs": 5010
-            },
-            {
-              "workers": 200,
-              "requests": 2350,
-              "errors": 0,
-              "requestsPerSec": 470,
-              "avgLatencyMs": 199.76,
-              "p50LatencyMs": 139,
-              "p75LatencyMs": 175,
-              "p90LatencyMs": 192,
-              "p99LatencyMs": 2911,
-              "maxLatencyMs": 4965,
-              "bytesPerSec": 139414732.81,
-              "elapsedTimeMs": 5010
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 7.0920000000000005,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.364,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.248,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 5.48,
+                "unit": "ms"
+              }
             }
-          ],
-          [
-            {
-              "workers": 1,
-              "requests": 1557,
-              "errors": 0,
-              "requestsPerSec": 311.4,
-              "avgLatencyMs": 3.1,
-              "p50LatencyMs": 3,
-              "p75LatencyMs": 3,
-              "p90LatencyMs": 3,
-              "p99LatencyMs": 5,
-              "maxLatencyMs": 8,
-              "bytesPerSec": 92372992,
-              "elapsedTimeMs": 5000
+          },
+          {
+            "firstPaintMs": {
+              "value": 172,
+              "unit": "ms"
             },
-            {
-              "workers": 5,
-              "requests": 2416,
-              "errors": 0,
-              "requestsPerSec": 483.2,
-              "avgLatencyMs": 9.86,
-              "p50LatencyMs": 9,
-              "p75LatencyMs": 11,
-              "p90LatencyMs": 12,
-              "p99LatencyMs": 18,
-              "maxLatencyMs": 23,
-              "bytesPerSec": 143327232,
-              "elapsedTimeMs": 5000
+            "fcpMs": {
+              "value": 172.458,
+              "unit": "ms"
             },
-            {
-              "workers": 10,
-              "requests": 2458,
-              "errors": 0,
-              "requestsPerSec": 491.6,
-              "avgLatencyMs": 19.77,
-              "p50LatencyMs": 19,
-              "p75LatencyMs": 21,
-              "p90LatencyMs": 21,
-              "p99LatencyMs": 33,
-              "maxLatencyMs": 57,
-              "bytesPerSec": 145817600,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 25,
-              "requests": 2409,
-              "errors": 0,
-              "requestsPerSec": 481.8,
-              "avgLatencyMs": 51.15,
-              "p50LatencyMs": 50,
-              "p75LatencyMs": 51,
-              "p90LatencyMs": 53,
-              "p99LatencyMs": 75,
-              "maxLatencyMs": 334,
-              "bytesPerSec": 142907801.6,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 50,
-              "requests": 2399,
-              "errors": 0,
-              "requestsPerSec": 479.8,
-              "avgLatencyMs": 102.75,
-              "p50LatencyMs": 99,
-              "p75LatencyMs": 104,
-              "p90LatencyMs": 112,
-              "p99LatencyMs": 422,
-              "maxLatencyMs": 1361,
-              "bytesPerSec": 142331084.81,
-              "elapsedTimeMs": 5000
-            },
-            {
-              "workers": 100,
-              "requests": 2401,
-              "errors": 0,
-              "requestsPerSec": 480.2,
-              "avgLatencyMs": 198.04,
-              "p50LatencyMs": 142,
-              "p75LatencyMs": 175,
-              "p90LatencyMs": 193,
-              "p99LatencyMs": 2848,
-              "maxLatencyMs": 4975,
-              "bytesPerSec": 142429388.81,
-              "elapsedTimeMs": 5010
-            },
-            {
-              "workers": 200,
-              "requests": 2399,
-              "errors": 0,
-              "requestsPerSec": 479.8,
-              "avgLatencyMs": 196.51,
-              "p50LatencyMs": 140,
-              "p75LatencyMs": 169,
-              "p90LatencyMs": 184,
-              "p99LatencyMs": 2934,
-              "maxLatencyMs": 4936,
-              "bytesPerSec": 142324531.2,
-              "elapsedTimeMs": 5010
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 13.515,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.377,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.433,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 11.705,
+                "unit": "ms"
+              }
             }
-          ]
+          },
+          {
+            "firstPaintMs": {
+              "value": 164,
+              "unit": "ms"
+            },
+            "fcpMs": {
+              "value": 164.239,
+              "unit": "ms"
+            },
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 9.253,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.49,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 4.232,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 4.531,
+                "unit": "ms"
+              }
+            }
+          }
         ],
-        "configuration": {
-          "workerStages": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000
+        "firstPaintMs": {
+          "unit": "ms",
+          "mean": 164.5,
+          "median": 163.5,
+          "min": 159,
+          "max": 172
         },
-        "representativeIterationIndex": 2,
-        "source": "autocannon",
-        "path": "/server-side-rendered-plain-links",
-        "totalRequests": 47072,
-        "totalErrors": 0,
-        "stage1": {
-          "connections": 1,
-          "requests": {
-            "unit": "requests",
-            "mean": 1521,
-            "median": 1516,
-            "min": 1490,
-            "max": 1557
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 304.2,
-            "median": 303.2,
-            "min": 298,
-            "max": 311.4
-          },
-          "avgLatencyMs": {
-            "unit": "ms",
-            "mean": 3.0999999999999996,
-            "median": 3.1,
-            "min": 3.09,
-            "max": 3.11
-          },
-          "p50LatencyMs": {
-            "unit": "ms",
-            "mean": 3,
-            "median": 3,
-            "min": 3,
-            "max": 3
-          },
-          "p75LatencyMs": {
-            "unit": "ms",
-            "mean": 3,
-            "median": 3,
-            "min": 3,
-            "max": 3
-          },
-          "p90LatencyMs": {
-            "unit": "ms",
-            "mean": 3,
-            "median": 3,
-            "min": 3,
-            "max": 3
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 5,
-            "median": 5,
-            "min": 5,
-            "max": 5
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 8,
-            "median": 8,
-            "min": 7,
-            "max": 9
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 90232149.33333333,
-            "median": 89935052.8,
-            "min": 88388403.2,
-            "max": 92372992
-          }
+        "fcpMs": {
+          "unit": "ms",
+          "mean": 164.56550000000001,
+          "median": 163.50650000000002,
+          "min": 158.791,
+          "max": 172.458
         },
-        "stage2": {
-          "connections": 5,
-          "requests": {
-            "unit": "requests",
-            "mean": 2390.3333333333335,
-            "median": 2405,
-            "min": 2350,
-            "max": 2416
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 478.06666666666666,
-            "median": 481,
-            "min": 470,
-            "max": 483.2
-          },
-          "avgLatencyMs": {
+        "interactionTests": {
+          "scenario": "first-row-detail-navigation",
+          "source": "lighthouse-inp-breakdown",
+          "interactionLatencyMs": {
             "unit": "ms",
-            "mean": 9.913333333333334,
-            "median": 9.86,
-            "min": 9.83,
-            "max": 10.05
+            "mean": 9.946000000000002,
+            "median": 9.5885,
+            "min": 7.0920000000000005,
+            "max": 13.515
           },
-          "p50LatencyMs": {
+          "inputDelayMs": {
             "unit": "ms",
-            "mean": 9,
-            "median": 9,
-            "min": 9,
-            "max": 9
+            "mean": 0.40975,
+            "median": 0.39249999999999996,
+            "min": 0.364,
+            "max": 0.49
           },
-          "p75LatencyMs": {
+          "processingDurationMs": {
             "unit": "ms",
-            "mean": 11,
-            "median": 11,
-            "min": 11,
-            "max": 11
+            "mean": 2.0627500000000003,
+            "median": 1.3855,
+            "min": 1.248,
+            "max": 4.232
           },
-          "p90LatencyMs": {
+          "presentationDelayMs": {
             "unit": "ms",
-            "mean": 12,
-            "median": 12,
-            "min": 12,
-            "max": 12
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 16.333333333333332,
-            "median": 16,
-            "min": 15,
-            "max": 18
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 25,
-            "median": 25,
-            "min": 23,
-            "max": 27
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 141815534.93666667,
-            "median": 142671872,
-            "min": 139447500.81,
-            "max": 143327232
-          }
-        },
-        "stage3": {
-          "connections": 10,
-          "requests": {
-            "unit": "requests",
-            "mean": 2445.6666666666665,
-            "median": 2458,
-            "min": 2390,
-            "max": 2489
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 489.1333333333334,
-            "median": 491.6,
-            "min": 478,
-            "max": 497.8
-          },
-          "avgLatencyMs": {
-            "unit": "ms",
-            "mean": 19.923333333333332,
-            "median": 19.77,
-            "min": 19.58,
-            "max": 20.42
-          },
-          "p50LatencyMs": {
-            "unit": "ms",
-            "mean": 19.333333333333332,
-            "median": 19,
-            "min": 19,
-            "max": 20
-          },
-          "p75LatencyMs": {
-            "unit": "ms",
-            "mean": 21,
-            "median": 21,
-            "min": 21,
-            "max": 21
-          },
-          "p90LatencyMs": {
-            "unit": "ms",
-            "mean": 21.333333333333332,
-            "median": 21,
-            "min": 21,
-            "max": 22
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 34,
-            "median": 33,
-            "min": 32,
-            "max": 37
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 59.333333333333336,
-            "median": 59,
-            "min": 57,
-            "max": 62
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 145092334.93666667,
-            "median": 145817600,
-            "min": 141806796.81,
-            "max": 147652608
-          }
-        },
-        "stage4": {
-          "connections": 25,
-          "requests": {
-            "unit": "requests",
-            "mean": 2407.6666666666665,
-            "median": 2409,
-            "min": 2334,
-            "max": 2480
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 481.5333333333333,
-            "median": 481.8,
-            "min": 466.8,
-            "max": 496
-          },
-          "avgLatencyMs": {
-            "unit": "ms",
-            "mean": 51.120000000000005,
-            "median": 51.15,
-            "min": 49.6,
-            "max": 52.61
-          },
-          "p50LatencyMs": {
-            "unit": "ms",
-            "mean": 49.666666666666664,
-            "median": 50,
-            "min": 48,
-            "max": 51
-          },
-          "p75LatencyMs": {
-            "unit": "ms",
-            "mean": 50.666666666666664,
-            "median": 51,
-            "min": 49,
-            "max": 52
-          },
-          "p90LatencyMs": {
-            "unit": "ms",
-            "mean": 53,
-            "median": 53,
-            "min": 51,
-            "max": 55
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 77,
-            "median": 75,
-            "min": 72,
-            "max": 84
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 346.3333333333333,
-            "median": 345,
-            "min": 334,
-            "max": 360
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 142835712,
-            "median": 142907801.6,
-            "min": 138471014.4,
-            "max": 147128320
-          }
-        },
-        "stage5": {
-          "connections": 50,
-          "requests": {
-            "unit": "requests",
-            "mean": 2303.6666666666665,
-            "median": 2366,
-            "min": 2146,
-            "max": 2399
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 460.73333333333335,
-            "median": 473.2,
-            "min": 429.2,
-            "max": 479.8
-          },
-          "avgLatencyMs": {
-            "unit": "ms",
-            "mean": 106.82666666666667,
-            "median": 103.86,
-            "min": 102.75,
-            "max": 113.87
-          },
-          "p50LatencyMs": {
-            "unit": "ms",
-            "mean": 103.66666666666667,
-            "median": 101,
-            "min": 99,
-            "max": 111
-          },
-          "p75LatencyMs": {
-            "unit": "ms",
-            "mean": 110.33333333333333,
-            "median": 105,
-            "min": 104,
-            "max": 122
-          },
-          "p90LatencyMs": {
-            "unit": "ms",
-            "mean": 119.66666666666667,
-            "median": 121,
-            "min": 112,
-            "max": 126
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 327,
-            "median": 418,
-            "min": 141,
-            "max": 422
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 1002.3333333333334,
-            "median": 1303,
-            "min": 343,
-            "max": 1361
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 136670958.94,
-            "median": 140365004.81,
-            "min": 127316787.2,
-            "max": 142331084.81
-          }
-        },
-        "stage6": {
-          "connections": 100,
-          "requests": {
-            "unit": "requests",
-            "mean": 2303.3333333333335,
-            "median": 2255,
-            "min": 2254,
-            "max": 2401
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 460.6666666666667,
-            "median": 451,
-            "min": 450.8,
-            "max": 480.2
-          },
-          "avgLatencyMs": {
-            "unit": "ms",
-            "mean": 201.85666666666665,
-            "median": 203.73,
-            "min": 198.04,
-            "max": 203.8
-          },
-          "p50LatencyMs": {
-            "unit": "ms",
-            "mean": 142.33333333333334,
-            "median": 142,
-            "min": 142,
-            "max": 143
-          },
-          "p75LatencyMs": {
-            "unit": "ms",
-            "mean": 175.33333333333334,
-            "median": 175,
-            "min": 171,
-            "max": 180
-          },
-          "p90LatencyMs": {
-            "unit": "ms",
-            "mean": 197.66666666666666,
-            "median": 196,
-            "min": 193,
-            "max": 204
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 2926.3333333333335,
-            "median": 2950,
-            "min": 2848,
-            "max": 2981
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 4963.666666666667,
-            "median": 4959,
-            "min": 4957,
-            "max": 4975
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 136636006.40333334,
-            "median": 133772083.2,
-            "min": 133706547.2,
-            "max": 142429388.81
-          }
-        },
-        "stage7": {
-          "connections": 200,
-          "requests": {
-            "unit": "requests",
-            "mean": 2319,
-            "median": 2350,
-            "min": 2208,
-            "max": 2399
-          },
-          "errors": {
-            "unit": "errors",
-            "mean": 0,
-            "median": 0,
-            "min": 0,
-            "max": 0
-          },
-          "requestsPerSec": {
-            "unit": "requests/s",
-            "mean": 463.8,
-            "median": 470,
-            "min": 441.6,
-            "max": 479.8
-          },
-          "avgLatencyMs": {
-            "unit": "ms",
-            "mean": 200.67666666666665,
-            "median": 199.76,
-            "min": 196.51,
-            "max": 205.76
-          },
-          "p50LatencyMs": {
-            "unit": "ms",
-            "mean": 141,
-            "median": 140,
-            "min": 139,
-            "max": 144
-          },
-          "p75LatencyMs": {
-            "unit": "ms",
-            "mean": 174.66666666666666,
-            "median": 175,
-            "min": 169,
-            "max": 180
-          },
-          "p90LatencyMs": {
-            "unit": "ms",
-            "mean": 194.66666666666666,
-            "median": 192,
-            "min": 184,
-            "max": 208
-          },
-          "p99LatencyMs": {
-            "unit": "ms",
-            "mean": 2928.6666666666665,
-            "median": 2934,
-            "min": 2911,
-            "max": 2941
-          },
-          "maxLatencyMs": {
-            "unit": "ms",
-            "mean": 4958,
-            "median": 4965,
-            "min": 4936,
-            "max": 4973
-          },
-          "bytesPerSec": {
-            "unit": "bytes/s",
-            "mean": 137570986.67,
-            "median": 139414732.81,
-            "min": 130973696,
-            "max": 142324531.2
+            "mean": 7.4735,
+            "median": 6.829000000000001,
+            "min": 4.531,
+            "max": 11.705
           }
         }
+      }
+    },
+    "serverSideRenderedTests": {
+      "project": "app",
+      "result": {
+        "name": "serverSideRendered",
+        "runs": 4,
+        "iterations": [
+          {
+            "firstPaintMs": {
+              "value": 131,
+              "unit": "ms"
+            },
+            "fcpMs": {
+              "value": 130.648,
+              "unit": "ms"
+            },
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 12.529,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.52,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.41,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 10.599,
+                "unit": "ms"
+              }
+            }
+          },
+          {
+            "firstPaintMs": {
+              "value": 108,
+              "unit": "ms"
+            },
+            "fcpMs": {
+              "value": 107.684,
+              "unit": "ms"
+            },
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 13.643,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.607,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.287,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 11.749,
+                "unit": "ms"
+              }
+            }
+          },
+          {
+            "firstPaintMs": {
+              "value": 95,
+              "unit": "ms"
+            },
+            "fcpMs": {
+              "value": 94.564,
+              "unit": "ms"
+            },
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 12.65,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.447,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.338,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 10.865,
+                "unit": "ms"
+              }
+            }
+          },
+          {
+            "firstPaintMs": {
+              "value": 116,
+              "unit": "ms"
+            },
+            "fcpMs": {
+              "value": 116.316,
+              "unit": "ms"
+            },
+            "interactionTests": {
+              "interactionLatencyMs": {
+                "value": 11.882000000000001,
+                "unit": "ms"
+              },
+              "inputDelayMs": {
+                "value": 0.525,
+                "unit": "ms"
+              },
+              "processingDurationMs": {
+                "value": 1.438,
+                "unit": "ms"
+              },
+              "presentationDelayMs": {
+                "value": 9.919,
+                "unit": "ms"
+              }
+            }
+          }
+        ],
+        "firstPaintMs": {
+          "unit": "ms",
+          "mean": 112.5,
+          "median": 112,
+          "min": 95,
+          "max": 131
+        },
+        "fcpMs": {
+          "unit": "ms",
+          "mean": 112.303,
+          "median": 112,
+          "min": 94.564,
+          "max": 130.648
+        },
+        "interactionTests": {
+          "scenario": "first-row-detail-navigation",
+          "source": "lighthouse-inp-breakdown",
+          "interactionLatencyMs": {
+            "unit": "ms",
+            "mean": 12.676000000000002,
+            "median": 12.589500000000001,
+            "min": 11.882000000000001,
+            "max": 13.643
+          },
+          "inputDelayMs": {
+            "unit": "ms",
+            "mean": 0.52475,
+            "median": 0.5225,
+            "min": 0.447,
+            "max": 0.607
+          },
+          "processingDurationMs": {
+            "unit": "ms",
+            "mean": 1.36825,
+            "median": 1.374,
+            "min": 1.287,
+            "max": 1.438
+          },
+          "presentationDelayMs": {
+            "unit": "ms",
+            "mean": 10.783000000000001,
+            "median": 10.732,
+            "min": 9.919,
+            "max": 11.749
+          }
+        }
+      }
+    },
+    "prodDependencies": {
+      "project": "starter",
+      "result": {
+        "value": 3,
+        "unit": "count"
+      }
+    },
+    "devDependencies": {
+      "project": "starter",
+      "result": {
+        "value": 2,
+        "unit": "count"
+      }
+    },
+    "allDependencies": {
+      "project": "starter",
+      "result": {
+        "value": 707,
+        "unit": "count"
+      }
+    },
+    "frameworkDependencies": {
+      "project": "starter",
+      "result": {
+        "prodDependencies": {
+          "value": 59,
+          "unit": "count"
+        },
+        "devDependencies": {
+          "value": 14,
+          "unit": "count"
+        },
+        "allDependencies": {
+          "value": 73,
+          "unit": "count"
+        }
+      }
+    },
+    "firstPartyDependencies": {
+      "project": "starter",
+      "result": {
+        "prodDependencies": {
+          "value": 1,
+          "unit": "count"
+        },
+        "devDependencies": {
+          "value": 0,
+          "unit": "count"
+        },
+        "allDependencies": {
+          "value": 707,
+          "unit": "count"
+        },
+        "duplicateDependencies": {
+          "value": 85,
+          "unit": "count"
+        }
+      }
+    },
+    "duplicateDependencies": {
+      "project": "starter",
+      "result": {
+        "value": 85,
+        "unit": "count"
+      }
+    },
+    "depInstallSize": {
+      "project": "starter",
+      "result": {
+        "value": 215742799,
+        "unit": "bytes"
+      }
+    },
+    "vendoredCoreJsSize": {
+      "project": "starter",
+      "result": {
+        "value": 0,
+        "unit": "bytes"
+      }
+    },
+    "vendoredCoreJsUnnecessaryModules": {
+      "project": "starter",
+      "result": []
+    },
+    "browserBaselineTests": {
+      "project": "starter",
+      "result": {
+        "baselineStatus": "high",
+        "baselineYear": 2023,
+        "baselineReason": null,
+        "baselineFeatureCount": {
+          "value": 43,
+          "unit": "count"
+        }
+      }
+    },
+    "minimumNodeVersion": {
+      "project": "starter",
+      "result": "22.20.0"
+    },
+    "minimumNodeVersionImposedBy": {
+      "project": "starter",
+      "result": [
+        "@napi-rs/lzma-linux-x64-gnu"
+      ]
+    },
+    "coldBuildTimeMs": {
+      "project": "starter",
+      "result": {
+        "value": 6962,
+        "unit": "ms"
+      }
+    },
+    "warmBuildTimeMs": {
+      "project": "starter",
+      "result": {
+        "value": 6545,
+        "unit": "ms"
       }
     }
   }

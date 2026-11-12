@@ -9,8 +9,7 @@ interface Props {
 const { testsKey } = Astro.props
 const data = getRenderedInteractionBreakdownData(testsKey).sort(
   (a, b) =>
-    a.interactionLatencyMs - b.interactionLatencyMs ||
-    a.name.localeCompare(b.name),
+    a.interactionLatency - b.interactionLatency || a.name.localeCompare(b.name),
 )
 ---
 

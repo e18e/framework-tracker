@@ -18,15 +18,21 @@ const metric = (mean: number) => ({
 const benchmark = {
   name: 'ssrRequestThroughput',
   runs: 3,
-  iterations: [100, 100, 1000].map((opsPerSec, index) => ({
-    opsPerSec: { ...metric(opsPerSec), unit: 'ops/s' },
-    latencyMs: { ...metric(index === 2 ? 40 : 4), median: 2, unit: 'ms' },
+  iterations: [100, 100, 1000].map((operationThroughput, index) => ({
+    operationThroughput: { ...metric(operationThroughput), unit: 'ops/s' },
+    latency: { ...metric(index === 2 ? 40 : 4), median: 2, unit: 'ms' },
     samples: { value: 3, unit: 'requests' },
   })),
-  opsPerSec: { mean: 400, median: 100, min: 100, max: 1000, unit: 'ops/s' },
-  latencyMs: { mean: 16, median: 4, min: 4, max: 40, unit: 'ms' },
+  operationThroughput: {
+    mean: 400,
+    median: 100,
+    min: 100,
+    max: 1000,
+    unit: 'ops/s',
+  },
+  latency: { mean: 16, median: 4, min: 4, max: 40, unit: 'ms' },
   samples: { value: 9, unit: 'requests' },
-  bodySizeKb: { value: 20.5, unit: 'KiB' },
+  bodySize: { value: 20.5, unit: 'KiB' },
   duplicationFactor: { value: 1.25, unit: 'ratio' },
   durationMs: 10_000,
   warmupDurationMs: 250,
@@ -38,8 +44,8 @@ const benchmark = {
 
 test('throughput charts use the median of run means, not the mean or request median', () => {
   const normalized = formatThroughput(benchmark)
-  assert.equal(normalized.opsPerSec, 100)
-  assert.equal(normalized.latencyMs, 4)
+  assert.equal(normalized.operationThroughput, 100)
+  assert.equal(normalized.latency, 4)
   const records = [
     { package: 'app-astro', ssrRequestThroughputTests: normalized },
   ]
@@ -63,13 +69,13 @@ test('throughput charts use the median of run means, not the mean or request med
 
 test('legacy mean latency remains distinct from the reported request median', () => {
   const legacy = {
-    opsPerSec: { value: 100, unit: 'ops/s' },
-    avgLatencyMs: { value: 4, unit: 'ms' },
-    medianLatencyMs: { value: 2, unit: 'ms' },
+    operationThroughput: { value: 100, unit: 'ops/s' },
+    avgLatency: { value: 4, unit: 'ms' },
+    medianLatency: { value: 2, unit: 'ms' },
     samples: { value: 64, unit: 'requests' },
-    bodySizeKb: { value: 20, unit: 'KiB' },
+    bodySize: { value: 20, unit: 'KiB' },
     duplicationFactor: { value: 1, unit: 'ratio' },
   } satisfies NonNullable<FrameworkResult['ssrRequestThroughputTests']>
   const normalized = formatThroughput(legacy)
-  assert.equal(normalized.latencyMs, 4)
+  assert.equal(normalized.latency, 4)
 })

@@ -43,7 +43,7 @@ function comparisonRange(record: ChartMeasurement, metric: MetricDefinition) {
   const container = source[group === 'installTime' ? 'install' : group!]
   const raw =
     group === 'installTime'
-      ? container?.installTimeMs
+      ? container?.installTime
       : (container?.[`${field}Range`] ?? container?.[field!])
   const summary =
     field === 'medianMs' && group !== 'installTime'
@@ -299,10 +299,10 @@ export function prepareLighthouseClientSideRenderedTestsFirstPaintMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['clientSideRenderedTests.firstPaintMs'],
+    metricCatalogue['clientSideRenderedTests.firstPaint'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.clientSideRenderedTests?.firstPaintMs),
+      value: finiteValue(record.clientSideRenderedTests?.firstPaint),
     })),
   )
 }
@@ -311,10 +311,10 @@ export function prepareLighthouseClientSideRenderedTestsFirstPaintMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['clientSideRenderedTests.firstPaintMs'],
+    metricCatalogue['clientSideRenderedTests.firstPaint'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.clientSideRenderedTests?.firstPaintMs),
+      value: finiteValue(record.clientSideRenderedTests?.firstPaint),
     })),
   )
 }
@@ -325,10 +325,10 @@ export function prepareLighthouseClientSideRenderedTestsFirstPaintMsMonthlyCompa
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['clientSideRenderedTests.firstPaintMs'],
+    metricCatalogue['clientSideRenderedTests.firstPaint'],
     history,
     latest,
-    (record) => finiteValue(record.clientSideRenderedTests?.firstPaintMs),
+    (record) => finiteValue(record.clientSideRenderedTests?.firstPaint),
     now,
   )
 }
@@ -337,10 +337,10 @@ export function prepareLighthouseClientSideRenderedTestsFcpMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['clientSideRenderedTests.fcpMs'],
+    metricCatalogue['clientSideRenderedTests.fcp'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.clientSideRenderedTests?.fcpMs),
+      value: finiteValue(record.clientSideRenderedTests?.fcp),
     })),
   )
 }
@@ -349,16 +349,16 @@ export function prepareLighthouseClientSideRenderedTestsFcpMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['clientSideRenderedTests.fcpMs'],
+    metricCatalogue['clientSideRenderedTests.fcp'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.clientSideRenderedTests?.fcpMs),
+      value: finiteValue(record.clientSideRenderedTests?.fcp),
     })),
   )
 }
 
 const INTERACTION_KEYS = [
-  'interactionLatencyMs',
+  'interactionLatency',
   ...INTERACTION_PHASES.map(({ key }) => key),
 ] as const
 
@@ -383,10 +383,10 @@ function interactionHistory(
     return {
       id: `${record.package ?? 'unknown'}:${version}`,
       name: `v${version}`,
-      interactionLatencyMs: timings.interactionLatencyMs,
-      inputDelayMs: timings.inputDelayMs,
-      processingDurationMs: timings.processingDurationMs,
-      presentationDelayMs: timings.presentationDelayMs,
+      interactionLatency: timings.interactionLatency,
+      inputDelay: timings.inputDelay,
+      processingDuration: timings.processingDuration,
+      presentationDelay: timings.presentationDelay,
     }
   })
 }
@@ -409,10 +409,10 @@ export function prepareLighthouseClientSideRenderedTestsFcpMsMonthlyComparison(
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['clientSideRenderedTests.fcpMs'],
+    metricCatalogue['clientSideRenderedTests.fcp'],
     history,
     latest,
-    (record) => finiteValue(record.clientSideRenderedTests?.fcpMs),
+    (record) => finiteValue(record.clientSideRenderedTests?.fcp),
     now,
   )
 }
@@ -424,7 +424,7 @@ export function prepareInstallTimeHistory(
     metricCatalogue['installTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.installTimeMs.median, 1000),
+      value: finiteValue(record.install.installTime.median, 1000),
     })),
   )
 }
@@ -436,7 +436,7 @@ export function prepareInstallTimeComparison(
     metricCatalogue['installTime.medianMs'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.installTimeMs.median, 1000),
+      value: finiteValue(record.install.installTime.median, 1000),
     })),
   )
 }
@@ -450,7 +450,7 @@ export function prepareInstallTimeMonthlyComparison(
     metricCatalogue['installTime.medianMs'],
     history,
     latest,
-    (record) => finiteValue(record.install?.installTimeMs?.mean, 1000),
+    (record) => finiteValue(record.install?.installTime?.mean, 1000),
     now,
   )
 }
@@ -547,10 +547,10 @@ export function prepareLighthouseServerSideRenderedTestsFirstPaintMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['serverSideRenderedTests.firstPaintMs'],
+    metricCatalogue['serverSideRenderedTests.firstPaint'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.serverSideRenderedTests?.firstPaintMs),
+      value: finiteValue(record.serverSideRenderedTests?.firstPaint),
     })),
   )
 }
@@ -559,10 +559,10 @@ export function prepareLighthouseServerSideRenderedTestsFirstPaintMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['serverSideRenderedTests.firstPaintMs'],
+    metricCatalogue['serverSideRenderedTests.firstPaint'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.serverSideRenderedTests?.firstPaintMs),
+      value: finiteValue(record.serverSideRenderedTests?.firstPaint),
     })),
   )
 }
@@ -573,10 +573,10 @@ export function prepareLighthouseServerSideRenderedTestsFirstPaintMsMonthlyCompa
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['serverSideRenderedTests.firstPaintMs'],
+    metricCatalogue['serverSideRenderedTests.firstPaint'],
     history,
     latest,
-    (record) => finiteValue(record.serverSideRenderedTests?.firstPaintMs),
+    (record) => finiteValue(record.serverSideRenderedTests?.firstPaint),
     now,
   )
 }
@@ -585,10 +585,10 @@ export function prepareLighthouseServerSideRenderedTestsFcpMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['serverSideRenderedTests.fcpMs'],
+    metricCatalogue['serverSideRenderedTests.fcp'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.serverSideRenderedTests?.fcpMs),
+      value: finiteValue(record.serverSideRenderedTests?.fcp),
     })),
   )
 }
@@ -597,10 +597,10 @@ export function prepareLighthouseServerSideRenderedTestsFcpMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['serverSideRenderedTests.fcpMs'],
+    metricCatalogue['serverSideRenderedTests.fcp'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.serverSideRenderedTests?.fcpMs),
+      value: finiteValue(record.serverSideRenderedTests?.fcp),
     })),
   )
 }
@@ -611,10 +611,10 @@ export function prepareLighthouseServerSideRenderedTestsFcpMsMonthlyComparison(
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['serverSideRenderedTests.fcpMs'],
+    metricCatalogue['serverSideRenderedTests.fcp'],
     history,
     latest,
-    (record) => finiteValue(record.serverSideRenderedTests?.fcpMs),
+    (record) => finiteValue(record.serverSideRenderedTests?.fcp),
     now,
   )
 }
@@ -623,10 +623,10 @@ export function prepareSsrRequestThroughputTestsOpsPerSecHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['ssrRequestThroughputTests.opsPerSec'],
+    metricCatalogue['ssrRequestThroughputTests.operationThroughput'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.opsPerSec),
+      value: finiteValue(record.ssrRequestThroughputTests?.operationThroughput),
     })),
   )
 }
@@ -635,10 +635,10 @@ export function prepareSsrRequestThroughputTestsOpsPerSecComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['ssrRequestThroughputTests.opsPerSec'],
+    metricCatalogue['ssrRequestThroughputTests.operationThroughput'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.opsPerSec),
+      value: finiteValue(record.ssrRequestThroughputTests?.operationThroughput),
     })),
     'descending',
   )
@@ -650,10 +650,11 @@ export function prepareSsrRequestThroughputTestsOpsPerSecMonthlyComparison(
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['ssrRequestThroughputTests.opsPerSec'],
+    metricCatalogue['ssrRequestThroughputTests.operationThroughput'],
     history,
     latest,
-    (record) => finiteValue(record.ssrRequestThroughputTests?.opsPerSec),
+    (record) =>
+      finiteValue(record.ssrRequestThroughputTests?.operationThroughput),
     now,
   )
 }
@@ -662,10 +663,10 @@ export function prepareSsrRequestThroughputTestsBodySizeKbHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['ssrRequestThroughputTests.bodySizeKb'],
+    metricCatalogue['ssrRequestThroughputTests.bodySize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.bodySizeKb?.value),
+      value: finiteValue(record.ssrRequestThroughputTests?.bodySize?.value),
     })),
   )
 }
@@ -674,10 +675,10 @@ export function prepareSsrRequestThroughputTestsBodySizeKbComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['ssrRequestThroughputTests.bodySizeKb'],
+    metricCatalogue['ssrRequestThroughputTests.bodySize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.bodySizeKb?.value),
+      value: finiteValue(record.ssrRequestThroughputTests?.bodySize?.value),
     })),
   )
 }
@@ -688,11 +689,10 @@ export function prepareSsrRequestThroughputTestsBodySizeKbMonthlyComparison(
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['ssrRequestThroughputTests.bodySizeKb'],
+    metricCatalogue['ssrRequestThroughputTests.bodySize'],
     history,
     latest,
-    (record) =>
-      finiteValue(record.ssrRequestThroughputTests?.bodySizeKb?.value),
+    (record) => finiteValue(record.ssrRequestThroughputTests?.bodySize?.value),
     now,
   )
 }
@@ -701,10 +701,10 @@ export function prepareSsrRequestThroughputTestsLatencyMsHistory(
   records: readonly ChartMeasurement[],
 ): VersionLineChartPayload {
   return history(
-    metricCatalogue['ssrRequestThroughputTests.latencyMs'],
+    metricCatalogue['ssrRequestThroughputTests.latency'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.latencyMs),
+      value: finiteValue(record.ssrRequestThroughputTests?.latency),
     })),
   )
 }
@@ -713,10 +713,10 @@ export function prepareSsrRequestThroughputTestsLatencyMsComparison(
   records: readonly ChartMeasurement[],
 ): PreparedComparisonChart {
   return comparison(
-    metricCatalogue['ssrRequestThroughputTests.latencyMs'],
+    metricCatalogue['ssrRequestThroughputTests.latency'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.latencyMs),
+      value: finiteValue(record.ssrRequestThroughputTests?.latency),
     })),
   )
 }
@@ -727,10 +727,10 @@ export function prepareSsrRequestThroughputTestsLatencyMsMonthlyComparison(
   now?: Date,
 ): LineComparisonChartPayload {
   return monthlyComparison(
-    metricCatalogue['ssrRequestThroughputTests.latencyMs'],
+    metricCatalogue['ssrRequestThroughputTests.latency'],
     history,
     latest,
-    (record) => finiteValue(record.ssrRequestThroughputTests?.latencyMs),
+    (record) => finiteValue(record.ssrRequestThroughputTests?.latency),
     now,
   )
 }
@@ -742,7 +742,7 @@ export function prepareNodeModulesSizeHistory(
     metricCatalogue['nodeModulesSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.nodeModulesSizeBytes?.value, 1048576),
+      value: finiteValue(record.install.nodeModulesSize?.value, 1048576),
     })),
   )
 }
@@ -754,7 +754,7 @@ export function prepareNodeModulesSizeComparison(
     metricCatalogue['nodeModulesSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.nodeModulesSizeBytes?.value, 1048576),
+      value: finiteValue(record.install.nodeModulesSize?.value, 1048576),
     })),
   )
 }
@@ -768,8 +768,7 @@ export function prepareNodeModulesSizeMonthlyComparison(
     metricCatalogue['nodeModulesSize'],
     history,
     latest,
-    (record) =>
-      finiteValue(record.install?.nodeModulesSizeBytes?.value, 1048576),
+    (record) => finiteValue(record.install?.nodeModulesSize?.value, 1048576),
     now,
   )
 }
@@ -819,7 +818,7 @@ export function prepareSSRTotalRequestsHistory(
 }
 
 export type SSRLoadKey = 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
-export type LatencyPercentile = 'p75LatencyMs' | 'p90LatencyMs' | 'p99LatencyMs'
+export type LatencyPercentile = 'p75Latency' | 'p90Latency' | 'p99Latency'
 export type ConnectionCount = 25 | 50 | 100
 
 export function prepareSSRLatencyByConnections(

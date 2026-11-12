@@ -50,14 +50,14 @@ export const metricCatalogue = {
     valueFormat: 'count',
     yAxisLabel: 'Duplicates',
   },
-  'clientSideRenderedTests.firstPaintMs': {
-    id: 'clientSideRenderedTests.firstPaintMs',
+  'clientSideRenderedTests.firstPaint': {
+    id: 'clientSideRenderedTests.firstPaint',
     title: 'Client First Paint (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'clientSideRenderedTests.fcpMs': {
-    id: 'clientSideRenderedTests.fcpMs',
+  'clientSideRenderedTests.fcp': {
+    id: 'clientSideRenderedTests.fcp',
     title: 'Client FCP (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
@@ -88,32 +88,32 @@ export const metricCatalogue = {
     description:
       'Combined size of matching build output files, including any other code in those files.',
   },
-  'serverSideRenderedTests.firstPaintMs': {
-    id: 'serverSideRenderedTests.firstPaintMs',
+  'serverSideRenderedTests.firstPaint': {
+    id: 'serverSideRenderedTests.firstPaint',
     title: 'Server First Paint (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'serverSideRenderedTests.fcpMs': {
-    id: 'serverSideRenderedTests.fcpMs',
+  'serverSideRenderedTests.fcp': {
+    id: 'serverSideRenderedTests.fcp',
     title: 'Server FCP (Lighthouse)',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRequestThroughputTests.opsPerSec': {
-    id: 'ssrRequestThroughputTests.opsPerSec',
+  'ssrRequestThroughputTests.operationThroughput': {
+    id: 'ssrRequestThroughputTests.operationThroughput',
     title: 'Ops/sec',
     valueFormat: 'count',
     yAxisLabel: 'Operations per second',
   },
-  'ssrRequestThroughputTests.bodySizeKb': {
-    id: 'ssrRequestThroughputTests.bodySizeKb',
+  'ssrRequestThroughputTests.bodySize': {
+    id: 'ssrRequestThroughputTests.bodySize',
     title: 'Body Size',
     valueFormat: 'kb',
     yAxisLabel: 'Kilobytes',
   },
-  'ssrRequestThroughputTests.latencyMs': {
-    id: 'ssrRequestThroughputTests.latencyMs',
+  'ssrRequestThroughputTests.latency': {
+    id: 'ssrRequestThroughputTests.latency',
     title: 'Median Latency',
     description:
       'Median of measured run average latencies; not a pooled request-level median.',
@@ -138,56 +138,56 @@ export const metricCatalogue = {
     valueFormat: 'count',
     yAxisLabel: 'Requests',
   },
-  'ssrLoadTests.latency.25.p99LatencyMs': {
-    id: 'ssrLoadTests.latency.25.p99LatencyMs',
+  'ssrLoadTests.latency.25.p99Latency': {
+    id: 'ssrLoadTests.latency.25.p99Latency',
     title: 'Median Sweep P99 Latency at 25 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.50.p99LatencyMs': {
-    id: 'ssrLoadTests.latency.50.p99LatencyMs',
+  'ssrLoadTests.latency.50.p99Latency': {
+    id: 'ssrLoadTests.latency.50.p99Latency',
     title: 'Median Sweep P99 Latency at 50 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.100.p99LatencyMs': {
-    id: 'ssrLoadTests.latency.100.p99LatencyMs',
+  'ssrLoadTests.latency.100.p99Latency': {
+    id: 'ssrLoadTests.latency.100.p99Latency',
     title: 'Median Sweep P99 Latency at 100 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.25.p90LatencyMs': {
-    id: 'ssrLoadTests.latency.25.p90LatencyMs',
+  'ssrLoadTests.latency.25.p90Latency': {
+    id: 'ssrLoadTests.latency.25.p90Latency',
     title: 'Median Sweep P90 Latency at 25 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.50.p90LatencyMs': {
-    id: 'ssrLoadTests.latency.50.p90LatencyMs',
+  'ssrLoadTests.latency.50.p90Latency': {
+    id: 'ssrLoadTests.latency.50.p90Latency',
     title: 'Median Sweep P90 Latency at 50 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.100.p90LatencyMs': {
-    id: 'ssrLoadTests.latency.100.p90LatencyMs',
+  'ssrLoadTests.latency.100.p90Latency': {
+    id: 'ssrLoadTests.latency.100.p90Latency',
     title: 'Median Sweep P90 Latency at 100 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.25.p75LatencyMs': {
-    id: 'ssrLoadTests.latency.25.p75LatencyMs',
+  'ssrLoadTests.latency.25.p75Latency': {
+    id: 'ssrLoadTests.latency.25.p75Latency',
     title: 'Median Sweep P75 Latency at 25 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.50.p75LatencyMs': {
-    id: 'ssrLoadTests.latency.50.p75LatencyMs',
+  'ssrLoadTests.latency.50.p75Latency': {
+    id: 'ssrLoadTests.latency.50.p75Latency',
     title: 'Median Sweep P75 Latency at 50 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrLoadTests.latency.100.p75LatencyMs': {
-    id: 'ssrLoadTests.latency.100.p75LatencyMs',
+  'ssrLoadTests.latency.100.p75Latency': {
+    id: 'ssrLoadTests.latency.100.p75Latency',
     title: 'Median Sweep P75 Latency at 100 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
@@ -198,56 +198,56 @@ export const metricCatalogue = {
     valueFormat: 'count',
     yAxisLabel: 'Requests',
   },
-  'ssrRouterLinkLoadTests.latency.25.p99LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.25.p99LatencyMs',
+  'ssrRouterLinkLoadTests.latency.25.p99Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.25.p99Latency',
     title: 'Median Sweep P99 Latency at 25 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.50.p99LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.50.p99LatencyMs',
+  'ssrRouterLinkLoadTests.latency.50.p99Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.50.p99Latency',
     title: 'Median Sweep P99 Latency at 50 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.100.p99LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.100.p99LatencyMs',
+  'ssrRouterLinkLoadTests.latency.100.p99Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.100.p99Latency',
     title: 'Median Sweep P99 Latency at 100 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.25.p90LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.25.p90LatencyMs',
+  'ssrRouterLinkLoadTests.latency.25.p90Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.25.p90Latency',
     title: 'Median Sweep P90 Latency at 25 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.50.p90LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.50.p90LatencyMs',
+  'ssrRouterLinkLoadTests.latency.50.p90Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.50.p90Latency',
     title: 'Median Sweep P90 Latency at 50 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.100.p90LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.100.p90LatencyMs',
+  'ssrRouterLinkLoadTests.latency.100.p90Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.100.p90Latency',
     title: 'Median Sweep P90 Latency at 100 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.25.p75LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.25.p75LatencyMs',
+  'ssrRouterLinkLoadTests.latency.25.p75Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.25.p75Latency',
     title: 'Median Sweep P75 Latency at 25 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.50.p75LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.50.p75LatencyMs',
+  'ssrRouterLinkLoadTests.latency.50.p75Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.50.p75Latency',
     title: 'Median Sweep P75 Latency at 50 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',
   },
-  'ssrRouterLinkLoadTests.latency.100.p75LatencyMs': {
-    id: 'ssrRouterLinkLoadTests.latency.100.p75LatencyMs',
+  'ssrRouterLinkLoadTests.latency.100.p75Latency': {
+    id: 'ssrRouterLinkLoadTests.latency.100.p75Latency',
     title: 'Median Sweep P75 Latency at 100 Connections',
     valueFormat: 'ms',
     yAxisLabel: 'Milliseconds',

@@ -14,10 +14,10 @@ function formatTime(
   >,
 ) {
   return {
-    medianMs: value.timeMs.median,
-    minMs: value.timeMs.min,
-    maxMs: value.timeMs.max,
-    samplesMs: value.iterations.map((run) => run.timeMs.value),
+    medianMs: value.time.median,
+    minMs: value.time.min,
+    maxMs: value.time.max,
+    samplesMs: value.iterations.map((run) => run.time.value),
   }
 }
 export function formatRendered(
@@ -29,8 +29,8 @@ export function formatRendered(
   if (!('name' in value)) {
     return {
       ...value,
-      firstPaintMs: value.firstPaintMs.value,
-      fcpMs: value.fcpMs.value,
+      firstPaint: value.firstPaint.value,
+      fcp: value.fcp.value,
       interactionTests: value.interactionTests && {
         ...value.interactionTests,
         ...interactionValues(value.interactionTests),
@@ -41,15 +41,15 @@ export function formatRendered(
   // from the run whose total is the median.
   const medianRun = [...value.iterations].sort(
     (a, b) =>
-      a.interactionTests.interactionLatencyMs.value -
-      b.interactionTests.interactionLatencyMs.value,
+      a.interactionTests.interactionLatency.value -
+      b.interactionTests.interactionLatency.value,
   )[Math.floor(value.iterations.length / 2)]!
   return {
     ...value,
-    firstPaintMsRange: value.firstPaintMs,
-    fcpMsRange: value.fcpMs,
-    firstPaintMs: value.firstPaintMs.median,
-    fcpMs: value.fcpMs.median,
+    firstPaintRange: value.firstPaint,
+    fcpRange: value.fcp,
+    firstPaint: value.firstPaint.median,
+    fcp: value.fcp.median,
     interactionTests: {
       ...value.interactionTests,
       ...interactionValues(medianRun.interactionTests),
@@ -60,10 +60,10 @@ function interactionValues(
   timings: ReturnType<typeof InteractionTimingSchema.parse>,
 ) {
   return {
-    interactionLatencyMs: timings.interactionLatencyMs.value,
-    inputDelayMs: timings.inputDelayMs.value,
-    processingDurationMs: timings.processingDurationMs.value,
-    presentationDelayMs: timings.presentationDelayMs.value,
+    interactionLatency: timings.interactionLatency.value,
+    inputDelay: timings.inputDelay.value,
+    processingDuration: timings.processingDuration.value,
+    presentationDelay: timings.presentationDelay.value,
   }
 }
 
@@ -73,17 +73,17 @@ export function formatThroughput(
   if ('name' in value)
     return {
       ...value,
-      opsPerSecRange: value.opsPerSec,
-      latencyMsRange: value.latencyMs,
-      opsPerSec: value.opsPerSec.median,
-      latencyMs: value.latencyMs.median,
-      latencyUnit: value.latencyMs.unit,
+      operationThroughputRange: value.operationThroughput,
+      latencyRange: value.latency,
+      operationThroughput: value.operationThroughput.median,
+      latency: value.latency.median,
+      latencyUnit: value.latency.unit,
     }
   return {
     ...value,
-    opsPerSec: value.opsPerSec.value,
-    latencyMs: value.avgLatencyMs.value,
-    latencyUnit: value.avgLatencyMs.unit,
+    operationThroughput: value.operationThroughput.value,
+    latency: value.avgLatency.value,
+    latencyUnit: value.avgLatency.unit,
   }
 }
 function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
@@ -108,20 +108,20 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
             {
               workers: stage.connections,
               latencyRanges: {
-                p75LatencyMs: stage.p75LatencyMs,
-                p90LatencyMs: stage.p90LatencyMs,
-                p99LatencyMs: stage.p99LatencyMs,
+                p75Latency: stage.p75Latency,
+                p90Latency: stage.p90Latency,
+                p99Latency: stage.p99Latency,
               },
               requests: stage.requests.median,
               errors: stage.errors.median,
-              requestsPerSec: stage.requestsPerSec.median,
-              avgLatencyMs: stage.avgLatencyMs.median,
-              p50LatencyMs: stage.p50LatencyMs.median,
-              p75LatencyMs: stage.p75LatencyMs.median,
-              p90LatencyMs: stage.p90LatencyMs.median,
-              p99LatencyMs: stage.p99LatencyMs.median,
-              maxLatencyMs: stage.maxLatencyMs.median,
-              bytesPerSec: stage.bytesPerSec.median,
+              requestThroughput: stage.requestThroughput.median,
+              avgLatency: stage.avgLatency.median,
+              p50Latency: stage.p50Latency.median,
+              p75Latency: stage.p75Latency.median,
+              p90Latency: stage.p90Latency.median,
+              p99Latency: stage.p99Latency.median,
+              maxLatency: stage.maxLatency.median,
+              byteThroughput: stage.byteThroughput.median,
             },
           ]
         : [],

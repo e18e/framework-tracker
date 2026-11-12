@@ -16,7 +16,7 @@ const { title, data } = Astro.props
   {title}
   data={data.map((datum) => ({
     name: datum.name,
-    total: datum.interactionLatencyMs,
+    total: datum.interactionLatency,
     values: Object.fromEntries(
       INTERACTION_PHASES.map(({ key }) => [key, datum[key]]),
     ),

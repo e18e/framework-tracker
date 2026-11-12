@@ -140,7 +140,7 @@ export function prepareFrameworkDependenciesProdDependenciesHistory(
     metricCatalogue['frameworkDependencies.prodDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.frameworkDependencies?.prodDependencies),
+      value: finiteValue(record.frameworkDependencies?.prodDependencies?.value),
     })),
   )
 }
@@ -152,7 +152,7 @@ export function prepareFrameworkDependenciesDevDependenciesHistory(
     metricCatalogue['frameworkDependencies.devDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.frameworkDependencies?.devDependencies),
+      value: finiteValue(record.frameworkDependencies?.devDependencies?.value),
     })),
   )
 }
@@ -164,7 +164,7 @@ export function prepareFrameworkDependenciesAllDependenciesHistory(
     metricCatalogue['frameworkDependencies.allDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.frameworkDependencies?.allDependencies),
+      value: finiteValue(record.frameworkDependencies?.allDependencies?.value),
     })),
   )
 }
@@ -176,7 +176,7 @@ export function prepareProdDependenciesHistory(
     metricCatalogue['prodDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.prodDependencies),
+      value: finiteValue(record.prodDependencies?.value),
     })),
   )
 }
@@ -188,7 +188,7 @@ export function prepareProdDependenciesComparison(
     metricCatalogue['prodDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.prodDependencies),
+      value: finiteValue(record.prodDependencies?.value),
     })),
   )
 }
@@ -202,7 +202,7 @@ export function prepareProdDependenciesMonthlyComparison(
     metricCatalogue['prodDependencies'],
     history,
     latest,
-    (record) => finiteValue(record.prodDependencies),
+    (record) => finiteValue(record.prodDependencies?.value),
     now,
   )
 }
@@ -214,7 +214,7 @@ export function prepareDevDependenciesHistory(
     metricCatalogue['devDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.devDependencies),
+      value: finiteValue(record.devDependencies?.value),
     })),
   )
 }
@@ -226,7 +226,7 @@ export function prepareDevDependenciesComparison(
     metricCatalogue['devDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.devDependencies),
+      value: finiteValue(record.devDependencies?.value),
     })),
   )
 }
@@ -240,7 +240,7 @@ export function prepareDevDependenciesMonthlyComparison(
     metricCatalogue['devDependencies'],
     history,
     latest,
-    (record) => finiteValue(record.devDependencies),
+    (record) => finiteValue(record.devDependencies?.value),
     now,
   )
 }
@@ -252,7 +252,7 @@ export function prepareAllDependenciesHistory(
     metricCatalogue['allDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.allDependencies),
+      value: finiteValue(record.allDependencies?.value),
     })),
   )
 }
@@ -264,7 +264,7 @@ export function prepareDuplicateDependenciesHistory(
     metricCatalogue['duplicateDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.duplicateDependencies),
+      value: finiteValue(record.duplicateDependencies?.value),
     })),
   )
 }
@@ -276,7 +276,7 @@ export function prepareDuplicateDependenciesComparison(
     metricCatalogue['duplicateDependencies'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.duplicateDependencies),
+      value: finiteValue(record.duplicateDependencies?.value),
     })),
   )
 }
@@ -290,7 +290,7 @@ export function prepareDuplicateDependenciesMonthlyComparison(
     metricCatalogue['duplicateDependencies'],
     history,
     latest,
-    (record) => finiteValue(record.duplicateDependencies),
+    (record) => finiteValue(record.duplicateDependencies?.value),
     now,
   )
 }
@@ -538,7 +538,7 @@ export function prepareCoreJsSizeHistory(
     metricCatalogue['vendoredCoreJsSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.vendoredCoreJsSize, 1024),
+      value: finiteValue(record.vendoredCoreJsSize?.value, 1024),
     })),
   )
 }
@@ -665,7 +665,7 @@ export function prepareSsrRequestThroughputTestsBodySizeKbHistory(
     metricCatalogue['ssrRequestThroughputTests.bodySizeKb'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.bodySizeKb),
+      value: finiteValue(record.ssrRequestThroughputTests?.bodySizeKb?.value),
     })),
   )
 }
@@ -677,7 +677,7 @@ export function prepareSsrRequestThroughputTestsBodySizeKbComparison(
     metricCatalogue['ssrRequestThroughputTests.bodySizeKb'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.ssrRequestThroughputTests?.bodySizeKb),
+      value: finiteValue(record.ssrRequestThroughputTests?.bodySizeKb?.value),
     })),
   )
 }
@@ -691,7 +691,8 @@ export function prepareSsrRequestThroughputTestsBodySizeKbMonthlyComparison(
     metricCatalogue['ssrRequestThroughputTests.bodySizeKb'],
     history,
     latest,
-    (record) => finiteValue(record.ssrRequestThroughputTests?.bodySizeKb),
+    (record) =>
+      finiteValue(record.ssrRequestThroughputTests?.bodySizeKb?.value),
     now,
   )
 }
@@ -741,7 +742,7 @@ export function prepareNodeModulesSizeHistory(
     metricCatalogue['nodeModulesSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.nodeModulesSizeBytes, 1048576),
+      value: finiteValue(record.install.nodeModulesSizeBytes?.value, 1048576),
     })),
   )
 }
@@ -753,7 +754,7 @@ export function prepareNodeModulesSizeComparison(
     metricCatalogue['nodeModulesSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.install.nodeModulesSizeBytes, 1048576),
+      value: finiteValue(record.install.nodeModulesSizeBytes?.value, 1048576),
     })),
   )
 }
@@ -767,7 +768,8 @@ export function prepareNodeModulesSizeMonthlyComparison(
     metricCatalogue['nodeModulesSize'],
     history,
     latest,
-    (record) => finiteValue(record.install?.nodeModulesSizeBytes, 1048576),
+    (record) =>
+      finiteValue(record.install?.nodeModulesSizeBytes?.value, 1048576),
     now,
   )
 }
@@ -779,7 +781,7 @@ export function prepareDependencyInstallSizeHistory(
     metricCatalogue['depInstallSize'],
     records.map((record) => ({
       record,
-      value: finiteValue(record.depInstallSize, 1048576),
+      value: finiteValue(record.depInstallSize?.value, 1048576),
     })),
   )
 }
@@ -811,7 +813,7 @@ export function prepareSSRTotalRequestsHistory(
     metricCatalogue[`${testsKey}.totalRequests`],
     records.map((record) => ({
       record,
-      value: finiteValue(record[testsKey]?.totalRequests),
+      value: finiteValue(record[testsKey]?.totalRequests?.value),
     })),
   )
 }

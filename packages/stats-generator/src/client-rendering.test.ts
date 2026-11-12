@@ -18,7 +18,13 @@ test('assembles client rendering from exact raw browser measurements', () => {
     },
   }))
   const result = assembleClientRendering(iterations)
-  assert.deepEqual(result.iterations, iterations)
+  assert.deepEqual(
+    result.iterations.map(({ firstPaintMs }) => firstPaintMs),
+    [
+      { value: 1, unit: 'ms' },
+      { value: 3, unit: 'ms' },
+    ],
+  )
   assert.equal(result.firstPaintMs.mean, 2)
   assert.equal(result.interactionTests.source, 'lighthouse-inp-breakdown')
   assert.equal(

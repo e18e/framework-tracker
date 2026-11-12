@@ -8,7 +8,11 @@ test('startup results retain iterations and summarize measurements', () => {
     devServerStartTime: {
       name: 'devServer',
       runs: 3,
-      iterations: [{ timeMs: 10 }, { timeMs: 20 }, { timeMs: 30 }],
+      iterations: [
+        { timeMs: { value: 10, unit: 'ms' } },
+        { timeMs: { value: 20, unit: 'ms' } },
+        { timeMs: { value: 30, unit: 'ms' } },
+      ],
       timeMs: { unit: 'ms', mean: 20, median: 20, min: 10, max: 30 },
     },
   })
@@ -23,7 +27,13 @@ test('startup schema requires its test name, complete runs, and statistics', () 
     { runs: 1.5 },
     { runs: 2 },
     { iterations: undefined },
-    { iterations: [{ timeMs: -1 }, { timeMs: 20 }, { timeMs: 30 }] },
+    {
+      iterations: [
+        { timeMs: { value: -1, unit: 'ms' } },
+        { timeMs: { value: 20, unit: 'ms' } },
+        { timeMs: { value: 30, unit: 'ms' } },
+      ],
+    },
     { timeMs: { unit: 'ms', mean: 20, min: 10, max: 30 } },
   ]) {
     assert.equal(

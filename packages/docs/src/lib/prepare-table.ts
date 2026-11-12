@@ -77,7 +77,9 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
     .filter(
       (framework) =>
         framework[key] != null &&
-        Number.isFinite(framework[key].representativePeak.requestsPerSec) &&
+        Number.isFinite(
+          framework[key].representativePeak.requestsPerSec.value,
+        ) &&
         getSSRLoadLatencyStage(framework, 25, key) != null &&
         getSSRLoadLatencyStage(framework, 50, key) != null &&
         getSSRLoadLatencyStage(framework, 100, key) != null,
@@ -91,13 +93,15 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
         package: framework.package,
 
         peakRequestsPerSec:
-          framework[key]!.representativePeak.requestsPerSec.toLocaleString(),
+          framework[
+            key
+          ]!.representativePeak.requestsPerSec.value.toLocaleString(),
         peakWorkers:
           framework[key]!.representativePeak.workers.toLocaleString(),
         worker25P99LatencyMs: `${worker25Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         worker50P99LatencyMs: `${worker50Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         worker100P99LatencyMs: `${worker100Stage.p99LatencyMs.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
-        totalRequests: framework[key]!.totalRequests.toLocaleString(),
+        totalRequests: framework[key]!.totalRequests.value.toLocaleString(),
       }
     })
 
@@ -163,16 +167,16 @@ export const depsStats = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
   directDependencies: [
-    f.devDependencies.toLocaleString(),
-    f.prodDependencies.toLocaleString(),
+    f.devDependencies.value.toLocaleString(),
+    f.prodDependencies.value.toLocaleString(),
   ].join(' / '),
-  prodDependencies: f.prodDependencies,
-  devDependencies: f.devDependencies,
-  allDependencies: f.allDependencies.toLocaleString(),
-  duplicateDependencies: f.duplicateDependencies,
-  nodeModulesSize: formatBytesToMB(f.install.nodeModulesSizeBytes),
+  prodDependencies: f.prodDependencies.value,
+  devDependencies: f.devDependencies.value,
+  allDependencies: f.allDependencies.value.toLocaleString(),
+  duplicateDependencies: f.duplicateDependencies?.value,
+  nodeModulesSize: formatBytesToMB(f.install.nodeModulesSizeBytes.value),
   depInstallSize:
-    f.depInstallSize != null ? formatBytesToMB(f.depInstallSize) : '—',
+    f.depInstallSize != null ? formatBytesToMB(f.depInstallSize.value) : '—',
   graph: 'View',
 }))
 
@@ -183,11 +187,11 @@ export const firstPartyDepsStats = starterStats.map((f) => {
     name: f.name,
     package: f.package,
     directDependencies: [
-      dependencies.devDependencies.toLocaleString(),
-      dependencies.prodDependencies.toLocaleString(),
+      dependencies.devDependencies.value.toLocaleString(),
+      dependencies.prodDependencies.value.toLocaleString(),
     ].join(' / '),
-    allDependencies: dependencies.allDependencies.toLocaleString(),
-    duplicateDependencies: dependencies.duplicateDependencies ?? '—',
+    allDependencies: dependencies.allDependencies.value.toLocaleString(),
+    duplicateDependencies: dependencies.duplicateDependencies?.value ?? '—',
     graph: 'View',
   }
 })
@@ -227,9 +231,9 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
     {
       name: f.name,
       package: f.package,
-      allDependencies: dependencies.allDependencies.toLocaleString(),
-      devDependencies: dependencies.devDependencies.toLocaleString(),
-      prodDependencies: dependencies.prodDependencies.toLocaleString(),
+      allDependencies: dependencies.allDependencies.value.toLocaleString(),
+      devDependencies: dependencies.devDependencies.value.toLocaleString(),
+      prodDependencies: dependencies.prodDependencies.value.toLocaleString(),
       graph: 'View',
       graphUrl: `https://npmgraph.js.org/?q=${encodeURIComponent(graphQuery)}`,
     },
@@ -259,13 +263,13 @@ export const devServerStartData = starterStats.map((f) => ({
 }))
 
 export const coreJsTableData = starterStats.map((f) => {
-  const hasCorejs = (f.vendoredCoreJsSize ?? 0) > 0
+  const hasCorejs = (f.vendoredCoreJsSize?.value ?? 0) > 0
   return {
     name: f.name,
     package: f.package,
     detected: f.vendoredCoreJsSize == null ? '—' : hasCorejs ? 'Yes' : 'No',
     bundledSize: hasCorejs
-      ? `${((f.vendoredCoreJsSize ?? 0) / 1024).toFixed(1)} KB`
+      ? `${((f.vendoredCoreJsSize?.value ?? 0) / 1024).toFixed(1)} KB`
       : '—',
     unnecessaryModules: hasCorejs
       ? String(f.vendoredCoreJsUnnecessaryModules?.length ?? 0)
@@ -298,18 +302,18 @@ export const browserBaselineTableData = starterStats.map((f) => {
     package: f.package,
     status: formatBaselineStatus(
       baseline?.baselineStatus,
-      baseline?.baselineFeatureCount,
+      baseline?.baselineFeatureCount?.value,
     ),
     feature: formatBaselineReason(baseline?.baselineReason),
     year:
-      baseline?.baselineFeatureCount === 0
+      baseline?.baselineFeatureCount?.value === 0
         ? '—'
         : baseline?.baselineYear != null
           ? String(baseline.baselineYear)
           : '—',
     features:
       baseline?.baselineFeatureCount != null
-        ? baseline.baselineFeatureCount.toLocaleString()
+        ? baseline.baselineFeatureCount.value.toLocaleString()
         : '—',
   }
 })
@@ -323,9 +327,9 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
         name: f.name,
         package: f.package,
         opsPerSec: Math.round(tests.opsPerSec).toLocaleString(),
-        latencyMs: `${Number(tests.latencyMs.toFixed(3))}ms`,
-        bodySizeKb: `${tests.bodySizeKb}kb`,
-        duplicationFactor: `${tests.duplicationFactor}x`,
+        latencyMs: `${Number(tests.latencyMs.toFixed(3))}${tests.latencyUnit}`,
+        bodySizeKb: `${tests.bodySizeKb.value} ${tests.bodySizeKb.unit}`,
+        duplicationFactor: `${tests.duplicationFactor.value}x`,
       },
     ]
   },
@@ -339,8 +343,11 @@ export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
       {
         name: framework.name,
         package: framework.package,
-        requests: resources.total.requestCount,
-        total: formatChartValue(resources.total.transferSize / 1024, 'kb'),
+        requests: resources.total.requestCount.value,
+        total: formatChartValue(
+          resources.total.transferSize.value / 1024,
+          'kb',
+        ),
         ...Object.fromEntries(
           Object.entries(prepareInitialLoadResources(resources)).map(
             ([key, value]) => [key, formatChartValue(value, 'kb')],

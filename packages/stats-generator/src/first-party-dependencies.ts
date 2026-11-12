@@ -179,11 +179,20 @@ export function getFirstPartyDependencyStats(
 
   return {
     name: 'firstPartyDependencies',
-    prodDependencies: Object.keys(manifest.dependencies ?? {}).length,
-    devDependencies: Object.keys(manifest.devDependencies ?? {}).length,
-    allDependencies: packageKeys.size,
-    duplicateDependencies: [...versionsByName.values()].filter(
-      (versions) => versions.size > 1,
-    ).length,
+    prodDependencies: {
+      value: Object.keys(manifest.dependencies ?? {}).length,
+      unit: 'count',
+    },
+    devDependencies: {
+      value: Object.keys(manifest.devDependencies ?? {}).length,
+      unit: 'count',
+    },
+    allDependencies: { value: packageKeys.size, unit: 'count' },
+    duplicateDependencies: {
+      value: [...versionsByName.values()].filter(
+        (versions) => versions.size > 1,
+      ).length,
+      unit: 'count',
+    },
   }
 }

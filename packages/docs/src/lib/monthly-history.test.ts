@@ -40,14 +40,14 @@ const astroVersions = [
     name: 'Astro',
     frameworkVersion: '7.1.6',
     releasedAt: '2026-07-29T14:21:53Z',
-    prodDependencies: 10,
+    prodDependencies: { value: 10, unit: 'count' as const },
   },
   {
     package: 'starter-astro',
     name: 'Astro',
     frameworkVersion: '7.2.10',
     releasedAt: '2026-08-31T19:39:50Z',
-    prodDependencies: 12,
+    prodDependencies: { value: 12, unit: 'count' as const },
   },
 ]
 const astroLatest = {
@@ -55,7 +55,7 @@ const astroLatest = {
   name: 'Astro',
   frameworkVersion: '7.4.0',
   releasedAt: '2026-10-15T14:49:24Z',
-  prodDependencies: 14,
+  prodDependencies: { value: 14, unit: 'count' as const },
 }
 
 test('leaves gaps before a framework’s first tracked release', () => {

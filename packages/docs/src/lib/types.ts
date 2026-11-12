@@ -1,3 +1,4 @@
+import type { FrameworkResult } from '@framework-performance/results'
 import type { LineChartScaleId, LineChartTooltipId } from './line-chart-config'
 
 export type ChartValueFormat = 'count' | 'mb' | 'kb' | 'ms' | 's'
@@ -95,11 +96,13 @@ export interface InteractionHistoryDatum extends Record<
   name: string
 }
 
-interface DependencyCounts {
-  prodDependencies?: number
-  devDependencies?: number
-  allDependencies?: number
-}
+type DependencyCounts = Pick<
+  FrameworkResult,
+  | 'prodDependencies'
+  | 'devDependencies'
+  | 'allDependencies'
+  | 'duplicateDependencies'
+>
 
 /** Measurement subset accepted by chart preparation; Astro collection records fit structurally. */
 export interface ChartMeasurement {
@@ -112,14 +115,16 @@ export interface ChartMeasurement {
   }
   install?: {
     installTimeMs?: { mean?: number }
-    nodeModulesSizeBytes?: number
+    nodeModulesSizeBytes?: NonNullable<
+      FrameworkResult['install']
+    >['nodeModulesSizeBytes']
   }
   frameworkDependencies?: DependencyCounts
   firstPartyDependencies?: DependencyCounts
-  prodDependencies?: number
-  devDependencies?: number
-  allDependencies?: number
-  duplicateDependencies?: number
+  prodDependencies?: FrameworkResult['prodDependencies']
+  devDependencies?: FrameworkResult['devDependencies']
+  allDependencies?: FrameworkResult['allDependencies']
+  duplicateDependencies?: FrameworkResult['duplicateDependencies']
   clientSideRenderedTests?: {
     firstPaintMs?: number
     fcpMs?: number
@@ -131,7 +136,7 @@ export interface ChartMeasurement {
   warmBuildTime?: {
     medianMs?: number
   }
-  vendoredCoreJsSize?: number
+  vendoredCoreJsSize?: FrameworkResult['vendoredCoreJsSize']
   serverSideRenderedTests?: {
     firstPaintMs?: number
     fcpMs?: number
@@ -139,16 +144,18 @@ export interface ChartMeasurement {
   }
   ssrRequestThroughputTests?: {
     opsPerSec?: number
-    bodySizeKb?: number
+    bodySizeKb?: NonNullable<
+      FrameworkResult['ssrRequestThroughputTests']
+    >['bodySizeKb']
     latencyMs?: number
   }
-  depInstallSize?: number
+  depInstallSize?: FrameworkResult['depInstallSize']
   ssrLoadTests?: SSRLoadMeasurements
   ssrRouterLinkLoadTests?: SSRLoadMeasurements
 }
 
 interface SSRLoadMeasurements {
-  totalRequests?: number
+  totalRequests?: NonNullable<FrameworkResult['ssrLoadTests']>['totalRequests']
   stages?: {
     workers: number
     latencyRanges?: Partial<
@@ -167,6 +174,8 @@ interface SSRLoadMeasurements {
 export type InstallChartMeasurement = ChartMeasurement & {
   install: {
     installTimeMs: { median: number }
-    nodeModulesSizeBytes: number
+    nodeModulesSizeBytes: NonNullable<
+      FrameworkResult['install']
+    >['nodeModulesSizeBytes']
   }
 }

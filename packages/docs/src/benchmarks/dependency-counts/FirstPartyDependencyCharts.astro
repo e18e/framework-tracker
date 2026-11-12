@@ -22,8 +22,8 @@ type DependencyMetric =
 function getDependencyChartData(metric: DependencyMetric) {
   return starterStats
     .flatMap((framework) => {
-      const value = framework.firstPartyDependencies[metric]
-      if (typeof value !== 'number' || !Number.isFinite(value)) return []
+      const value = framework.firstPartyDependencies[metric]?.value
+      if (value == null || !Number.isFinite(value)) return []
 
       return [
         {
@@ -50,10 +50,8 @@ function getDependencyCharts(metric: DependencyMetric, title: string) {
       starterHistory,
       starterStats,
       (record) => {
-        const value = record.firstPartyDependencies?.[metric]
-        return typeof value === 'number' && Number.isFinite(value)
-          ? value
-          : null
+        const value = record.firstPartyDependencies?.[metric]?.value
+        return value != null && Number.isFinite(value) ? value : null
       },
     ),
   }

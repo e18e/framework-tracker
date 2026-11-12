@@ -24,7 +24,7 @@ export function createRequestThroughputIteration(
   return RequestThroughputIterationSchema.parse({
     opsPerSec: summarizeMetric(throughputSamples),
     latencyMs: summarizeMetric(latencySamplesMs),
-    samples: latencySamplesMs.length,
+    samples: { value: latencySamplesMs.length, unit: 'requests' },
   })
 }
 
@@ -49,10 +49,13 @@ export function assembleRequestThroughput(
     path: '/ssr-throughput',
     runs: iterations.length,
     iterations,
-    samples: iterations.reduce(
-      (count, iteration) => count + iteration.samples,
-      0,
-    ),
+    samples: {
+      value: iterations.reduce(
+        (count, iteration) => count + iteration.samples.value,
+        0,
+      ),
+      unit: 'requests',
+    },
     opsPerSec: summarizeMetric(iterations.map((value) => value.opsPerSec.mean)),
     latencyMs: summarizeMetric(iterations.map((value) => value.latencyMs.mean)),
   })

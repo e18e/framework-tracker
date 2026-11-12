@@ -127,7 +127,7 @@ async function main() {
       baselineStatus: target.status,
       baselineYear: featureIds.length === 0 ? null : detectedBaselineYear,
       baselineReason: target.reason,
-      baselineFeatureCount: featureIds.length,
+      baselineFeatureCount: { value: featureIds.length, unit: 'count' },
     }
 
     const label =

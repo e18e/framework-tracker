@@ -6,7 +6,9 @@ export function createDevServerStats(samples: number[]) {
     devServerStartTime: {
       name: 'devServer',
       runs: samples.length,
-      iterations: samples.map((timeMs) => ({ timeMs })),
+      iterations: samples.map((timeMs) => ({
+        timeMs: { value: timeMs, unit: 'ms' },
+      })),
       timeMs: summarizeMetric(samples),
     },
   })

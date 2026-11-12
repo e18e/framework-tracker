@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import type { FrameworkResult } from '@framework-performance/results'
 import {
   prepareLighthouseClientSideRenderedTestsInteractionHistory,
   prepareLighthouseServerSideRenderedTestsInteractionHistory,
@@ -19,6 +18,7 @@ const timings = (
     inputDelayMs + processingDurationMs + presentationDelayMs,
 })
 const metric = (value: number) => ({
+  unit: 'ms' as const,
   mean: value,
   median: value,
   min: value,
@@ -37,9 +37,23 @@ test('rendered tests take interaction phases from the run with the median total'
     name: 'clientSideRendered',
     runs: runs.length,
     iterations: runs.map((interactionTests) => ({
-      firstPaintMs: 100,
-      fcpMs: 100,
-      interactionTests,
+      firstPaintMs: { value: 100, unit: 'ms' },
+      fcpMs: { value: 100, unit: 'ms' },
+      interactionTests: {
+        inputDelayMs: { value: interactionTests.inputDelayMs, unit: 'ms' },
+        processingDurationMs: {
+          value: interactionTests.processingDurationMs,
+          unit: 'ms',
+        },
+        presentationDelayMs: {
+          value: interactionTests.presentationDelayMs,
+          unit: 'ms',
+        },
+        interactionLatencyMs: {
+          value: interactionTests.interactionLatencyMs,
+          unit: 'ms',
+        },
+      },
     })),
     firstPaintMs: metric(100),
     fcpMs: metric(100),
@@ -51,7 +65,7 @@ test('rendered tests take interaction phases from the run with the median total'
       processingDurationMs: metric(20),
       presentationDelayMs: metric(9),
     },
-  } as NonNullable<FrameworkResult['clientSideRenderedTests']>)
+  })
 
   assert.deepEqual(formatted.interactionTests, {
     scenario: 'first-row-detail-navigation',

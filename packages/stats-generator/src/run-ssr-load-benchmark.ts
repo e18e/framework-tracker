@@ -67,7 +67,7 @@ async function main() {
     result.tests.iterations[result.tests.representativeIterationIndex]!,
   )
   console.info(
-    `\n✓ Saved ${label} stats for ${packageName}: ${peak.requestsPerSec} req/s at ${peak.workers} workers`,
+    `\n✓ Saved ${label} stats for ${packageName}: ${peak.requestsPerSec.value} req/s at ${peak.workers} workers`,
   )
 }
 

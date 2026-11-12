@@ -1,6 +1,6 @@
 interface PeakCandidate {
-  errors: number
-  requestsPerSec: number
+  errors: { value: number }
+  requestsPerSec: { value: number }
 }
 
 export function getLoadPeakStage<T extends PeakCandidate>(
@@ -8,8 +8,9 @@ export function getLoadPeakStage<T extends PeakCandidate>(
 ): T {
   const peak = stages.reduce<T | undefined>(
     (best, stage) =>
-      stage.errors === 0 &&
-      (best === undefined || stage.requestsPerSec > best.requestsPerSec)
+      stage.errors.value === 0 &&
+      (best === undefined ||
+        stage.requestsPerSec.value > best.requestsPerSec.value)
         ? stage
         : best,
     undefined,
@@ -30,7 +31,7 @@ export function selectRepresentativeIteration(
   return iterations
     .map((sweep, index) => ({
       index,
-      peak: getLoadPeakStage(sweep).requestsPerSec,
+      peak: getLoadPeakStage(sweep).requestsPerSec.value,
     }))
     .sort((a, b) => a.peak - b.peak)[Math.floor(iterations.length / 2)]!.index
 }

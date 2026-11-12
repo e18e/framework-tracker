@@ -23,10 +23,10 @@ test('derives starter dependency metrics from e18e output', () => {
   } satisfies E18eStats)
 
   assert.deepEqual(stats, {
-    prodDependencies: 2,
-    devDependencies: 3,
-    duplicateDependencies: 5,
-    depInstallSize: 1234,
+    prodDependencies: { value: 2, unit: 'count' },
+    devDependencies: { value: 3, unit: 'count' },
+    duplicateDependencies: { value: 5, unit: 'count' },
+    depInstallSize: { value: 1234, unit: 'bytes' },
   })
 })
 
@@ -81,11 +81,11 @@ test('counts the first-party graph within the starter lockfile', () => {
       lockfile,
     ),
     {
-      prodDependencies: 1,
-      devDependencies: 1,
+      prodDependencies: { value: 1, unit: 'count' },
+      devDependencies: { value: 1, unit: 'count' },
       name: 'firstPartyDependencies',
-      allDependencies: 6,
-      duplicateDependencies: 1,
+      allDependencies: { value: 6, unit: 'count' },
+      duplicateDependencies: { value: 1, unit: 'count' },
     },
   )
 })

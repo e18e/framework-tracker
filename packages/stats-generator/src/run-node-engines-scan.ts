@@ -155,7 +155,7 @@ async function main() {
   const stats = resolveMinimumNodeVersion(entries)
 
   console.info(
-    `  Scanned ${stats.packagesScanned} package(s), ${stats.packagesDeclaringNodeEngine} declaring engines.node`,
+    `  Scanned ${stats.packagesScanned.value} package(s), ${stats.packagesDeclaringNodeEngine.value} declaring engines.node`,
   )
 
   if (stats.minimumNodeVersion) {

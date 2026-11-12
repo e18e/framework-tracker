@@ -28,7 +28,10 @@ test('CI requires, validates, and preserves initial load artifacts', async () =>
   const resources = Object.fromEntries(
     InitialLoadResourceTypeSchema.options.map((key) => [
       key,
-      { requestCount: 0, transferSize: 0 },
+      {
+        requestCount: { value: 0, unit: 'requests' },
+        transferSize: { value: 0, unit: 'bytes' },
+      },
     ]),
   )
   const artifact = {

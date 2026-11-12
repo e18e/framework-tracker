@@ -50,10 +50,10 @@ async function main() {
     `\n✓ Saved ${packageName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
   console.info(
-    `  Requests: ${result.initialLoadTests.resources.total.requestCount}`,
+    `  Requests: ${result.initialLoadTests.resources.total.requestCount.value}`,
   )
   console.info(
-    `  Transfer: ${result.initialLoadTests.resources.total.transferSize} bytes`,
+    `  Transfer: ${result.initialLoadTests.resources.total.transferSize.value} bytes`,
   )
 }
 

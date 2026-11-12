@@ -32,7 +32,7 @@ async function runStage(
     timeout: STAGE_DURATION_SECONDS + 5,
   })
 
-  return {
+  return measureLoadStage({
     workers,
     elapsedTimeMs: round(result.duration * 1000),
     requests: result.requests.total,
@@ -45,6 +45,25 @@ async function runStage(
     p99LatencyMs: round(result.latency.p99),
     maxLatencyMs: round(result.latency.max),
     bytesPerSec: round(result.throughput.average),
+  })
+}
+
+type RawLoadStage = { [K in keyof SSRLoadStageStats]: number }
+
+export function measureLoadStage(stage: RawLoadStage): SSRLoadStageStats {
+  return {
+    workers: stage.workers,
+    elapsedTimeMs: { value: stage.elapsedTimeMs, unit: 'ms' },
+    requests: { value: stage.requests, unit: 'requests' },
+    errors: { value: stage.errors, unit: 'errors' },
+    requestsPerSec: { value: stage.requestsPerSec, unit: 'requests/s' },
+    avgLatencyMs: { value: stage.avgLatencyMs, unit: 'ms' },
+    p50LatencyMs: { value: stage.p50LatencyMs, unit: 'ms' },
+    p75LatencyMs: { value: stage.p75LatencyMs, unit: 'ms' },
+    p90LatencyMs: { value: stage.p90LatencyMs, unit: 'ms' },
+    p99LatencyMs: { value: stage.p99LatencyMs, unit: 'ms' },
+    maxLatencyMs: { value: stage.maxLatencyMs, unit: 'ms' },
+    bytesPerSec: { value: stage.bytesPerSec, unit: 'bytes/s' },
   }
 }
 
@@ -66,9 +85,9 @@ export async function runLoadTest(
         `  Sweep ${run}/${measurements[getSSRLoadKind()].runs}: warm-up ${attempt}/${WARMUP_ATTEMPTS} for ${STAGE_DURATION_SECONDS}s`,
       )
       const warmup = await measureStage(url, WORKER_STAGES[0])
-      if (warmup.errors === 0 && warmup.requests > 0) break
+      if (warmup.errors.value === 0 && warmup.requests.value > 0) break
 
-      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests} requests, ${warmup.errors} errors, ${warmup.elapsedTimeMs}ms`
+      const details = `sweep ${run}/${measurements[getSSRLoadKind()].runs}, attempt ${attempt}/${WARMUP_ATTEMPTS}: ${warmup.requests.value} requests, ${warmup.errors.value} errors, ${warmup.elapsedTimeMs.value}ms`
       if (attempt === WARMUP_ATTEMPTS) {
         throw new Error(
           `SSR load warm-up failed (${details}); expected requests without errors after recovery.`,
@@ -84,7 +103,7 @@ export async function runLoadTest(
       console.info(`  ${workers} workers for ${STAGE_DURATION_SECONDS}s`)
       const stage = await measureStage(url, workers)
       console.info(
-        `    ${stage.requests} requests, ${stage.errors} errors, ${stage.requestsPerSec} req/s`,
+        `    ${stage.requests.value} requests, ${stage.errors.value} errors, ${stage.requestsPerSec.value} req/s`,
       )
       stages.push(stage)
     }
@@ -148,16 +167,22 @@ export function summarizeLoadSweeps(
     iterations: [...samples],
     representativeIterationIndex,
     configuration: { workerStages: workers },
-    totalRequests: samples.reduce(
-      (sum, sweep) =>
-        sum + sweep.reduce((count, stage) => count + stage.requests, 0),
-      0,
-    ),
-    totalErrors: samples.reduce(
-      (sum, sweep) =>
-        sum + sweep.reduce((count, stage) => count + stage.errors, 0),
-      0,
-    ),
+    totalRequests: {
+      value: samples.reduce(
+        (sum, sweep) =>
+          sum + sweep.reduce((count, stage) => count + stage.requests.value, 0),
+        0,
+      ),
+      unit: 'requests',
+    },
+    totalErrors: {
+      value: samples.reduce(
+        (sum, sweep) =>
+          sum + sweep.reduce((count, stage) => count + stage.errors.value, 0),
+        0,
+      ),
+      unit: 'errors',
+    },
     ...Object.fromEntries(
       workers.map((connections, index) => [
         `stage${index + 1}`,
@@ -166,7 +191,9 @@ export function summarizeLoadSweeps(
           ...Object.fromEntries(
             fields.map((field) => [
               field,
-              summarizeMetric(samples.map((sweep) => sweep[index]![field])),
+              summarizeMetric(
+                samples.map((sweep) => sweep[index]![field].value),
+              ),
             ]),
           ),
         },

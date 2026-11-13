@@ -422,13 +422,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000
-        },
         "representativeIterationIndex": 0,
-        "source": "autocannon",
-        "path": "/server-side-rendered-plain-links",
         "totalRequests": { "value": 46085, "unit": "requests" },
         "totalErrors": { "value": 0, "unit": "errors" },
         "stage1": {
@@ -1251,13 +1245,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000
-        },
         "representativeIterationIndex": 2,
-        "source": "autocannon",
-        "path": "/server-side-rendered",
         "totalRequests": { "value": 6914, "unit": "requests" },
         "totalErrors": { "value": 0, "unit": "errors" },
         "stage1": {
@@ -1835,8 +1823,6 @@
           "max": 169.686
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 12.363500000000002,
@@ -1930,8 +1916,6 @@
           "max": 104.868
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 7.085,
@@ -2023,6 +2007,33 @@
     "warmBuildDuration": {
       "project": "starter",
       "result": { "value": 6545, "unit": "ms" }
+    }
+  },
+  "configuration": {
+    "install": { "runs": 5 },
+    "build": { "runs": 5 },
+    "devServer": { "runs": 5 },
+    "dependencies": null,
+    "browserBaseline": null,
+    "ssrLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "warmupDurationMs": 5000,
+      "path": "/server-side-rendered-plain-links"
+    },
+    "ssrRouterLinkLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "warmupDurationMs": 5000,
+      "path": "/server-side-rendered"
+    },
+    "clientSideRendered": {
+      "runs": 4,
+      "scenario": "first-row-detail-navigation"
+    },
+    "serverSideRendered": {
+      "runs": 4,
+      "scenario": "first-row-detail-navigation"
     }
   }
 }

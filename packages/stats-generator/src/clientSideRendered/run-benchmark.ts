@@ -7,8 +7,6 @@ import { warmUpServer } from '../server-warmup.ts'
 import {
   getInteractionTimingFromLighthouse,
   getNavigationInteractionTimingFromLighthouse,
-  INTERACTION_SCENARIO,
-  INTERACTION_SOURCE,
   prepareInteractionTraceForLighthouse,
 } from '../interaction-timing.ts'
 import type {

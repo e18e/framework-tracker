@@ -13,8 +13,6 @@ export function assembleClientRendering(iterations: RenderedTestSample[]) {
       iterations.map((value) => value.firstContentfulPaint),
     ),
     interactionTests: {
-      scenario: 'first-row-detail-navigation',
-      source: 'lighthouse-inp-breakdown',
       ...Object.fromEntries(
         [
           'interactionLatency',

@@ -26,7 +26,6 @@ test('assembles client rendering from exact raw browser measurements', () => {
     ],
   )
   assert.equal(result.firstPaint.mean, 2)
-  assert.equal(result.interactionTests.source, 'lighthouse-inp-breakdown')
   assert.equal(
     ClientRenderingBenchmarkSchema.safeParse({
       ...result,

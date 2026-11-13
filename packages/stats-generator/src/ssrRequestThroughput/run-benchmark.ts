@@ -1,3 +1,4 @@
+import { measurementsConfig } from '../measurements.ts'
 import { parseRunFrequency } from '../benchmark-utils.ts'
 import type { RequestThroughputIteration } from '../request-throughput.ts'
 import {
@@ -13,7 +14,7 @@ import type {
   WebServerRenderHandler,
 } from './types.ts'
 
-const SSR_REQUEST_HANDLER_THROUGHPUT_PATH = '/ssr-throughput'
+const config = measurementsConfig.ssrRequestThroughput
 const HTML_ACCEPT_HEADER = 'text/html,application/xhtml+xml'
 
 interface HandlerConfig {
@@ -59,14 +60,11 @@ async function runWebHandler(
   handler: WebServerRenderHandler,
   collect = false,
 ): Promise<HandlerResult> {
-  const request = new Request(
-    `http://localhost${SSR_REQUEST_HANDLER_THROUGHPUT_PATH}`,
-    {
-      headers: {
-        Accept: HTML_ACCEPT_HEADER,
-      },
+  const request = new Request(`http://localhost${config.path}`, {
+    headers: {
+      Accept: HTML_ACCEPT_HEADER,
     },
-  )
+  })
   const response = await handler(request)
   const { body, length } = await consumeWebResponse(response, collect)
   return { body, length, status: response.status }
@@ -76,7 +74,7 @@ async function runNodeHandler(
   handler: NodeServerRenderHandler,
   collect = false,
 ): Promise<HandlerResult> {
-  const request = new IncomingMessage(SSR_REQUEST_HANDLER_THROUGHPUT_PATH)
+  const request = new IncomingMessage(config.path)
   request.headers = {
     accept: HTML_ACCEPT_HEADER,
     host: 'localhost',
@@ -102,22 +100,22 @@ async function runHandler(
   return runNodeHandler(serverRenderHandler.handler, collect)
 }
 
-function validateHandlerResult(config: HandlerConfig, result: HandlerResult) {
+function validateHandlerResult(handler: HandlerConfig, result: HandlerResult) {
   if (result.status !== 200) {
     throw new Error(
-      `${config.name} returned status ${result.status} for ${SSR_REQUEST_HANDLER_THROUGHPUT_PATH}`,
+      `${handler.name} returned status ${result.status} for ${config.path}`,
     )
   }
 
   if (result.length === 0) {
     throw new Error(
-      `${config.name} returned an empty response for ${SSR_REQUEST_HANDLER_THROUGHPUT_PATH}`,
+      `${handler.name} returned an empty response for ${config.path}`,
     )
   }
 
   if (!result.body.includes('<table')) {
     throw new Error(
-      `${config.name} did not render the benchmark table for ${SSR_REQUEST_HANDLER_THROUGHPUT_PATH}`,
+      `${handler.name} did not render the benchmark table for ${config.path}`,
     )
   }
 }
@@ -139,14 +137,14 @@ function getDuplicationFactor(body: string): number {
 
 export async function runBenchmark(
   handlers: HandlerConfig[],
-  runs = 5,
+  runs: number = config.runs,
 ): Promise<SSRRequestThroughputBenchmarkResult[]> {
   parseRunFrequency(String(runs))
   const options = {
-    time: 10_000,
-    warmupTime: 250,
-    iterations: 64,
-    warmupIterations: 16,
+    time: config.durationMs,
+    warmupTime: config.warmupDurationMs,
+    iterations: config.minimumRequests,
+    warmupIterations: config.warmupMinimumRequests,
     retainSamples: true,
   }
   const iterationsByName = new Map<string, RequestThroughputIteration[]>()
@@ -202,10 +200,6 @@ export async function runBenchmark(
       displayName: config.displayName,
       package: config.package,
       benchmark: assembleRequestThroughput(iterationsByName.get(config.name)!, {
-        durationMs: options.time,
-        warmupDurationMs: options.warmupTime,
-        minimumRequests: options.iterations,
-        warmupMinimumRequests: options.warmupIterations,
         bodySize: { value: Number((length / 1024).toFixed(2)), unit: 'KiB' },
         duplicationFactor: {
           value: Number(duplicationFactor.toFixed(2)),

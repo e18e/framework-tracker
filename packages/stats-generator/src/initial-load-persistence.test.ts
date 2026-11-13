@@ -8,12 +8,14 @@ import {
   projectResult,
   readProjectResult,
 } from '@framework-performance/results/storage'
-import { frameworks } from './frameworks.ts'
+import { frameworksConfig } from './frameworks.ts'
 import { processCIStats } from './save-ci-stats.ts'
 
 test('CI requires, validates, and preserves initial load artifacts', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'initial-load-ci-'))
-  const framework = frameworks.find((framework) => framework.name === 'astro')!
+  const framework = frameworksConfig.find(
+    (framework) => framework.name === 'astro',
+  )!
   const configured = {
     ...framework,
     starter: undefined,
@@ -39,8 +41,6 @@ test('CI requires, validates, and preserves initial load artifacts', async () =>
     browserVersion: 'Chrome/156',
     initialLoad: {
       name: 'initialLoad',
-      source: 'lighthouse-resource-summary',
-      path: '/initial-load',
       resources,
     },
   }

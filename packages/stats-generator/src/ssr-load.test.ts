@@ -17,6 +17,7 @@ import {
 } from './ssrLoad/run-load-test.ts'
 import type { SSRLoadStageStats, SSRLoadTests } from './ssrLoad/types.ts'
 import { testData } from '../../testdata/src/ssr.ts'
+import { measurementsConfig } from './measurements.ts'
 
 function loadStage(
   overrides: Partial<Parameters<typeof measureLoadStage>[0]> = {},
@@ -106,10 +107,20 @@ test('separate job artifacts cannot overwrite sibling measurements in either mer
   const historical = readProjectResult('app-next-js')!
     .ssrRouterLinkLoad as SSRLoadTests
   const anchor = summarizeLoadSweeps([
-    loadSweep([loadStage({ requests: 123 })]),
+    loadSweep(
+      measurementsConfig.ssrLoad.stageConnections.map((connections) =>
+        loadStage({ connections, requests: 123 }),
+      ),
+    ),
   ])
   const router = summarizeLoadSweeps(
-    [loadSweep([loadStage({ requests: 456 })])],
+    [
+      loadSweep(
+        measurementsConfig.ssrRouterLinkLoad.stageConnections.map(
+          (connections) => loadStage({ connections, requests: 456 }),
+        ),
+      ),
+    ],
     'ssrRouterLinkLoad',
   )
   const anchorArtifact = {
@@ -137,6 +148,22 @@ test('separate job artifacts cannot overwrite sibling measurements in either mer
   }
 
   assert.throws(() => mergeSSRLoadArtifact({}, {}, 'ssrLoad'))
+})
+
+test('fresh load artifacts require the configured stages in order', () => {
+  for (const kind of ['ssrLoad', 'ssrRouterLinkLoad'] as const) {
+    const stages = measurementsConfig[kind].stageConnections.map(
+      (connections) => loadStage({ connections }),
+    )
+    for (const sweep of [stages.slice(0, -1), stages.toReversed()]) {
+      const artifact = { [kind]: summarizeLoadSweeps([loadSweep(sweep)], kind) }
+      validateSSRLoadForPersistence(artifact)
+      assert.throws(
+        () => mergeSSRLoadArtifact({}, artifact, kind),
+        /expected connections/,
+      )
+    }
+  }
 })
 
 test('HTTP table verification rejects missing rows, wrong columns, text, and destinations', async () => {
@@ -291,7 +318,6 @@ test('load runner warms up before each full sweep and excludes warm-up requests'
   )
   assert.deepEqual(pauses, [5000, 5000])
   assert.equal(result.runs, 3)
-  assert.equal(result.configuration.warmupDurationMs, 5000)
   assert.equal(result.totalRequests.value, 10500)
   assert.ok(
     result.iterations!.every(

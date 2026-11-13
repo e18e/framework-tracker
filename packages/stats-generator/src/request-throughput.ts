@@ -28,25 +28,18 @@ export function createRequestThroughputIteration(
   })
 }
 
-type Configuration = Pick<
+type ResponseMetrics = Pick<
   z.infer<typeof RequestThroughputBenchmarkSchema>,
-  | 'bodySize'
-  | 'duplicationFactor'
-  | 'durationMs'
-  | 'warmupDurationMs'
-  | 'minimumRequests'
-  | 'warmupMinimumRequests'
+  'bodySize' | 'duplicationFactor'
 >
 
 export function assembleRequestThroughput(
   iterations: RequestThroughputIteration[],
-  configuration: Configuration,
+  responseMetrics: ResponseMetrics,
 ) {
   return RequestThroughputBenchmarkSchema.parse({
-    ...configuration,
+    ...responseMetrics,
     name: 'ssrRequestThroughput',
-    source: 'tinybench',
-    path: '/ssr-throughput',
     runs: iterations.length,
     iterations,
     totalRequests: {

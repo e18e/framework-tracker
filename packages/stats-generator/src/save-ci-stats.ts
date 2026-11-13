@@ -23,6 +23,8 @@ import {
   type FrameworkResult,
 } from '@framework-performance/results'
 import { withSummaryVariance } from '@framework-performance/results/comparison'
+import { measurementsConfig } from './measurements.ts'
+import { getSSRLoadPath } from './ssrLoad/config.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   mergeRequestThroughputArtifact,
@@ -654,9 +656,24 @@ export async function processCIStats(
     }
   }
 
-  if (!validateOnly)
-    for (const [packageName, stats] of projectStats)
-      saveProjectResult(packageName, { ...stats })
+  if (!validateOnly) {
+    for (const { starter, app } of frameworks) {
+      const configuration = {
+        ...measurementsConfig,
+        ssrLoad: {
+          ...measurementsConfig.ssrLoad,
+          path: app
+            ? getSSRLoadPath(app.package, 'ssrLoad')
+            : measurementsConfig.ssrLoad.path,
+        },
+      }
+      for (const project of [starter, app]) {
+        if (!project) continue
+        const stats = projectStats.get(project.package)
+        if (stats) saveProjectResult(project.package, stats, configuration)
+      }
+    }
+  }
 
   console.info(
     validateOnly ? 'All CI stats are valid; no results written.' : 'Done!',

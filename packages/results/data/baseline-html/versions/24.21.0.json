@@ -317,13 +317,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000
-        },
         "representativeIterationIndex": 0,
-        "source": "autocannon",
-        "path": "/server-side-rendered",
         "totalRequests": { "value": 139308, "unit": "requests" },
         "totalErrors": { "value": 0, "unit": "errors" },
         "stage1": {
@@ -838,6 +832,14 @@
           }
         }
       }
+    }
+  },
+  "configuration": {
+    "ssrLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "warmupDurationMs": 5000,
+      "path": "/server-side-rendered"
     }
   }
 }

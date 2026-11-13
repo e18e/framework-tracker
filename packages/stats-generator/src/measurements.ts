@@ -1,1 +1,1 @@
-export { measurements } from '@framework-performance/results/measurements'
+export { measurementsConfig } from '@framework-performance/results/measurements-config'

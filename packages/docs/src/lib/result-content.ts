@@ -1,6 +1,6 @@
 import { getLoadPeakStage } from '@framework-performance/results/selection'
 import type { CombinedResult } from '@framework-performance/results/storage'
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 import type {
   FrameworkResult,
   InteractionTimingSchema,
@@ -130,7 +130,7 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoad']>) {
 }
 
 export function prepareRuntimeResult(result: CombinedResult) {
-  const framework = frameworks.find((f) => f.name === result.framework)!
+  const framework = frameworksConfig.find((f) => f.name === result.framework)!
   const value = {
     ...result.projects.app,
     name: framework.displayName,
@@ -190,7 +190,7 @@ export function prepareRuntimeResult(result: CombinedResult) {
   }
 }
 export function prepareStarterResult(result: CombinedResult) {
-  const framework = frameworks.find((f) => f.name === result.framework)!
+  const framework = frameworksConfig.find((f) => f.name === result.framework)!
   return {
     ...result.projects.starter,
     name: framework.displayName,

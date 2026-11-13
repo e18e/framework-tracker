@@ -47,21 +47,10 @@ export function metricSummaries(
   return summaries
 }
 
-function benchmarkConfiguration(value: unknown) {
+function benchmarkIdentity(value: unknown) {
   const object = record(value)
   if (!object) return undefined
-  const keys = [
-    'name',
-    'configuration',
-    'source',
-    'path',
-    'durationMs',
-    'warmupDurationMs',
-    'minimumRequests',
-    'warmupMinimumRequests',
-    'bodySize',
-    'duplicationFactor',
-  ]
+  const keys = ['name', 'bodySize', 'duplicationFactor']
   return Object.fromEntries(
     keys.filter((key) => key in object).map((key) => [key, object[key]]),
   )
@@ -97,10 +86,7 @@ export function withSummaryVariance(
         summary.unit === baseline.unit &&
         current.runner === previous?.runner &&
         (!browserTest || current.browserVersion === previous?.browserVersion) &&
-        isDeepStrictEqual(
-          benchmarkConfiguration(value),
-          benchmarkConfiguration(oldValue),
-        )
+        isDeepStrictEqual(benchmarkIdentity(value), benchmarkIdentity(oldValue))
       if (!comparable) continue
       summary.variance = {
         comparedToMeasuredAt: previous?.timingMeasuredAt ?? null,

@@ -47,8 +47,6 @@
       "project": "app",
       "result": {
         "name": "initialLoad",
-        "source": "lighthouse-resource-summary",
-        "path": "/initial-load",
         "resources": {
           "total": {
             "requestCount": {
@@ -577,13 +575,7 @@
         "duplicationFactor": {
           "value": 2,
           "unit": "ratio"
-        },
-        "durationMs": 10000,
-        "warmupDurationMs": 250,
-        "minimumRequests": 64,
-        "warmupMinimumRequests": 16,
-        "source": "tinybench",
-        "path": "/ssr-throughput"
+        }
       }
     },
     "ssrLoad": {
@@ -1586,16 +1578,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000,
-          "recoveryMs": 5000,
-          "warmupAttempts": 3,
-          "stageDurationMs": 5000
-        },
         "representativeIterationIndex": 0,
-        "source": "autocannon",
-        "path": "/server-side-rendered-plain-links",
         "totalRequests": {
           "value": 49758,
           "unit": "requests"
@@ -4447,16 +4430,7 @@
             }
           ]
         ],
-        "configuration": {
-          "stageConnections": [1, 5, 10, 25, 50, 100, 200],
-          "warmupDurationMs": 5000,
-          "recoveryMs": 5000,
-          "warmupAttempts": 3,
-          "stageDurationMs": 5000
-        },
         "representativeIterationIndex": 1,
-        "source": "autocannon",
-        "path": "/server-side-rendered",
         "totalRequests": {
           "value": 17244,
           "unit": "requests"
@@ -6508,8 +6482,6 @@
           }
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 10.263399999999999,
@@ -6817,8 +6789,6 @@
           }
         },
         "interactionTests": {
-          "scenario": "first-row-detail-navigation",
-          "source": "lighthouse-inp-breakdown",
           "interactionLatency": {
             "unit": "ms",
             "mean": 12.9102,
@@ -7101,5 +7071,48 @@
         "postcss-calc"
       ]
     }
+  },
+  "configuration": {
+    "install": { "runs": 5 },
+    "build": { "runs": 5 },
+    "devServer": { "runs": 5 },
+    "dependencies": null,
+    "browserBaseline": null,
+    "nodeEngines": null,
+    "ssrRequestThroughput": {
+      "runs": 5,
+      "durationMs": 10000,
+      "warmupDurationMs": 250,
+      "minimumRequests": 64,
+      "warmupMinimumRequests": 16,
+      "path": "/ssr-throughput"
+    },
+    "ssrLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "stageDurationMs": 5000,
+      "warmupDurationMs": 5000,
+      "warmupAttempts": 3,
+      "recoveryMs": 5000,
+      "path": "/server-side-rendered-plain-links"
+    },
+    "ssrRouterLinkLoad": {
+      "runs": 3,
+      "stageConnections": [1, 5, 10, 25, 50, 100, 200],
+      "stageDurationMs": 5000,
+      "warmupDurationMs": 5000,
+      "warmupAttempts": 3,
+      "recoveryMs": 5000,
+      "path": "/server-side-rendered"
+    },
+    "clientSideRendered": {
+      "runs": 5,
+      "scenario": "first-row-detail-navigation"
+    },
+    "serverSideRendered": {
+      "runs": 5,
+      "scenario": "first-row-detail-navigation"
+    },
+    "initialLoad": { "path": "/initial-load" }
   }
 }

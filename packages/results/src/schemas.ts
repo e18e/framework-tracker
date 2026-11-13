@@ -218,12 +218,6 @@ export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
     totalRequests: scalarWithUnit('requests', z.number().int().positive()),
     bodySize: scalarWithUnit('KiB', z.number().positive()),
     duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
-    durationMs: z.number().positive(),
-    warmupDurationMs: z.number().nonnegative(),
-    minimumRequests: z.number().int().positive(),
-    warmupMinimumRequests: z.number().int().nonnegative(),
-    source: z.literal('tinybench'),
-    path: z.literal('/ssr-throughput'),
   })
   .refine(
     (value) =>
@@ -286,22 +280,10 @@ export const SSRLoadStageSummarySchema = z.object({
   byteThroughput: metricWithUnit('bytes/s'),
 })
 
-export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
+const SSRLoadResultSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
   .safeExtend({
     name: z.enum(['ssrLoad', 'ssrRouterLinkLoad']),
-    configuration: z.object({
-      stageConnections: z.array(z.number().int().positive()).nonempty(),
-      warmupDurationMs: z.number().positive().optional(),
-      recoveryMs: z.number().nonnegative().optional(),
-      warmupAttempts: z.number().int().positive().optional(),
-      stageDurationMs: z.number().positive().optional(),
-    }),
     representativeIterationIndex: z.number().int().nonnegative(),
-    source: z.literal('autocannon'),
-    path: z.enum([
-      '/server-side-rendered',
-      '/server-side-rendered-plain-links',
-    ]),
     totalRequests: scalarWithUnit('requests', z.number().int().nonnegative()),
     totalErrors: scalarWithUnit('errors', z.number().int().nonnegative()),
     stage1: SSRLoadStageSummarySchema,
@@ -319,8 +301,6 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
       return (
         connections !== undefined &&
         new Set(connections).size === connections.length &&
-        JSON.stringify(value.configuration.stageConnections) ===
-          JSON.stringify(connections) &&
         [
           value.stage1,
           value.stage2,
@@ -360,6 +340,18 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
     { message: 'Expected the actual median peak throughput sweep' },
   )
 
+// Older files placed these settings inside the test result.
+export const SSRLoadTestsSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value
+  const {
+    configuration: _configuration,
+    path: _path,
+    source: _source,
+    ...result
+  } = value as Record<string, unknown>
+  return result
+}, SSRLoadResultSchema)
+
 export const SSRLoadStatsSchema = z.object({
   ssrLoad: SSRLoadTestsSchema.refine((value) => value.name === 'ssrLoad'),
   frameworkVersion: z.string().optional(),
@@ -377,8 +369,6 @@ export const SSRRouterLinkLoadStatsSchema = SSRLoadStatsSchema.omit({
 })
 
 const InteractionTestsSchema = z.object({
-  scenario: z.literal('first-row-detail-navigation'),
-  source: z.literal('lighthouse-inp-breakdown'),
   interactionLatency: scalarWithUnit('ms', z.number().positive()),
   inputDelay: scalarWithUnit('ms', z.number().nonnegative()),
   processingDuration: scalarWithUnit('ms', z.number().nonnegative()),
@@ -438,8 +428,6 @@ export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
   firstPaint: MillisecondsMetricSchema,
   firstContentfulPaint: MillisecondsMetricSchema,
   interactionTests: z.object({
-    scenario: z.literal('first-row-detail-navigation'),
-    source: z.literal('lighthouse-inp-breakdown'),
     interactionLatency: MillisecondsMetricSchema,
     inputDelay: MillisecondsMetricSchema,
     processingDuration: MillisecondsMetricSchema,
@@ -455,8 +443,6 @@ export const ServerRenderingBenchmarkSchema = createBenchmarkBaseSchema(
   firstPaint: MillisecondsMetricSchema,
   firstContentfulPaint: MillisecondsMetricSchema,
   interactionTests: z.object({
-    scenario: z.literal('first-row-detail-navigation'),
-    source: z.literal('lighthouse-inp-breakdown'),
     interactionLatency: MillisecondsMetricSchema,
     inputDelay: MillisecondsMetricSchema,
     processingDuration: MillisecondsMetricSchema,
@@ -495,8 +481,6 @@ export const InitialLoadResourceSchema = z.object({
 
 export const InitialLoadStatsSchema = TestBaseSchema.extend({
   name: z.literal('initialLoad'),
-  source: z.literal('lighthouse-resource-summary'),
-  path: z.literal('/initial-load'),
   resources: z.record(InitialLoadResourceTypeSchema, InitialLoadResourceSchema),
 })
 

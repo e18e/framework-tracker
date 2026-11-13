@@ -1,3 +1,4 @@
+import { measurementsConfig } from '../measurements.ts'
 import puppeteer from 'puppeteer-core'
 import { startFlow } from 'lighthouse'
 import { z } from 'zod'
@@ -38,8 +39,6 @@ export function parseResourceSummary(details: unknown) {
   // https://developer.chrome.com/docs/lighthouse/performance/resource-summary
   return InitialLoadStatsSchema.parse({
     name: 'initialLoad',
-    source: 'lighthouse-resource-summary',
-    path: '/initial-load',
     resources,
   })
 }
@@ -62,7 +61,7 @@ export async function runBenchmark(url: string) {
         onlyAudits: ['resource-summary'],
       },
     })
-    await flow.navigate(`${url}/initial-load`)
+    await flow.navigate(`${url}${measurementsConfig.initialLoad.path}`)
     const result = await flow.createFlowResult()
     const lhr = result.steps[0]?.lhr
     if (!lhr || lhr.runtimeError) {

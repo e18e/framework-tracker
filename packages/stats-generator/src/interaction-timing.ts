@@ -2,9 +2,6 @@ import { NavigationInsights } from 'lighthouse/core/computed/navigation-insights
 import type { Artifacts, Result } from 'lighthouse'
 import type { InteractionTiming } from './types.ts'
 
-export const INTERACTION_SCENARIO = 'first-row-detail-navigation'
-export const INTERACTION_SOURCE = 'lighthouse-inp-breakdown'
-
 interface LighthouseAudit {
   details?: unknown
 }

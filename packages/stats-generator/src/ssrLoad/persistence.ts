@@ -15,11 +15,7 @@ export function validateSSRLoadForPersistence(stats: CIStats): void {
     const parsed = schema.parse(stats)
     const value =
       'ssrLoad' in parsed ? parsed.ssrLoad : parsed.ssrRouterLinkLoad
-    const expected = summarizeLoadSweeps(
-      value.iterations,
-      value.name,
-      value.path,
-    )
+    const expected = summarizeLoadSweeps(value.iterations, value.name)
     const summaries = new Map(
       Array.from(
         metricSummaries(value),

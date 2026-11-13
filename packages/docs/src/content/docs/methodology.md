@@ -210,25 +210,13 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 Generated from the published CLI with the following selections:
 
 ```sh
-pnpm dlx create-void@1.8.0 starter-void --toolchain vite --framework react --starter static --deploy none
+pnpm dlx create-void starter-void --toolchain vite --framework react --starter static --deploy none
 ```
 
 - Build tool: `Vite`
 - UI framework: `React`, with the generated React Compiler setting enabled
 - Starter: `Static Pages`, without a database or server routes
 - Deployment: `None`
-
-The starter retains the generated welcome page, styles, assets, typed routes,
-and default Cloudflare build target. `void` and `@void/react` are pinned to the
-same exact published version. After generation, the standalone pnpm workspace
-is explicitly limited to this package, a `type-check` script is added, and
-benchmark output files are ignored. Void currently has a Dev Time starter only;
-there is no Run Time app.
-
-Build timing and the core-js scan include both the Worker and client builds.
-Browser baseline scans use
-`.cloudflare/output/v0/workers/default/assets`, which contains only the client
-output.
 
 ### Dependency Counts
 
@@ -260,6 +248,7 @@ output.
 - Cold build time measures the first build in that fresh project. Warm build
   time measures a second build in the same project, preserving whatever cache
   or generated output the first build leaves in place.
+- Void's build timing includes both the Worker and client builds.
 - Next.js uses Turbopack's default production filesystem cache. Warm build
   measurements retain the cache created by the cold build. The timed `next build`
   also includes Next.js's default build-time type checking with the project-local
@@ -303,6 +292,7 @@ output.
 - The reported size is the combined size of JavaScript files with a core-js
   signature. It includes any other code in those files and is not the size of
   core-js itself.
+- For Void, the core-js scan includes both the Worker and client build output.
 
 ### Browser Baseline
 
@@ -313,6 +303,9 @@ output.
 - The scan includes source-like files that baseline-detector supports from the
   production build output, including JavaScript, TypeScript, Vue, and Svelte
   files. Known server, cache, trace, type, and build-tool output is excluded.
+- Void's browser baseline scan uses
+  `.cloudflare/output/v0/workers/default/assets`, which contains only the client
+  output.
 - Baseline is baseline-detector's overall target result: `high`, `low`, or
   `limited`. When the result is not `high`, baseline-detector also reports the
   feature ID that determined it.
@@ -321,9 +314,9 @@ output.
   on, or blank if any detected feature is not yet Baseline.
 - Features is the number of unique web platform feature IDs detected in the
   browser-facing build output.
-- For Nuxt, SvelteKit, TanStack Start, and Void, the `temporal` feature is temporarily
+- For Nuxt, SvelteKit, and TanStack Start, the `temporal` feature is temporarily
   excluded. These starters bundle optional Temporal serialization support
-  (devalue in Nuxt, SvelteKit, and Void, seroval in TanStack Start), but their
+  (devalue in Nuxt and SvelteKit, seroval in TanStack Start), but their
   application code does not serialize Temporal values.
 
 ### Minimum Node Version

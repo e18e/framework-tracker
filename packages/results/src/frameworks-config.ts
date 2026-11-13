@@ -127,7 +127,7 @@ export const frameworksConfig = [
     starter: {
       package: 'starter-nifra',
       buildScript: 'build',
-      buildOutputDir: '.vercel/output',
+      buildOutputDir: '.nifra-node',
       devServerPort: 4321,
       measurements: [
         'install',
@@ -140,7 +140,7 @@ export const frameworksConfig = [
     app: {
       package: 'app-nifra',
       buildScript: 'build',
-      buildOutputDir: '.vercel/output',
+      buildOutputDir: '.nifra-node',
       measurements: [
         'ssrRequestThroughput',
         'clientSideRendered',

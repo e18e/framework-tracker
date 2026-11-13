@@ -55,18 +55,18 @@ the Dev Time starter and Run Time app unless noted. The adapter/server column
 describes the Run Time app. Starter differences are described in Project Setups;
 runtime configuration details are described in Framework Specific Notes.
 
-| Framework      | UI library                           | Bundler / build tool         | Adapter / server                 |
-| -------------- | ------------------------------------ | ---------------------------- | -------------------------------- |
-| Astro          | Astro; React for client-only content | Vite (via Astro)             | Node adapter                     |
-| Next.js        | React                                | Turbopack (via `next build`) | Next.js server                   |
-| Nuxt           | Vue                                  | Vite (via Nuxt)              | Nitro                            |
-| Nifra          | React                                | Bun (via `nifra build`)      | Vercel handler + `@nifrajs/node` |
-| Pracht         | Preact                               | Vite                         | Node adapter                     |
-| React Router   | React                                | Vite                         | React Router server              |
-| SolidStart     | Solid                                | Vite                         | Nitro                            |
-| SvelteKit      | Svelte                               | Vite                         | Node adapter                     |
-| TanStack Start | React                                | Vite                         | Nitro                            |
-| Baseline HTML  | None                                 | No build step                | Node.js                          |
+| Framework      | UI library                           | Bundler / build tool           | Adapter / server                          |
+| -------------- | ------------------------------------ | ------------------------------ | ----------------------------------------- |
+| Astro          | Astro; React for client-only content | Vite (via Astro)               | Node adapter                              |
+| Next.js        | React                                | Turbopack (via `next build`)   | Next.js server                            |
+| Nuxt           | Vue                                  | Vite (via Nuxt)                | Nitro                                     |
+| Nifra          | React                                | Bun (via Nifra's native build) | Node target + `@nifrajs/node` direct lane |
+| Pracht         | Preact                               | Vite                           | Node adapter                              |
+| React Router   | React                                | Vite                           | React Router server                       |
+| SolidStart     | Solid                                | Vite                           | Nitro                                     |
+| SvelteKit      | Svelte                               | Vite                           | Node adapter                              |
+| TanStack Start | React                                | Vite                           | Nitro                                     |
+| Baseline HTML  | None                                 | No build step                  | Node.js                                   |
 
 Baseline HTML is a runtime-only comparison. Each project's `package.json`
 declares dependency versions or ranges; its lockfile records resolved versions.
@@ -181,11 +181,11 @@ The starter is a minimal React app using Nifra's file-based routes and typed nav
 published Nifra release and uses Nifra's native Bun toolchain:
 
 - Development: `nifra dev`
-- Production build: `nifra build --target vercel`
-- Production benchmark server: the generated Vercel handler served through `@nifrajs/node`
+- Production build: Nifra's native Bun build with the Node target
+- Production benchmark server: the built app served through `@nifrajs/node`'s direct lane
 
-The generated Vercel Build Output directory is retained as the build output so the benchmark measures
-the same production artifact that the runtime tests serve.
+The generated `.nifra-node` directory is retained as the build output so the benchmark measures the
+same production artifact that the runtime tests serve.
 
 #### SolidStart
 
@@ -362,9 +362,9 @@ Current pinned dependencies are listed in each project's `package.json`:
   server-rendered routes and `render: 'spa'` for client-rendered routes, keeping
   default full hydration.
 - Nifra's runtime app uses `ssr = false` for the client-rendered table and detail
-  routes. Its production build emits a Vercel Build Output handler; the browser
-  and load tests serve that handler through `@nifrajs/node`, while the request
-  throughput test calls the generated Web handler directly.
+  routes. Its production build emits a Node-target app through Nifra's native Bun
+  build; the browser and load tests serve that app through `@nifrajs/node`'s direct
+  lane, while the request throughput test calls the app's Web handler directly.
 - Next.js's initial-load and SSR pages use `instant = false` to allow
   request-time rendering to block without an explicit Suspense fallback.
   Both linked SSR tables use Client Components. Next.js renders all 1,000
@@ -472,8 +472,8 @@ Current pinned dependencies are listed in each project's `package.json`:
 - Next.js uses a client component for the table, so its server response includes
   the data needed for hydration. No browser hydration is measured.
 - Astro uses `export const prerender = false` for request-time rendering.
-- Nifra's handler is imported from the generated Vercel Build Output function,
-  so the benchmark calls the production Web `fetch` handler without a TCP hop.
+- Nifra's handler is imported from the native Node-target build, so the benchmark
+  calls the production Web `fetch` handler without a TCP hop.
 - Inspired by [eknkc/ssr-benchmark](https://github.com/eknkc/ssr-benchmark).
 
 ### SSR Load Test

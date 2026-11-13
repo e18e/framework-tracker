@@ -4,18 +4,10 @@ import { packagesDir } from '../../constants.ts'
 import type { ServerRenderHandler, WebServerRenderHandler } from '../types.ts'
 
 export async function buildNifraHandler(): Promise<ServerRenderHandler> {
-  const entryPath = join(
-    packagesDir,
-    'app-nifra',
-    '.vercel',
-    'output',
-    'functions',
-    'index.func',
-    'index.js',
-  )
+  const entryPath = join(packagesDir, 'app-nifra', '.nifra-node', 'server.js')
   const entryUrl = pathToFileURL(entryPath).href
-  const { default: handler } = (await import(entryUrl)) as {
-    default: WebServerRenderHandler
+  const { app } = (await import(entryUrl)) as {
+    app: { fetch: WebServerRenderHandler }
   }
-  return { type: 'web', handler }
+  return { type: 'web', handler: app.fetch.bind(app) }
 }

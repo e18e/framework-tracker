@@ -44,6 +44,12 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     serveScript: 'nitro.ts',
   },
   {
+    name: 'nifra-ssr-load',
+    displayName: 'Nifra SSR Load',
+    package: 'app-nifra',
+    serveScript: 'nifra.ts',
+  },
+  {
     name: 'pracht-ssr-load',
     displayName: 'Pracht SSR Load',
     package: 'app-pracht',

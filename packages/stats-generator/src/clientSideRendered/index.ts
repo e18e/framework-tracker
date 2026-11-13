@@ -42,6 +42,13 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    name: 'nifra-client-side-rendered',
+    displayName: 'Nifra Client Side Rendered',
+    package: 'app-nifra',
+    serveScript: 'nifra.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     name: 'pracht-client-side-rendered',
     displayName: 'Pracht Client Side Rendered',
     package: 'app-pracht',

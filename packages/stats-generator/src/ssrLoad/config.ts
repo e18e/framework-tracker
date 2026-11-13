@@ -4,6 +4,7 @@ export type SSRLoadKind = 'ssrLoad' | 'ssrRouterLinkLoad'
 export const routerLinkPackages = new Set([
   'app-next-js',
   'app-nuxt',
+  'app-nifra',
   'app-pracht',
   'app-react-router',
   'app-tanstack-start-react',

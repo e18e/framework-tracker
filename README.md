@@ -28,6 +28,7 @@ If you would like to play around with the collected data to build your own visua
   Dev Time Performance:
   - [Next.js](./packages/results/data/next/latest.json)
   - [Nuxt](./packages/results/data/nuxt/latest.json)
+  - [Nifra](./packages/results/data/nifra/latest.json)
   - [SvelteKit](./packages/results/data/sveltekit/latest.json)
   - [Astro](./packages/results/data/astro/latest.json)
   - [Pracht](./packages/results/data/pracht/latest.json)
@@ -38,6 +39,7 @@ If you would like to play around with the collected data to build your own visua
   Runtime Performance:
   - [Next.js](./packages/results/data/next/latest.json)
   - [Nuxt](./packages/results/data/nuxt/latest.json)
+  - [Nifra](./packages/results/data/nifra/latest.json)
   - [SvelteKit](./packages/results/data/sveltekit/latest.json)
   - [Astro](./packages/results/data/astro/latest.json)
   - [Pracht](./packages/results/data/pracht/latest.json)

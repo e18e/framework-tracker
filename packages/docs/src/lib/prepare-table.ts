@@ -207,6 +207,7 @@ const frameworkPackageNames: Record<string, string> = {
   'starter-astro': 'astro',
   'starter-next-js': 'next',
   'starter-nuxt': 'nuxt',
+  'starter-nifra': 'nifra',
   'starter-pracht': '@pracht/core',
   'starter-react-router': '@react-router/dev',
   'starter-solid': 'solid-js',

@@ -25,6 +25,12 @@ export const servingFrameworks: ServingFrameworkConfig[] = [
     fullDocumentNavigation: false,
   },
   {
+    displayName: 'Nifra Server Side Rendered',
+    package: 'app-nifra',
+    serveScript: 'nifra.ts',
+    fullDocumentNavigation: false,
+  },
+  {
     displayName: 'Pracht Server Side Rendered',
     package: 'app-pracht',
     serveScript: 'pracht.ts',

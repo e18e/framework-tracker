@@ -10,6 +10,7 @@ import { buildReactRouterHandler } from './handlers/react-router.ts'
 import { buildSolidStartHandler } from './handlers/solid-start.ts'
 import { buildSolidHandler } from './handlers/solid.ts'
 import { buildTanStackStartHandler } from './handlers/tanstack-start.ts'
+import { buildNifraHandler } from './handlers/nifra.ts'
 import type {
   ServerRenderHandler,
   SSRRequestThroughputBenchmarkResult,
@@ -53,6 +54,12 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
       displayName: 'Next.js SSR Request Handler Throughput',
       package: 'app-next-js',
       buildHandler: buildNextJSHandler,
+    },
+    {
+      name: 'nifra-ssr-request-throughput',
+      displayName: 'Nifra SSR Request Handler Throughput',
+      package: 'app-nifra',
+      buildHandler: buildNifraHandler,
     },
     {
       name: 'pracht-ssr-request-throughput',

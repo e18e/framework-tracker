@@ -121,6 +121,37 @@ export const frameworksConfig = [
     },
   },
   {
+    name: 'nifra',
+    displayName: 'Nifra',
+    frameworkPackage: 'nifra',
+    starter: {
+      package: 'starter-nifra',
+      buildScript: 'build',
+      buildOutputDir: '.vercel/output',
+      devServerPort: 4321,
+      measurements: [
+        'install',
+        'build',
+        'devServer',
+        'dependencies',
+        'browserBaseline',
+      ],
+    },
+    app: {
+      package: 'app-nifra',
+      buildScript: 'build',
+      buildOutputDir: '.vercel/output',
+      measurements: [
+        'ssrRequestThroughput',
+        'clientSideRendered',
+        'serverSideRendered',
+        'initialLoad',
+        'ssrLoad',
+        'ssrRouterLinkLoad',
+      ],
+    },
+  },
+  {
     name: 'pracht',
     displayName: 'Pracht',
     frameworkPackage: '@pracht/core',

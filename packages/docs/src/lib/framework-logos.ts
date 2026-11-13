@@ -28,6 +28,10 @@ export const frameworkBrands: Record<string, FrameworkBrand> = {
     logo: { dark: '/framework-logos/nuxt.svg' },
     color: { dark: '#00DC82' },
   },
+  nifra: {
+    logo: { dark: '/framework-logos/nifra.svg' },
+    color: { dark: '#7C5CFF' },
+  },
   pracht: {
     logo: { dark: '/framework-logos/pracht.svg' },
     color: { dark: '#FBBF24' },

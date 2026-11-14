@@ -7,6 +7,7 @@ export const routerLinkPackages = new Set([
   'app-pracht',
   'app-react-router',
   'app-tanstack-start-react',
+  'app-void',
 ])
 export function getSSRLoadKind(): SSRLoadKind {
   const kind = process.env.SSR_LOAD_KIND ?? 'ssrLoad'

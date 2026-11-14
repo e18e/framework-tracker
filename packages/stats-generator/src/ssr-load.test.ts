@@ -234,6 +234,10 @@ test('paired route sources preserve the loader and table except for link impleme
       'app-tanstack-start-react/src/routes/server-side-rendered.tsx',
       'app-tanstack-start-react/src/routes/server-side-rendered-plain-links.tsx',
     ],
+    [
+      'app-void/pages/server-side-rendered.tsx',
+      'app-void/pages/server-side-rendered-plain-links.tsx',
+    ],
   ]
   for (const [routerPath, anchorPath] of paths) {
     const original = readRouteSource(routerPath)
@@ -250,6 +254,11 @@ test('paired route sources preserve the loader and table except for link impleme
         '<a href={`/server-side-rendered/${entry.id}`}>',
       )
       .replace(/import \{ Link \} from 'react-router'\n/, '')
+      .replace(/import \{ Link \} from '@void\/react'\n/, '')
+      .replace(
+        './server-side-rendered.server',
+        './server-side-rendered-plain-links.server',
+      )
       .replace('createFileRoute, Link', 'createFileRoute')
       .replace(
         "createFileRoute('/server-side-rendered')",
@@ -268,6 +277,17 @@ test('paired route sources preserve the loader and table except for link impleme
       .replace(/<\/(?:Link|NuxtLink)>/g, '</a>')
     assert.equal(compact(anchor), compact(normalized), routerPath)
   }
+})
+
+test('Void SSR load routes use identical loaders', () => {
+  assert.equal(
+    compact(readRouteSource('app-void/pages/server-side-rendered.server.ts')),
+    compact(
+      readRouteSource(
+        'app-void/pages/server-side-rendered-plain-links.server.ts',
+      ),
+    ),
+  )
 })
 
 test('repeated load sweeps select the median peak sweep without mixing metrics', () => {

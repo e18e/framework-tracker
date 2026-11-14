@@ -83,6 +83,13 @@ const CLIENT_SIDE_RENDERED_FRAMEWORKS: ClientSideRenderedFrameworkConfig[] = [
     serveScript: 'tanstack-start.ts',
     fullDocumentNavigation: false,
   },
+  {
+    name: 'void-client-side-rendered',
+    displayName: 'Void Client Side Rendered',
+    package: 'app-void',
+    serveScript: 'void.ts',
+    fullDocumentNavigation: false,
+  },
 ]
 
 async function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {

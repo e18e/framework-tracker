@@ -89,6 +89,7 @@ export const PackagePathSchema = z.enum([
   'packages/starter-tanstack-start-react',
   'packages/app-tanstack-start-react',
   'packages/starter-void',
+  'packages/app-void',
 ])
 
 export const BaseResultSchema = z.object({

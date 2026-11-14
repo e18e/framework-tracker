@@ -60,4 +60,10 @@ export const servingFrameworks: ServingFrameworkConfig[] = [
     serveScript: 'tanstack-start.ts',
     fullDocumentNavigation: false,
   },
+  {
+    displayName: 'Void Server Side Rendered',
+    package: 'app-void',
+    serveScript: 'void.ts',
+    fullDocumentNavigation: false,
+  },
 ]

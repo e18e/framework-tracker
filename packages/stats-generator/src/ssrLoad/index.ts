@@ -79,6 +79,12 @@ const SSR_LOAD_FRAMEWORKS: SSRLoadFrameworkConfig[] = [
     package: 'app-tanstack-start-react',
     serveScript: 'tanstack-start.ts',
   },
+  {
+    name: 'void-ssr-load',
+    displayName: 'Void SSR Load',
+    package: 'app-void',
+    serveScript: 'void.ts',
+  },
 ]
 
 export function supportsSSRLoadBenchmark(packageName: string): boolean {

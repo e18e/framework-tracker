@@ -10,6 +10,7 @@ import { buildReactRouterHandler } from './handlers/react-router.ts'
 import { buildSolidStartHandler } from './handlers/solid-start.ts'
 import { buildSolidHandler } from './handlers/solid.ts'
 import { buildTanStackStartHandler } from './handlers/tanstack-start.ts'
+import { buildVoidHandler } from './handlers/void.ts'
 import type {
   ServerRenderHandler,
   SSRRequestThroughputBenchmarkResult,
@@ -83,6 +84,12 @@ const SSR_REQUEST_THROUGHPUT_FRAMEWORKS: SSRRequestThroughputFrameworkConfig[] =
       displayName: 'TanStack Start SSR Request Handler Throughput',
       package: 'app-tanstack-start-react',
       buildHandler: buildTanStackStartHandler,
+    },
+    {
+      name: 'void-ssr-request-throughput',
+      displayName: 'Void SSR Request Handler Throughput',
+      package: 'app-void',
+      buildHandler: buildVoidHandler,
     },
   ]
 

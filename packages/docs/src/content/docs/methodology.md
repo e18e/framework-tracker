@@ -175,10 +175,6 @@ Installed using the CLI
 The generated `Dockerfile` and `.dockerignore` are also removed, as no
 measurement uses them.
 
-The starter includes the generated browser-condition TypeScript check and
-`lang: 'en'` document head. Direct dependencies are pinned to compatible
-versions available on the tracked core release date.
-
 #### SolidStart
 
 Installed using the CLI. The SolidStart version selected in the generator

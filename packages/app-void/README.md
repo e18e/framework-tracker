@@ -31,5 +31,12 @@ and full client hydration remain enabled, as in the generated React starter.
 
 Client-rendered routes use Void's `ssr = false` option. Row UUIDs are generated
 in the browser. Both rendering tests use the default Void `Link` behavior for
-navigation; the detail routes return the selected ID through ordinary page
-loaders.
+navigation. The client-rendered detail route reads the selected ID with
+`useParams()`. The server-rendered detail route uses a page loader.
+
+Reference integrations: [Solid 2.0 (#709)](https://github.com/e18e/framework-performance/pull/709)
+for production-server and in-process-handler wiring, and
+[Pracht (#439)](https://github.com/e18e/framework-performance/pull/439) for the
+rendering workloads and paired plain-anchor/router-link routes. The initial-load
+page follows the shared example added in
+[#735](https://github.com/e18e/framework-performance/pull/735).

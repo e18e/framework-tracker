@@ -21,6 +21,7 @@ export function Shell({ children }: ShellProps) {
 
 export function head() {
   return {
+    lang: 'en',
     meta: [
       { content: 'width=device-width, initial-scale=1', name: 'viewport' },
     ],

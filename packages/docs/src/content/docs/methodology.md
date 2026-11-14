@@ -164,7 +164,7 @@ Installed using the CLI
 
 Installed using the CLI
 
-- Step 1: `pnpm create pracht@latest`
+- Step 1: `pnpm create pracht@0.7.2`
 - Step 2: Where should we create your app?: `.`
 - Step 3: Deployment adapter?: `Node.js` (the default)
 - Step 4: Routing?: `manifest` (the default)
@@ -174,6 +174,10 @@ Installed using the CLI
 
 The generated `Dockerfile` and `.dockerignore` are also removed, as no
 measurement uses them.
+
+The starter includes the generated browser-condition TypeScript check and
+`lang: 'en'` document head. Direct dependencies are pinned to compatible
+versions available on the tracked core release date.
 
 #### SolidStart
 

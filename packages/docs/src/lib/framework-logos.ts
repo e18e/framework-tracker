@@ -52,6 +52,9 @@ export const frameworkBrands: Record<string, FrameworkBrand> = {
     logo: { dark: '/framework-logos/tanstack.svg' },
     color: { dark: '#FFA05C' },
   },
+  void: {
+    logo: { dark: '/framework-logos/void.svg' },
+  },
   // Not benchmarked, but shown in the Core Web Vitals charts.
   gatsby: { logo: { dark: '/framework-logos/gatsby.svg' } },
   wordpress: { logo: { dark: '/framework-logos/wordpress.svg' } },

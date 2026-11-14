@@ -164,7 +164,7 @@ Installed using the CLI
 
 Installed using the CLI
 
-- Step 1: `pnpm create pracht@0.7.2`
+- Step 1: `pnpm create pracht@0.7.3`
 - Step 2: Where should we create your app?: `.`
 - Step 3: Deployment adapter?: `Node.js` (the default)
 - Step 4: Routing?: `manifest` (the default)

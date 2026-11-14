@@ -88,7 +88,7 @@ async function main() {
   const buildOutputPath = join(
     packagesDir,
     packageName,
-    testConfig.buildOutputDir,
+    testConfig.browserBuildOutputDir ?? testConfig.buildOutputDir,
   )
   const { scanDir, copiedFileCount } =
     await stageBrowserBuildFiles(buildOutputPath)
@@ -109,6 +109,7 @@ async function main() {
         'starter-nuxt',
         'starter-sveltekit',
         'starter-tanstack-start-react',
+        // 'starter-void',
       ].includes(packageName)
     ) {
       for (const features of featuresByFile.values())

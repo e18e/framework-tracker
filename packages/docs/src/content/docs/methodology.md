@@ -65,6 +65,7 @@ runtime configuration details are described in Framework Specific Notes.
 | SolidStart     | Solid                                | Vite                         | Nitro               |
 | SvelteKit      | Svelte                               | Vite                         | Node adapter        |
 | TanStack Start | React                                | Vite                         | Nitro               |
+| Void           | React                                | Vite                         | No runtime app      |
 | Baseline HTML  | None                                 | No build step                | Node.js             |
 
 Baseline HTML is a runtime-only comparison. Each project's `package.json`
@@ -91,6 +92,7 @@ Current pinned dependencies are listed in each project's `package.json`:
 - [SolidStart](https://github.com/e18e/framework-performance/blob/main/packages/starter-solid-start/package.json)
 - [SvelteKit](https://github.com/e18e/framework-performance/blob/main/packages/starter-sveltekit/package.json)
 - [TanStack Start (React)](https://github.com/e18e/framework-performance/blob/main/packages/starter-tanstack-start-react/package.json)
+- [Void](https://github.com/e18e/framework-performance/blob/main/packages/starter-void/package.json)
 
 ### Project Setups
 
@@ -203,6 +205,19 @@ Installed using the CLI with the following setup:
 
 The TanStack Start starter uses `nitro()` without an explicit preset.
 
+#### Void
+
+Generated from the published CLI with the following selections:
+
+```sh
+pnpm dlx create-void starter-void --toolchain vite --framework react --starter static --deploy none
+```
+
+- Build tool: `Vite`
+- UI framework: `React`, with the generated React Compiler setting enabled
+- Starter: `Static Pages`, without a database or server routes
+- Deployment: `None`
+
 ### Dependency Counts
 
 - **Core package:** Measures the direct production and development dependencies
@@ -233,6 +248,7 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 - Cold build time measures the first build in that fresh project. Warm build
   time measures a second build in the same project, preserving whatever cache
   or generated output the first build leaves in place.
+- Void's build timing includes both the Worker and client builds.
 - Next.js uses Turbopack's default production filesystem cache. Warm build
   measurements retain the cache created by the cold build. The timed `next build`
   also includes Next.js's default build-time type checking with the project-local
@@ -276,6 +292,7 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 - The reported size is the combined size of JavaScript files with a core-js
   signature. It includes any other code in those files and is not the size of
   core-js itself.
+- For Void, the core-js scan includes both the Worker and client build output.
 
 ### Browser Baseline
 
@@ -286,6 +303,9 @@ The TanStack Start starter uses `nitro()` without an explicit preset.
 - The scan includes source-like files that baseline-detector supports from the
   production build output, including JavaScript, TypeScript, Vue, and Svelte
   files. Known server, cache, trace, type, and build-tool output is excluded.
+- Void's browser baseline scan uses
+  `.cloudflare/output/v0/workers/default/assets`, which contains only the client
+  output.
 - Baseline is baseline-detector's overall target result: `high`, `low`, or
   `limited`. When the result is not `high`, baseline-detector also reports the
   feature ID that determined it.

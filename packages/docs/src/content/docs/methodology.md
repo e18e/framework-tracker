@@ -175,13 +175,6 @@ Installed using the CLI
 The generated `Dockerfile` and `.dockerignore` are also removed, as no
 measurement uses them.
 
-The starter includes the generated browser-condition TypeScript check and
-`lang: 'en'` document head. Direct dependencies are pinned to compatible
-versions available on the tracked core release date.
-The starter and runtime app use Preact 11, matching this generator's default.
-The starter uses the generated Vite configuration without the earlier
-`llmsTxt` option.
-
 #### SolidStart
 
 Installed using the CLI. The SolidStart version selected in the generator

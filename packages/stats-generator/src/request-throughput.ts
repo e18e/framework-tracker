@@ -22,42 +22,35 @@ export function createRequestThroughputIteration(
     )
   }
   return RequestThroughputIterationSchema.parse({
-    operationThroughput: summarizeMetric(throughputSamples),
+    requestThroughput: summarizeMetric(throughputSamples),
     latency: summarizeMetric(latencySamplesMs),
-    samples: { value: latencySamplesMs.length, unit: 'requests' },
+    requests: { value: latencySamplesMs.length, unit: 'requests' },
   })
 }
 
-type Configuration = Pick<
+type ResponseMetrics = Pick<
   z.infer<typeof RequestThroughputBenchmarkSchema>,
-  | 'bodySize'
-  | 'duplicationFactor'
-  | 'durationMs'
-  | 'warmupDurationMs'
-  | 'minimumSamples'
-  | 'warmupMinimumSamples'
+  'bodySize' | 'duplicationFactor'
 >
 
 export function assembleRequestThroughput(
   iterations: RequestThroughputIteration[],
-  configuration: Configuration,
+  responseMetrics: ResponseMetrics,
 ) {
   return RequestThroughputBenchmarkSchema.parse({
-    ...configuration,
+    ...responseMetrics,
     name: 'ssrRequestThroughput',
-    source: 'tinybench',
-    path: '/ssr-throughput',
     runs: iterations.length,
     iterations,
-    samples: {
+    totalRequests: {
       value: iterations.reduce(
-        (count, iteration) => count + iteration.samples.value,
+        (count, iteration) => count + iteration.requests.value,
         0,
       ),
       unit: 'requests',
     },
-    operationThroughput: summarizeMetric(
-      iterations.map((value) => value.operationThroughput.mean),
+    requestThroughput: summarizeMetric(
+      iterations.map((value) => value.requestThroughput.mean),
     ),
     latency: summarizeMetric(iterations.map((value) => value.latency.mean)),
   })
@@ -71,14 +64,14 @@ export function mergeRequestThroughputArtifact(
   const merged = {
     ...stats,
     frameworkVersion: incoming.frameworkVersion ?? stats.frameworkVersion,
-    ssrRequestThroughputTests: incoming.ssrRequestThroughputTests,
+    ssrRequestThroughput: incoming.ssrRequestThroughput,
   }
   SSRRequestThroughputStatsSchema.parse(merged)
   return merged
 }
 
 export function validateRequestThroughputForPersistence(stats: CIStats): void {
-  if (stats.ssrRequestThroughputTests !== undefined) {
+  if (stats.ssrRequestThroughput !== undefined) {
     SSRRequestThroughputStatsSchema.parse(stats)
   }
 }

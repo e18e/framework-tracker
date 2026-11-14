@@ -1,6 +1,6 @@
 import { readProjectResult } from '@framework-performance/results/storage'
 import { parseRunFrequency } from './benchmark-utils.ts'
-import { measurements } from './measurements.ts'
+import { measurementsConfig } from './measurements.ts'
 import { ClientSideRenderedStatsSchema } from '@framework-performance/results'
 import { join } from 'node:path'
 import { runClientSideRenderedBenchmark } from './clientSideRendered/index.ts'
@@ -19,7 +19,10 @@ async function main() {
   const { packageName, args } = parseArgs(
     'Usage: run-client-side-rendered-benchmark <package-name> [runs]\nExample: run-client-side-rendered-benchmark app-astro 5',
   )
-  const runs = parseRunFrequency(args[0], measurements.clientSideRendered.runs)
+  const runs = parseRunFrequency(
+    args[0],
+    measurementsConfig.clientSideRendered.runs,
+  )
 
   console.info(
     `Running client-side rendered benchmark for ${packageName} (${runs} runs)...\n`,
@@ -47,7 +50,7 @@ async function main() {
     runner,
     browserVersion: result.browserVersion,
     frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
-    clientSideRenderedTests: result.clientSideRenderedTests,
+    clientSideRendered: result.clientSideRendered,
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
@@ -57,11 +60,11 @@ async function main() {
   console.info(
     `\n✓ Saved ${result.displayName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
+  console.info(`  First Paint: ${result.clientSideRendered.firstPaint.mean}ms`)
   console.info(
-    `  First Paint: ${result.clientSideRenderedTests.firstPaint.mean}ms`,
+    `  FCP:         ${result.clientSideRendered.firstContentfulPaint.mean}ms`,
   )
-  console.info(`  FCP:         ${result.clientSideRenderedTests.fcp.mean}ms`)
-  const interaction = result.clientSideRenderedTests.interactionTests
+  const interaction = result.clientSideRendered.interactionTests
   console.info(`  Interaction: ${interaction.interactionLatency.mean}ms`)
   console.info(`    Input delay:  ${interaction.inputDelay.mean}ms`)
   console.info(`    Processing:   ${interaction.processingDuration.mean}ms`)

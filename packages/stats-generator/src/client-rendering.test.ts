@@ -9,7 +9,7 @@ import {
 test('assembles client rendering from exact raw browser measurements', () => {
   const iterations = [1, 3].map((value) => ({
     firstPaint: value,
-    fcp: value + 1,
+    firstContentfulPaint: value + 1,
     interactionTests: {
       interactionLatency: value,
       inputDelay: 0,
@@ -26,7 +26,6 @@ test('assembles client rendering from exact raw browser measurements', () => {
     ],
   )
   assert.equal(result.firstPaint.mean, 2)
-  assert.equal(result.interactionTests.source, 'lighthouse-inp-breakdown')
   assert.equal(
     ClientRenderingBenchmarkSchema.safeParse({
       ...result,
@@ -37,7 +36,7 @@ test('assembles client rendering from exact raw browser measurements', () => {
   assert.equal(
     ClientSideRenderedStatsSchema.safeParse({
       browserVersion: 'Chrome',
-      clientSideRenderedTests: { ...result, iterations: [] },
+      clientSideRendered: { ...result, iterations: [] },
     }).success,
     false,
   )

@@ -1,6 +1,6 @@
 import { getLoadPeakStage } from '@framework-performance/results/selection'
 import type { CombinedResult } from '@framework-performance/results/storage'
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 import type {
   FrameworkResult,
   InteractionTimingSchema,
@@ -8,29 +8,29 @@ import type {
 
 function formatTime(
   value: NonNullable<
-    | FrameworkResult['coldBuildTime']
-    | FrameworkResult['warmBuildTime']
-    | FrameworkResult['devServerStartTime']
+    | FrameworkResult['coldBuild']
+    | FrameworkResult['warmBuild']
+    | FrameworkResult['devServer']
   >,
 ) {
   return {
-    medianMs: value.time.median,
-    minMs: value.time.min,
-    maxMs: value.time.max,
-    samplesMs: value.iterations.map((run) => run.time.value),
+    medianMs: value.duration.median,
+    minMs: value.duration.min,
+    maxMs: value.duration.max,
+    samplesMs: value.iterations.map((run) => run.duration.value),
   }
 }
 export function formatRendered(
   value: NonNullable<
-    | FrameworkResult['clientSideRenderedTests']
-    | FrameworkResult['serverSideRenderedTests']
+    | FrameworkResult['clientSideRendered']
+    | FrameworkResult['serverSideRendered']
   >,
 ) {
   if (!('name' in value)) {
     return {
       ...value,
       firstPaint: value.firstPaint.value,
-      fcp: value.fcp.value,
+      firstContentfulPaint: value.firstContentfulPaint.value,
       interactionTests: value.interactionTests && {
         ...value.interactionTests,
         ...interactionValues(value.interactionTests),
@@ -47,9 +47,9 @@ export function formatRendered(
   return {
     ...value,
     firstPaintRange: value.firstPaint,
-    fcpRange: value.fcp,
+    firstContentfulPaintRange: value.firstContentfulPaint,
     firstPaint: value.firstPaint.median,
-    fcp: value.fcp.median,
+    firstContentfulPaint: value.firstContentfulPaint.median,
     interactionTests: {
       ...value.interactionTests,
       ...interactionValues(medianRun.interactionTests),
@@ -68,25 +68,25 @@ function interactionValues(
 }
 
 export function formatThroughput(
-  value: NonNullable<FrameworkResult['ssrRequestThroughputTests']>,
+  value: NonNullable<FrameworkResult['ssrRequestThroughput']>,
 ) {
   if ('name' in value)
     return {
       ...value,
-      operationThroughputRange: value.operationThroughput,
+      requestThroughputRange: value.requestThroughput,
       latencyRange: value.latency,
-      operationThroughput: value.operationThroughput.median,
+      requestThroughput: value.requestThroughput.median,
       latency: value.latency.median,
       latencyUnit: value.latency.unit,
     }
   return {
     ...value,
-    operationThroughput: value.operationThroughput.value,
+    requestThroughput: value.requestThroughput.value,
     latency: value.avgLatency.value,
     latencyUnit: value.avgLatency.unit,
   }
 }
-function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
+function formatLoad(value: NonNullable<FrameworkResult['ssrLoad']>) {
   const representativeSweep =
     value.iterations[value.representativeIterationIndex]!
   const representativePeak = getLoadPeakStage(representativeSweep)
@@ -106,7 +106,7 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
       stage
         ? [
             {
-              workers: stage.connections,
+              connections: stage.connections,
               latencyRanges: {
                 p75Latency: stage.p75Latency,
                 p90Latency: stage.p90Latency,
@@ -130,81 +130,78 @@ function formatLoad(value: NonNullable<FrameworkResult['ssrLoadTests']>) {
 }
 
 export function prepareRuntimeResult(result: CombinedResult) {
-  const framework = frameworks.find((f) => f.name === result.framework)!
+  const framework = frameworksConfig.find((f) => f.name === result.framework)!
   const value = {
     ...result.projects.app,
     name: framework.displayName,
     package: framework.app!.package,
-    coldBuildTime:
-      result.tests.coldBuildTime?.project === 'app'
-        ? result.tests.coldBuildTime.result
+    coldBuild:
+      result.tests.coldBuild?.project === 'app'
+        ? result.tests.coldBuild.result
         : undefined,
-    warmBuildTime:
-      result.tests.warmBuildTime?.project === 'app'
-        ? result.tests.warmBuildTime.result
+    warmBuild:
+      result.tests.warmBuild?.project === 'app'
+        ? result.tests.warmBuild.result
         : undefined,
-    devServerStartTime:
-      result.tests.devServerStartTime?.project === 'app'
-        ? result.tests.devServerStartTime.result
+    devServer:
+      result.tests.devServer?.project === 'app'
+        ? result.tests.devServer.result
         : undefined,
-    ssrRequestThroughputTests:
-      result.tests.ssrRequestThroughputTests?.project === 'app'
-        ? result.tests.ssrRequestThroughputTests.result
+    ssrRequestThroughput:
+      result.tests.ssrRequestThroughput?.project === 'app'
+        ? result.tests.ssrRequestThroughput.result
         : undefined,
-    ssrLoadTests:
-      result.tests.ssrLoadTests?.project === 'app'
-        ? result.tests.ssrLoadTests.result
+    ssrLoad:
+      result.tests.ssrLoad?.project === 'app'
+        ? result.tests.ssrLoad.result
         : undefined,
-    ssrRouterLinkLoadTests:
-      result.tests.ssrRouterLinkLoadTests?.project === 'app'
-        ? result.tests.ssrRouterLinkLoadTests.result
+    ssrRouterLinkLoad:
+      result.tests.ssrRouterLinkLoad?.project === 'app'
+        ? result.tests.ssrRouterLinkLoad.result
         : undefined,
-    clientSideRenderedTests:
-      result.tests.clientSideRenderedTests?.project === 'app'
-        ? result.tests.clientSideRenderedTests.result
+    clientSideRendered:
+      result.tests.clientSideRendered?.project === 'app'
+        ? result.tests.clientSideRendered.result
         : undefined,
-    initialLoadTests:
-      result.tests.initialLoadTests?.project === 'app'
-        ? result.tests.initialLoadTests.result
+    initialLoad:
+      result.tests.initialLoad?.project === 'app'
+        ? result.tests.initialLoad.result
         : undefined,
-    serverSideRenderedTests:
-      result.tests.serverSideRenderedTests?.project === 'app'
-        ? result.tests.serverSideRenderedTests.result
+    serverSideRendered:
+      result.tests.serverSideRendered?.project === 'app'
+        ? result.tests.serverSideRendered.result
         : undefined,
   }
   return {
     ...value,
-    coldBuildTime: value.coldBuildTime && formatTime(value.coldBuildTime),
-    warmBuildTime: value.warmBuildTime && formatTime(value.warmBuildTime),
-    devServerStartTime:
-      value.devServerStartTime && formatTime(value.devServerStartTime),
-    ssrRequestThroughputTests:
-      value.ssrRequestThroughputTests &&
-      formatThroughput(value.ssrRequestThroughputTests),
-    ssrLoadTests: value.ssrLoadTests && formatLoad(value.ssrLoadTests),
-    ssrRouterLinkLoadTests:
-      value.ssrRouterLinkLoadTests && formatLoad(value.ssrRouterLinkLoadTests),
-    clientSideRenderedTests:
-      value.clientSideRenderedTests &&
-      formatRendered(value.clientSideRenderedTests),
-    serverSideRenderedTests:
-      value.serverSideRenderedTests &&
-      formatRendered(value.serverSideRenderedTests),
+    coldBuild: value.coldBuild && formatTime(value.coldBuild),
+    warmBuild: value.warmBuild && formatTime(value.warmBuild),
+    devServer: value.devServer && formatTime(value.devServer),
+    ssrRequestThroughput:
+      value.ssrRequestThroughput &&
+      formatThroughput(value.ssrRequestThroughput),
+    ssrLoad: value.ssrLoad && formatLoad(value.ssrLoad),
+    ssrRouterLinkLoad:
+      value.ssrRouterLinkLoad && formatLoad(value.ssrRouterLinkLoad),
+    clientSideRendered:
+      value.clientSideRendered && formatRendered(value.clientSideRendered),
+    serverSideRendered:
+      value.serverSideRendered && formatRendered(value.serverSideRendered),
   }
 }
 export function prepareStarterResult(result: CombinedResult) {
-  const framework = frameworks.find((f) => f.name === result.framework)!
+  const framework = frameworksConfig.find((f) => f.name === result.framework)!
   return {
     ...result.projects.starter,
     name: framework.displayName,
     package: framework.starter!.package,
-    prodDependencies: result.tests.prodDependencies!.result,
-    devDependencies: result.tests.devDependencies!.result,
-    allDependencies: result.tests.allDependencies!.result,
+    productionDependencyCount: result.tests.productionDependencyCount!.result,
+    developmentDependencyCount: result.tests.developmentDependencyCount!.result,
+    totalDependencyCount: result.tests.totalDependencyCount!.result,
     firstPartyDependencies: result.tests.firstPartyDependencies!.result,
     install: result.tests.install!.result,
-    duplicateDependencies: result.tests.duplicateDependencies?.result,
-    depInstallSize: result.tests.depInstallSize?.result,
+    duplicateDependencyCount: result.tests.duplicateDependencyCount?.result,
+    dependencyInstallSize: result.tests.dependencyInstallSize?.result,
     minimumNodeVersion: result.tests.minimumNodeVersion?.result,
     minimumNodeVersionImposedBy:
       result.tests.minimumNodeVersionImposedBy?.result,
@@ -212,11 +209,10 @@ export function prepareStarterResult(result: CombinedResult) {
     vendoredCoreJsSize: result.tests.vendoredCoreJsSize?.result,
     vendoredCoreJsUnnecessaryModules:
       result.tests.vendoredCoreJsUnnecessaryModules?.result,
-    browserBaselineTests: result.tests.browserBaselineTests?.result,
-    coldBuildTime: formatTime(result.tests.coldBuildTime!.result),
-    warmBuildTime: formatTime(result.tests.warmBuildTime!.result),
-    devServerStartTime:
-      result.tests.devServerStartTime &&
-      formatTime(result.tests.devServerStartTime.result),
+    browserBaseline: result.tests.browserBaseline?.result,
+    coldBuild: formatTime(result.tests.coldBuild!.result),
+    warmBuild: formatTime(result.tests.warmBuild!.result),
+    devServer:
+      result.tests.devServer && formatTime(result.tests.devServer.result),
   }
 }

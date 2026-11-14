@@ -21,7 +21,7 @@ import type { SSRLoadTests } from './ssrLoad/types.ts'
 export type {
   FrameworkConfig,
   TestConfig,
-} from '@framework-performance/results/frameworks'
+} from '@framework-performance/results/frameworks-config'
 
 export interface InteractionTiming {
   interactionLatency: number
@@ -32,12 +32,12 @@ export interface InteractionTiming {
 
 export interface RenderedTestSample {
   firstPaint: number
-  fcp: number
+  firstContentfulPaint: number
   interactionTests: InteractionTiming
 }
 
 export interface CIStats {
-  initialLoadTests?: z.infer<typeof InitialLoadStatsSchema>
+  initialLoad?: z.infer<typeof InitialLoadStatsSchema>
   framework?: string
   packagePath?: string
   timingMeasuredAt?: string
@@ -46,48 +46,48 @@ export interface CIStats {
   frameworkVersion?: string
   releasedAt?: string
   install?: z.infer<typeof InstallBenchmarkSchema>
-  coldBuildTime?: z.infer<typeof BuildStatsSchema>['coldBuildTime'] | TimeStat
-  warmBuildTime?: z.infer<typeof BuildStatsSchema>['warmBuildTime'] | TimeStat
-  devServerStartTime?: DevServerStats['devServerStartTime'] | TimeStat
+  coldBuild?: z.infer<typeof BuildStatsSchema>['coldBuild'] | TimeStat
+  warmBuild?: z.infer<typeof BuildStatsSchema>['warmBuild'] | TimeStat
+  devServer?: DevServerStats['devServer'] | TimeStat
   testTime?: FrameworkResult['testTime']
   // Direct SSR request throughput stats
-  ssrRequestThroughputTests?: z.infer<
+  ssrRequestThroughput?: z.infer<
     typeof SSRRequestThroughputStatsSchema
-  >['ssrRequestThroughputTests']
+  >['ssrRequestThroughput']
   // Real server SSR load stats
-  ssrLoadTests?: SSRLoadTests
-  ssrRouterLinkLoadTests?: CIStats['ssrLoadTests']
+  ssrLoad?: SSRLoadTests
+  ssrRouterLinkLoad?: CIStats['ssrLoad']
   // Client-side rendered stats (browser paint + interaction timings)
-  clientSideRenderedTests?:
+  clientSideRendered?:
     | z.infer<typeof ClientRenderingBenchmarkSchema>
     | z.infer<typeof LegacyRenderedTestsSchema>
   // Server-side rendered route stats (browser paint + interaction timings)
-  serverSideRenderedTests?:
+  serverSideRendered?:
     | z.infer<typeof ServerRenderingBenchmarkSchema>
     | z.infer<typeof LegacyRenderedTestsSchema>
   // Core-js vendored polyfill stats
   vendoredCoreJsSize?: FrameworkResult['vendoredCoreJsSize']
   vendoredCoreJsUnnecessaryModules?: string[]
   // Browser baseline stats
-  browserBaselineTests?: BrowserBaselineStats
+  browserBaseline?: BrowserBaselineStats
   // Minimum Node version across the installed dependency tree
   minimumNodeVersion?: string
   minimumNodeVersionImposedBy?: string[]
   // Dependency stats (from e18e analysis)
-  corejs?: CoreJsStats
+  coreJs?: CoreJsStats
   nodeEngines?: Pick<
     z.infer<typeof NodeEnginesStatsSchema>,
     'name' | 'minimumNodeVersion' | 'imposedBy'
   > &
     Partial<z.infer<typeof NodeEnginesStatsSchema>>
-  dependencyScan?: z.infer<typeof DependencyScanSchema>
-  prodDependencies?: FrameworkResult['prodDependencies']
-  devDependencies?: FrameworkResult['devDependencies']
-  allDependencies?: FrameworkResult['allDependencies']
+  dependencies?: z.infer<typeof DependencyScanSchema>
+  productionDependencyCount?: FrameworkResult['productionDependencyCount']
+  developmentDependencyCount?: FrameworkResult['developmentDependencyCount']
+  totalDependencyCount?: FrameworkResult['totalDependencyCount']
   frameworkDependencies?: DependencyStats
   firstPartyDependencies?: FirstPartyDependencyStats
-  duplicateDependencies?: FrameworkResult['duplicateDependencies']
-  depInstallSize?: FrameworkResult['depInstallSize']
+  duplicateDependencyCount?: FrameworkResult['duplicateDependencyCount']
+  dependencyInstallSize?: FrameworkResult['dependencyInstallSize']
   // Snapshot of the package.json dependencies at measurement time
   packageJson?: {
     dependencies?: Record<string, string>

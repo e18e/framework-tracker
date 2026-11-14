@@ -1,6 +1,6 @@
-import { frameworks } from './frameworks.ts'
+import { frameworksConfig } from './frameworks.ts'
 import type { FrameworkConfig } from './types.ts'
 
 export async function getFrameworks(): Promise<FrameworkConfig[]> {
-  return frameworks
+  return frameworksConfig
 }

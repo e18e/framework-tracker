@@ -23,6 +23,8 @@ import {
   type FrameworkResult,
 } from '@framework-performance/results'
 import { withSummaryVariance } from '@framework-performance/results/comparison'
+import { measurementsConfig } from './measurements.ts'
+import { getSSRLoadPath } from './ssrLoad/config.ts'
 import { validateSSRLoadForPersistence } from './ssrLoad/persistence.ts'
 import {
   mergeRequestThroughputArtifact,
@@ -227,8 +229,8 @@ export async function processCIStats(
         console.info(`  ✓ Found build stats artifact`)
         stats = {
           ...stats,
-          coldBuildTime: buildStats.coldBuildTime,
-          warmBuildTime: buildStats.warmBuildTime,
+          coldBuild: buildStats.coldBuild,
+          warmBuild: buildStats.warmBuild,
         }
       } else {
         console.warn(`No build stats artifact found at ${buildStatsPath}`)
@@ -250,7 +252,7 @@ export async function processCIStats(
         console.info(`  ✓ Found dev server stats artifact`)
         stats = {
           ...stats,
-          devServerStartTime: devServerStats.devServerStartTime,
+          devServer: devServerStats.devServer,
         }
       } else {
         console.warn(
@@ -273,7 +275,7 @@ export async function processCIStats(
         console.info(`  ✓ Found core-js stats artifact`)
         stats = {
           ...stats,
-          corejs: CoreJsStatsSchema.parse({ ...coreJsStats, name: 'corejs' }),
+          coreJs: CoreJsStatsSchema.parse({ ...coreJsStats, name: 'coreJs' }),
           vendoredCoreJsSize: coreJsStats.totalVendoredSize,
           vendoredCoreJsUnnecessaryModules: coreJsStats.unnecessaryModules,
         }
@@ -298,7 +300,7 @@ export async function processCIStats(
         console.info(`  ✓ Found browser baseline stats artifact`)
         stats = {
           ...stats,
-          browserBaselineTests: BrowserBaselineStatsSchema.parse({
+          browserBaseline: BrowserBaselineStatsSchema.parse({
             ...browserBaselineStats,
             name: 'browserBaseline',
           }),
@@ -407,12 +409,12 @@ export async function processCIStats(
           ...stats,
           ...DependencyScanSchema.omit({ name: true }).parse({
             ...getDependencyStatsFromE18e(e18eStats),
-            allDependencies: packageDependencyCounts.allDependencies,
+            totalDependencyCount: packageDependencyCounts.totalDependencyCount,
           }),
-          dependencyScan: DependencyScanSchema.parse({
+          dependencies: DependencyScanSchema.parse({
             name: 'dependencies',
             ...getDependencyStatsFromE18e(e18eStats),
-            allDependencies: packageDependencyCounts.allDependencies,
+            totalDependencyCount: packageDependencyCounts.totalDependencyCount,
           }),
         }
       } else {
@@ -563,8 +565,7 @@ export async function processCIStats(
           ...stats,
           browserVersion:
             clientSideRenderedStats.browserVersion ?? stats.browserVersion,
-          clientSideRenderedTests:
-            clientSideRenderedStats.clientSideRenderedTests,
+          clientSideRendered: clientSideRenderedStats.clientSideRendered,
         }
       } else {
         console.warn(
@@ -597,8 +598,7 @@ export async function processCIStats(
           browserVersion:
             serverSideRenderedStats.browserVersion ?? stats.browserVersion,
           frameworkVersion: serverSideRenderedStats.frameworkVersion,
-          serverSideRenderedTests:
-            serverSideRenderedStats.serverSideRenderedTests,
+          serverSideRendered: serverSideRenderedStats.serverSideRendered,
         }
         frameworkVersion =
           serverSideRenderedStats.frameworkVersion ?? frameworkVersion
@@ -625,7 +625,7 @@ export async function processCIStats(
           browserVersion: initialLoad.browserVersion,
           frameworkVersion:
             initialLoad.frameworkVersion ?? stats.frameworkVersion,
-          initialLoadTests: initialLoad.initialLoadTests,
+          initialLoad: initialLoad.initialLoad,
         }
         frameworkVersion = initialLoad.frameworkVersion ?? frameworkVersion
         console.info('  ✓ Found initial load stats artifact')
@@ -656,9 +656,24 @@ export async function processCIStats(
     }
   }
 
-  if (!validateOnly)
-    for (const [packageName, stats] of projectStats)
-      saveProjectResult(packageName, { ...stats })
+  if (!validateOnly) {
+    for (const { starter, app } of frameworks) {
+      const configuration = {
+        ...measurementsConfig,
+        ssrLoad: {
+          ...measurementsConfig.ssrLoad,
+          path: app
+            ? getSSRLoadPath(app.package, 'ssrLoad')
+            : measurementsConfig.ssrLoad.path,
+        },
+      }
+      for (const project of [starter, app]) {
+        if (!project) continue
+        const stats = projectStats.get(project.package)
+        if (stats) saveProjectResult(project.package, stats, configuration)
+      }
+    }
+  }
 
   console.info(
     validateOnly ? 'All CI stats are valid; no results written.' : 'Done!',

@@ -3,13 +3,13 @@ import { DevServerStatsSchema } from '@framework-performance/results'
 
 export function createDevServerStats(samples: number[]) {
   return DevServerStatsSchema.parse({
-    devServerStartTime: {
+    devServer: {
       name: 'devServer',
       runs: samples.length,
       iterations: samples.map((timeMs) => ({
-        time: { value: timeMs, unit: 'ms' },
+        duration: { value: timeMs, unit: 'ms' },
       })),
-      time: summarizeMetric(samples),
+      duration: summarizeMetric(samples),
     },
   })
 }

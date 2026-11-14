@@ -6,7 +6,7 @@ import type {
 } from './types'
 import { prepareInitialLoadResources } from './initial-load'
 import { formatChartValue } from './chart'
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 import { getCollection } from 'astro:content'
 import { formatBytesToMB, formatTimeMs, getFrameworkSlug } from './utils'
 
@@ -18,8 +18,8 @@ const resultFiles = import.meta.glob<CombinedResult>(
 )
 const results = Object.values(resultFiles).sort(
   (a, b) =>
-    frameworks.findIndex((f) => f.name === a.framework) -
-    frameworks.findIndex((f) => f.name === b.framework),
+    frameworksConfig.findIndex((f) => f.name === a.framework) -
+    frameworksConfig.findIndex((f) => f.name === b.framework),
 )
 const starterStats = results
   .filter((result) => result.projects.starter)
@@ -62,17 +62,19 @@ export function getCodeComparison(example: string) {
 
 type RuntimeData = (typeof ssrRequestThroughputStats)[number]
 
-export type SSRLoadKey = 'ssrLoadTests' | 'ssrRouterLinkLoadTests'
+export type SSRLoadKey = 'ssrLoad' | 'ssrRouterLinkLoad'
 
 function getSSRLoadLatencyStage(
   framework: RuntimeData,
-  workers: number,
-  key: SSRLoadKey = 'ssrLoadTests',
+  connections: number,
+  key: SSRLoadKey = 'ssrLoad',
 ) {
-  return framework[key]?.stages.find((stage) => stage.workers === workers)
+  return framework[key]?.stages.find(
+    (stage) => stage.connections === connections,
+  )
 }
 
-export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
+export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoad') =>
   ssrRequestThroughputStats
     .filter(
       (framework) =>
@@ -97,7 +99,7 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
             key
           ]!.representativePeak.requestThroughput.value.toLocaleString(),
         peakWorkers:
-          framework[key]!.representativePeak.workers.toLocaleString(),
+          framework[key]!.representativePeak.connections.toLocaleString(),
         worker25P99LatencyMs: `${worker25Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         worker50P99LatencyMs: `${worker50Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
         worker100P99LatencyMs: `${worker100Stage.p99Latency.toLocaleString(undefined, { maximumFractionDigits: 3 })}ms`,
@@ -108,18 +110,18 @@ export const getSSRLoadStats = (key: SSRLoadKey = 'ssrLoadTests') =>
 export const serverSideRenderedStats = ssrRequestThroughputStats
   .filter(
     (framework) =>
-      framework.serverSideRenderedTests != null &&
-      Number.isFinite(framework.serverSideRenderedTests.firstPaint),
+      framework.serverSideRendered != null &&
+      Number.isFinite(framework.serverSideRendered.firstPaint),
   )
   .map((framework) => {
-    const tests = framework.serverSideRenderedTests!
+    const tests = framework.serverSideRendered!
     const interaction = tests.interactionTests
 
     return {
       name: framework.name,
       package: framework.package,
       firstPaint: formatMilliseconds(tests.firstPaint),
-      fcp: formatMilliseconds(tests.fcp),
+      fcp: formatMilliseconds(tests.firstContentfulPaint),
       interactionLatency: formatMilliseconds(interaction?.interactionLatency),
       inputDelay: formatMilliseconds(interaction?.inputDelay),
       processingDuration: formatMilliseconds(interaction?.processingDuration),
@@ -130,18 +132,18 @@ export const serverSideRenderedStats = ssrRequestThroughputStats
 export const clientSideRenderedStats = ssrRequestThroughputStats
   .filter(
     (framework) =>
-      framework.clientSideRenderedTests != null &&
-      Number.isFinite(framework.clientSideRenderedTests.firstPaint),
+      framework.clientSideRendered != null &&
+      Number.isFinite(framework.clientSideRendered.firstPaint),
   )
   .map((framework) => {
-    const tests = framework.clientSideRenderedTests!
+    const tests = framework.clientSideRendered!
     const interaction = tests.interactionTests
 
     return {
       name: framework.name,
       package: framework.package,
       firstPaint: formatMilliseconds(tests.firstPaint),
-      fcp: formatMilliseconds(tests.fcp),
+      fcp: formatMilliseconds(tests.firstContentfulPaint),
       interactionLatency: formatMilliseconds(interaction?.interactionLatency),
       inputDelay: formatMilliseconds(interaction?.inputDelay),
       processingDuration: formatMilliseconds(interaction?.processingDuration),
@@ -159,16 +161,18 @@ export const depsStats = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
   directDependencies: [
-    f.devDependencies.value.toLocaleString(),
-    f.prodDependencies.value.toLocaleString(),
+    f.developmentDependencyCount.value.toLocaleString(),
+    f.productionDependencyCount.value.toLocaleString(),
   ].join(' / '),
-  prodDependencies: f.prodDependencies.value,
-  devDependencies: f.devDependencies.value,
-  allDependencies: f.allDependencies.value.toLocaleString(),
-  duplicateDependencies: f.duplicateDependencies?.value,
+  productionDependencyCount: f.productionDependencyCount.value,
+  developmentDependencyCount: f.developmentDependencyCount.value,
+  totalDependencyCount: f.totalDependencyCount.value.toLocaleString(),
+  duplicateDependencyCount: f.duplicateDependencyCount?.value,
   nodeModulesSize: formatBytesToMB(f.install.nodeModulesSize.value),
-  depInstallSize:
-    f.depInstallSize != null ? formatBytesToMB(f.depInstallSize.value) : '—',
+  dependencyInstallSize:
+    f.dependencyInstallSize != null
+      ? formatBytesToMB(f.dependencyInstallSize.value)
+      : '—',
   graph: 'View',
 }))
 
@@ -179,11 +183,13 @@ export const firstPartyDepsStats = starterStats.map((f) => {
     name: f.name,
     package: f.package,
     directDependencies: [
-      dependencies.devDependencies.value.toLocaleString(),
-      dependencies.prodDependencies.value.toLocaleString(),
+      dependencies.developmentDependencyCount.value.toLocaleString(),
+      dependencies.productionDependencyCount.value.toLocaleString(),
     ].join(' / '),
-    allDependencies: dependencies.allDependencies.value.toLocaleString(),
-    duplicateDependencies: dependencies.duplicateDependencies?.value ?? '—',
+    totalDependencyCount:
+      dependencies.totalDependencyCount.value.toLocaleString(),
+    duplicateDependencyCount:
+      dependencies.duplicateDependencyCount?.value ?? '—',
     graph: 'View',
   }
 })
@@ -223,9 +229,12 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
     {
       name: f.name,
       package: f.package,
-      allDependencies: dependencies.allDependencies.value.toLocaleString(),
-      devDependencies: dependencies.devDependencies.value.toLocaleString(),
-      prodDependencies: dependencies.prodDependencies.value.toLocaleString(),
+      totalDependencyCount:
+        dependencies.totalDependencyCount.value.toLocaleString(),
+      developmentDependencyCount:
+        dependencies.developmentDependencyCount.value.toLocaleString(),
+      productionDependencyCount:
+        dependencies.productionDependencyCount.value.toLocaleString(),
       graph: 'View',
       graphUrl: `https://npmgraph.js.org/?q=${encodeURIComponent(graphQuery)}`,
     },
@@ -235,23 +244,23 @@ export const frameworkDepsStats = starterStats.flatMap((f) => {
 export const buildInstallData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  medianInstall: formatTimeMs(f.install.installTime.median),
-  minInstall: formatTimeMs(f.install.installTime.min),
-  maxInstall: formatTimeMs(f.install.installTime.max),
-  medianColdBuild: formatTimeMs(f.coldBuildTime.medianMs),
-  minColdBuild: formatTimeMs(f.coldBuildTime.minMs),
-  maxColdBuild: formatTimeMs(f.coldBuildTime.maxMs),
-  medianWarmBuild: formatTimeMs(f.warmBuildTime.medianMs),
-  minWarmBuild: formatTimeMs(f.warmBuildTime.minMs),
-  maxWarmBuild: formatTimeMs(f.warmBuildTime.maxMs),
+  medianInstall: formatTimeMs(f.install.duration.median),
+  minInstall: formatTimeMs(f.install.duration.min),
+  maxInstall: formatTimeMs(f.install.duration.max),
+  medianColdBuild: formatTimeMs(f.coldBuild.medianMs),
+  minColdBuild: formatTimeMs(f.coldBuild.minMs),
+  maxColdBuild: formatTimeMs(f.coldBuild.maxMs),
+  medianWarmBuild: formatTimeMs(f.warmBuild.medianMs),
+  minWarmBuild: formatTimeMs(f.warmBuild.minMs),
+  maxWarmBuild: formatTimeMs(f.warmBuild.maxMs),
 }))
 
 export const devServerStartData = starterStats.map((f) => ({
   name: f.name,
   package: f.package,
-  medianStart: formatTimeMs(f.devServerStartTime?.medianMs ?? Number.NaN),
-  minStart: formatTimeMs(f.devServerStartTime?.minMs ?? Number.NaN),
-  maxStart: formatTimeMs(f.devServerStartTime?.maxMs ?? Number.NaN),
+  medianStart: formatTimeMs(f.devServer?.medianMs ?? Number.NaN),
+  minStart: formatTimeMs(f.devServer?.minMs ?? Number.NaN),
+  maxStart: formatTimeMs(f.devServer?.maxMs ?? Number.NaN),
 }))
 
 export const coreJsTableData = starterStats.map((f) => {
@@ -288,7 +297,7 @@ export function formatBaselineReason(
 }
 
 export const browserBaselineTableData = starterStats.map((f) => {
-  const baseline = f.browserBaselineTests
+  const baseline = f.browserBaseline
   return {
     name: f.name,
     package: f.package,
@@ -312,15 +321,13 @@ export const browserBaselineTableData = starterStats.map((f) => {
 
 export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
   (f) => {
-    const tests = f.ssrRequestThroughputTests
+    const tests = f.ssrRequestThroughput
     if (!tests) return []
     return [
       {
         name: f.name,
         package: f.package,
-        operationThroughput: Math.round(
-          tests.operationThroughput,
-        ).toLocaleString(),
+        requestThroughput: Math.round(tests.requestThroughput).toLocaleString(),
         latency: `${Number(tests.latency.toFixed(3))}${tests.latencyUnit}`,
         bodySize: `${tests.bodySize.value} ${tests.bodySize.unit}`,
         duplicationFactor: `${tests.duplicationFactor.value}x`,
@@ -331,7 +338,7 @@ export const requestThroughputTableData = ssrRequestThroughputStats.flatMap(
 
 export const initialLoadTableData = ssrRequestThroughputStats.flatMap(
   (framework) => {
-    const resources = framework.initialLoadTests?.resources
+    const resources = framework.initialLoad?.resources
     if (!resources) return []
     return [
       {
@@ -371,7 +378,7 @@ type LatencyTableInput = {
   valueFormat: ChartValueFormat
 }
 const frameworkDefinition = (name: string) =>
-  frameworks.find((f) => f.displayName === name || f.name === name)
+  frameworksConfig.find((f) => f.displayName === name || f.name === name)
 function frameworkColumn(): TableColumn {
   return {
     key: 'name',

@@ -1,4 +1,4 @@
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 
 export type ThemedValue = { dark: string; light?: string }
 export type FrameworkLogo = ThemedValue
@@ -58,14 +58,14 @@ export const frameworkBrands: Record<string, FrameworkBrand> = {
 }
 
 const brandKeyByDisplayName = new Map<string, string>([
-  ...frameworks.map((f) => [f.displayName, f.name] as const),
+  ...frameworksConfig.map((f) => [f.displayName, f.name] as const),
   ['Nuxt.js', 'nuxt'],
   ['Gatsby', 'gatsby'],
   ['WordPress', 'wordpress'],
 ])
 
 const brandKeyByPackage = new Map<string, string>(
-  frameworks.flatMap((f) =>
+  frameworksConfig.flatMap((f) =>
     [f.starter?.package, f.app?.package].flatMap((packageName) =>
       packageName ? [[packageName, f.name] as const] : [],
     ),

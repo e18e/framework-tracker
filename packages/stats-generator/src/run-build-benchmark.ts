@@ -1,4 +1,4 @@
-import { measurements } from './measurements.ts'
+import { measurementsConfig } from './measurements.ts'
 import { execFileSync } from 'node:child_process'
 import { cpSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -50,7 +50,7 @@ async function main() {
     'Usage: run-build-benchmark <package-name> [run-frequency]\nExample: run-build-benchmark starter-astro 5',
   )
 
-  const runFrequency = parseRunFrequency(args[0], measurements.build.runs)
+  const runFrequency = parseRunFrequency(args[0], measurementsConfig.build.runs)
 
   const { framework, testConfig } = await getFrameworkByPackage(packageName)
 

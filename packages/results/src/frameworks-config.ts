@@ -1,4 +1,4 @@
-import type { MeasurementName } from './measurements.ts'
+import type { MeasurementName } from './measurements-config.ts'
 
 export interface TestConfig {
   package: string
@@ -17,7 +17,7 @@ export interface FrameworkConfig {
   app?: TestConfig
 }
 
-export const frameworks = [
+export const frameworksConfig = [
   {
     name: 'baseline-html',
     displayName: 'Baseline HTML',

@@ -121,14 +121,14 @@ export function createBenchmarkBaseSchema<T extends z.ZodType>(iteration: T) {
 }
 
 export const InstallIterationSchema = z.object({
-  installTime: scalarWithUnit('ms', z.number().nonnegative()),
+  duration: scalarWithUnit('ms', z.number().nonnegative()),
 })
 
 export const InstallBenchmarkSchema = createBenchmarkBaseSchema(
   InstallIterationSchema,
 ).safeExtend({
   name: z.literal('install'),
-  installTime: MillisecondsMetricSchema,
+  duration: MillisecondsMetricSchema,
   nodeModulesSize: scalarWithUnit('bytes', z.number().nonnegative()),
 })
 
@@ -139,36 +139,36 @@ export const InstallResultSchema = z.object({
 })
 
 export const BuildIterationSchema = z.object({
-  time: scalarWithUnit('ms', z.number().nonnegative()),
+  duration: scalarWithUnit('ms', z.number().nonnegative()),
 })
 export const BuildBenchmarkSchema = createBenchmarkBaseSchema(
   BuildIterationSchema,
 ).safeExtend({
   name: z.enum(['coldBuild', 'warmBuild']),
-  time: MillisecondsMetricSchema,
+  duration: MillisecondsMetricSchema,
 })
 export const BuildStatsSchema = z.object({
-  coldBuildTime: BuildBenchmarkSchema.safeExtend({
+  coldBuild: BuildBenchmarkSchema.safeExtend({
     name: z.literal('coldBuild'),
   }),
-  warmBuildTime: BuildBenchmarkSchema.safeExtend({
+  warmBuild: BuildBenchmarkSchema.safeExtend({
     name: z.literal('warmBuild'),
   }),
 })
 
 export const DevServerIterationSchema = z.object({
-  time: scalarWithUnit('ms', z.number().nonnegative()),
+  duration: scalarWithUnit('ms', z.number().nonnegative()),
 })
 
 export const DevServerBenchmarkSchema = createBenchmarkBaseSchema(
   DevServerIterationSchema,
 ).safeExtend({
   name: z.literal('devServer'),
-  time: MillisecondsMetricSchema,
+  duration: MillisecondsMetricSchema,
 })
 
 export const DevServerStatsSchema = z.object({
-  devServerStartTime: DevServerBenchmarkSchema,
+  devServer: DevServerBenchmarkSchema,
 })
 
 export const BrowserBaselineStatsSchema = TestBaseSchema.extend({
@@ -188,8 +188,8 @@ export const NodeEnginesStatsSchema = TestBaseSchema.extend({
   name: z.literal('nodeEngines'),
   minimumNodeVersion: z.string().nullable(),
   imposedBy: z.array(z.string()),
-  packagesScanned: scalarWithUnit('count', z.number().nonnegative()),
-  packagesDeclaringNodeEngine: scalarWithUnit(
+  scannedPackageCount: scalarWithUnit('count', z.number().nonnegative()),
+  packagesDeclaringNodeEngineCount: scalarWithUnit(
     'count',
     z.number().nonnegative(),
   ),
@@ -197,51 +197,45 @@ export const NodeEnginesStatsSchema = TestBaseSchema.extend({
 })
 
 export const LegacySSRRequestThroughputSchema = z.object({
-  operationThroughput: scalarWithUnit('ops/s', z.number().positive()),
+  requestThroughput: scalarWithUnit('ops/s', z.number().positive()),
   avgLatency: scalarWithUnit('ms', z.number().nonnegative()),
   medianLatency: scalarWithUnit('ms', z.number().nonnegative()),
-  samples: scalarWithUnit('requests', z.number().positive()),
+  requests: scalarWithUnit('requests', z.number().positive()),
   bodySize: scalarWithUnit('KiB', z.number().positive()),
   duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
 })
 
 export const RequestThroughputIterationSchema = z.object({
-  operationThroughput: OperationsPerSecondMetricSchema,
+  requestThroughput: OperationsPerSecondMetricSchema,
   latency: MillisecondsMetricSchema,
-  samples: scalarWithUnit('requests', z.number().int().positive()),
+  requests: scalarWithUnit('requests', z.number().int().positive()),
 })
 export const RequestThroughputBenchmarkSchema = createBenchmarkBaseSchema(
   RequestThroughputIterationSchema,
 )
   .safeExtend({
     name: z.literal('ssrRequestThroughput'),
-    operationThroughput: OperationsPerSecondMetricSchema,
+    requestThroughput: OperationsPerSecondMetricSchema,
     latency: MillisecondsMetricSchema,
-    samples: scalarWithUnit('requests', z.number().int().positive()),
+    totalRequests: scalarWithUnit('requests', z.number().int().positive()),
     bodySize: scalarWithUnit('KiB', z.number().positive()),
     duplicationFactor: scalarWithUnit('ratio', z.number().nonnegative()),
-    durationMs: z.number().positive(),
-    warmupDurationMs: z.number().nonnegative(),
-    minimumSamples: z.number().int().positive(),
-    warmupMinimumSamples: z.number().int().nonnegative(),
-    source: z.literal('tinybench'),
-    path: z.literal('/ssr-throughput'),
   })
   .refine(
     (value) =>
-      value.samples.value ===
+      value.totalRequests.value ===
       value.iterations.reduce(
-        (count, iteration) => count + iteration.samples.value,
+        (count, iteration) => count + iteration.requests.value,
         0,
       ),
     {
       message: 'Expected total HTTP sample count to match iterations',
-      path: ['samples'],
+      path: ['totalRequests'],
     },
   )
 
 export const RequestThroughputResultSchema = z.object({
-  ssrRequestThroughputTests: RequestThroughputBenchmarkSchema,
+  ssrRequestThroughput: RequestThroughputBenchmarkSchema,
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
@@ -251,15 +245,15 @@ export const RequestThroughputResultSchema = z.object({
 /** Compatibility for current checked-in summaries that predate raw retention. */
 export const SSRRequestThroughputStatsSchema =
   RequestThroughputResultSchema.extend({
-    ssrRequestThroughputTests: z.union([
+    ssrRequestThroughput: z.union([
       RequestThroughputBenchmarkSchema,
       LegacySSRRequestThroughputSchema,
     ]),
   })
 
 export const SSRLoadStageSchema = z.strictObject({
-  workers: z.number().int().positive(),
-  elapsedTime: scalarWithUnit('ms', z.number().positive()),
+  connections: z.number().int().positive(),
+  duration: scalarWithUnit('ms', z.number().positive()),
   requests: scalarWithUnit('requests', z.number().int().nonnegative()),
   errors: scalarWithUnit('errors', z.number().int().nonnegative()),
   requestThroughput: scalarWithUnit('requests/s', z.number().nonnegative()),
@@ -288,22 +282,10 @@ export const SSRLoadStageSummarySchema = z.object({
   byteThroughput: metricWithUnit('bytes/s'),
 })
 
-export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
+const SSRLoadResultSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
   .safeExtend({
     name: z.enum(['ssrLoad', 'ssrRouterLinkLoad']),
-    configuration: z.object({
-      workerStages: z.array(z.number().int().positive()).nonempty(),
-      warmupDurationMs: z.number().positive().optional(),
-      recoveryMs: z.number().nonnegative().optional(),
-      warmupAttempts: z.number().int().positive().optional(),
-      stageDurationMs: z.number().positive().optional(),
-    }),
     representativeIterationIndex: z.number().int().nonnegative(),
-    source: z.literal('autocannon'),
-    path: z.enum([
-      '/server-side-rendered',
-      '/server-side-rendered-plain-links',
-    ]),
     totalRequests: scalarWithUnit('requests', z.number().int().nonnegative()),
     totalErrors: scalarWithUnit('errors', z.number().int().nonnegative()),
     stage1: SSRLoadStageSummarySchema,
@@ -317,12 +299,10 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
   .strict()
   .refine(
     (value) => {
-      const workers = value.iterations[0]?.map((stage) => stage.workers)
+      const connections = value.iterations[0]?.map((stage) => stage.connections)
       return (
-        workers !== undefined &&
-        new Set(workers).size === workers.length &&
-        JSON.stringify(value.configuration.workerStages) ===
-          JSON.stringify(workers) &&
+        connections !== undefined &&
+        new Set(connections).size === connections.length &&
         [
           value.stage1,
           value.stage2,
@@ -332,15 +312,17 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
           value.stage6,
           value.stage7,
         ].every((stage, index) =>
-          index < workers.length
-            ? stage?.connections === workers[index]
+          index < connections.length
+            ? stage?.connections === connections[index]
             : stage === undefined,
         ) &&
-        workers.length <= 7 &&
+        connections.length <= 7 &&
         value.iterations.every(
           (sweep) =>
-            sweep.length === workers.length &&
-            sweep.every((stage, index) => stage.workers === workers[index]),
+            sweep.length === connections.length &&
+            sweep.every(
+              (stage, index) => stage.connections === connections[index],
+            ),
         )
       )
     },
@@ -360,8 +342,20 @@ export const SSRLoadTestsSchema = createBenchmarkBaseSchema(SSRLoadSweepSchema)
     { message: 'Expected the actual median peak throughput sweep' },
   )
 
+// Older files placed these settings inside the test result.
+export const SSRLoadTestsSchema = z.preprocess((value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value
+  const {
+    configuration: _configuration,
+    path: _path,
+    source: _source,
+    ...result
+  } = value as Record<string, unknown>
+  return result
+}, SSRLoadResultSchema)
+
 export const SSRLoadStatsSchema = z.object({
-  ssrLoadTests: SSRLoadTestsSchema.refine((value) => value.name === 'ssrLoad'),
+  ssrLoad: SSRLoadTestsSchema.refine((value) => value.name === 'ssrLoad'),
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
@@ -369,16 +363,14 @@ export const SSRLoadStatsSchema = z.object({
 })
 
 export const SSRRouterLinkLoadStatsSchema = SSRLoadStatsSchema.omit({
-  ssrLoadTests: true,
+  ssrLoad: true,
 }).extend({
-  ssrRouterLinkLoadTests: SSRLoadTestsSchema.refine(
+  ssrRouterLinkLoad: SSRLoadTestsSchema.refine(
     (value) => value.name === 'ssrRouterLinkLoad',
   ),
 })
 
 const InteractionTestsSchema = z.object({
-  scenario: z.literal('first-row-detail-navigation'),
-  source: z.literal('lighthouse-inp-breakdown'),
   interactionLatency: scalarWithUnit('ms', z.number().positive()),
   inputDelay: scalarWithUnit('ms', z.number().nonnegative()),
   processingDuration: scalarWithUnit('ms', z.number().nonnegative()),
@@ -394,23 +386,23 @@ export const InteractionTimingSchema = z.object({
 
 export const RenderedTestSampleSchema = z.object({
   firstPaint: scalarWithUnit('ms', z.number().positive()),
-  fcp: scalarWithUnit('ms', z.number().positive()),
+  firstContentfulPaint: scalarWithUnit('ms', z.number().positive()),
   interactionTests: InteractionTimingSchema,
 })
 
 export const LegacyRenderedTestsSchema = z
   .object({
     firstPaint: scalarWithUnit('ms', z.number().positive()),
-    fcp: scalarWithUnit('ms', z.number().positive()),
+    firstContentfulPaint: scalarWithUnit('ms', z.number().positive()),
     /** Historical only; new runs record interactionTests instead. */
     inp: scalarWithUnit('ms', z.number()).optional(),
     interactionTests: InteractionTestsSchema.optional(),
     runs: z.number().int().positive(),
     standardDeviation: InteractionTimingSchema.extend({
       firstPaint: scalarWithUnit('ms', z.number().nonnegative()),
-      fcp: scalarWithUnit('ms', z.number().nonnegative()),
+      firstContentfulPaint: scalarWithUnit('ms', z.number().nonnegative()),
     }).optional(),
-    samples: z.array(RenderedTestSampleSchema).nonempty().optional(),
+    iterations: z.array(RenderedTestSampleSchema).nonempty().optional(),
   })
   .refine(
     (stats) => stats.inp !== undefined || stats.interactionTests !== undefined,
@@ -420,13 +412,14 @@ export const LegacyRenderedTestsSchema = z
   )
   .refine(
     (stats) =>
-      stats.samples === undefined || stats.samples.length === stats.runs,
+      stats.iterations === undefined || stats.iterations.length === stats.runs,
     { message: 'Expected one browser sample per run' },
   )
   .refine(
     (stats) =>
-      (stats.standardDeviation === undefined) === (stats.samples === undefined),
-    { message: 'Expected standard deviation and samples together' },
+      (stats.standardDeviation === undefined) ===
+      (stats.iterations === undefined),
+    { message: 'Expected standard deviation and iterations together' },
   )
 
 export const ClientRenderingIterationSchema = RenderedTestSampleSchema
@@ -435,10 +428,8 @@ export const ClientRenderingBenchmarkSchema = createBenchmarkBaseSchema(
 ).safeExtend({
   name: z.literal('clientSideRendered'),
   firstPaint: MillisecondsMetricSchema,
-  fcp: MillisecondsMetricSchema,
+  firstContentfulPaint: MillisecondsMetricSchema,
   interactionTests: z.object({
-    scenario: z.literal('first-row-detail-navigation'),
-    source: z.literal('lighthouse-inp-breakdown'),
     interactionLatency: MillisecondsMetricSchema,
     inputDelay: MillisecondsMetricSchema,
     processingDuration: MillisecondsMetricSchema,
@@ -452,10 +443,8 @@ export const ServerRenderingBenchmarkSchema = createBenchmarkBaseSchema(
 ).safeExtend({
   name: z.literal('serverSideRendered'),
   firstPaint: MillisecondsMetricSchema,
-  fcp: MillisecondsMetricSchema,
+  firstContentfulPaint: MillisecondsMetricSchema,
   interactionTests: z.object({
-    scenario: z.literal('first-row-detail-navigation'),
-    source: z.literal('lighthouse-inp-breakdown'),
     interactionLatency: MillisecondsMetricSchema,
     inputDelay: MillisecondsMetricSchema,
     processingDuration: MillisecondsMetricSchema,
@@ -464,12 +453,12 @@ export const ServerRenderingBenchmarkSchema = createBenchmarkBaseSchema(
 })
 
 export const ClientSideRenderedStatsSchema = z.object({
-  clientSideRenderedTests: ClientRenderingBenchmarkSchema,
+  clientSideRendered: ClientRenderingBenchmarkSchema,
   browserVersion: z.string().min(1),
 })
 
 export const ServerSideRenderedStatsSchema = z.object({
-  serverSideRenderedTests: ServerRenderingBenchmarkSchema,
+  serverSideRendered: ServerRenderingBenchmarkSchema,
   browserVersion: z.string().min(1),
 })
 
@@ -494,13 +483,11 @@ export const InitialLoadResourceSchema = z.object({
 
 export const InitialLoadStatsSchema = TestBaseSchema.extend({
   name: z.literal('initialLoad'),
-  source: z.literal('lighthouse-resource-summary'),
-  path: z.literal('/initial-load'),
   resources: z.record(InitialLoadResourceTypeSchema, InitialLoadResourceSchema),
 })
 
 export const InitialLoadResultSchema = z.object({
-  initialLoadTests: InitialLoadStatsSchema,
+  initialLoad: InitialLoadStatsSchema,
   frameworkVersion: z.string().optional(),
   timingMeasuredAt: z.string().optional(),
   runner: z.string().optional(),
@@ -511,19 +498,28 @@ export type InitialLoadStats = z.infer<typeof InitialLoadStatsSchema>
 export type InitialLoadResult = z.infer<typeof InitialLoadResultSchema>
 
 export const DependencyCountsSchema = z.object({
-  prodDependencies: scalarWithUnit('count', z.number().int().nonnegative()),
-  devDependencies: scalarWithUnit('count', z.number().int().nonnegative()),
-  allDependencies: scalarWithUnit('count', z.number().int().nonnegative()),
+  productionDependencyCount: scalarWithUnit(
+    'count',
+    z.number().int().nonnegative(),
+  ),
+  developmentDependencyCount: scalarWithUnit(
+    'count',
+    z.number().int().nonnegative(),
+  ),
+  totalDependencyCount: scalarWithUnit('count', z.number().int().nonnegative()),
 })
 export const DependencyScanSchema = TestBaseSchema.extend(
   DependencyCountsSchema.shape,
 ).extend({
   name: z.literal('dependencies'),
-  duplicateDependencies: scalarWithUnit(
+  duplicateDependencyCount: scalarWithUnit(
     'count',
     z.number().int().nonnegative(),
   ).optional(),
-  depInstallSize: scalarWithUnit('bytes', z.number().nonnegative()).optional(),
+  dependencyInstallSize: scalarWithUnit(
+    'bytes',
+    z.number().nonnegative(),
+  ).optional(),
 })
 export const FrameworkDependencyScanSchema = TestBaseSchema.extend(
   DependencyCountsSchema.shape,
@@ -534,13 +530,13 @@ export const FirstPartyDependencyScanSchema = TestBaseSchema.extend(
   DependencyCountsSchema.shape,
 ).extend({
   name: z.literal('firstPartyDependencies'),
-  duplicateDependencies: scalarWithUnit(
+  duplicateDependencyCount: scalarWithUnit(
     'count',
     z.number().int().nonnegative(),
   ).optional(),
 })
 export const CoreJsStatsSchema = TestBaseSchema.extend({
-  name: z.literal('corejs'),
+  name: z.literal('coreJs'),
   totalVendoredSize: scalarWithUnit('bytes', z.number().int().nonnegative()),
   unnecessaryModules: z.array(z.string()),
 })
@@ -557,54 +553,63 @@ export const FrameworkResultSchema = z.object({
   browserVersion: z.string().optional(),
   frameworkVersion: z.string().optional(),
   releasedAt: z.string().optional(),
-  initialLoadTests: InitialLoadStatsSchema.optional(),
+  initialLoad: InitialLoadStatsSchema.optional(),
   install: InstallBenchmarkSchema.optional(),
-  coldBuildTime: BuildStatsSchema.shape.coldBuildTime.optional(),
-  warmBuildTime: BuildStatsSchema.shape.warmBuildTime.optional(),
-  devServerStartTime: DevServerBenchmarkSchema.optional(),
-  ssrRequestThroughputTests: z
+  coldBuild: BuildStatsSchema.shape.coldBuild.optional(),
+  warmBuild: BuildStatsSchema.shape.warmBuild.optional(),
+  devServer: DevServerBenchmarkSchema.optional(),
+  ssrRequestThroughput: z
     .union([RequestThroughputBenchmarkSchema, LegacySSRRequestThroughputSchema])
     .optional(),
-  ssrLoadTests: SSRLoadTestsSchema.refine(
+  ssrLoad: SSRLoadTestsSchema.refine(
     (value) => value.name === 'ssrLoad',
   ).optional(),
-  ssrRouterLinkLoadTests: SSRLoadTestsSchema.refine(
+  ssrRouterLinkLoad: SSRLoadTestsSchema.refine(
     (value) => value.name === 'ssrRouterLinkLoad',
   ).optional(),
-  clientSideRenderedTests: z
+  clientSideRendered: z
     .union([ClientRenderingBenchmarkSchema, LegacyRenderedTestsSchema])
     .optional(),
-  serverSideRenderedTests: z
+  serverSideRendered: z
     .union([ServerRenderingBenchmarkSchema, LegacyRenderedTestsSchema])
     .optional(),
-  corejs: CoreJsStatsSchema.optional(),
+  coreJs: CoreJsStatsSchema.optional(),
   nodeEngines: NodeEnginesStatsSchema.partial()
     .required({ name: true, minimumNodeVersion: true, imposedBy: true })
     .optional(),
-  dependencyScan: DependencyScanSchema.optional(),
-  prodDependencies: scalarWithUnit(
+  dependencies: DependencyScanSchema.optional(),
+  productionDependencyCount: scalarWithUnit(
     'count',
     z.number().nonnegative(),
   ).optional(),
-  devDependencies: scalarWithUnit('count', z.number().nonnegative()).optional(),
-  allDependencies: scalarWithUnit('count', z.number().nonnegative()).optional(),
+  developmentDependencyCount: scalarWithUnit(
+    'count',
+    z.number().nonnegative(),
+  ).optional(),
+  totalDependencyCount: scalarWithUnit(
+    'count',
+    z.number().nonnegative(),
+  ).optional(),
   frameworkDependencies: DependencyCountsSchema.extend({
     name: z.literal('frameworkDependencies').optional(),
   }).optional(),
   firstPartyDependencies: FirstPartyDependencyScanSchema.extend({
     name: z.literal('firstPartyDependencies').optional(),
   }).optional(),
-  duplicateDependencies: scalarWithUnit(
+  duplicateDependencyCount: scalarWithUnit(
     'count',
     z.number().nonnegative(),
   ).optional(),
-  depInstallSize: scalarWithUnit('bytes', z.number().nonnegative()).optional(),
+  dependencyInstallSize: scalarWithUnit(
+    'bytes',
+    z.number().nonnegative(),
+  ).optional(),
   vendoredCoreJsSize: scalarWithUnit(
     'bytes',
     z.number().nonnegative(),
   ).optional(),
   vendoredCoreJsUnnecessaryModules: z.array(z.string()).optional(),
-  browserBaselineTests: BrowserBaselineStatsSchema.extend({
+  browserBaseline: BrowserBaselineStatsSchema.extend({
     name: z.literal('browserBaseline').optional(),
   }).optional(),
   minimumNodeVersion: z.string().optional(),

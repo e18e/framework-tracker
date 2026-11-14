@@ -1,3 +1,5 @@
+import { measurementsConfig } from '../measurements.ts'
+
 export type SSRLoadKind = 'ssrLoad' | 'ssrRouterLinkLoad'
 export const routerLinkPackages = new Set([
   'app-next-js',
@@ -17,8 +19,5 @@ export function getSSRLoadPath(packageName: string, kind: SSRLoadKind): string {
     throw new Error(`Router link load is not supported for ${packageName}`)
   return kind === 'ssrLoad' && routerLinkPackages.has(packageName)
     ? '/server-side-rendered-plain-links'
-    : '/server-side-rendered'
-}
-export function getSSRLoadStatsKey(kind: SSRLoadKind) {
-  return kind === 'ssrLoad' ? 'ssrLoadTests' : 'ssrRouterLinkLoadTests'
+    : measurementsConfig[kind].path
 }

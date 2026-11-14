@@ -39,7 +39,7 @@ async function main() {
     runner,
     browserVersion: result.browserVersion,
     frameworkVersion: frameworkVersion ?? existingStats?.frameworkVersion,
-    initialLoadTests: result.initialLoadTests,
+    initialLoad: result.initialLoad,
   }
 
   const outputPath = join(packagesDir, packageName, 'ci-stats.json')
@@ -50,10 +50,10 @@ async function main() {
     `\n✓ Saved ${packageName} v${frameworkVersion ?? 'unknown'} (${packageName})`,
   )
   console.info(
-    `  Requests: ${result.initialLoadTests.resources.total.requestCount.value}`,
+    `  Requests: ${result.initialLoad.resources.total.requestCount.value}`,
   )
   console.info(
-    `  Transfer: ${result.initialLoadTests.resources.total.transferSize.value} bytes`,
+    `  Transfer: ${result.initialLoad.resources.total.transferSize.value} bytes`,
   )
 }
 

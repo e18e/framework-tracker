@@ -1,3 +1,4 @@
+import { measurementsConfig } from '../measurements.ts'
 import { runBenchmark } from './run-benchmark.ts'
 import { buildAstroHandler } from './handlers/astro.ts'
 import { buildBaselineHtmlHandler } from './handlers/baseline-html.ts'
@@ -95,7 +96,7 @@ export function supportsSSRRequestThroughputBenchmark(
 
 export async function runSSRRequestThroughputBenchmark(
   packageName: string,
-  runs = 5,
+  runs: number = measurementsConfig.ssrRequestThroughput.runs,
 ): Promise<SSRRequestThroughputBenchmarkResult> {
   const config = SSR_REQUEST_THROUGHPUT_FRAMEWORKS.find(
     (f) => f.package === packageName,

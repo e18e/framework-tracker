@@ -6,13 +6,9 @@ import {
   mergeRequestThroughputArtifact,
 } from './request-throughput.ts'
 
-const configuration = {
+const responseMetrics = {
   bodySize: { value: 20.25, unit: 'KiB' as const },
   duplicationFactor: { value: 1.25, unit: 'ratio' as const },
-  durationMs: 10_000,
-  warmupDurationMs: 250,
-  minimumSamples: 64,
-  warmupMinimumSamples: 16,
 }
 function fixture() {
   return assembleRequestThroughput(
@@ -20,7 +16,7 @@ function fixture() {
       createRequestThroughputIteration([100.125, 300.375, 500.625], [1, 2, 9]),
       createRequestThroughputIteration([1000.125], [0.25]),
     ],
-    configuration,
+    responseMetrics,
   )
 }
 
@@ -33,7 +29,7 @@ test('artifact merge validates before merging and preserves unrelated results an
     timingMeasuredAt: '2026-10-22T00:00:00Z',
   }
   const artifact = {
-    ssrRequestThroughputTests: fixture(),
+    ssrRequestThroughput: fixture(),
     frameworkVersion: 'new',
     runner: 'artifact runner',
     browserVersion: 'stale browser',
@@ -43,17 +39,17 @@ test('artifact merge validates before merging and preserves unrelated results an
   assert.deepEqual(merged, {
     ...current,
     frameworkVersion: 'new',
-    ssrRequestThroughputTests: fixture(),
+    ssrRequestThroughput: fixture(),
   })
   assert.throws(() =>
     mergeRequestThroughputArtifact(current, {
       ...artifact,
-      ssrRequestThroughputTests: { ...fixture(), iterations: undefined },
+      ssrRequestThroughput: { ...fixture(), iterations: undefined },
     }),
   )
-  const result = merged.ssrRequestThroughputTests!
+  const result = merged.ssrRequestThroughput!
   assert.ok('iterations' in result)
-  assert.deepEqual(result.samples, { value: 4, unit: 'requests' })
+  assert.deepEqual(result.totalRequests, { value: 4, unit: 'requests' })
   assert.deepEqual(result.iterations[0].latency, {
     unit: 'ms',
     mean: 4,
@@ -61,7 +57,7 @@ test('artifact merge validates before merging and preserves unrelated results an
     min: 1,
     max: 9,
   })
-  assert.equal(result.operationThroughput.mean, 650.25)
+  assert.equal(result.requestThroughput.mean, 650.25)
   assert.equal(result.latency.mean, 2.125)
   assert.equal(result.latency.median, 2.125)
   assert.equal('avgLatency' in result, false)

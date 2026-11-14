@@ -94,8 +94,8 @@ export function resolveMinimumNodeVersion(
     name: 'nodeEngines',
     minimumNodeVersion: version,
     imposedBy: [...imposedBy].sort(),
-    packagesScanned: { value: entries.length, unit: 'count' },
-    packagesDeclaringNodeEngine: { value: declared.length, unit: 'count' },
+    scannedPackageCount: { value: entries.length, unit: 'count' },
+    packagesDeclaringNodeEngineCount: { value: declared.length, unit: 'count' },
     unsatisfiableRanges,
   }
 }

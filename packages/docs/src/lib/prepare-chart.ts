@@ -2,7 +2,7 @@ import { INTERACTION_PHASES } from './interaction-phases'
 import { stackGrays } from './chart-styles'
 import { prepareInitialLoadResources } from './initial-load'
 import { getCollection } from 'astro:content'
-import { frameworks } from '@framework-performance/results/frameworks'
+import { frameworksConfig } from '@framework-performance/results/frameworks-config'
 export * from './chart-measurements'
 import type { CombinedResult } from '@framework-performance/results/storage'
 import { prepareRuntimeResult, prepareStarterResult } from './result-content'
@@ -17,8 +17,8 @@ const latest = Object.entries(resultFiles)
   .map(([, result]) => result)
   .sort(
     (a, b) =>
-      frameworks.findIndex((f) => f.name === a.framework) -
-      frameworks.findIndex((f) => f.name === b.framework),
+      frameworksConfig.findIndex((f) => f.name === a.framework) -
+      frameworksConfig.findIndex((f) => f.name === b.framework),
   )
 const history = Object.entries(resultFiles)
   .filter(([path]) => path.includes('/versions/'))
@@ -82,7 +82,7 @@ export function getRuntimeVersionStats(
   return getVersionedStats(runtimeHistory, packageName, versions)
 }
 
-type RenderedTestsKey = 'clientSideRenderedTests' | 'serverSideRenderedTests'
+type RenderedTestsKey = 'clientSideRendered' | 'serverSideRendered'
 export function getRenderedInteractionBreakdownData(
   testsKey: RenderedTestsKey,
 ) {
@@ -131,7 +131,7 @@ export const initialLoadSeries = [
 
 export const initialLoadChartData = ssrRequestThroughputStats.flatMap(
   (framework) => {
-    const resources = framework.initialLoadTests?.resources
+    const resources = framework.initialLoad?.resources
     if (!resources) return []
     return [
       {
@@ -155,8 +155,8 @@ const dependencySeries = [
 export function prepareDependencyStackedChart(source?: DependencySource) {
   const data = starterStats.flatMap((framework) => {
     const dependencies = source ? framework[source] : framework
-    const prod = dependencies?.prodDependencies?.value
-    const dev = dependencies?.devDependencies?.value
+    const prod = dependencies?.productionDependencyCount?.value
+    const dev = dependencies?.developmentDependencyCount?.value
     if (
       prod == null ||
       !Number.isFinite(prod) ||
@@ -175,8 +175,8 @@ export function prepareDependencyHistoryChart(
 ): Omit<StackedAreaChartPayload, 'title'> {
   const data = versions.flatMap((version) => {
     const counts = source ? version[source] : version
-    const prod = counts?.prodDependencies?.value
-    const dev = counts?.devDependencies?.value
+    const prod = counts?.productionDependencyCount?.value
+    const dev = counts?.developmentDependencyCount?.value
     if (
       prod == null ||
       dev == null ||
@@ -188,7 +188,7 @@ export function prepareDependencyHistoryChart(
       {
         name: version.frameworkVersion ?? 'Unknown',
         values: { prod, dev },
-        total: counts?.allDependencies?.value ?? null,
+        total: counts?.totalDependencyCount?.value ?? null,
       },
     ]
   })

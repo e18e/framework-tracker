@@ -66,8 +66,8 @@ flowchart LR
 
 ### Framework Configuration
 
-- [`frameworks.ts`](./packages/results/src/frameworks.ts) selects which measurements run for each starter and app.
-- Put benchmark settings in [`measurements.ts`](./packages/results/src/measurements.ts). For example, `install: { runs: 5 }` runs five install measurements per job for each enabled starter. Entries like `dependencies: {}` have no configurable repeat count here.
+- [`frameworks-config.ts`](./packages/results/src/frameworks-config.ts) selects which measurements run for each starter and app.
+- Put benchmark settings in [`measurements-config.ts`](./packages/results/src/measurements-config.ts). For example, `install: { runs: 5 }` runs five install measurements per job for each enabled starter. Entries like `dependencies: null` have no configurable repeat count here.
 
 Edit the TypeScript config. [`print-frameworks.ts`](./packages/stats-generator/src/print-frameworks.ts)
 prints it as JSON so CI can build its benchmark matrices. Astro imports the same
@@ -227,7 +227,7 @@ If approved, follow these steps:
 
 2. **Create the app package** (optional): If runtime performance testing is planned, add an `app-*` package (e.g., `packages/app-my-framework`) with a more complex setup that includes features like dynamic routing or client-side interactivity. Make sure the framework dependency is pinned to the same exact version as the starter package.
 
-3. **Add an entry to `packages/results/src/frameworks.ts`** using the same format as the framework configuration example above.
+3. **Add an entry to `packages/results/src/frameworks-config.ts`** using the same format as the framework configuration example above.
 
    ```ts
    {
@@ -247,7 +247,7 @@ If approved, follow these steps:
 
 5. **Test locally**: Make sure the framework builds successfully by running the build script from inside the package directory.
 
-6. CI for `sync-version` and `generate-stats` will automatically pick up the new framework from `packages/results/src/frameworks.ts`. The Benchmarks workflow runs the same measurements and validates their outputs on pull requests and on `main`; only runs on `main` save the results and create a stats update PR.
+6. CI for `sync-version` and `generate-stats` will automatically pick up the new framework from `packages/results/src/frameworks-config.ts`. The Benchmarks workflow runs the same measurements and validates their outputs on pull requests and on `main`; only runs on `main` save the results and create a stats update PR.
 
 7. **Submit a PR**: Open a pull request with the new packages, configuration, and methodology updates. Once merged, the CI will automatically pick up the new framework and raise a PR with new metrics.
 

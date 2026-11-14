@@ -4,7 +4,7 @@ export function renderedSampleMetrics(sample: RenderedTestSample) {
   const timing = sample.interactionTests
   return {
     firstPaint: { value: sample.firstPaint, unit: 'ms' },
-    fcp: { value: sample.fcp, unit: 'ms' },
+    firstContentfulPaint: { value: sample.firstContentfulPaint, unit: 'ms' },
     interactionTests: {
       interactionLatency: { value: timing.interactionLatency, unit: 'ms' },
       inputDelay: { value: timing.inputDelay, unit: 'ms' },

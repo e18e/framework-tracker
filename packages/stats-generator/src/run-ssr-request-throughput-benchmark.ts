@@ -1,5 +1,5 @@
 import { readProjectResult } from '@framework-performance/results/storage'
-import { measurements } from './measurements.ts'
+import { measurementsConfig } from './measurements.ts'
 import { parseRunFrequency } from './benchmark-utils.ts'
 import { RequestThroughputResultSchema } from '@framework-performance/results'
 import { join } from 'node:path'
@@ -25,7 +25,7 @@ async function main() {
 
   const runs = parseRunFrequency(
     args[0],
-    measurements.ssrRequestThroughput.runs,
+    measurementsConfig.ssrRequestThroughput.runs,
   )
 
   console.info(
@@ -59,7 +59,7 @@ async function main() {
     timingMeasuredAt: timestamp,
     runner: process.env.RUNNER_LABEL || 'local',
     frameworkVersion: frameworkVersion ?? existingStats.frameworkVersion,
-    ssrRequestThroughputTests: result.benchmark,
+    ssrRequestThroughput: result.benchmark,
   }
 
   const outputPath = join(packagesDir, result.package, 'ci-stats.json')
